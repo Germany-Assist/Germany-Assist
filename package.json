@@ -10,6 +10,10 @@
     "node": ">= 14.0.0",
     "npm": ">= 6.0.0"
   },
+  "scripts": {
+    "dev": "node --watch --env-file=dev.env app.js ",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
   "homepage": "",
   "repository": {
     "type": "git",
@@ -23,18 +27,18 @@
     "url": ""
   },
   "contributors": [],
-  "scripts": {
-    "dev": "node --watch --env-file=dev.env app.js ",
-    "test": ""
-  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "mysql": "^2.18.1",
     "pg": "^8.16.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
+    "@jest/globals": "^30.0.0",
+    "@types/jest": "^29.5.14",
+    "jest": "^30.0.0",
     "sequelize-cli": "^6.6.3"
   }
 }
