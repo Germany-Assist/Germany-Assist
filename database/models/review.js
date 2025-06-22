@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../../database/connection.js";
-import User from "./User.js";
+import { sequelize } from "../connection.js";
+import User from "./users.js";
 
 class Review extends Model {}
 
@@ -11,7 +11,7 @@ Review.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    userId: {
+    user_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
@@ -32,7 +32,7 @@ Review.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    targetId: {
+    target_id: {
       type: DataTypes.UUID,
       allowNull: false,
     },
@@ -44,21 +44,22 @@ Review.init(
   {
     sequelize,
     modelName: "Reviews",
-    table: "reviews",
+    tableName: "reviews",
     timestamps: true,
     underscored: true,
   },
+
+
+  
+);
 
   /**
    * Define the assoicaition relationship between users and reviewers
    */
 
-  (Review.associate = (models) => {
-    Review.belongsTo(model.User, {
-      foreignKey: userId,
-      as: "user",
-    });
-  })
-);
+Review.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "user",
+});
 
 export default Review;
