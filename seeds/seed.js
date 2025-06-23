@@ -15,7 +15,7 @@ async function seed() {
        
       firstName: "Muna",
       secondName: "Zeer",
-      email: "munaelzeer2@gmail.com",
+      email: `munaelzeer${Date.now()}@gmail.com`,
       password: "1234",
     });
 
