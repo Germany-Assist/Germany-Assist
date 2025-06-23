@@ -28,7 +28,7 @@ afterAll(async () => {
 
 test("Table User should have the rows", async () => {
   try {
-    const res = await client.query('SELECT COUNT(*) FROM "User"');
+    const res = await client.query('SELECT COUNT(*) FROM "reviews"');
     const count = parseInt(res.rows[0].count, 10);
     expect(count).toBeGreaterThan(0);
   } catch (err) {
