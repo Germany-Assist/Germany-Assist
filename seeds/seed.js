@@ -18,17 +18,20 @@ async function seed() {
       email: `munaelzeer${Date.now()}@gmail.com`,
       password: "1234",
     });
-
+   console.log("view Columns of users  in db", user.toJSON());
+   
     /**
      * Insert new column to Review Table
      */
-    await  Review.create({
+   const review= await  Review.create({
       userId: user.id,
       rating: 4.5,
       comment: "I like this product So I need to request more quantity later",
       target_id: uuidv4(),
       target_type_id: "product",
     });
+    console.log("view columns of the reviews tables in db ",review.toJSON());
+    
     console.log("Tables seeding successfully");
   } catch (error) {
     console.error("Tables failed seeding ", error);
