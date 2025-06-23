@@ -32,6 +32,8 @@ async function seed() {
     console.log("Tables seeding successfully");
   } catch (error) {
     console.error("Tables failed seeding ", error);
+  }finally {
+    await sequelize.close();
   }
 }
 
