@@ -1,3 +1,4 @@
+// import the seed file here
 import { sequelize } from "./connection.js";
 import assistsSeed from "./seeds/assists_seeds.js";
 import businessProfilesSeed from "./seeds/business_profiles_seeds.js";
@@ -10,9 +11,10 @@ import userServicesSeed from "./seeds/users_services_seeds.js";
 import reviewSeed from "./seeds/review_seeds.js";
 import couponSeed from "./seeds/coupon_seeds.js";
 import contractSeed from "./seeds/contracts_seeds.js";
-
-//
-//models
+///////////////////////////////////////////////////////////////////////
+// register the models to create skellton
+// this is side effect import please follow
+// import the model here
 import Asset from "./models/assets.js";
 import BusinessProfiles from "./models/business_profiles.js";
 import Contracts from "./models/contracts.js";
@@ -24,17 +26,19 @@ import ProvidersProfile from "./models/providers_profiles.js";
 import Services from "./models/services.js";
 import Review from "./models/reviews.js";
 import Coupon from "./models/coupon.js";
+///////////////////////////////////////////////////////////////////////
 //
 //
 
 try {
   if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {
-    //register the models to create skellton
-    console.log("creating skeleton");
+    //Stage 1
+    console.log("creating skeleton ⌛");
     await sequelize.sync({ force: true });
-    console.log("skeleton was created");
+    console.log("skeleton was created 👍");
 
-    console.log("starting to seeds");
+    //Stage 2
+    console.log("starting to seeds ⌛");
     await seedUsers();
     await businessProfilesSeed();
     await servicesSeed();
@@ -46,15 +50,16 @@ try {
     await reviewSeed();
     await couponSeed();
     await contractSeed();
-    console.log("finnished seeding");
+    console.log("finnished seeding 👍");
 
-    console.log("defining constrains");
+    //Stage 3
+    console.log("defining constrains ⌛");
     await import("./dbIndex.js").then((module) => module.defineConstarins());
     await sequelize.sync({ alter: true });
-    console.log("constrains are ready");
+    console.log("constrains are ready 👍");
 
     await sequelize.close();
-    console.log("script has successfuly migrated and seeded the database");
+    console.log("script has successfuly migrated and seeded the database 😀");
   } else {
     throw new Error("shouldnt run this script in the production enviroment");
   }
