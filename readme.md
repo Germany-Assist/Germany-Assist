@@ -42,3 +42,77 @@ This version only contains the basic scaffolding of the app, a database model ca
 ## Folder Structure
 
 ![image](./assits/screenshots/folderstructure.png)
+
+## Database
+
+### Models
+
+Following the MVC pattern models were created.
+
+some of the current models:-
+
+- Business Profiles: representing all the business profiles without the ability to list services.
+- Providers Profiles: business with listing services.
+- User: contains all the user info
+- Service: listing all the services.
+- UserServices: organizing the services requested by the users.
+- Contract: rules and relations between users and service providers should be subjected to.
+- Reviews: reviews and ratings on all the services.
+- Coupon: coupons to be redeemed.
+- Assets: contains all the URLs for the assets that were uploaded.
+- Favourite: holds the favorite services of the users
+
+Other models :
+
+- users_business_profiles
+- users_providers_profiles
+
+Some of the missing models :
+
+- Transactions
+- Posts
+- Comments
+- Categories
+- Badges
+- Events
+- Locations
+- Policies
+
+Please note that the above model name might slightly differ
+
+### Scripts Seeds And Files
+
+Inside the Database Forlder, you will find many files including :
+
+- dbIndex.js
+- migrateAndSeed.js
+
+dbIndex creates all the relations constraints inside a function and collects all the models to export the usefully, to use the models just import "db" and it will contain all the models.
+
+<!-- ```javascript I'm A tab
+import db from "../database/dbIndex.js";
+db.User.create(user)
+``` -->
+
+![image](./assits/screenshots/createUserExample.png)
+
+migrateAndSeed is the script responsible for proper creation and seeding and constraints of the database,
+since seeding the database with constraints will create errors.
+
+"Basically you might add an entity of a foreign key that doesn't exist yet"
+
+It works in three stages:
+
+1. Creates the skeleton.
+2. Seeds the data.
+3. Apply the constraints.
+
+However, this script will delete everything before in the database so it's locked to "test" or "dev" environments
+
+To run the script:
+
+```
+npm run dbInit
+```
+
+Which will run the script with dev.env file

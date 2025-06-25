@@ -30,9 +30,9 @@ import Coupon from "./models/coupon.js";
 try {
   if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {
     //register the models to create skellton
-    console.log("creating skellton");
+    console.log("creating skeleton");
     await sequelize.sync({ force: true });
-    console.log("skellton was created");
+    console.log("skeleton was created");
 
     console.log("starting to seeds");
     await seedUsers();
