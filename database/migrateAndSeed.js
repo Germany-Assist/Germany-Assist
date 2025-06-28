@@ -33,11 +33,13 @@ import Coupon from "./models/coupon.js";
 try {
   if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {
     //Stage 1
+    //Creates the skeleton
     console.log("creating skeleton ⌛");
     await sequelize.sync({ force: true });
     console.log("skeleton was created 👍");
 
     //Stage 2
+    //Seeds the data
     console.log("starting to seeds ⌛");
     await seedUsers();
     await businessProfilesSeed();
@@ -53,6 +55,7 @@ try {
     console.log("finnished seeding 👍");
 
     //Stage 3
+    //Apply the constraints
     console.log("defining constrains ⌛");
     await import("./dbIndex.js").then((module) => module.defineConstarins());
     await sequelize.sync({ alter: true });
