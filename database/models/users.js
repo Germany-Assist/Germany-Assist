@@ -5,17 +5,40 @@ class User extends Model {}
 User.init(
   {
     firstName: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     lastName: {
-      type: DataTypes.STRING,
-      // allowNull defaults to true
+      type: DataTypes.STRING(50),
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING(60),
+      allowNull: false,
+    },
+    confirmPassword: {
+      type: DataTypes.STRING(60),
+      allowNull: false,
+    },
+    DOP: {
+      type: DataTypes.DATE(),
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN(),
+      defaultValue: false,
+    },
+    image: {
+      type: DataTypes.TEXT(),
     },
   },
   {
     sequelize,
-    modelName: "User",
+    paranoid: true,
+    modelName: "users",
   }
 );
 export default User;
