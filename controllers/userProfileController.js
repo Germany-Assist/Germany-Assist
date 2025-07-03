@@ -8,14 +8,14 @@ class UserProfileController {
         lastName,
         email,
         password,
-        confirmedPassword,
+        confirmPassword,
         DOP,
         image,
       } = req.body;
-      if (!firstName || !email || !password || !confirmedPassword) {
+      if (!firstName || !email || !password || !confirmPassword) {
         return res.status(400).json({ message: "Enter empty fields" });
       }
-      if (password != confirmedPassword) {
+      if (password != confirmPassword) {
         return res
           .status(400)
           .json({ message: "Password doesn't match confirmed password" });
@@ -32,13 +32,15 @@ class UserProfileController {
         email,
         password,
         password: hashedPassword,
-        confirmedPassword: hashedPassword,
+        confirmPassword: hashedPassword,
         DOP,
         image,
       });
 
       const userResponse = newUser.toJSON();
       delete userResponse.password;
+          return res.status(201).json({ message: "User created successfully", user: userResponse });
+
     } catch (error) {
       return res.status(500).json({
         message: `Error creating user ${error}`,
@@ -48,8 +50,8 @@ class UserProfileController {
     getUser=async(req,res)=>{
     try {
         const {id}=req.params;
-        const user = User.findByPk(id,{
-           attributes:{exclude:[password]},
+        const user = await User.findByPk(id,{
+           attributes:{exclude:["password"]},
         });
 
         if(!user){

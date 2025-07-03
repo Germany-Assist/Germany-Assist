@@ -3,16 +3,21 @@ import { createServer } from "http";
 import { SERVER_PORT } from "./configs/serverConfig.js";
 import { sequelize } from "./database/connection.js";
 import { userRouter } from "./routes/userRoutes.js";
+import { serviceRouter } from "./routes/serviceRouter.js";
+import { reviewRouter } from "./routes/reviewRouter.js";
 import cors from "cors";
 
 const app = express();
 const server = createServer(app);
-
+app.use(express.json());
 app.use(cors());
 app.use("/user", userRouter);
+app.use("/service", serviceRouter);
+app.use("/review", reviewRouter);
 app.use("/", (req, res) => {
   res.sendStatus(404);
 });
+  
 server.listen(SERVER_PORT, async () => {
   try {
     await sequelize.authenticate();
