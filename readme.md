@@ -192,7 +192,7 @@ import httpLogger from "./utils/loggers.js";
 For this example, i missed the database password in the env file wich will triger the error logger and the info logger
 infoLogger.png;
 ![image](./assets/screenshots/infoLogger.png)
-this mistake will print this on the console importnat to notice that two logger where used the error logger and the info logger note that the error stack will be printed if the env was production like the example below
+this mistake will print this on the console importnat to notice that two logger where used the error logger and the info logger note that the error stack will not be printed if the env was production like the example below
 
 ```
 2025-07-06 19:26:47:2647 info:
@@ -202,3 +202,65 @@ this mistake will print this on the console importnat to notice that two logger 
 ```
 
 however the error stack will be writen to the log file also the info log will be writen.
+
+# Error handling
+
+Following some of the common best code practices custom `Error` class was created and named `AppError`. to use it :
+
+```js
+import { AppError } from "./utils/error.class.js";
+throw new AppError(404, "bad route", true);
+```
+
+### The paramiters
+
+```js
+httpCode, message, isOperational;
+```
+
+1. httpCode is the response code the user will receive
+2. message is the error message that will be logged
+3. isOperational is boolean flag used to distinguish between operational errors and programming errors.
+
+### Error middleware
+
+```js
+app.use(errorMiddleware);
+```
+
+this error middleware will recive the error and responde to the clint and log the error
+
+```js
+app.use("/", (req, res, next) => {
+  throw new AppError(404, "bad route", true);
+});
+```
+
+Importent to note in case of async error use try catch and then pass the error
+
+Will crash the app
+
+```js
+❌
+app.use("/", (req, res, next) => {
+  Promise.resolve().then(() => {
+    throw new AppError(404, "bad route", true);
+  });
+});
+```
+
+Use `try catch` or `.then` chains
+
+```js
+✅
+app.use("/", async (req, res, next) => {
+  try {
+    await Promise.resolve().then(() => {
+      throw new AppError(404, "bad route", true)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+```
