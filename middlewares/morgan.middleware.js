@@ -1,11 +1,12 @@
 import morgan from "morgan";
 import winston from "winston";
+import { httpLogger } from "../utils/loggers.js";
 // please dont forget to edit the node env
 
 // i created this middleware just to combine morgan with winston
-const logger = winston.loggers.get("httpLogger");
+
 const stream = {
-  write: (message) => logger.http(message),
+  write: (message) => httpLogger(message),
 };
 const skip = () => {
   const env = process.env.NODE_ENV || "dev";

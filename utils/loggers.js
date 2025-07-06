@@ -1,6 +1,8 @@
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { v4 as uuidv4 } from "uuid";
+import { LOG_LEVEL } from "../configs/serverConfig.js";
+
 const levels = {
   error: 0,
   warn: 1,
@@ -10,7 +12,7 @@ const levels = {
 };
 
 winston.loggers.add("errorLogger", {
-  level: "error",
+  level: LOG_LEVEL,
   format: winston.format.combine(
     winston.format.errors({ stack: true }),
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
@@ -29,7 +31,9 @@ winston.loggers.add("errorLogger", {
         winston.format.printf(
           ({ timestamp, level, message, LogMetaData, stack }) => {
             return `${timestamp} ${level}: ${LogMetaData || ""} ${message} ${
-              process.env.NODE_ENV === "dev" ? stack : "please check the logs"
+              LOG_LEVEL === "debug"
+                ? stack
+                : "Error occurred please check the logs"
             }`;
           }
         )
@@ -46,7 +50,7 @@ winston.loggers.add("errorLogger", {
 });
 winston.loggers.add("httpLogger", {
   levels: levels,
-  level: "http",
+  level: LOG_LEVEL,
   format: winston.format.combine(
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
     winston.format.printf(({ timestamp, level, message, LogMetaData }) => {
@@ -64,3 +68,29 @@ winston.loggers.add("httpLogger", {
     }),
   ],
 });
+winston.loggers.add("debugLogger", {
+  levels: levels,
+  level: LOG_LEVEL,
+  format: winston.format.combine(
+    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `${timestamp} ${level}: ${message}`;
+    })
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new DailyRotateFile({
+      level: "info",
+      filename: "./logs/info-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "14d",
+    }),
+  ],
+});
+
+export const debugLogger = winston.loggers.get("debugLogger").debug;
+export const infoLogger = winston.loggers.get("debugLogger").info;
+export const httpLogger = winston.loggers.get("httpLogger").http;
+export const errorLogger = winston.loggers.get("errorLogger").error;

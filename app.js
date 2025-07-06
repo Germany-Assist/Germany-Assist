@@ -6,6 +6,7 @@ import { sequelize } from "./database/connection.js";
 import { userRouter } from "./routes/userRoutes.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
+import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
 
 const app = express();
 const server = createServer(app);
@@ -16,18 +17,20 @@ app.use("/user", userRouter);
 app.use("/", (req, res) => {
   res.sendStatus(404);
 });
-
 server.listen(SERVER_PORT, async () => {
   try {
     await sequelize.authenticate();
     await import("./database/dbIndex.js");
-    console.log("Connected to the database successfully 👍​");
-    console.log(`Server is running at port ${SERVER_PORT} 👋`);
+    infoLogger(
+      `\n Server is running at port ${SERVER_PORT} 👋 \n Connected to the database successfully 👍`
+    );
     if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test")
       await sequelize.sync({ alter: true });
   } catch (error) {
-    console.error("Unable to connect to the database:", error.message);
-    console.error("server is shutting down");
+    infoLogger(
+      `\n "Unable to connect to the database:", ${error.message} \n server is shutting down`
+    );
+    errorLogger(error);
     await sequelize.close();
     server.close();
   }
