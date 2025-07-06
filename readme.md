@@ -212,7 +212,7 @@ import { AppError } from "./utils/error.class.js";
 throw new AppError(404, "bad route", true);
 ```
 
-### The paramiters
+### The parameters
 
 ```js
 httpCode, message, isOperational;
@@ -228,7 +228,7 @@ httpCode, message, isOperational;
 app.use(errorMiddleware);
 ```
 
-this error middleware will recive the error and responde to the clint and log the error
+this error middleware will receive the error and respond to the client and log the error
 
 ```js
 app.use("/", (req, res, next) => {
@@ -236,31 +236,31 @@ app.use("/", (req, res, next) => {
 });
 ```
 
-Importent to note in case of async error use try catch and then pass the error
+Important to note in case of `async` error use `try catch` and then pass the error
 
 Will crash the app
 
 ```js
 ❌
 app.use("/", (req, res, next) => {
-  Promise.resolve().then(() => {
-    throw new AppError(404, "bad route", true);
-  });
+  Promise.resolve().then(() => {
+    throw new AppError(404, "bad route", true);
+ });
 });
 ```
 
-Use `try catch` or `.then` chains
+Use `try catch` or `.then` chains.
 
 ```js
 ✅
 app.use("/", async (req, res, next) => {
-  try {
-    await Promise.resolve().then(() => {
-      throw new AppError(404, "bad route", true)
-    });
-  } catch (error) {
-    next(error);
-  }
+  try {
+    await Promise.resolve().then(() => {
+      throw new AppError(404, "bad route", true)
+ });
+ } catch (error) {
+    next(error);
+ }
 });
 
 ```
