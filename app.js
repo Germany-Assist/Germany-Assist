@@ -11,9 +11,10 @@ const app = express();
 const server = createServer(app);
 app.use(express.json());
 app.use(cors());
-app.use("/user", userRouter);
-app.use("/service", serviceRouter);
-app.use("/review", reviewRouter);
+
+app.use("/api/user", userRouter);
+app.use("/api/service", serviceRouter);
+app.use("/api/review", reviewRouter);
 app.use("/", (req, res) => {
   res.sendStatus(404);
 });

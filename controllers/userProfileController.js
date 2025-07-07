@@ -12,8 +12,15 @@ class UserProfileController {
         DOP,
         image,
       } = req.body;
-      if (!firstName || !email || !password || !confirmPassword) {
-        return res.status(400).json({ message: "Enter empty fields" });
+           const requiredFields = { firstName, email, password, confirmPassword };
+      const missingFields = Object.entries(requiredFields)
+        .filter(([_, value]) => !value)
+        .map(([key]) => key);
+      
+      if (missingFields.length > 0) {
+        return res.status(400).json({
+          message: `Missing required fields: ${missingFields.join(", ")}`,
+        });
       }
       if (password != confirmPassword) {
         return res
