@@ -6,7 +6,8 @@ import { userRouter } from "./routes/userRoutes.js";
 import { serviceRouter } from "./routes/serviceRouter.js";
 import { reviewRouter } from "./routes/reviewRouter.js";
 import cors from "cors";
-import assteRouter from "./routes/assets.js";
+import assteRouter from "./routes/assets.routes.js";
+import couponRouter from "./routes/coupons.routes.js";
 
 const app = express();
 const server = createServer(app);
@@ -16,7 +17,9 @@ app.use(cors());
 app.use("/api/user", userRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/review", reviewRouter);
+
 app.use("/api/asset", assteRouter);
+app.use("/api/coupon", couponRouter);
 
 app.use("/", (req, res) => {
   res.sendStatus(404);

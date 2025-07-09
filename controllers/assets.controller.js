@@ -28,6 +28,7 @@ export const createAsset = async (data) => {
 };
 
 // Get all assets
+/// by the way i creatd get all assets to recive filters
 export const getAllAssets = async (filters = {}) => {
   return await db.Asset.findAll({
     where: filters,
@@ -43,6 +44,8 @@ export const getAssetById = async (id) => {
 
 // Update an asset
 export const updateAsset = async (id, updateData) => {
+  //this needs to be updated so it can handle injections i should make it for specific fields
+  //but that depends on the autorization
   const asset = await db.Asset.findByPk(id);
   if (!asset) throw new Error("Asset not found");
   await asset.update(updateData);

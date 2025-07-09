@@ -10,7 +10,7 @@ import {
 
 const assteRouter = express.Router();
 ///// WARNING THESE END POINT NEEDS 1.Validation 2.Authorization
-assteRouter.post("/", async (req, res) => {
+assteRouter.post("/", async (req, res, next) => {
   try {
     const body = req.body;
     const resp = await createAsset(body);
@@ -19,7 +19,7 @@ assteRouter.post("/", async (req, res) => {
     next(error);
   }
 });
-assteRouter.get("/", async (req, res) => {
+assteRouter.get("/", async (req, res, next) => {
   try {
     const resp = await getAllAssets();
     res.send(resp);
@@ -27,7 +27,7 @@ assteRouter.get("/", async (req, res) => {
     next(error);
   }
 });
-assteRouter.get("/:id", async (req, res) => {
+assteRouter.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     const resp = await getAssetById(id);
@@ -36,7 +36,7 @@ assteRouter.get("/:id", async (req, res) => {
     next(error);
   }
 });
-assteRouter.put("/:id", async (req, res) => {
+assteRouter.put("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     console.log(req.body);
@@ -46,7 +46,7 @@ assteRouter.put("/:id", async (req, res) => {
     next(error);
   }
 });
-assteRouter.delete("/:id", async (req, res) => {
+assteRouter.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     const resp = await deleteAsset(id);
@@ -55,7 +55,7 @@ assteRouter.delete("/:id", async (req, res) => {
     next(error);
   }
 });
-assteRouter.post("/:id/restore", async (req, res) => {
+assteRouter.post("/:id/restore", async (req, res, next) => {
   try {
     const { id } = req.params;
     const resp = await restoreAsset(id);
