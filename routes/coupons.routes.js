@@ -62,7 +62,6 @@ couponRouter.put("/:id", async (req, res, next) => {
   }
 });
 
-// Delete coupon
 couponRouter.delete("/:id", async (req, res, next) => {
   try {
     const result = await deleteCoupon(req.params.id);
@@ -72,7 +71,6 @@ couponRouter.delete("/:id", async (req, res, next) => {
   }
 });
 
-// Restore coupon
 couponRouter.post("/:id/restore", async (req, res, next) => {
   try {
     const coupon = await restoreCoupon(req.params.id);
@@ -86,10 +84,7 @@ couponRouter.post("/:id/restore", async (req, res, next) => {
 couponRouter.get("/validate/:code", async (req, res, next) => {
   try {
     const validation = await validateCoupon(req.params.code);
-    res.status(200).json({
-      success: true,
-      data: validation,
-    });
+    res.status(200).json(validation);
   } catch (error) {
     next(error);
   }

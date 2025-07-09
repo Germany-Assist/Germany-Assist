@@ -39,7 +39,6 @@ assteRouter.get("/:id", async (req, res, next) => {
 assteRouter.put("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(req.body);
     const resp = await updateAsset(id, updateData);
     res.send(resp);
   } catch (error) {

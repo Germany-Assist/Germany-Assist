@@ -53,7 +53,7 @@ businessProfileRouter.put("/:id", async (req, res, next) => {
 businessProfileRouter.delete("/:id", async (req, res, next) => {
   try {
     const result = await deleteBusinessProfile(parseInt(req.params.id));
-    res.status(200);
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }
@@ -68,10 +68,10 @@ businessProfileRouter.post("/:id/restore", async (req, res, next) => {
   }
 });
 
-businessProfileRouter.post("/:id/views", async (req, res, next) => {
+businessProfileRouter.patch("/:id/views", async (req, res, next) => {
   try {
     const profile = await incrementProfileViews(parseInt(req.params.id));
-    res.status(200);
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }

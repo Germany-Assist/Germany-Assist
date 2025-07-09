@@ -10,6 +10,7 @@ import assteRouter from "./routes/assets.routes.js";
 import couponRouter from "./routes/coupons.routes.js";
 import contractRouter from "./routes/contract.routes.js";
 import businessProfileRouter from "./routes/busniessProfile.routes.js";
+import providerProfileRouter from "./routes/providerProfile.routes.js";
 
 const app = express();
 const server = createServer(app);
@@ -24,6 +25,7 @@ app.use("/api/asset", assteRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/contract", contractRouter);
 app.use("/api/businessProfile", businessProfileRouter);
+app.use("/api/provider", providerProfileRouter);
 
 app.use("/", (req, res) => {
   res.sendStatus(404);
