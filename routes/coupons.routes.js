@@ -12,7 +12,6 @@ import {
 
 const couponRouter = Router();
 
-// Create a new coupon
 couponRouter.post("/", async (req, res, next) => {
   try {
     const coupon = await createCoupon(req.body);
@@ -22,7 +21,6 @@ couponRouter.post("/", async (req, res, next) => {
   }
 });
 
-// Get all coupons
 couponRouter.get("/", async (req, res, next) => {
   try {
     const coupons = await getAllCoupons(req.query);
@@ -32,7 +30,6 @@ couponRouter.get("/", async (req, res, next) => {
   }
 });
 
-// Get coupon by ID
 couponRouter.get("/:id", async (req, res, next) => {
   try {
     const coupon = await getCouponById(req.params.id);
@@ -42,7 +39,6 @@ couponRouter.get("/:id", async (req, res, next) => {
   }
 });
 
-// Get coupon by code
 couponRouter.get("/code/:code", async (req, res, next) => {
   try {
     const coupon = await getCouponByCode(req.params.code);
@@ -52,7 +48,6 @@ couponRouter.get("/code/:code", async (req, res, next) => {
   }
 });
 
-// Update coupon
 couponRouter.put("/:id", async (req, res, next) => {
   try {
     const coupon = await updateCoupon(req.params.id, req.body);
@@ -80,7 +75,6 @@ couponRouter.post("/:id/restore", async (req, res, next) => {
   }
 });
 
-// Validate coupon
 couponRouter.get("/validate/:code", async (req, res, next) => {
   try {
     const validation = await validateCoupon(req.params.code);
