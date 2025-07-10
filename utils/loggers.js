@@ -10,31 +10,41 @@ const levels = {
   http: 3,
   debug: 4,
 };
-
 winston.loggers.add("errorLogger", {
   level: LOG_LEVEL,
   format: winston.format.combine(
+    winston.format.metadata(),
     winston.format.errors({ stack: true }),
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
-    winston.format.printf(
-      ({ timestamp, level, message, LogMetaData, stack }) => {
-        return `${timestamp} ${level}: ${LogMetaData || ""} ${message} ${
-          stack || ""
-        }`;
+    winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
+      let logString = `${timestamp} ${level}: ${message}`;
+      const { ...restMeta } = metadata;
+      if (Object.keys(restMeta).length > 0) {
+        logString += ` | metadata: ${JSON.stringify(restMeta)}`;
       }
-    )
+      if (stack) {
+        logString += `\n${stack}`;
+      }
+      return logString;
+    })
   ),
+
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
+        winston.format.errors({ stack: true }),
         winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
         winston.format.printf(
-          ({ timestamp, level, message, LogMetaData, stack }) => {
-            return `${timestamp} ${level}: ${LogMetaData || ""} ${message} ${
-              LOG_LEVEL === "debug"
-                ? stack
-                : "Error occurred please check the logs"
-            }`;
+          ({ timestamp, level, message, metadata, stack }) => {
+            let logString = `${timestamp} ${level}: ${message}`;
+            const { ...restMeta } = metadata;
+            if (Object.keys(restMeta).length > 0) {
+              logString += ` | metadata: ${JSON.stringify(restMeta)}`;
+            }
+            if (stack) {
+              logString += `\n${stack}`;
+            }
+            return logString;
           }
         )
       ),

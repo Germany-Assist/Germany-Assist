@@ -9,20 +9,31 @@ import { reviewRouter } from "./routes/reviewRouter.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
+import { AppError } from "./utils/error.class.js";
+import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
 
 const app = express();
 const server = createServer(app);
 app.use(express.json());
 app.use(cors());
 app.use(morganMiddleware);
+app.use(errorMiddleware);
 
 app.use("/api/user", userRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/review", reviewRouter);
-app.use("/", (req, res) => {
-  res.sendStatus(404);
+
+app.use("/", async (req, res, next) => {
+  try {
+    await Promise.resolve().then(() => {
+      throw new AppError(404, "bad route", true);
+    });
+  } catch (error) {
+    next(error);
+  }
 });
   
+
 server.listen(SERVER_PORT, async () => {
   try {
     await sequelize.authenticate();
