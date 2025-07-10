@@ -1,12 +1,12 @@
-import User from "../database/models/users.js";
+import db from "../database/dbIndex.js";
 export const createNewUser = async () => {
   const tempUser = {
     firstName: "test",
   };
-  const x = await dbUser.create(tempUser);
+  const x = await db.User.create(tempUser);
   return x ? true : null;
 };
 export const fetchUsers = async () => {
-  const x = await User.findAll();
+  const x = await db.User.findAll();
   return x ? x : null;
 };
