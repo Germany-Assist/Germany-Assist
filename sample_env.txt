@@ -1,10 +1,10 @@
 // this is a sample of how .env file should be
 // notice that the name of the file may change depending on the enviroment
 
-
+NODE_ENV = "dev"
 SERVER_PORT = 3000
 DB_USERNAME = "postgres"
-DB_PASSWORD = 12345
+DB_PASSWORD = 123456789
 DB_NAME = "germany_assist_development"
 DB_HOST = "127.0.0.1"
 DB_DIALECT = "postgres"
