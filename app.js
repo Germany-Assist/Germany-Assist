@@ -4,6 +4,8 @@ import { createServer } from "http";
 import { SERVER_PORT } from "./configs/serverConfig.js";
 import { sequelize } from "./database/connection.js";
 import { userRouter } from "./routes/userRoutes.js";
+import { serviceRouter } from "./routes/serviceRouter.js";
+import { reviewRouter } from "./routes/reviewRouter.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
@@ -12,9 +14,14 @@ import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
 
 const app = express();
 const server = createServer(app);
+app.use(express.json());
 app.use(cors());
 app.use(morganMiddleware);
-app.use("/user", userRouter);
+app.use(errorMiddleware);
+
+app.use("/api/user", userRouter);
+app.use("/api/service", serviceRouter);
+app.use("/api/review", reviewRouter);
 
 app.use("/", async (req, res, next) => {
   try {
@@ -25,8 +32,8 @@ app.use("/", async (req, res, next) => {
     next(error);
   }
 });
+  
 
-app.use(errorMiddleware);
 server.listen(SERVER_PORT, async () => {
   try {
     await sequelize.authenticate();
