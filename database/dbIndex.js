@@ -8,13 +8,12 @@ import Review from "./models/reviews.js";
 import Coupon from "./models/coupon.js";
 import Favourit from "./models/users_services_favourit.js";
 
-let associatedDefined=false;
+let associatedDefined = false;
 
 export const defineConstarins = () => {
-  
-  if(associatedDefined)return;
-   associatedDefined=true;
-   
+  if (associatedDefined) return;
+  associatedDefined = true;
+
   User.belongsToMany(BusinessProfiles, { through: "users_business_profiles" });
   User.belongsToMany(ProvidersProfile, { through: "users_providers_profiles" });
   // for creation
@@ -39,18 +38,13 @@ export const defineConstarins = () => {
   Services.belongsToMany(User, { through: "users_services_favourit" });
   Services.hasMany(Review, { foreignKey: "serviceId", as: "serviceReviews" });
 
-
-
-
   Review.belongsTo(User, { foreignKey: "userId", as: "reviewAuthor" });
   Review.belongsTo(Services, { foreignKey: "serviceId", as: "service" });
- 
- 
+
   Asset.belongsTo(BusinessProfiles);
   Asset.belongsTo(ProvidersProfile);
   Asset.belongsTo(Services);
 };
-
 
 // this needs to be edited before production
 if (process.env.NODE_ENV == "dev") {

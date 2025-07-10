@@ -10,4 +10,3 @@ export const sequelize = new Sequelize({
   dialect: db_params.DB_DIALECT,
   logging: false,
 });
-

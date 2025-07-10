@@ -7,6 +7,11 @@ import { userRouter } from "./routes/userRoutes.js";
 import { serviceRouter } from "./routes/serviceRouter.js";
 import { reviewRouter } from "./routes/reviewRouter.js";
 import cors from "cors";
+import assteRouter from "./routes/assets.routes.js";
+import couponRouter from "./routes/coupons.routes.js";
+import contractRouter from "./routes/contract.routes.js";
+import businessProfileRouter from "./routes/busniessProfile.routes.js";
+import providerProfileRouter from "./routes/providerProfile.routes.js";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
 import { AppError } from "./utils/error.class.js";
@@ -23,6 +28,15 @@ app.use("/api/user", userRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/review", reviewRouter);
 
+
+app.use("/api/asset", assteRouter);
+app.use("/api/coupon", couponRouter);
+app.use("/api/contract", contractRouter);
+app.use("/api/businessProfile", businessProfileRouter);
+app.use("/api/provider", providerProfileRouter);
+
+
+
 app.use("/", async (req, res, next) => {
   try {
     await Promise.resolve().then(() => {
@@ -32,7 +46,7 @@ app.use("/", async (req, res, next) => {
     next(error);
   }
 });
-  
+
 
 server.listen(SERVER_PORT, async () => {
   try {
