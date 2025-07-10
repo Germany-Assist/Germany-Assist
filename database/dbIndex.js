@@ -8,7 +8,13 @@ import Review from "./models/reviews.js";
 import Coupon from "./models/coupon.js";
 import Favourit from "./models/users_services_favourit.js";
 
+let associatedDefined=false;
+
 export const defineConstarins = () => {
+  
+  if(associatedDefined)return;
+   associatedDefined=true;
+   
   User.belongsToMany(BusinessProfiles, { through: "users_business_profiles" });
   User.belongsToMany(ProvidersProfile, { through: "users_providers_profiles" });
   // for creation
@@ -16,7 +22,7 @@ export const defineConstarins = () => {
   User.hasMany(Asset);
   User.belongsToMany(Services, { through: "users_services" });
   User.belongsToMany(Services, { through: "users_services_favourit" });
-  User.hasMany(Review);
+  User.hasMany(Review, { foreignKey: "userId", as: "writtenReviews" });
 
   BusinessProfiles.belongsToMany(User, { through: "users_business_profiles" });
   BusinessProfiles.hasMany(Asset);
@@ -31,12 +37,20 @@ export const defineConstarins = () => {
   Services.belongsTo(ProvidersProfile);
   Services.belongsToMany(User, { through: "users_services" });
   Services.belongsToMany(User, { through: "users_services_favourit" });
-  Services.hasMany(Review);
+  Services.hasMany(Review, { foreignKey: "serviceId", as: "serviceReviews" });
 
+
+
+
+  Review.belongsTo(User, { foreignKey: "userId", as: "reviewAuthor" });
+  Review.belongsTo(Services, { foreignKey: "serviceId", as: "service" });
+ 
+ 
   Asset.belongsTo(BusinessProfiles);
   Asset.belongsTo(ProvidersProfile);
   Asset.belongsTo(Services);
 };
+
 
 // this needs to be edited before production
 if (process.env.NODE_ENV == "dev") {
