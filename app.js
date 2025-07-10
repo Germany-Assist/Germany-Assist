@@ -13,18 +13,20 @@ import contractRouter from "./routes/contract.routes.js";
 import businessProfileRouter from "./routes/busniessProfile.routes.js";
 import providerProfileRouter from "./routes/providerProfile.routes.js";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
-import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
+import { errorLogger, infoLogger } from "./utils/loggers.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const server = createServer(app);
+//
+app.use(cookieParser());
+//
 app.use(express.json());
 app.use(cors());
 app.use(morganMiddleware);
-
 app.use("/api/user", userRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/review", reviewRouter);
-
 app.use("/api/asset", assteRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/contract", contractRouter);

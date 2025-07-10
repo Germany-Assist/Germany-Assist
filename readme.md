@@ -202,3 +202,10 @@ this mistake will print this on the console importnat to notice that two logger 
 ```
 
 however the error stack will be writen to the log file also the info log will be writen.
+
+## JWT AND Cookies
+
+This app will provide access tokens and refresh tokens
+
+1. both their secrets and expiration will be in the `env` file.
+2. The routes will utilize the JWT middleware where the token will be automatically verified and decrypted to `req.auth`
