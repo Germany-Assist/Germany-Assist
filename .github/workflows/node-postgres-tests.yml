@@ -4,7 +4,7 @@ on:
   push:
     branches: ["**"] # Double asterisk matches all branches
   pull_request:
-    branches: ["**"]
+    branches: ["main"]
 
 jobs:
   test:

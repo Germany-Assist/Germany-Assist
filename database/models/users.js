@@ -20,11 +20,7 @@ User.init(
       type: DataTypes.STRING(60),
       allowNull: false,
     },
-    confirmPassword: {
-      type: DataTypes.STRING(60),
-      allowNull: false,
-    },
-    DOP: {
+    DOB: {
       type: DataTypes.DATE(),
     },
     isVerified: {

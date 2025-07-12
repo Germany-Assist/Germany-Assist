@@ -1,77 +1,71 @@
 import User from "../database/models/users.js";
 import bcrypt from "bcrypt";
-class UserProfileController {
-  createUser = async (req, res) => {
-    try {
-      const {
-        firstName,
-        lastName,
-        email,
-        password,
-        confirmPassword,
-        DOP,
-        image,
-      } = req.body;
-           const requiredFields = { firstName, email, password, confirmPassword };
-      const missingFields = Object.entries(requiredFields)
-        .filter(([_, value]) => !value)
-        .map(([key]) => key);
-      
-      if (missingFields.length > 0) {
-        return res.status(400).json({
-          message: `Missing required fields: ${missingFields.join(", ")}`,
-        });
-      }
-      if (password != confirmPassword) {
-        return res
-          .status(400)
-          .json({ message: "Password doesn't match confirmed password" });
-      }
+import db from "../database/dbIndex.js";
+import { hashPassword, hashCompare } from "../utils/bycrypt.util.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../middlewares/jwt.middleware.js";
+import { NODE_ENV } from "../configs/serverConfig.js";
+export const createUser = async (userData) => {
+  const { firstName, lastName, email, DOP, image } = userData;
+  const password = hashPassword(userData.password);
+  return await db.User.create({
+    firstName,
+    lastName,
+    email,
+    DOP,
+    image,
+    password,
+  });
+};
 
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(400).json({ message: "email already existing" });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await User.create({
-        firstName,
-        lastName,
-        email,
-        password,
-        password: hashedPassword,
-        confirmPassword: hashedPassword,
-        DOP,
-        image,
-      });
+export const loginUser = async (userData) => {
+  const { email, password } = userData;
+  const user = await getUserByEmail(email);
+  if (!user) throw new Error("user not found");
+  const compare = hashCompare(password, user.password);
+  if (!compare) throw new Error("wrong password");
+  return user;
+};
 
-      const userResponse = newUser.toJSON();
-      delete userResponse.password;
-          return res.status(201).json({ message: "User created successfully", user: userResponse });
+// export const loginUserToken = async ()
 
-    } catch (error) {
-      return res.status(500).json({
-        message: `Error creating user ${error}`,
-      });
-    }
-  };
-    getUser=async(req,res)=>{
-    try {
-        const {id}=req.params;
-        const user = await User.findByPk(id,{
-           attributes:{exclude:["password"]},
-        });
+// Get user by ID (excludes password)
+export const getUserById = async (id) => {
+  const user = await db.User.findByPk(id, {
+    attributes: { exclude: ["password"] },
+  });
+  if (!user) throw new Error("no user found");
+  return user;
+};
 
-        if(!user){
-            return res.status(404).json({
-                message:"User not found"
-            });
-        }
-        return res.status(200).json({message:"get user successfully",user});
+const getUserByEmail = async (email) => {
+  return await db.User.findOne({ where: { email } });
+};
 
-    } catch (error) {
-        return res.status(500).json({message:`Internal server error ${error}`});
-    }
-   }
-}
+// Update user
+export const updateUser = async (id, updates) => {
+  const user = await db.User.findByPk(id);
+  if (!user) throw new Error("User not found");
+  return await user.update(updates);
+};
 
-export const userProfileController = new UserProfileController();
+// Soft-delete user (paranoid mode)
+export const deleteUser = async (id) => {
+  const user = await db.User.findByPk(id);
+  if (!user) throw new Error("User not found");
+  await user.destroy();
+  return { message: "User deleted" };
+};
+
+// List all users (paginated, excludes passwords)
+export const listUsers = async (page = 1, limit = 10) => {
+  const offset = (page - 1) * limit;
+  return await db.User.findAll({
+    attributes: { exclude: ["password"] },
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+  });
+};

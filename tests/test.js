@@ -11,6 +11,7 @@ before(async () => {
     errorLogger(error);
   }
 });
+
 describe("Test suite", () => {
   it("should return 200 for GET /health", async () => {
     const response = await request(app).get("/health");
