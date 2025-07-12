@@ -27,7 +27,9 @@
     "dev": "node --watch --env-file=dev.env app.js ",
     "dbInit": "node --env-file=dev.env ./database/migrateAndSeed.js",
     "pretest": "node --env-file=test.env ./database/migrateAndSeed.js",
-    "test": "node --env-file=test.env --test"
+    "test": "node --env-file=test.env --test",
+    "preworkflowTest": "node ./database/migrateAndSeed.js",
+    "workflowTest": "node --test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
