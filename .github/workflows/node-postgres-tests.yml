@@ -14,7 +14,7 @@ jobs:
         image: postgres:17.5
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123456789
+          POSTGRES_PASSWORD: "123456789"
           POSTGRES_DB: germany_assist_testing
         ports:
           - 5432:5432
@@ -48,12 +48,12 @@ jobs:
       - name: Run tests
         env:
           NODE_ENV: "test"
-          SERVER_PORT: 3000
+          SERVER_PORT: "3000"
           DB_USERNAME: "postgres"
-          DB_PASSWORD: 123456789
+          DB_PASSWORD: "123456789"
           DB_NAME: "germany_assist_testing"
           DB_HOST: "127.0.0.1"
           DB_DIALECT: "postgres"
-          DB_PORT: 5432
+          DB_PORT: "5432"
           LOG_LEVEL: "debug"
         run: npm test
