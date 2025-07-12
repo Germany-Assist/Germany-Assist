@@ -1,7 +1,7 @@
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { v4 as uuidv4 } from "uuid";
-import { LOG_LEVEL } from "../configs/serverConfig.js";
+import { LOG_LEVEL, NODE_ENV } from "../configs/serverConfig.js";
 
 const levels = {
   error: 0,
@@ -28,27 +28,16 @@ winston.loggers.add("errorLogger", {
       return logString;
     })
   ),
-
+  //     ()
   transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.errors({ stack: true }),
-        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
-        winston.format.printf(
-          ({ timestamp, level, message, metadata, stack }) => {
-            let logString = `${timestamp} ${level}: ${message}`;
-            const { ...restMeta } = metadata;
-            if (Object.keys(restMeta).length > 0) {
-              logString += ` | metadata: ${JSON.stringify(restMeta)}`;
-            }
-            if (stack) {
-              logString += `\n${stack}`;
-            }
-            return logString;
-          }
-        )
-      ),
-    }),
+    NODE_ENV === "dev"
+      ? new winston.transports.Console()
+      : new winston.transports.Console({
+          format: winston.format.printf(
+            ({ timestamp }) =>
+              `${timestamp} error occurred please check the logs`
+          ),
+        }),
     new DailyRotateFile({
       filename: "./logs/errors-%DATE%.log",
       datePattern: "YYYY-MM-DD",

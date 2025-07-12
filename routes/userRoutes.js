@@ -12,60 +12,74 @@ import {
   verifyToken,
 } from "../middlewares/jwt.middleware.js";
 import { debugLogger } from "../utils/loggers.js";
+import {
+  createUserValidators,
+  loginValidators,
+} from "../validators/userValidators.js";
+import { validateExpress } from "../middlewares/expressValidator.js";
 export const userRouter = Router();
 
 // register and i will give you new access token and refresh token in a cookie
-userRouter.post("/", async (req, res, next) => {
-  try {
-    const data = req.body;
-    const user = await createUser(data);
-    const { accessToken, refreshToken } = generateTokens(user);
-    const sanitizedUser = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-    };
-    res.status(201);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-    debugLogger(accessToken);
-    res.json({ accessToken, user: sanitizedUser });
-  } catch (error) {
-    console.log(error.message);
-    next(error);
+userRouter.post(
+  "/",
+  createUserValidators,
+  validateExpress,
+  async (req, res, next) => {
+    try {
+      const data = req.body;
+      const user = await createUser(data);
+      const { accessToken, refreshToken } = generateTokens(user);
+      const sanitizedUser = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        DOB: user.DOB,
+        email: user.email,
+        image: user.image,
+        isVerified: user.isVerified,
+      };
+      res.status(201);
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: NODE_ENV === "production" ? true : false,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      debugLogger(accessToken);
+      res.json({ accessToken, user: sanitizedUser });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 // give me user name and password and i will give you new access token and refresh token in a cookie
-userRouter.post("/login", async (req, res, next) => {
-  try {
-    const user = await loginUser(req.body);
-    const { accessToken, refreshToken } = generateTokens(user);
-    const sanitizedUser = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-    };
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-    res.json({ accessToken, user: sanitizedUser });
-  } catch (error) {
-    next(error);
+userRouter.post(
+  "/login",
+  loginValidators,
+  validateExpress,
+  async (req, res, next) => {
+    try {
+      const user = await loginUser(req.body);
+      const { accessToken, refreshToken } = generateTokens(user);
+      const sanitizedUser = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        DOB: user.DOB,
+        email: user.email,
+        image: user.image,
+        isVerified: user.isVerified,
+      };
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: NODE_ENV === "production" ? true : false,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.json({ accessToken, user: sanitizedUser });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 // i will delete your cookie
 userRouter.get("/logout", (req, res, next) => {
   try {
@@ -94,7 +108,7 @@ userRouter.post("/refresh-token", (req, res, next) => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.sendStatus(201);
+    res.send({ accessToken });
   } catch (error) {
     next(error);
   }
