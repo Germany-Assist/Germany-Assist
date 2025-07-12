@@ -1,0 +1,59 @@
+name: Node.js tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456789
+          POSTGRES_DB: germany_assist_testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create test database
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: |
+          psql -c "CREATE DATABASE germany_assist_testing;"
+          psql -d germany_assist_testing -c "GRANT ALL PRIVILEGES ON DATABASE germany_assist_testing TO postgres;"
+
+      - name: Run tests
+        env:
+          NODE_ENV: "test"
+          SERVER_PORT: 3000
+          DB_USERNAME: "postgres"
+          DB_PASSWORD: 123456789
+          DB_NAME: "germany_assist_testing"
+          DB_HOST: "127.0.0.1"
+          DB_DIALECT: "postgres"
+          DB_PORT: 5432
+          LOG_LEVEL: "debug"
+        run: npm test
