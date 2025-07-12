@@ -26,7 +26,10 @@
   "scripts": {
     "dev": "node --watch --env-file=dev.env app.js ",
     "dbInit": "node --env-file=dev.env ./database/migrateAndSeed.js",
-    "test": ""
+    "pretest": "node --env-file=test.env ./database/migrateAndSeed.js",
+    "test": "node --env-file=test.env --test",
+    "preworkflowTest": "node ./database/migrateAndSeed.js",
+    "workflowTest": "node --test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -41,6 +44,7 @@
     "pg": "^8.16.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
+    "supertest": "^7.1.3",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"

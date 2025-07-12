@@ -66,6 +66,7 @@ try {
   } else {
     throw new Error("shouldnt run this script in the production enviroment");
   }
+  await sequelize.close();
 } catch (error) {
   console.error(error.message);
 }

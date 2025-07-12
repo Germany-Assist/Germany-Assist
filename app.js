@@ -18,19 +18,15 @@ import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
 import { AppError } from "./utils/error.class.js";
 import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
 
+export const app = express();
+export const server = createServer(app);
 
-const app = express();
-const server = createServer(app);
-//
 app.use(cookieParser());
-//
+
 app.use(express.json());
 app.use(cors());
 app.use(morganMiddleware);
 
-app.use("/api/user", userRouter);
-app.use("/api/service", serviceRouter);
-app.use("/api/review", reviewRouter);
 app.use("/api/user", userRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/review", reviewRouter);
@@ -40,28 +36,30 @@ app.use("/api/contract", contractRouter);
 app.use("/api/businessProfile", businessProfileRouter);
 app.use("/api/provider", providerProfileRouter);
 
-
-
+app.get("/health", (req, res) => {
+  res.sendStatus(200);
+});
 app.use("/", (req, res, next) => {
-      throw new AppError(404, "bad route", true);
+  throw new AppError(404, "bad route", true);
 });
 
 app.use(errorMiddleware);
-server.listen(SERVER_PORT, async () => {
-  try {
-    await sequelize.authenticate();
-    await import("./database/dbIndex.js");
-    infoLogger(
-      `\n Server is running at port ${SERVER_PORT} 👋 \n Connected to the database successfully 👍`
-    );
-    if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test")
-      await sequelize.sync({ alter: true });
-  } catch (error) {
-    infoLogger(
-      `\n "Unable to connect to the database:", ${error.message} \n server is shutting down`
-    );
-    errorLogger(error);
-    await sequelize.close();
-    server.close();
-  }
-});
+
+if (process.env.NODE_ENV !== "test") {
+  server.listen(SERVER_PORT, async () => {
+    try {
+      await sequelize.authenticate();
+      await import("./database/dbIndex.js");
+      infoLogger(
+        `\n Server is running at port ${SERVER_PORT} 👋 \n Connected to the database successfully 👍`
+      );
+    } catch (error) {
+      infoLogger(
+        `\n "Unable to connect to the database:", ${error.message} \n server is shutting down`
+      );
+      errorLogger(error);
+      await sequelize.close();
+      server.close();
+    }
+  });
+}
