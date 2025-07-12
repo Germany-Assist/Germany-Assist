@@ -36,15 +36,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create test database
-        env:
-          PGHOST: localhost
-          PGUSER: postgres
-          PGPASSWORD: "123456789"
-        run: |
-          psql -c "CREATE DATABASE germany_assist_testing;"
-          psql -d germany_assist_testing -c "GRANT ALL PRIVILEGES ON DATABASE germany_assist_testing TO postgres;"
-
       - name: Run tests
         env:
           NODE_ENV: "test"
