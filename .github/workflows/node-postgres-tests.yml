@@ -1,0 +1,62 @@
+name: Node.js tests
+
+on:
+  push:
+    branches: ["**"] # Double asterisk matches all branches
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "123456789"
+          POSTGRES_DB: germany_assist_testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        env:
+          NODE_ENV: "test"
+          SERVER_PORT: "3000"
+          DB_USERNAME: "postgres"
+          DB_PASSWORD: "123456789"
+          DB_NAME: "germany_assist_testing"
+          DB_HOST: "127.0.0.1"
+          DB_DIALECT: "postgres"
+          DB_PORT: "5432"
+          LOG_LEVEL: "debug"
+          ACCESS_TOKEN_SECRET: "testSecret"
+          REFRESH_TOKEN_SECRET: "refSecret"
+          ACCESS_TOKEN_EXPIRE_DURATION: "15m"
+          REFRESH_TOKEN_EXPIRE_DURATION: "7d"
+        run: npm run workflowTest
