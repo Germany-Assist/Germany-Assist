@@ -55,8 +55,8 @@ jobs:
           DB_DIALECT: "postgres"
           DB_PORT: "5432"
           LOG_LEVEL: "debug"
-          ACCESS_TOKEN_SECRET = "testSecret"
-          REFRESH_TOKEN_SECRET = "refSecret"
-          ACCESS_TOKEN_EXPIRE_DURATION = "15m";
-          REFRESH_TOKEN_EXPIRE_DURATION = "7d";
+          ACCESS_TOKEN_SECRET: "testSecret"
+          REFRESH_TOKEN_SECRET: "refSecret"
+          ACCESS_TOKEN_EXPIRE_DURATION: "15m"
+          REFRESH_TOKEN_EXPIRE_DURATION: "7d"
         run: npm run workflowTest
