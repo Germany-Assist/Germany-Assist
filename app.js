@@ -13,22 +13,27 @@ import contractRouter from "./routes/contract.routes.js";
 import businessProfileRouter from "./routes/busniessProfile.routes.js";
 import providerProfileRouter from "./routes/providerProfile.routes.js";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
+import cookieParser from "cookie-parser";
 import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
 import { AppError } from "./utils/error.class.js";
 import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
 
+
 const app = express();
 const server = createServer(app);
+//
+app.use(cookieParser());
+//
 app.use(express.json());
 app.use(cors());
 app.use(morganMiddleware);
-app.use(errorMiddleware);
 
 app.use("/api/user", userRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/review", reviewRouter);
-
-
+app.use("/api/user", userRouter);
+app.use("/api/service", serviceRouter);
+app.use("/api/review", reviewRouter);
 app.use("/api/asset", assteRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/contract", contractRouter);
@@ -37,17 +42,11 @@ app.use("/api/provider", providerProfileRouter);
 
 
 
-app.use("/", async (req, res, next) => {
-  try {
-    await Promise.resolve().then(() => {
+app.use("/", (req, res, next) => {
       throw new AppError(404, "bad route", true);
-    });
-  } catch (error) {
-    next(error);
-  }
 });
 
-
+app.use(errorMiddleware);
 server.listen(SERVER_PORT, async () => {
   try {
     await sequelize.authenticate();
