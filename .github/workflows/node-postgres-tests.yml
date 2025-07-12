@@ -40,7 +40,7 @@ jobs:
         env:
           PGHOST: localhost
           PGUSER: postgres
-          PGPASSWORD: postgres
+          PGPASSWORD: "123456789"
         run: |
           psql -c "CREATE DATABASE germany_assist_testing;"
           psql -d germany_assist_testing -c "GRANT ALL PRIVILEGES ON DATABASE germany_assist_testing TO postgres;"
