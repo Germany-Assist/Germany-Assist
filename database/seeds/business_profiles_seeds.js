@@ -1,4 +1,4 @@
-import BusinessProfiles from "../models/business_profiles.js";
+import BusinessProfiles from "../models/business.js";
 const data = [
   {
     name: "TechNova Solutions",

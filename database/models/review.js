@@ -28,7 +28,6 @@ Review.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "reviews",
   }
 );
 export default Review;

@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../connection.js";
 class User extends Model {}
 
 User.init(
@@ -34,7 +34,6 @@ User.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "users",
   }
 );
 export default User;

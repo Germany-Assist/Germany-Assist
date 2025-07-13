@@ -1,7 +1,7 @@
 import db from "../database/dbIndex.js";
 
 export const createContract = async (contractData) => {
-  return await db.Contracts.create({
+  return await db.Contract.create({
     name: contractData.name,
     about: contractData.about,
     description: contractData.description,
@@ -11,17 +11,17 @@ export const createContract = async (contractData) => {
 };
 
 export const getAllContracts = async (filters = {}) => {
-  return await db.Contracts.findAll({ where: filters });
+  return await db.Contract.findAll({ where: filters });
 };
 
 export const getContractById = async (id) => {
-  const contract = await db.Contracts.findByPk(id);
+  const contract = await db.Contract.findByPk(id);
   if (!contract) throw new Error("Contract not found");
   return contract;
 };
 
 export const updateContract = async (id, updateData) => {
-  const contract = await db.Contracts.findByPk(id);
+  const contract = await db.Contract.findByPk(id);
   if (!contract) throw new Error("Contract not found");
 
   await contract.update(updateData);
@@ -29,7 +29,7 @@ export const updateContract = async (id, updateData) => {
 };
 
 export const deleteContract = async (id) => {
-  const contract = await db.Contracts.findByPk(id);
+  const contract = await db.Contract.findByPk(id);
   if (!contract) throw new Error("Contract not found");
 
   await contract.destroy();
@@ -37,7 +37,7 @@ export const deleteContract = async (id) => {
 };
 
 export const restoreContract = async (id) => {
-  const contract = await db.Contracts.findOne({
+  const contract = await db.Contract.findOne({
     where: { id },
     paranoid: false,
   });

@@ -1,4 +1,4 @@
-import Contracts from "../models/contracts.js";
+import Contracts from "../models/contract.js";
 const data = [
   {
     name: "Premium Web Development Service Agreement",

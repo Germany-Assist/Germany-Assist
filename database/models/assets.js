@@ -15,6 +15,7 @@ Asset.init(
     },
     userId: {
       type: DataTypes.INTEGER(),
+      allowNull: false,
     },
     businessProfileId: {
       type: DataTypes.INTEGER(),
@@ -23,6 +24,9 @@ Asset.init(
       type: DataTypes.INTEGER(),
     },
     serviceId: {
+      type: DataTypes.INTEGER(),
+    },
+    postId: {
       type: DataTypes.INTEGER(),
     },
     type: {
@@ -41,7 +45,6 @@ Asset.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "assets",
   }
 );
 export default Asset;

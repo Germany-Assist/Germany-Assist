@@ -1,10 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
-class ProvidersProfile extends Model {}
+class Provider extends Model {}
 
-ProvidersProfile.init(
+Provider.init(
   {
-    // business that teaches courses
     name: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -36,12 +35,15 @@ ProvidersProfile.init(
     image: {
       type: DataTypes.TEXT(),
     },
+    isVerified: {
+      type: DataTypes.BOOLEAN(),
+      defaultValue: false,
+    },
   },
 
   {
     sequelize,
     paranoid: true,
-    modelName: "providers_profiles",
   }
 );
-export default ProvidersProfile;
+export default Provider;

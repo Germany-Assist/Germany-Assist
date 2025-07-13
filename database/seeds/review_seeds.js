@@ -1,4 +1,4 @@
-import Review from "../models/reviews.js";
+import Review from "../models/review.js";
 
 const data = [
   // Reviews for CodeMaster Academy services (serviceId 1-4)

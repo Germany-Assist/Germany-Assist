@@ -1,8 +1,8 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
-class Contracts extends Model {}
+class Contract extends Model {}
 
-Contracts.init(
+Contract.init(
   {
     name: {
       type: DataTypes.CHAR(50),
@@ -27,7 +27,6 @@ Contracts.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "contracts",
   }
 );
-export default Contracts;
+export default Contract;

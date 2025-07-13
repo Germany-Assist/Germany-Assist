@@ -1,7 +1,7 @@
 import db from "../database/dbIndex.js";
 
 export const createBusinessProfile = async (profileData) => {
-  return await db.BusinessProfiles.create({
+  return await db.Business.create({
     name: profileData.name,
     about: profileData.about,
     description: profileData.description,
@@ -13,17 +13,17 @@ export const createBusinessProfile = async (profileData) => {
 };
 
 export const getAllBusinessProfiles = async (filters = {}) => {
-  return await db.BusinessProfiles.findAll({ where: filters });
+  return await db.Business.findAll({ where: filters });
 };
 
 export const getBusinessProfileById = async (id) => {
-  const profile = await db.BusinessProfiles.findByPk(id);
+  const profile = await db.Business.findByPk(id);
   if (!profile) throw new Error("Business profile not found");
   return profile;
 };
 
 export const updateBusinessProfile = async (id, updateData) => {
-  const profile = await db.BusinessProfiles.findByPk(id);
+  const profile = await db.Business.findByPk(id);
   if (!profile) throw new Error("Business profile not found");
 
   await profile.update(updateData);
@@ -31,7 +31,7 @@ export const updateBusinessProfile = async (id, updateData) => {
 };
 
 export const deleteBusinessProfile = async (id) => {
-  const profile = await db.BusinessProfiles.findByPk(id);
+  const profile = await db.Business.findByPk(id);
   if (!profile) throw new Error("Business profile not found");
 
   await profile.destroy();
@@ -39,7 +39,7 @@ export const deleteBusinessProfile = async (id) => {
 };
 
 export const restoreBusinessProfile = async (id) => {
-  const profile = await db.BusinessProfiles.findOne({
+  const profile = await db.Business.findOne({
     where: { id },
     paranoid: false,
   });
@@ -52,7 +52,7 @@ export const restoreBusinessProfile = async (id) => {
 };
 
 export const incrementProfileViews = async (id) => {
-  const profile = await db.BusinessProfiles.findByPk(id);
+  const profile = await db.Business.findByPk(id);
   if (!profile) throw new Error("Business profile not found");
 
   return await profile.increment("views");

@@ -1,7 +1,7 @@
 import db from "../database/dbIndex.js";
 
 export const createProviderProfile = async (profileData) => {
-  return await db.ProvidersProfile.create({
+  return await db.Provider.create({
     name: profileData.name,
     about: profileData.about,
     description: profileData.description,
@@ -15,23 +15,23 @@ export const createProviderProfile = async (profileData) => {
 };
 
 export const getAllProviderProfiles = async (filters = {}) => {
-  return await db.ProvidersProfile.findAll({ where: filters });
+  return await db.Provider.findAll({ where: filters });
 };
 
 export const getProviderProfileById = async (id) => {
-  const profile = await db.ProvidersProfile.findByPk(id);
+  const profile = await db.Provider.findByPk(id);
   if (!profile) throw new Error("Provider profile not found");
   return profile;
 };
 
 export const getProviderProfileByEmail = async (email) => {
-  const profile = await db.ProvidersProfile.findAll({ where: { email } });
+  const profile = await db.Provider.findAll({ where: { email } });
   if (profile.length < 1) throw new Error("Provider profile not found");
   return profile;
 };
 
 export const updateProviderProfile = async (id, updateData) => {
-  const profile = await db.ProvidersProfile.findByPk(id);
+  const profile = await db.Provider.findByPk(id);
   if (!profile) throw new Error("Provider profile not found");
   console.log(updateData);
   await profile.update(updateData);
@@ -39,7 +39,7 @@ export const updateProviderProfile = async (id, updateData) => {
 };
 
 export const deleteProviderProfile = async (id) => {
-  const profile = await db.ProvidersProfile.findByPk(id);
+  const profile = await db.Provider.findByPk(id);
   if (!profile) throw new Error("Provider profile not found");
 
   await profile.destroy();
@@ -47,7 +47,7 @@ export const deleteProviderProfile = async (id) => {
 };
 
 export const restoreProviderProfile = async (id) => {
-  const profile = await db.ProvidersProfile.findOne({
+  const profile = await db.Provider.findOne({
     where: { id },
     paranoid: false,
   });
@@ -60,7 +60,7 @@ export const restoreProviderProfile = async (id) => {
 };
 
 export const incrementProfileViews = async (id) => {
-  const profile = await db.ProvidersProfile.findByPk(id);
+  const profile = await db.Provider.findByPk(id);
   if (!profile) throw new Error("Provider profile not found");
 
   return await profile.increment("views");
@@ -68,7 +68,7 @@ export const incrementProfileViews = async (id) => {
 ////////////////////////////////////////////////////////////////
 //////////this should be called with transactions only for reviews and rating/////////////////
 export const updateProfileRating = async (id, newRating) => {
-  const profile = await db.ProvidersProfile.findByPk(id);
+  const profile = await db.Provider.findByPk(id);
   if (!profile) throw new Error("Provider profile not found");
   const currentTotalReviews = profile.total_reviews || 0;
   const currentRating = profile.rating || 0;
