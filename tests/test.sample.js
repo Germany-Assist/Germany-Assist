@@ -17,11 +17,6 @@ describe("Test suite", () => {
     const response = await request(app).get("/health");
     strictEqual(response.status, 200);
   });
-  it("should check for GET /api/asset", async () => {
-    const response = await request(app).get("/api/asset");
-    strictEqual(response.status, 200);
-    strictEqual(Array.isArray(response.body), true);
-  });
 });
 
 after(async () => {

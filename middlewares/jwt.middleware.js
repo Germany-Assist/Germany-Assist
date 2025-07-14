@@ -6,6 +6,7 @@ import {
   REFRESH_TOKEN_EXPIRE_DURATION,
 } from "../configs/serverConfig.js";
 import jwt from "jsonwebtoken";
+import { AppError } from "../utils/error.class.js";
 
 export const authenticateJwt = expressjwt({
   secret: ACCESS_TOKEN_SECRET,
@@ -26,7 +27,7 @@ export function verifyToken(token) {
     const decode = jwt.verify(token, REFRESH_TOKEN_SECRET);
     return decode;
   } catch (error) {
-    throw new Error("bad token");
+    throw new AppError(403, "invalid token", true, "invalid token");
   }
 }
 
