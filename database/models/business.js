@@ -1,8 +1,8 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../../database/connection.js";
-class BusinessProfiles extends Model {}
+import { sequelize } from "../connection.js";
+class Business extends Model {}
 
-BusinessProfiles.init(
+Business.init(
   {
     name: {
       type: DataTypes.STRING(50),
@@ -29,11 +29,14 @@ BusinessProfiles.init(
     image: {
       type: DataTypes.TEXT(),
     },
+    isVerified: {
+      type: DataTypes.BOOLEAN(),
+      defaultValue: false,
+    },
   },
   {
     sequelize,
     paranoid: true,
-    modelName: "business_profiles",
   }
 );
-export default BusinessProfiles;
+export default Business;

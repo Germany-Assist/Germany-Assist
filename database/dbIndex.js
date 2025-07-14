@@ -1,65 +1,69 @@
-import User from "./models/users.js";
-import BusinessProfiles from "./models/business_profiles.js";
-import ProvidersProfile from "./models/providers_profiles.js";
-import Services from "./models/services.js";
+import User from "./models/user.js";
+import Business from "./models/business.js";
+import Provider from "./models/provider.js";
+import Services from "./models/service.js";
 import Asset from "./models/assets.js";
-import Contracts from "./models/contracts.js";
-import Review from "./models/reviews.js";
+import Contract from "./models/contract.js";
+import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
-import Favourit from "./models/users_services_favourit.js";
-
-let associatedDefined = false;
-
+import Policy from "./models/policy.js";
+import UsersServices from "./models/onlyToSeed_users_services.js";
 export const defineConstarins = () => {
-  if (associatedDefined) return;
-  associatedDefined = true;
+  Policy.belongsTo(User);
+  Policy.belongsTo(Business);
+  Policy.belongsTo(Provider);
 
-  User.belongsToMany(BusinessProfiles, { through: "users_business_profiles" });
-  User.belongsToMany(ProvidersProfile, { through: "users_providers_profiles" });
-  // for creation
-  User.hasMany(Services);
-  User.hasMany(Asset);
-  User.belongsToMany(Services, { through: "users_services" });
-  User.belongsToMany(Services, { through: "users_services_favourit" });
-  User.hasMany(Review, { foreignKey: "userId", as: "writtenReviews" });
-
-  BusinessProfiles.belongsToMany(User, { through: "users_business_profiles" });
-  BusinessProfiles.hasMany(Asset);
-
-  ProvidersProfile.belongsToMany(User, { through: "users_providers_profiles" });
-  ProvidersProfile.hasMany(Services);
-  ProvidersProfile.hasMany(Asset);
-  ProvidersProfile.hasMany(Review);
-  ProvidersProfile.hasMany(Coupon);
-
-  Services.belongsTo(Contracts);
-  Services.belongsTo(ProvidersProfile);
-  Services.belongsToMany(User, { through: "users_services" });
-  Services.belongsToMany(User, { through: "users_services_favourit" });
-  Services.hasMany(Review, { foreignKey: "serviceId", as: "serviceReviews" });
-
-  Review.belongsTo(User, { foreignKey: "userId", as: "reviewAuthor" });
-  Review.belongsTo(Services, { foreignKey: "serviceId", as: "service" });
-
-  Asset.belongsTo(BusinessProfiles);
-  Asset.belongsTo(ProvidersProfile);
   Asset.belongsTo(Services);
-};
+  Asset.belongsTo(Business);
+  Asset.belongsTo(Provider);
 
-// this needs to be edited before production
-if (process.env.NODE_ENV == "dev") {
+  User.hasMany(Asset);
+  User.hasMany(Review);
+
+  Services.belongsTo(Contract);
+  Services.belongsTo(Provider);
+  Services.hasMany(Review);
+
+  //user can be the root acount for multiple businesses or providers
+  User.hasMany(Business);
+  User.hasMany(Provider);
+
+  // the id of the creator
+  User.hasMany(Services);
+
+  //user has many services in type : favourit, requested
+  User.belongsToMany(Services, {
+    through: UsersServices,
+    foreignKey: "userId",
+    otherKey: "serviceId",
+    unique: false,
+  });
+  Services.belongsToMany(User, {
+    through: UsersServices,
+    foreignKey: "serviceId",
+    otherKey: "userId",
+    unique: false,
+  });
+  Provider.hasMany(Services);
+  Provider.hasMany(Asset);
+  Provider.hasMany(Review);
+  Provider.hasMany(Coupon);
+  Provider.hasMany(Asset);
+  return true;
+};
+if (process.env.SEEDING !== "true") {
   defineConstarins();
 }
 const db = {
   User,
-  BusinessProfiles,
-  ProvidersProfile,
+  Business,
+  Provider,
   Services,
   Asset,
-  Contracts,
+  Contract,
   Review,
   Coupon,
-  Favourit,
+  Policy,
 };
 
 export default db;

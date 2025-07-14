@@ -1,4 +1,4 @@
-import Services from "../models/services.js";
+import Services from "../models/service.js";
 const data = [
   // CodeMaster Academy (providersProfileId: 1) - 4 services
   {

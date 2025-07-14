@@ -1,8 +1,8 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
-class Services extends Model {}
+class Service extends Model {}
 
-Services.init(
+Service.init(
   {
     title: {
       type: DataTypes.STRING(50),
@@ -45,7 +45,6 @@ Services.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "services",
   }
 );
-export default Services;
+export default Service;

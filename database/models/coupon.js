@@ -24,7 +24,6 @@ Coupon.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "coupons",
   }
 );
 export default Coupon;

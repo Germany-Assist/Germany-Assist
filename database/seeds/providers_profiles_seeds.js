@@ -1,4 +1,4 @@
-import ProvidersProfile from "../models/providers_profiles.js";
+import ProvidersProfile from "../models/provider.js";
 const data = [
   {
     name: "CodeMaster Academy",
