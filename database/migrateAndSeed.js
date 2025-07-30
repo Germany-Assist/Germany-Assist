@@ -9,8 +9,6 @@ import userServicesSeed from "./seeds/users_services_seeds.js";
 import reviewSeed from "./seeds/review_seeds.js";
 import couponSeed from "./seeds/coupon_seeds.js";
 import contractSeed from "./seeds/contracts_seeds.js";
-import policySeed from "./seeds/policy_seed.js";
-
 process.env.SEEDING = true;
 
 ///////////////////////////////////////////////////////////////////////
@@ -26,7 +24,8 @@ import ProvidersProfile from "./models/provider.js";
 import Services from "./models/service.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
-import Policy from "./models/policy.js";
+import Chat from "./models/chat.js";
+
 ///////////////////////////////////////////////////////////////////////
 //
 //
@@ -41,19 +40,19 @@ try {
 
     //Stage 2
     //Seeds the data
-    console.log("starting to seeds ⌛");
-    await seedUsers();
-    await businessProfilesSeed();
-    await providersProfilesSeed();
-    await contractSeed();
-    await servicesSeed();
-    await assistsSeed();
-    await userServicesSeed();
-    await reviewSeed();
-    await couponSeed();
-    await policySeed();
-    console.log("finnished seeding 👍");
-
+    if (process.env.NODE_ENV != "test") {
+      console.log("starting to seeds ⌛");
+      await seedUsers();
+      await businessProfilesSeed();
+      await providersProfilesSeed();
+      await contractSeed();
+      await servicesSeed();
+      await assistsSeed();
+      await userServicesSeed();
+      await reviewSeed();
+      await couponSeed();
+      console.log("finnished seeding 👍");
+    }
     //Stage 3
     //Apply the constraints
     console.log("defining constrains ⌛");

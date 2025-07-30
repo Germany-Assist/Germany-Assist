@@ -6,13 +6,10 @@ import Asset from "./models/assets.js";
 import Contract from "./models/contract.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
-import Policy from "./models/policy.js";
+import Chat from "./models/chat.js";
 import UsersServices from "./models/onlyToSeed_users_services.js";
-export const defineConstarins = () => {
-  Policy.belongsTo(User);
-  Policy.belongsTo(Business);
-  Policy.belongsTo(Provider);
 
+export const defineConstarins = () => {
   Asset.belongsTo(Services);
   Asset.belongsTo(Business);
   Asset.belongsTo(Provider);
@@ -63,7 +60,7 @@ const db = {
   Contract,
   Review,
   Coupon,
-  Policy,
+  Chat,
 };
 
 export default db;

@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { SERVER_PORT } from "./configs/serverConfig.js";
 import { sequelize } from "./database/connection.js";
 import { userRouter } from "./routes/userRoutes.js";
+import { v4 as uuidv4 } from "uuid";
 import cors from "cors";
 import assteRouter from "./routes/assets.routes.js";
 import couponRouter from "./routes/coupons.routes.js";
@@ -17,34 +18,41 @@ import { AppError } from "./utils/error.class.js";
 import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
 import { NODE_ENV } from "./configs/serverConfig.js";
 import db from "./database/dbIndex.js";
+import { Server } from "socket.io";
+import createSocketServer from "./sockets/index.js";
+import { CLIENT_URL } from "./configs/serverConfig.js";
 export const app = express();
 export const server = createServer(app);
+const io = createSocketServer(server);
 
-app.use(cookieParser());
-
-app.use(express.json());
-app.use(cors());
-app.use(morganMiddleware);
-
-app.use("/api/user", userRouter);
-app.use("/api/asset", assteRouter);
-app.use("/api/coupon", couponRouter);
-app.use("/api/contract", contractRouter);
-app.use("/api/businessProfile", businessProfileRouter);
-app.use("/api/provider", providerProfileRouter);
+app
+  .use(cookieParser())
+  .use(express.json())
+  .use(
+    cors({
+      credentials: true,
+    })
+  )
+  .use(morganMiddleware)
+  .use("/api/user", userRouter)
+  .use("/api/asset", assteRouter)
+  .use("/api/coupon", couponRouter)
+  .use("/api/contract", contractRouter)
+  .use("/api/businessProfile", businessProfileRouter)
+  .use("/api/provider", providerProfileRouter);
 
 app.get("/health", (req, res) => {
   res.sendStatus(200);
 });
-app.use("/", async (req, res, next) => {
-  res.send(result);
-  throw new AppError(404, "bad route", true);
-});
 
-app.use(errorMiddleware);
+app
+  .use("/", async (req, res, next) => {
+    throw new AppError(404, "bad route", false);
+  })
+  .use(errorMiddleware);
 
 if (NODE_ENV !== "test") {
-  server.listen(SERVER_PORT, async () => {
+  server.listen(3000, "0.0.0.0", async () => {
     try {
       await sequelize.authenticate();
       await import("./database/dbIndex.js");

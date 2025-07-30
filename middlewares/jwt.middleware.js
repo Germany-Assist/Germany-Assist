@@ -27,7 +27,15 @@ export function verifyToken(token) {
     const decode = jwt.verify(token, REFRESH_TOKEN_SECRET);
     return decode;
   } catch (error) {
-    throw new AppError(403, "invalid token", true, "invalid token");
+    throw new AppError(401, "invalid token", true, "invalid token");
+  }
+}
+export function verifyAccessToken(token) {
+  try {
+    const decode = jwt.verify(token, ACCESS_TOKEN_SECRET);
+    return decode;
+  } catch (error) {
+    throw new AppError(401, error.message, true, "invalid token");
   }
 }
 
