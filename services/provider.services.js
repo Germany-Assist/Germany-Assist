@@ -44,7 +44,6 @@ export const deleteProvider = async (id) => {
   const profile = await db.Provider.findByPk(id);
   if (!profile)
     throw new AppError(404, "Provider not found", true, "Provider not found");
-
   await profile.destroy();
   return { id, message: "Provider profile deleted" };
 };

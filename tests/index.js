@@ -18,9 +18,16 @@ try {
   testFiles.forEach((file) => {
     if (file === "index.js") return;
     infoLogger(`🚀 Running ${file.split(".")[0]} tests...`);
-    execSync(`node --env-file=test.env --test tests/${file}`, {
-      stdio: "inherit",
-    });
+    // the WORKFLOW_TEST refers to the env values cuz they are provided in the wokflow github yml
+    if (process.env.WORKFLOW_TEST) {
+      execSync(`node --test tests/${file}`, {
+        stdio: "inherit",
+      });
+    } else {
+      execSync(`node --env-file=test.env --test tests/${file}`, {
+        stdio: "inherit",
+      });
+    }
     console.log(`\n ✅ just finished Running ${file.split(".")[0]} tests...`);
   });
 
