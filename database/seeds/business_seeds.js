@@ -1,4 +1,4 @@
-import BusinessProfiles from "../models/business.js";
+import Business from "../models/business.js";
 const data = [
   {
     name: "TechNova Solutions",
@@ -47,6 +47,6 @@ const data = [
     phone_number: "+61 2 9876 5432",
   },
 ];
-export default async function businessProfilesSeed() {
-  await BusinessProfiles.bulkCreate(data);
+export default async function BusinessSeed() {
+  await Business.bulkCreate(data);
 }

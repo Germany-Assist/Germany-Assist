@@ -8,11 +8,7 @@ Review.init(
       type: DataTypes.TEXT(),
       allowNull: true,
     },
-    userId: {
-      type: DataTypes.INTEGER(),
-      allowNull: false,
-    },
-    providersProfileId: {
+    UserId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
@@ -20,7 +16,7 @@ Review.init(
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
-    serviceId: {
+    ServiceId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },

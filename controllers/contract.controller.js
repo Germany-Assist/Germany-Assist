@@ -1,50 +1,54 @@
-import db from "../database/dbIndex.js";
+import * as contractServices from "../services/contract.services.js";
+import { AppError } from "../utils/error.class.js";
 
-export const createContract = async (contractData) => {
-  return await db.Contract.create({
-    name: contractData.name,
-    about: contractData.about,
-    description: contractData.description,
-    requests: contractData.requests || 0,
-    contract: contractData.contract,
-  });
-};
-
-export const getAllContracts = async (filters = {}) => {
-  return await db.Contract.findAll({ where: filters });
-};
-
-export const getContractById = async (id) => {
-  const contract = await db.Contract.findByPk(id);
-  if (!contract) throw new Error("Contract not found");
-  return contract;
-};
-
-export const updateContract = async (id, updateData) => {
-  const contract = await db.Contract.findByPk(id);
-  if (!contract) throw new Error("Contract not found");
-
-  await contract.update(updateData);
-  return contract;
-};
-
-export const deleteContract = async (id) => {
-  const contract = await db.Contract.findByPk(id);
-  if (!contract) throw new Error("Contract not found");
-
-  await contract.destroy();
-  return { id, message: "Contract deleted" };
-};
-
-export const restoreContract = async (id) => {
-  const contract = await db.Contract.findOne({
-    where: { id },
-    paranoid: false,
-  });
-
-  if (!contract) throw new Error("Contract not found");
-  if (!contract.deletedAt) throw new Error("Contract is not deleted");
-
-  await contract.restore();
-  return contract;
-};
+export async function createContract(req, res, next) {
+  try {
+    const contract = await contractServices.createContract(req.body);
+    res.status(201).json(contract);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getAllContracts(req, res, next) {
+  try {
+    const contracts = await contractServices.getAllContracts(req.query);
+    res.status(200).json(contracts);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getContractById(req, res, next) {
+  try {
+    const contract = await contractServices.getContractById(req.params.id);
+    res.status(200).json(contract);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function updateContract(req, res, next) {
+  try {
+    const contract = await contractServices.updateContract(
+      req.params.id,
+      req.body
+    );
+    res.status(200).json(contract);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function deleteContract(req, res, next) {
+  try {
+    const result = await contractServices.deleteContract(req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function restoreContract(req, res, next) {
+  try {
+    const contract = await contractServices.restoreContract(req.params.id);
+    res.status(200).json(contract);
+  } catch (error) {
+    next(error);
+  }
+}

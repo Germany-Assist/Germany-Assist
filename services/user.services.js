@@ -38,7 +38,14 @@ export const getUserById = async (id) => {
     throw new AppError(401, "User not found", true, "invalid credentials");
   return user;
 };
-
+export const userExists = async (id) => {
+  try {
+    let x = await getUserById(id);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
 const getUserByEmail = async (email) => {
   return await db.User.findOne({ where: { email } });
 };
@@ -56,37 +63,4 @@ export const deleteUser = async (id) => {
     throw new AppError(401, "User not found", true, "invalid credentials");
   await user.destroy();
   return user;
-};
-
-export const listUserFriends = async (socket) => {
-  let userId = socket.userId;
-  const friendsChat = await db.Chat.findAll({
-    where: {
-      [Op.or]: [{ participant1: userId }, { participant2: userId }],
-    },
-    include: [
-      {
-        model: db.User,
-        as: "userToP1",
-        where: { id: { [Op.ne]: userId } },
-        attributes: ["id", "firstName", "lastName", "email", "image"],
-        required: false,
-      },
-      {
-        model: db.User,
-        as: "userToP2",
-        where: { id: { [Op.ne]: userId } },
-        attributes: ["id", "firstName", "lastName", "email", "image"],
-        required: false,
-      },
-    ],
-    distinct: true,
-  });
-  const friendsToNotify = friendsChat.map((i) => {
-    return i.userToP1 ? i.userToP1.id : i.userToP2.id;
-  });
-  socket.emit("friends", friendsChat);
-  // const timeStamp = await updateLastFetchAll(userId);
-
-  return { friendsToNotify, timeStamp };
 };

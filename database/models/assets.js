@@ -13,20 +13,20 @@ Asset.init(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    userId: {
+    UserId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
-    businessProfileId: {
+    BusinessId: {
       type: DataTypes.INTEGER(),
     },
-    providersProfileId: {
+    ProviderId: {
       type: DataTypes.INTEGER(),
     },
-    serviceId: {
+    ServiceId: {
       type: DataTypes.INTEGER(),
     },
-    postId: {
+    PostId: {
       type: DataTypes.INTEGER(),
     },
     type: {

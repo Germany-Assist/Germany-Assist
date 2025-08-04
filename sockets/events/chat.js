@@ -1,14 +1,16 @@
 import * as chatService from "../../services/chat.services.js";
 import { socketErrorMiddleware } from "../../middlewares/socket.error.middleware.js";
 import socketAuthMiddleware from "../../middlewares/socketAuth.middleware.js";
-import { infoLogger } from "../../utils/loggers.js";
+import { debugLogger, infoLogger } from "../../utils/loggers.js";
 import { activeUsers } from "../index.js";
 import { v4 as uuidv4 } from "uuid";
 import { AppError } from "../../utils/error.class.js";
+import { getUserById, userExists } from "../../services/user.services.js";
 
 const rateLimits = {};
 const RATE_LIMIT_WINDOW_MS = 1000;
 const MAX_CALLS = 10;
+
 function isRateLimited(socket, eventName, limit) {
   const now = Date.now();
   const key = `${socket.user.userId}:${eventName}`;
@@ -31,100 +33,268 @@ export default function chatNamespace(io) {
   chat.use(socketAuthMiddleware);
   //
   chat.on("connection", async (socket) => {
+    const userId = socket.user.userId;
     try {
-      infoLogger(
-        `New connection to chat app: ${socket.id} user id ${socket.user.userId}`
-      );
+      infoLogger(`New connection to chat app: ${socket.id} user id ${userId}`);
       //step 1 register the user online
+
       activeUsers.registerUser(socket);
       //step 2 get his friends list and conversations
+      const conversations = await chatService.getConversations(userId);
 
-      const conversations = await chatService.getConversations(
-        socket.user.userId
-      );
-      socket.emit("conversations", conversations);
-      //step 3 send user friends status and send friends user status and update status
-      let listOfFriends = chatService.filterUserFriends(
-        conversations,
-        socket.user.userId
-      );
-      let onlineFriends = activeUsers.checkIfUsersActiveByIds(listOfFriends);
-      // //A tell the user
-      socket.emit("friends-status-online", onlineFriends);
-      // //B tell the friends
-      onlineFriends.forEach((element) => {
-        if (activeUsers.getSocketIdForActiveUser(element)) {
-          chat
-            .to(activeUsers.getSocketIdForActiveUser(element))
-            .emit("friends-status-online", [socket.user.userId]);
+      if (conversations.length > 0) {
+        socket.emit("conversations", conversations);
+        //step 3 send user friends status and send friends user status and update status
+        let listOfFriends = chatService.filterUserFriends(
+          conversations,
+          userId
+        );
+        activeUsers.appendFriendToUser(userId, listOfFriends);
+        // //A tell the user
+        socket.emit("frieds-status-online", activeUsers.onlineFriends(userId));
+        // //B tell the friends
+        let onlineFriends = activeUsers.onlineFriends(userId);
+        if (onlineFriends) {
+          onlineFriends.forEach((element) => {
+            if (activeUsers.getSocketIdForActiveUser(element)) {
+              chat
+                .to(activeUsers.getSocketIdForActiveUser(element))
+                .emit("friends-status-online", [userId]);
+            }
+          });
         }
-      });
+      } else {
+        socket.noResultsError("empty conversations", "conversations");
+      }
+
       socket.on("disconnect", () => {
-        const target = activeUsers.getSocketsIdsForActiveUsers(listOfFriends);
-        if (target < 1) return;
-        infoLogger(`user disconnected from chat ${socket.user.userId}`);
-        target.forEach((i) => {
-          chat.to(i).emit("friends-status-offline", [socket.user.userId]);
-        });
-        activeUsers.removeUser(socket.user.userId);
+        try {
+          if (!activeUsers.checkIfUserActiveById(userId)) return;
+          activeUsers.removeUser(userId);
+          infoLogger(`user disconnected from chat ${userId}`);
+          let onlineFriends = activeUsers.onlineFriends(userId);
+          if (onlineFriends) {
+            onlineFriends.forEach((i) => {
+              chat.to(i).emit("friends-status-offline", [userId]);
+            });
+          }
+        } catch (error) {
+          if (error instanceof AppError) return socket.error(error);
+          const er = new AppError(
+            500,
+            error.message,
+            true,
+            "opps",
+            `user id ${userId}`
+          );
+          if (typeof callback === "function") {
+            callback({
+              success: false,
+              message: er.publicMessage,
+            });
+          }
+          socket.error(error);
+        }
       });
       ////// on new friends also update friends list
-      socket.on("add-new-friend", async (friendId) => {
-        if (listOfFriends.includes(Number(friendId))) return false;
-        listOfFriends.push(Number(friendId));
+      socket.on("add-new-friend", async (friendId, callback) => {
+        try {
+          infoLogger(`adding new friend user ${userId} is adding ${friendId}`);
+          if (!friendId) {
+            socket.validationError("invalid id", "add-new-friend");
+            if (typeof callback === "function") {
+              callback({
+                success: false,
+                message: "invalid id",
+              });
+              return false;
+            }
+          }
+          if (!(await userExists(friendId))) {
+            socket.validationError(
+              "The specified user does not exist",
+              "add-new-friend"
+            );
+            if (typeof callback === "function") {
+              callback({
+                success: false,
+                message: "The specified user does not exist",
+              });
+            }
+            return false;
+          }
+          let onlineFriends = activeUsers.onlineFriends(userId);
+          if (onlineFriends && onlineFriends.includes(Number(friendId))) {
+            if (typeof callback === "function") {
+              callback({
+                success: false,
+                message: "already exists",
+              });
+            }
+            return socket.noResultsError("already exists", "add-new-friend");
+          }
 
-        const { newChat, friendProfile, userProfile } =
-          await chatService.startNewConversation(friendId, socket.user.userId);
-        if (newChat) {
-          socket.emit("new-friend", newChat, friendProfile);
-          const friendSocket = activeUsers.checkIfUserActiveById(friendId);
-          if (friendSocket)
-            chat.to(friendSocket).emit("new-friend", newChat, userProfile);
+          const { newChat, friendProfile, userProfile } =
+            await chatService.startNewConversation(friendId, userId);
+
+          if (newChat) {
+            activeUsers.appendFriendToUser(userId, Number(friendId));
+            socket.emit("new-friend", newChat, friendProfile);
+            const friendSocket = activeUsers.checkIfUserActiveById(friendId);
+            if (friendSocket)
+              chat.to(friendSocket).emit("new-friend", newChat, userProfile);
+          }
+          if (typeof callback === "function") {
+            callback({ success: true });
+          }
+        } catch (error) {
+          if (error instanceof AppError) {
+            if (typeof callback === "function") {
+              callback({ success: false, message: error.publicMessage });
+            }
+            socket.error(error);
+          } else {
+            const er = new AppError(
+              500,
+              error.message,
+              true,
+              "opps",
+              `user id ${userId}`
+            );
+            if (typeof callback === "function") {
+              console.log(error);
+              callback({
+                success: false,
+                message: er.publicMessage,
+              });
+            }
+            socket.error(error);
+          }
         }
       });
-      socket.on("get-conversation", async (friendId) => {
-        const con = await chatService.getConversation(
-          friendId,
-          socket.user.userId
+
+      socket.on("get-conversation", async (friendId, callback) => {
+        infoLogger(
+          `${userId} is trying to fetch his con with ${typeof friendId}`
         );
-        if (!con) return;
-        socket.emit("recive-conversation", con);
-        let friend = activeUsers.checkIfUserActiveById(friendId);
-        if (friend) {
-          chat.to(friend).emit("just-fetched", con.id);
+        try {
+          if (!friendId || typeof friendId !== "number") {
+            if (typeof callback === "function")
+              callback({ success: false, message: "Invalid friend ID" });
+            return socket.validationError(
+              "Invalid friend ID",
+              "get-conversation"
+            );
+          }
+          const con = await chatService.getConversation(friendId, userId);
+          if (!con) {
+            if (typeof callback === "function")
+              callback({
+                success: false,
+                message: "Conversation not found",
+              });
+            return socket.noResultsError(
+              "Conversation not found",
+              "get-conversation"
+            );
+          }
+
+          socket.emit("recive-conversation", con);
+
+          let friend = activeUsers.checkIfUserActiveById(friendId);
+          if (friend) {
+            chat.to(friend).emit("just-fetched", con.id);
+          }
+          if (typeof callback === "function") callback({ success: true });
+        } catch (error) {
+          if (error instanceof AppError) {
+            if (typeof callback === "function") {
+              callback({ success: true, message: error.publicMessage });
+            }
+            socket.error(error);
+            return;
+          } else {
+            const er = new AppError(
+              500,
+              error.message,
+              true,
+              "opps",
+              `user id ${userId}`
+            );
+            if (typeof callback === "function") {
+              callback({
+                success: false,
+                message: er.publicMessage,
+              });
+            }
+            socket.error(error);
+          }
         }
       });
-      socket.on("new-message", async (message, participant, ack) => {
-        if (isRateLimited(socket, "new-message")) {
-          ack("faild");
-          socket.rateLimitError("sending new messages");
+      /////////////////////////////////////
+      socket.on("send-message", async (message, participant, ack) => {
+        if (!message || typeof message !== "object") {
+          if (typeof ack === "function")
+            ack({ success: false, message: "Invalid message format" });
+          return socket.validationError(
+            "Invalid message format",
+            "send-message"
+          );
         }
-        const con = await chatService.getConversation(
-          participant,
-          socket.user.userId
-        );
-        if (!con) return;
-        let senderId = socket.user.userId;
-        infoLogger(`message from ${senderId} to ${participant}`);
+        if (!participant) {
+          if (typeof ack === "function")
+            ack({ success: false, message: "Missing participant" });
+          return socket.validationError("Missing participant", "send-message");
+        }
+        if (
+          !message.body &&
+          typeof message.body !== "string" &&
+          message.body.trim().length === 0 &&
+          message.body.trim().length > 1000
+        ) {
+          if (typeof ack === "function")
+            ack({ success: false, message: "Invalid message format" });
+          return socket.validationError(
+            "Invalid message format",
+            "send-message"
+          );
+        }
+        if (isRateLimited(socket, "send-message")) {
+          if (typeof ack === "function")
+            ack({ success: false, status: "limit reached" });
+          socket.rateLimitError("sending messages");
+        }
+        const con = await chatService.getConversation(participant, userId);
+        if (!con) {
+          if (typeof ack === "function")
+            ack({
+              success: false,
+              message: "Invalid message format",
+            });
+          socket.noResultsError("conversation not found", "send-message");
+        }
+
+        infoLogger(`message from ${userId} to ${participant}`);
         if (message && participant && con) {
           let messageObj = {
-            message: message.body,
+            body: message.body.trim(),
             type: message.type,
             timestamp: Date.now().toString(),
             id: uuidv4(),
-            senderId,
+            senderId: userId,
             conId: con.id,
             stored: true,
             seen: false,
             delivered: false,
           };
+
           //send the message to the particepent
           const parSocket = activeUsers.getSocketIdForActiveUser(participant);
           if (parSocket) {
             chat.to(parSocket).emit(
               "new-message",
               { ...messageObj, stored: false },
-              //////callback for the frontend////////
+              ////// callback for the frontend extra level to check if disconnected during sending however this extrem ////////
               async (status) => {
                 socket.emit(
                   "update-message-status",
@@ -137,15 +307,20 @@ export default function chatNamespace(io) {
                   ...messageObj,
                   delivered: true,
                 });
+                //indecates successfull delivery to the target user
+                if (typeof ack === "function")
+                  ack({ success: true, message: "recived" });
               }
             );
           } else {
             await chatService.updateChat(con, messageObj);
-            //indecates successfull delivery
-            ack("success");
+            //indecates successfull delivery to the server
+            if (typeof ack === "function")
+              ack({ success: true, message: "sent" });
           }
         }
       });
+
       socket.on(
         "update-message-status",
         async (participantId, msgId, status) => {
@@ -156,7 +331,6 @@ export default function chatNamespace(io) {
             status || "seen",
             true
           );
-
           const par = activeUsers.getSocketIdForActiveUser(participantId);
           if (par) {
             io.to(par).emit("update-message-status", conId, msgId, "seen");
@@ -167,7 +341,13 @@ export default function chatNamespace(io) {
       if (error instanceof AppError) {
         socket.error(error);
       } else {
-        const er = new AppError(500, error.message, true, "ops");
+        const er = new AppError(
+          500,
+          error.message,
+          true,
+          "opps",
+          `user id ${userId}`
+        );
         socket.error(error);
       }
     }

@@ -1,0 +1,55 @@
+import db from "../database/dbIndex.js";
+
+export async function createService(serviceData) {
+  return await db.Service.create(serviceData);
+}
+
+export async function getAllServices() {
+  return await db.Service.findAll();
+}
+
+export async function getServiceById(id) {
+  return await db.Service.findByPk(id);
+}
+
+export async function getServicesByUserId(userId) {
+  return await db.Service.findAll({ where: { UserId: userId } });
+}
+
+export async function getServicesByProviderId(providerId) {
+  return await db.Service.findAll({ where: { ProviderId: providerId } });
+}
+
+export async function getServicesByType(type) {
+  return await db.Service.findAll({ where: { type } });
+}
+
+export async function updateService(id, updateData) {
+  const service = await db.Service.findByPk(id);
+  if (!service)
+    throw new AppError(404, "no service found", true, "no service found");
+  if (updateData.title) service.title = updateData.title;
+  if (updateData.description) service.description = updateData.description;
+  if (updateData.type) service.type = updateData.type;
+  if (updateData.price) service.price = updateData.price;
+  if (updateData.image) service.image = updateData.image;
+  return await service.save();
+}
+
+export async function deleteService(id) {
+  const service = await db.Service.findByPk(id);
+  if (!service) throw new Error("Service not found");
+  return await service.destroy();
+}
+
+export async function restoreService(id) {
+  const service = await db.Service.findByPk(id, { paranoid: false });
+  if (!service) throw new Error("Service not found");
+  return await service.restore();
+}
+
+export async function incrementServiceViews(id) {
+  const service = await db.Service.findByPk(id);
+  if (!service) throw new Error("Service not found");
+  return await service.increment("views");
+}

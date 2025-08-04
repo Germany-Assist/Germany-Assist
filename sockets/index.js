@@ -11,7 +11,24 @@ class usersLiveModel {
       ...socket.user,
       socketId: socket.id,
       activeSince: Date.now(),
+      friends: [],
     };
+  }
+  appendFriendToUser(id, friend) {
+    if (!this.checkIfUserActiveById(id)) return false;
+    if (Array.isArray(friend)) {
+      this.users[id].friends.push(...friend.map((f) => Number(f)));
+      return true;
+    } else {
+      this.users[id].friends.push(Number(friend));
+      return true;
+    }
+  }
+
+  onlineFriends(id) {
+    if (this.users[id] && this.users[id].friends.length > 0)
+      return this.getSocketsIdsForActiveUsers(this.users[id].friends);
+    return false;
   }
   getAllUsers() {
     return this.users;
@@ -20,7 +37,8 @@ class usersLiveModel {
     delete this.users[userId];
   }
   checkIfUserActiveById(userId) {
-    return this.users[userId];
+    if (this.users[userId]) return this.users[userId];
+    return false;
   }
   checkIfUsersActiveByIds(ids) {
     let activeUsers = ids.filter((id) => this.users[id]);
@@ -28,6 +46,7 @@ class usersLiveModel {
   }
   getSocketIdForActiveUser(userId) {
     if (this.checkIfUserActiveById(userId)) return this.users[userId].socketId;
+    return false;
   }
   getSocketsIdsForActiveUsers(usersIds) {
     const activeUsers = usersIds.map((element) => {
@@ -43,7 +62,7 @@ export const activeUsers = new usersLiveModel();
 export default function createSocketServer(server) {
   const io = new Server(server, {
     cors: {
-      origin: CLIENT_URL,
+      origin: [CLIENT_URL],
       methods: ["GET", "POST"],
     },
     connectionStateRecovery: {

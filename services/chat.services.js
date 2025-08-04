@@ -1,7 +1,8 @@
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
 import { sequelize } from "../database/connection.js";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
+import { debugLogger, infoLogger } from "../utils/loggers.js";
 
 export async function updateLastFetch(userId, chatId) {
   const timestamp = Date.now().toString();
@@ -17,43 +18,65 @@ export async function updateLastFetch(userId, chatId) {
       ),
     },
     {
-      where: { id: chatId },
+      where: chatId
+        ? { id: chatId }
+        : {
+            [`participants.${userId}`]: { [Op.ne]: null },
+          },
     }
   );
-  //should triger notification
   return timestamp;
 }
 
 export async function getConversations(id) {
-  const chats = await db.Chat.findAll({
-    where: {
-      [`participants.${id}`]: { [Op.ne]: null },
-    },
-    order: [["updatedAt", "DESC"]],
-    attributes: ["id", "participants", "conversation"],
-    raw: true,
-  });
-  if (chats.length > 0) {
-    chats.forEach(async (i) => {
-      await updateLastFetch(id, i.id);
+  debugLogger("fetching all conversations for ", id);
+  try {
+    const chats = await db.Chat.findAll({
+      where: {
+        [`participants.${id}`]: { [Op.ne]: null },
+      },
+      order: [["updatedAt", "DESC"]],
+      attributes: ["id", "participants", "conversation"],
+      raw: true,
     });
+    if (chats.length < 1) return false;
+    await updateLastFetch(id);
+    return chats;
+  } catch (error) {
+    throw new AppError(
+      500,
+      error.message,
+      false,
+      "opps something went wrong",
+      `user id :${id}`
+    );
   }
-  return chats;
 }
 
 export async function getConversation(friendId, id) {
-  const chat = await db.Chat.findOne({
-    where: {
-      [Op.and]: [
-        { [`participants.${id}`]: { [Op.ne]: null } },
-        { [`participants.${friendId}`]: { [Op.ne]: null } },
-      ],
-    },
-    attributes: ["id", "participants", "conversation"],
-    raw: true,
-  });
-  await updateLastFetch(id, chat.id);
-  return chat;
+  try {
+    const chat = await db.Chat.findOne({
+      where: {
+        [Op.and]: [
+          { [`participants.${id}`]: { [Op.ne]: null } },
+          { [`participants.${friendId}`]: { [Op.ne]: null } },
+        ],
+      },
+      attributes: ["id", "participants", "conversation"],
+      raw: true,
+    });
+    if (!chat) return false;
+    await updateLastFetch(id, chat.id);
+    return chat;
+  } catch (error) {
+    throw new AppError(
+      500,
+      error.message,
+      false,
+      "opps something went wrong",
+      `user id :${id}`
+    );
+  }
 }
 export async function updateChat(con, message) {
   try {
@@ -67,19 +90,31 @@ export async function updateChat(con, message) {
       },
       { where: { id: con.id } }
     );
+
     return result;
   } catch (error) {
-    console.error("Error updating chat:", error);
-    throw error;
+    throw new AppError(500, error.message, false, "opps", `user id :${id}`);
   }
 }
 
 export async function startNewConversation(friendId, userId) {
-  if (friendId === userId) return false;
-
+  if (Number(friendId) === Number(userId))
+    throw new AppError(
+      500,
+      "user cannot create conversation with him self",
+      true,
+      "user cannot create conversation with him self",
+      `user id :${userId}`
+    );
   const exists = await getConversation(friendId, userId);
-
-  if (exists) return false;
+  if (exists)
+    throw new AppError(
+      500,
+      "Conversation already exists",
+      true,
+      "Conversation already exists",
+      `user id :${userId}`
+    );
   const newChat = await db.Chat.create({
     conversation: [],
     participants: {
@@ -93,14 +128,15 @@ export async function startNewConversation(friendId, userId) {
       },
     },
   });
-  const friendProfile = db.User.findByPk(friendId, {
+  const friendProfile = await db.User.findByPk(friendId, {
     attributes: ["id", "firstName", "lastName", "image"],
   });
-  const userProfile = db.User.findByPk(userId, {
+  const userProfile = await db.User.findByPk(userId, {
     attributes: ["id", "firstName", "lastName", "image"],
   });
   return { newChat, friendProfile, userProfile };
 }
+
 export function filterUserFriends(conversations, userId) {
   let listOfFriends = [];
   if (conversations && conversations.length > 0) {
@@ -168,6 +204,6 @@ export async function updateMessageStatus(
     );
     if (result[0] !== 0) return conId;
   } catch (error) {
-    console.log(error.message);
+    throw new AppError(500, error.message, false, "opps", `user id :${id}`);
   }
 }

@@ -9,7 +9,7 @@ Chat.init(
     id: {
       type: DataTypes.UUID,
       allowNull: false,
-      defaultValue: uuidv4(),
+      defaultValue: uuidv4,
       unique: true,
       primaryKey: true,
     },

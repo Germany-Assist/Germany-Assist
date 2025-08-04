@@ -1,4 +1,4 @@
-import ProvidersProfile from "../models/provider.js";
+import Provider from "../models/provider.js";
 const data = [
   {
     name: "CodeMaster Academy",
@@ -73,6 +73,6 @@ const data = [
     image: null,
   },
 ];
-export default async function providersProfilesSeed() {
-  await ProvidersProfile.bulkCreate(data);
+export default async function ProviderSeed() {
+  await Provider.bulkCreate(data);
 }

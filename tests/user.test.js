@@ -20,17 +20,10 @@ export const injectUserInDb = async (overrides = {}) => {
   userData.password = hashPassword(userData.password);
   return db.User.create(userData);
 };
+
 after(async () => {
   try {
-    await sequelize.close();
-    server.close();
-  } catch (error) {
-    errorLogger(error);
-  }
-});
-before(async () => {
-  try {
-    await sequelize.authenticate();
+    await db.User.destroy({ where: {}, force: true });
   } catch (error) {
     errorLogger(error);
   }
@@ -38,11 +31,7 @@ before(async () => {
 describe("User Authentication API", () => {
   beforeEach(async () => {
     try {
-      await db.User.truncate({
-        cascade: true,
-        restartIdentity: true,
-        force: true,
-      });
+      await db.User.destroy({ where: {}, force: true });
       await injectUserInDb(testUser);
     } catch (error) {
       errorLogger(error);

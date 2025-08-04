@@ -11,11 +11,11 @@ UsersServices.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    userId: {
+    UserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    serviceId: {
+    ServiceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

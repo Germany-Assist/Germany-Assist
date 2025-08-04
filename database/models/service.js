@@ -12,10 +12,10 @@ Service.init(
       type: DataTypes.TEXT(),
       allowNull: false,
     },
-    userId: {
+    UserId: {
       type: DataTypes.INTEGER(),
     },
-    providersProfileId: {
+    ProviderId: {
       type: DataTypes.INTEGER(),
     },
     views: {
@@ -35,7 +35,7 @@ Service.init(
       type: DataTypes.FLOAT(),
       allowNull: false,
     },
-    contractId: {
+    ContractId: {
       type: DataTypes.INTEGER(),
     },
     image: {

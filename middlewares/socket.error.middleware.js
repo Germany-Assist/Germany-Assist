@@ -9,30 +9,39 @@ export const socketErrorMiddleware = (socket, next) => {
     });
     errorLogger(error, {
       socketId: socket.id,
-      user: socket.user.userId,
-      error,
+      user: socket.user.id || "invalid token no user id",
     });
   };
-  socket.validationError = (error) => {
-    socket.emit("error", {
-      status: 422,
-      message: error.message,
-    });
-    errorLogger(error, {
+  socket.validationError = (message, event) => {
+    let err = new AppError(422, message, false, message);
+    errorLogger(err, {
       socketId: socket.id,
       user: socket.user.userId,
-      error,
+      event,
     });
   };
-  socket.rateLimitError = (error) => {
-    socket.emit("error", {
-      status: 429,
-      message: `limit reached for ${error}`,
-    });
-    errorLogger(`limit reached for ${error}`, {
+  socket.rateLimitError = (event) => {
+    let err = new AppError(
+      429,
+      `limit reached for ${event}`,
+      false,
+      `limit reached for ${event}`
+    );
+    errorLogger(err, {
       socketId: socket.id,
       user: socket.user.userId,
-      error,
+    });
+  };
+  socket.noResultsError = (message, event) => {
+    let err = new AppError(
+      404,
+      `${message} for ${event}`,
+      false,
+      `${message} for ${event}`
+    );
+    errorLogger(err, {
+      socketId: socket.id,
+      user: socket.user.userId,
     });
   };
   next();

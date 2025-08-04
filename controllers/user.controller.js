@@ -9,16 +9,17 @@ import {
   generateTokens,
   verifyToken,
 } from "../middlewares/jwt.middleware.js";
-import { debugLogger } from "../utils/loggers.js";
+import { debugLogger, infoLogger } from "../utils/loggers.js";
 
 // register and i will give you new access token and refresh token in a cookie
 export async function createUserController(req, res, next) {
   try {
-    debugLogger("creating new user");
+    infoLogger("creating new user");
     const data = req.body;
     const user = await createUser(data);
     const { accessToken, refreshToken } = generateTokens(user);
     const sanitizedUser = {
+      id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       DOB: user.DOB,

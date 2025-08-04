@@ -1,16 +1,9 @@
 import express from "express";
 import "./utils/loggers.js";
 import { createServer } from "http";
-import { SERVER_PORT } from "./configs/serverConfig.js";
+import { SERVER_PORT, CLIENT_URL } from "./configs/serverConfig.js";
 import { sequelize } from "./database/connection.js";
-import { userRouter } from "./routes/userRoutes.js";
-import { v4 as uuidv4 } from "uuid";
 import cors from "cors";
-import assteRouter from "./routes/assets.routes.js";
-import couponRouter from "./routes/coupons.routes.js";
-import contractRouter from "./routes/contract.routes.js";
-import businessProfileRouter from "./routes/busniessProfile.routes.js";
-import providerProfileRouter from "./routes/providerProfile.routes.js";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import cookieParser from "cookie-parser";
 import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
@@ -20,10 +13,10 @@ import { NODE_ENV } from "./configs/serverConfig.js";
 import db from "./database/dbIndex.js";
 import { Server } from "socket.io";
 import createSocketServer from "./sockets/index.js";
-import { CLIENT_URL } from "./configs/serverConfig.js";
+import apiRouter from "./routes/index.routes.js";
 export const app = express();
 export const server = createServer(app);
-const io = createSocketServer(server);
+export const io = createSocketServer(server);
 
 app
   .use(cookieParser())
@@ -34,12 +27,7 @@ app
     })
   )
   .use(morganMiddleware)
-  .use("/api/user", userRouter)
-  .use("/api/asset", assteRouter)
-  .use("/api/coupon", couponRouter)
-  .use("/api/contract", contractRouter)
-  .use("/api/businessProfile", businessProfileRouter)
-  .use("/api/provider", providerProfileRouter);
+  .use("/api", apiRouter);
 
 app.get("/health", (req, res) => {
   res.sendStatus(200);

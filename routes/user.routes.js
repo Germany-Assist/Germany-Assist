@@ -4,9 +4,9 @@ import {
   loginValidators,
 } from "../validators/userValidators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
-import * as userControllers from "../controllers/userProfileController.js";
+import * as userControllers from "../controllers/user.controller.js";
 import { authenticateJwt } from "../middlewares/jwt.middleware.js";
-export const userRouter = Router();
+const userRouter = Router();
 
 // register and i will give you new access token and refresh token in a cookie
 userRouter.post(
@@ -45,3 +45,4 @@ userRouter.get(
 // userRouter.patch("/:id", async (req, res, next) => {
 //   updateUser;
 // });
+export default userRouter;
