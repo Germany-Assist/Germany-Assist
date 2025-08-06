@@ -10,7 +10,7 @@ import {
   verifyToken,
 } from "../middlewares/jwt.middleware.js";
 import { debugLogger, infoLogger } from "../utils/loggers.js";
-
+import { AppError } from "../utils/error.class.js";
 // register and i will give you new access token and refresh token in a cookie
 export async function createUserController(req, res, next) {
   try {
@@ -37,6 +37,7 @@ export async function createUserController(req, res, next) {
     res.json({ accessToken, user: sanitizedUser });
     debugLogger(`success`);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -62,6 +63,7 @@ export async function loginUserController(req, res, next) {
     });
     res.json({ accessToken, user: sanitizedUser });
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -82,6 +84,7 @@ export async function refreshUserToken(req, res, next) {
     });
     res.send({ accessToken });
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -100,6 +103,7 @@ export async function loginUserTokenController(req, res, next) {
     };
     res.send(sanitizedUser);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

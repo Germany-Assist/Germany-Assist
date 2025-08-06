@@ -1,10 +1,12 @@
 import * as reviewServices from "../services/review.services.js";
+import { AppError } from "../utils/error.class.js";
 
 export async function createReview(req, res, next) {
   try {
     await reviewServices.createReview(req.body);
     res.sendStatus(201);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -14,6 +16,7 @@ export async function getAllReviews(req, res, next) {
     const reviews = await reviewServices.getAllReviews();
     res.status(200).json(reviews);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -23,6 +26,7 @@ export async function getReviewById(req, res, next) {
     const review = await reviewServices.getReviewById(req.params.id);
     res.status(200).json(review);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -32,6 +36,7 @@ export async function getReviewsByUserId(req, res, next) {
     const reviews = await reviewServices.getReviewsByUserId(req.params.userId);
     res.status(200).json(reviews);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -43,6 +48,7 @@ export async function getReviewsByServiceId(req, res, next) {
     );
     res.status(200).json(reviews);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -56,6 +62,7 @@ export async function updateReview(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -65,6 +72,7 @@ export async function deleteReview(req, res, next) {
     const deleted = await reviewServices.deleteReview(req.params.id);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -73,6 +81,7 @@ export async function restoreReview(req, res, next) {
     const deleted = await reviewServices.restoreReview(req.params.id);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -88,6 +97,7 @@ export async function getAverageRatingForService(req, res, next) {
     };
     res.status(200).json(response);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

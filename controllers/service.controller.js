@@ -1,4 +1,5 @@
 import * as serviceServices from "../services/service.services.js";
+import { AppError } from "../utils/error.class.js";
 
 export async function createService(req, res, next) {
   try {
@@ -19,6 +20,7 @@ export async function createService(req, res, next) {
     await serviceServices.createService(service);
     res.sendStatus(201);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -28,6 +30,7 @@ export async function getAllServices(req, res, next) {
     const services = await serviceServices.getAllServices();
     res.status(200).json(services);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -37,6 +40,7 @@ export async function getServiceById(req, res, next) {
     const service = await serviceServices.getServiceById(req.params.id);
     res.status(200).json(service);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -48,6 +52,7 @@ export async function getServicesByUserId(req, res, next) {
     );
     res.status(200).json(services);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -59,6 +64,7 @@ export async function getServicesByProviderId(req, res, next) {
     );
     res.status(200).json(services);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -68,6 +74,7 @@ export async function getServicesByType(req, res, next) {
     const services = await serviceServices.getServicesByType(req.params.type);
     res.status(200).json(services);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -77,6 +84,7 @@ export async function updateService(req, res, next) {
     await serviceServices.updateService(req.params.id, req.body);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -86,6 +94,7 @@ export async function deleteService(req, res, next) {
     await serviceServices.deleteService(req.params.id);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -95,6 +104,7 @@ export async function restoreService(req, res, next) {
     await serviceServices.restoreService(req.params.id);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -104,6 +114,7 @@ export async function incrementServiceViews(req, res, next) {
     await serviceServices.incrementServiceViews(req.params.id);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

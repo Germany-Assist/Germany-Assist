@@ -1,10 +1,12 @@
 import * as provierServices from "../services/provider.services.js";
+import { AppError } from "../utils/error.class.js";
 
 export async function createProvider(req, res, next) {
   try {
     const profile = await provierServices.createProvider(req.body);
     res.status(201).json(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -15,6 +17,7 @@ export async function getAllProviders(req, res, next) {
     const profiles = await provierServices.getAllProviders(filters);
     res.send(profiles);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -26,6 +29,7 @@ export async function getProviderById(req, res, next) {
     );
     res.send(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -34,6 +38,7 @@ export async function getProviderByEmail(req, res, next) {
     const profiles = await provierServices.getProviderByEmail(req.params.email);
     res.status(200).json(profiles);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -46,6 +51,7 @@ export async function updateProvider(req, res, next) {
     );
     res.send(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -56,6 +62,7 @@ export async function deleteProvider(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -66,6 +73,7 @@ export async function restoreProvider(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -76,6 +84,7 @@ export async function incrementViews(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -88,6 +97,7 @@ export async function updateProviderRating(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

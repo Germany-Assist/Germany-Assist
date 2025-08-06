@@ -1,6 +1,6 @@
 import { sequelize } from "../database/connection.js";
 import db from "../database/dbIndex.js";
-
+import { AppError } from "../utils/error.class.js";
 export const createReview = async (data) => {
   const { body, userId, rating, serviceId } = data;
   return await db.Review.create({

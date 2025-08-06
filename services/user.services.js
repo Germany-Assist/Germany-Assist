@@ -3,8 +3,6 @@ import db from "../database/dbIndex.js";
 import { hashPassword, hashCompare } from "../utils/bycrypt.util.js";
 import { AppError } from "../utils/error.class.js";
 import { sequelize } from "../database/connection.js";
-// import { checkUserOnline } from "../app.js";
-// import { updateLastFetchAll } from "./chat.controller.js";
 
 export const createUser = async (userData) => {
   const { firstName, lastName, email, DOB, image } = userData;

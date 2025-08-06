@@ -1,11 +1,12 @@
-import express from "express";
 import * as businessServices from "../services/business.services.js";
+import { AppError } from "../utils/error.class.js";
 
 export async function createBusiness(req, res, next) {
   try {
     const profile = await businessServices.createBusiness(req.body);
     res.status(201).json(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -15,6 +16,7 @@ export async function getAllBusiness(req, res, next) {
     const profiles = await businessServices.getAllBusiness(filters);
     res.status(200).json(profiles);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -26,6 +28,7 @@ export async function getBusinessById(req, res, next) {
     );
     res.status(200).json(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -38,6 +41,7 @@ export async function updateBusiness(req, res, next) {
     );
     res.status(200).json(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -49,6 +53,7 @@ export async function deleteBusiness(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -59,6 +64,7 @@ export async function restoreBusiness(req, res, next) {
     );
     res.status(200).json(profile);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -70,6 +76,7 @@ export async function incrementViews(req, res, next) {
     );
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

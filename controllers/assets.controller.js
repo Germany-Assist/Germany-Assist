@@ -1,3 +1,4 @@
+import { AppError } from "../utils/error.class.js";
 import * as assetServices from "./../services/asset.services.js";
 
 export async function createAsset(req, res, next) {
@@ -6,6 +7,7 @@ export async function createAsset(req, res, next) {
     const resp = await assetServices.createAsset(body);
     res.sendStatus(201);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -14,6 +16,7 @@ export async function getAllAssets(req, res, next) {
     const resp = await assetServices.getAllAssets();
     res.send(resp);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -23,6 +26,7 @@ export async function getAssetById(req, res, next) {
     const resp = await assetServices.getAssetById(id);
     res.send(resp);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -33,6 +37,7 @@ export async function updateAsset(req, res, next) {
     const resp = await assetServices.updateAsset(id, updateData);
     res.send(resp);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -42,6 +47,7 @@ export async function deleteAsset(req, res, next) {
     const resp = await assetServices.deleteAsset(id);
     res.sendStatus(200);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -51,6 +57,7 @@ export async function restoreAsset(req, res, next) {
     const resp = await assetServices.restoreAsset(id);
     res.send(resp);
   } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

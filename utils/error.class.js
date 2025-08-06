@@ -5,6 +5,10 @@ export class AppError extends Error {
     this.isOperational = isOperational || false;
     this.publicMessage = publicMessage || "ops somthing went wrong";
     this.additional = additional || ``;
+    this.trace = "";
+  }
+  appendTrace(trace) {
+    this.trace = trace;
   }
   logError() {
     return this;
