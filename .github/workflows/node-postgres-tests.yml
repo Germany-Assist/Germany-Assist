@@ -46,6 +46,7 @@ jobs:
 
       - name: Run tests
         env:
+          WORKFLOW_TEST: "true"
           NODE_ENV: "test"
           SERVER_PORT: "3000"
           DB_USERNAME: "postgres"
@@ -59,4 +60,5 @@ jobs:
           REFRESH_TOKEN_SECRET: "refSecret"
           ACCESS_TOKEN_EXPIRE_DURATION: "15m"
           REFRESH_TOKEN_EXPIRE_DURATION: "7d"
+          CLIENT_URL: "localhost:3001"
         run: npm run workflowTest

@@ -16,7 +16,7 @@ Coupon.init(
       type: DataTypes.DATE(),
       allowNull: false,
     },
-    providersProfileId: {
+    ProviderId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
@@ -24,7 +24,6 @@ Coupon.init(
   {
     sequelize,
     paranoid: true,
-    modelName: "coupons",
   }
 );
 export default Coupon;

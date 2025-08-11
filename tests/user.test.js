@@ -1,4 +1,4 @@
-import { describe, before, after, it } from "node:test";
+import { describe, before, after, it, beforeEach, afterEach } from "node:test";
 import { sequelize } from "../database/connection.js";
 import { server, app } from "../app.js";
 import request from "supertest";
@@ -7,24 +7,37 @@ import db from "../database/dbIndex.js";
 import { hashPassword } from "../utils/bycrypt.util.js";
 import assert from "node:assert";
 
-before(async () => {
-  try {
-    await sequelize.authenticate();
-  } catch (error) {
-    errorLogger(error);
-  }
-});
+const testUser = {
+  firstName: "yousif",
+  lastName: "yousif",
+  email: "yousif@test.com",
+  password: "Aa@123456",
+  DOB: "1990-07-13",
+  image: "www.image/url.png",
+};
+export const injectUserInDb = async (overrides = {}) => {
+  const userData = { ...overrides };
+  userData.password = hashPassword(userData.password);
+  return db.User.create(userData);
+};
 
 after(async () => {
   try {
-    await sequelize.close();
-    server.close();
+    await db.User.destroy({ where: {}, force: true });
   } catch (error) {
     errorLogger(error);
   }
 });
-
 describe("User Authentication API", () => {
+  beforeEach(async () => {
+    try {
+      await db.User.destroy({ where: {}, force: true });
+      await injectUserInDb(testUser);
+    } catch (error) {
+      errorLogger(error);
+    }
+  });
+
   describe("POST /user - User Registration", () => {
     it("should create a new user with valid data", async () => {
       const response = await request(app).post("/api/user").send({
@@ -74,19 +87,19 @@ describe("User Authentication API", () => {
   describe("POST /api/user/login - User Login", () => {
     it("should login with valid credentials", async () => {
       const response = await request(app).post("/api/user/login").send({
-        email: "new@example.com",
-        password: "StrongPassword123!",
+        email: testUser.email,
+        password: testUser.password,
       });
       assert.strictEqual(response.status, 200);
       assert.strictEqual(typeof response.body.accessToken, "string");
-      assert.strictEqual(response.body.user.email, "new@example.com");
+      assert.strictEqual(response.body.user.email, testUser.email);
       const cookies = response.headers["set-cookie"];
       assert(cookies.some((cookie) => cookie.includes("refreshToken")));
     });
 
     it("should reject invalid credentials", async () => {
       const response = await request(app).post("/api/user/login").send({
-        email: "test@example.com",
+        email: testUser.email,
         password: "WrongPassword123!",
       });
       assert.strictEqual(response.status, 401);
@@ -104,12 +117,9 @@ describe("User Authentication API", () => {
       );
     });
   });
+
   describe("GET /api/user/logout", () => {
     it("should clear the refresh token cookie", async () => {
-      await request(app).post("/api/user/login").send({
-        email: "new@example.com",
-        password: "StrongPassword123!",
-      });
       const response = await request(app).get("/api/user/logout").expect(200);
       const cookies = response.headers["set-cookie"];
       assert(cookies.some((cookie) => cookie.includes("refreshToken=;")));
@@ -119,8 +129,8 @@ describe("User Authentication API", () => {
   describe("POST /api/user/refresh-token", () => {
     it("should issue a new access token with valid refresh token", async () => {
       const loginResponse = await request(app).post("/api/user/login").send({
-        email: "new@example.com",
-        password: "StrongPassword123!",
+        email: testUser.email,
+        password: testUser.password,
       });
       const cookies = loginResponse.headers["set-cookie"] || [];
       const refreshTokenCookie = cookies.find((c) =>
@@ -141,15 +151,15 @@ describe("User Authentication API", () => {
   describe("GET /api/user/login - Get Current User", () => {
     it("should return user profile with valid access token", async () => {
       const loginResponse = await request(app).post("/api/user/login").send({
-        email: "new@example.com",
-        password: "StrongPassword123!",
+        email: testUser.email,
+        password: testUser.password,
       });
       const accessToken = loginResponse.body.accessToken;
       const response = await request(app)
         .get("/api/user/login")
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(200);
-      assert.strictEqual(response.body.email, "new@example.com");
+      assert.strictEqual(response.body.email, testUser.email);
     });
     it("should reject request without valid access token", async () => {
       await request(app).get("/api/user/login").expect(401);

@@ -1,83 +1,80 @@
-import db from "../database/dbIndex.js";
-import { v4 as uuidv4 } from "uuid";
+import * as couponServices from "../services/coupons.services.js";
+import { AppError } from "../utils/error.class.js";
 
-// Create a new coupon
-export const createCoupon = async (data) => {
-  const { discount_rate, expDate, providersProfileId } = data;
-  return await db.Coupon.create({
-    coupon_code: uuidv4(),
-    discount_rate,
-    expDate,
-    providersProfileId,
-  });
-};
-
-// Get all coupons
-export const getAllCoupons = async (filters = {}) => {
-  return await db.Coupon.findAll({
-    where: filters,
-  });
-};
-
-// Get coupon by ID
-export const getCouponById = async (id) => {
-  const coupon = await db.Coupon.findByPk(id);
-  if (!coupon) throw new Error("Coupon not found");
-  return coupon;
-};
-
-// Get coupon by code
-export const getCouponByCode = async (code) => {
-  const coupon = await db.Coupon.findOne({ where: { coupon_code: code } });
-  if (!coupon) throw new Error("Coupon not found");
-  return coupon;
-};
-
-// Update coupon
-export const updateCoupon = async (id, updateData) => {
-  const coupon = await db.Coupon.findByPk(id);
-  if (!coupon) throw new Error("Coupon not found");
-  if (updateData.coupon_code) {
-    delete updateData.coupon_code;
+export async function createCoupon(req, res, next) {
+  try {
+    const coupon = await couponServices.createCoupon(req.body);
+    res.sendStatus(201);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
   }
-  await coupon.update(updateData);
-  return coupon;
-};
-
-// Delete coupon (soft delete)
-export const deleteCoupon = async (id) => {
-  const coupon = await db.Coupon.findByPk(id);
-  if (!coupon) throw new Error("Coupon not found");
-  await coupon.destroy();
-  return { id, message: "Coupon deleted" };
-};
-
-// Restore soft-deleted coupon
-export const restoreCoupon = async (id) => {
-  const coupon = await db.Coupon.findOne({
-    where: { id },
-    paranoid: false,
-  });
-
-  if (!coupon) throw new Error("Coupon not found");
-  if (!coupon.deletedAt) throw new Error("Coupon is not deleted");
-
-  await coupon.restore();
-  return coupon;
-};
-
-// Validate coupon (check expiration and existence)
-export const validateCoupon = async (code) => {
-  const coupon = await db.Coupon.findOne({
-    where: { coupon_code: code },
-  });
-  if (!coupon) throw new Error("Invalid coupon code");
-  if (new Date(coupon.expDate) < new Date()) {
-    throw new Error("Coupon has expired");
+}
+export async function getAllCoupons(req, res, next) {
+  try {
+    const coupons = await couponServices.getAllCoupons(req.query);
+    res.send(coupons);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
   }
-  return {
-    valid: true,
-    discount_rate: coupon.discount_rate,
-    coupon_id: coupon.id,
-  };
-};
+}
+export async function getCouponById(req, res, next) {
+  try {
+    const coupon = await couponServices.getCouponById(req.params.id);
+    res.send(coupon);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
+
+export async function getCouponByCode(req, res, next) {
+  try {
+    const coupon = await couponServices.getCouponByCode(req.params.code);
+    res.send(coupon);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
+
+export async function updateCoupon(req, res, next) {
+  try {
+    const coupon = await couponServices.updateCoupon(req.params.id, req.body);
+    res.send(coupon);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
+
+export async function deleteCoupon(req, res, next) {
+  try {
+    const result = await couponServices.deleteCoupon(req.params.id);
+    res.sendStatus(200);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
+
+export async function restoreCoupon(req, res, next) {
+  try {
+    const coupon = await couponServices.restoreCoupon(req.params.id);
+    res.send(coupon);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
+
+export async function validateCoupon(req, res, next) {
+  try {
+    const validation = await couponServices.validateCoupon(req.params.code);
+    res.status(200).json(validation);
+  } catch (error) {
+    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
