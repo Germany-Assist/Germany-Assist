@@ -18,10 +18,7 @@ Asset.init(
       allowNull: false,
     },
     BusinessId: {
-      type: DataTypes.INTEGER(),
-    },
-    ProviderId: {
-      type: DataTypes.INTEGER(),
+      type: DataTypes.UUID,
     },
     ServiceId: {
       type: DataTypes.INTEGER(),
@@ -30,7 +27,7 @@ Asset.init(
       type: DataTypes.INTEGER(),
     },
     type: {
-      //bussness_profile , providers_profile , user, post, review
+      //bussness_profile , user, post, review
       type: DataTypes.STRING(50),
       allowNull: false,
     },

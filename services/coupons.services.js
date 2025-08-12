@@ -4,12 +4,12 @@ import { AppError } from "../utils/error.class.js";
 
 // Create a new coupon
 export const createCoupon = async (data) => {
-  const { discount_rate, expDate, provider } = data;
+  const { discount_rate, expDate, business } = data;
   return await db.Coupon.create({
     coupon_code: uuidv4(),
     discount_rate,
     expDate,
-    provider,
+    business,
   });
 };
 

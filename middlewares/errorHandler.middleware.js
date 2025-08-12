@@ -1,6 +1,12 @@
+import { AppError } from "../utils/error.class.js";
 import { errorLogger } from "../utils/loggers.js";
 
 export function errorMiddleware(err, req, res, next) {
+  if (err instanceof AppError) {
+    err.appendTrace(req.requestId);
+  } else {
+    err.trace = req.requestId;
+  }
   if (err.isOperational) {
     res.status(err.httpCode).json({
       message: err.publicMessage,

@@ -40,7 +40,8 @@ export function verifyAccessToken(token) {
 }
 
 export function generateAccessToken(user) {
-  return jwt.sign({ userId: user.id }, ACCESS_TOKEN_SECRET, {
+  const { id, role, is_root, BusinessId } = user;
+  return jwt.sign({ id, role, is_root, BusinessId }, ACCESS_TOKEN_SECRET, {
     expiresIn: ACCESS_TOKEN_EXPIRE_DURATION,
   });
 }

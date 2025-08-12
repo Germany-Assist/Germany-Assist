@@ -1,11 +1,10 @@
 import { describe, before, after, it, beforeEach, afterEach } from "node:test";
-import { sequelize } from "../database/connection.js";
-import { server, app } from "../app.js";
+import { app } from "../app.js";
 import request from "supertest";
 import { errorLogger } from "../utils/loggers.js";
 import db from "../database/dbIndex.js";
-import { hashPassword } from "../utils/bycrypt.util.js";
 import assert from "node:assert";
+import { hashPassword } from "../utils/bycrypt.util.js";
 
 const testUser = {
   firstName: "yousif",
@@ -14,6 +13,8 @@ const testUser = {
   password: "Aa@123456",
   DOB: "1990-07-13",
   image: "www.image/url.png",
+  role: "client",
+  is_root: true,
 };
 export const injectUserInDb = async (overrides = {}) => {
   const userData = { ...overrides };
@@ -21,9 +22,18 @@ export const injectUserInDb = async (overrides = {}) => {
   return db.User.create(userData);
 };
 
+before(async () => {
+  try {
+    await db.User.destroy({ where: {}, force: true });
+    await db.UserPermission.destroy({ where: {}, force: true });
+  } catch (error) {
+    errorLogger(error);
+  }
+});
 after(async () => {
   try {
     await db.User.destroy({ where: {}, force: true });
+    await db.UserPermission.destroy({ where: {}, force: true });
   } catch (error) {
     errorLogger(error);
   }
@@ -32,6 +42,7 @@ describe("User Authentication API", () => {
   beforeEach(async () => {
     try {
       await db.User.destroy({ where: {}, force: true });
+      await db.UserPermission.destroy({ where: {}, force: true });
       await injectUserInDb(testUser);
     } catch (error) {
       errorLogger(error);

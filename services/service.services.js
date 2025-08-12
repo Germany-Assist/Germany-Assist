@@ -1,3 +1,4 @@
+import { Op, where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 export async function createService(serviceData) {
@@ -16,8 +17,8 @@ export async function getServicesByUserId(userId) {
   return await db.Service.findAll({ where: { UserId: userId } });
 }
 
-export async function getServicesByProviderId(providerId) {
-  return await db.Service.findAll({ where: { ProviderId: providerId } });
+export async function getServicesByBusinessId(BusinessId) {
+  return await db.Service.findAll({ where: { BusinessId } });
 }
 
 export async function getServicesByType(type) {
@@ -35,11 +36,13 @@ export async function updateService(id, updateData) {
   if (updateData.image) service.image = updateData.image;
   return await service.save();
 }
-export async function deleteService(id) {
-  const service = await db.Service.findByPk(id);
+export async function deleteService(id, BusinessId) {
+  const service = await db.Service.findOne({
+    where: { [Op.and]: [{ id }, { BusinessId }] },
+  });
   if (!service)
     throw new AppError(404, "Service not found", true, "Service not found");
-  return await service.destroy();
+  if (service.BusinessId == BusinessId) return await service.destroy();
 }
 export async function restoreService(id) {
   const service = await db.Service.findByPk(id, { paranoid: false });

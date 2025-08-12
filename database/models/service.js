@@ -15,8 +15,8 @@ Service.init(
     UserId: {
       type: DataTypes.INTEGER(),
     },
-    ProviderId: {
-      type: DataTypes.INTEGER(),
+    BusinessId: {
+      type: DataTypes.UUID,
     },
     views: {
       type: DataTypes.INTEGER(),

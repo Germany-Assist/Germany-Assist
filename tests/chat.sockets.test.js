@@ -49,6 +49,8 @@ function connectSocket(accessToken) {
 before(async () => {
   await db.Chat.destroy({ where: {}, force: true });
   await db.User.destroy({ where: {}, force: true });
+  await db.UserPermission.destroy({ where: {}, force: true });
+
   [user1, user2, user3] = await Promise.all([
     request(app).post("/api/user").send(user1Data),
     request(app).post("/api/user").send(user2Data),
@@ -152,7 +154,7 @@ describe("Socket.IO friends feature messages", { timeout: 10000 }, () => {
 describe("testing messages and features", { timeout: 5000 }, () => {
   test("should send a message to active user and ack recived", async () => {
     await clientSocket1.emit("add-new-friend", user2.body.user.id);
-    await delay(1000);
+    await delay(500);
     let message1 = {
       body: "greeting",
       type: "text",
@@ -196,7 +198,7 @@ describe("testing messages and features", { timeout: 5000 }, () => {
   });
   test("should fail to send a message due to Invalid message format", async () => {
     await clientSocket1.emit("add-new-friend", user2.body.user.id);
-    await delay(1000);
+    await delay(500);
     let message1 = "";
     const responseM1 = await Promise.race([
       new Promise((res) => {
@@ -249,9 +251,9 @@ describe("testing messages and features", { timeout: 5000 }, () => {
     assert.strictEqual((await addFriendPromise).success, true);
     // 2. user1 sends 2 messages to user3
     await clientSocket1.emit("send-message", message1, user3.body.user.id);
-    await delay(300);
+    await delay(500);
     await clientSocket1.emit("send-message", message2, user3.body.user.id);
-    await delay(300);
+    await delay(500);
     // 3. user one should recive a ack but that was tested in the previuos test
     // 4. user3 should log in and recive an object conversations that contain his messages
     // 4. also user1 should be notified if he is online and his friend just beacame online to update the messages status

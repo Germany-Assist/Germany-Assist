@@ -10,13 +10,14 @@ try {
     "🚀 Tests will run sequentially and synchronously to avoid conflicts 🚀"
   );
   const testFiles = fs.readdirSync("./tests");
-
-  // this is amr from the past i will add
-  // 1.array to skip
-  // 2.array to test (in case u need to test specific things)
-
+  const skipFiles = [];
   testFiles.forEach((file) => {
-    if (file === "index.js") return;
+    if (
+      file === "index.js" ||
+      file.split(".")[file.split(".").length - 2] !== "test" ||
+      skipFiles.includes(file.split(".")[0])
+    )
+      return;
     infoLogger(`🚀 Running ${file.split(".")[0]} tests...`);
     // the WORKFLOW_TEST refers to the env values cuz they are provided in the wokflow github yml
     if (process.env.WORKFLOW_TEST) {

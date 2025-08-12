@@ -1,4 +1,4 @@
-import UserServices from "../models/onlyToSeed_users_services.js";
+import UserServices from "../models/user_service.js";
 const data = [
   { UserId: 1, ServiceId: 3, type: "requested" },
   { UserId: 1, ServiceId: 3, type: "favourite" },

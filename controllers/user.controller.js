@@ -1,5 +1,6 @@
 import { NODE_ENV } from "../configs/serverConfig.js";
 import {
+  alterUserVerification,
   createUser,
   getUserById,
   loginUser,
@@ -11,36 +12,82 @@ import {
 } from "../middlewares/jwt.middleware.js";
 import { debugLogger, infoLogger } from "../utils/loggers.js";
 import { AppError } from "../utils/error.class.js";
+import { hashPassword } from "../utils/bycrypt.util.js";
+import { sequelize } from "../database/connection.js";
+import {
+  adminPermissions,
+  clientPermissions,
+  repBusinessPermissions,
+} from "../database/templates.js";
+import { initPermissions } from "../services/permission.services.js";
 // register and i will give you new access token and refresh token in a cookie
-export async function createUserController(req, res, next) {
-  try {
-    infoLogger("creating new user");
-    const data = req.body;
-    const user = await createUser(data);
-    const { accessToken, refreshToken } = generateTokens(user);
-    const sanitizedUser = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-    };
-    res.status(201);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-    res.json({ accessToken, user: sanitizedUser });
-    debugLogger(`success`);
-  } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
-    next(error);
-  }
-}
+
+export const createUserController =
+  (role, is_root) => async (req, res, next) => {
+    const t = await sequelize.transaction();
+    try {
+      infoLogger(`creating new ${role}`);
+      const { firstName, lastName, email, DOB, image } = req.body;
+      const password = hashPassword(req.body.password);
+      const user = await createUser(
+        {
+          firstName,
+          lastName,
+          email,
+          password,
+          DOB,
+          image,
+          role,
+          is_root,
+          BusinessId: role == "rep" ? req.auth.BusinessId : null,
+        },
+        t
+      );
+      let permissionTemplate = [];
+      switch (role) {
+        case "rep":
+          permissionTemplate = repBusinessPermissions;
+          break;
+
+        case "admin":
+          permissionTemplate = adminPermissions;
+
+        case "client":
+          permissionTemplate = clientPermissions;
+
+        default:
+          break;
+      }
+      await initPermissions(user.id, permissionTemplate, t);
+      const { accessToken, refreshToken } = generateTokens(user);
+      const sanitizedUser = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        DOB: user.DOB,
+        email: user.email,
+        image: user.image,
+        isVerified: user.isVerified,
+        role: user.role,
+        is_root: user.is_root,
+        BusinessId: user.BusinessId,
+      };
+      res.status(201);
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: NODE_ENV === "production" ? true : false,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.json({ accessToken, user: sanitizedUser });
+      await t.commit();
+      debugLogger(`success`);
+    } catch (error) {
+      await t.rollback();
+      if (error instanceof AppError) error.appendTrace(req.requestId);
+      next(error);
+    }
+  };
 // give me user name and password and i will give you new access token and refresh token in a cookie
 export async function loginUserController(req, res, next) {
   try {
@@ -54,6 +101,10 @@ export async function loginUserController(req, res, next) {
       email: user.email,
       image: user.image,
       isVerified: user.isVerified,
+      role: user.role,
+      is_root: user.is_root,
+      representing_id: user.representing_id,
+      representing_type: user.representing_type,
     };
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -92,18 +143,30 @@ export async function refreshUserToken(req, res, next) {
 //send me your token and i will send you your profile back
 export async function loginUserTokenController(req, res, next) {
   try {
-    const user = await getUserById(req.auth.userId);
+    const user = await getUserById(req.auth.id);
     const sanitizedUser = {
+      id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       DOB: user.DOB,
       email: user.email,
       image: user.image,
       isVerified: user.isVerified,
+      role: user.role,
+      is_root: user.is_root,
+      representing_id: user.representing_id,
+      representing_type: user.representing_type,
     };
     res.send(sanitizedUser);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
+    next(error);
+  }
+}
+export async function activateUser(req, res, next) {
+  try {
+    await alterUserVerification(req.params.id, true);
+    res.send(200);
+  } catch (error) {
     next(error);
   }
 }

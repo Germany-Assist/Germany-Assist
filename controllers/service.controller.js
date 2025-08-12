@@ -6,17 +6,15 @@ export async function createService(req, res, next) {
     const service = {
       title: req.body.title,
       description: req.body.description,
-      UserId: req.body.userId, // ????????
-      ProviderId: req.body.providerId, // ??????
-      views: 0, // ??????
-      type: req.body.type, // ??????,
+      UserId: req.auth.id,
+      BusinessId: req.auth.BusinessId,
+      type: req.body.type,
       rating: 0,
       total_reviews: 0,
-      price: req.body.price, // ??????
-      ContractId: req.body.contractId || null, // ??????
+      price: req.body.price,
+      ContractId: req.body.contractId || null,
       image: req.body.image || null,
     };
-    console.log();
     await serviceServices.createService(service);
     res.sendStatus(201);
   } catch (error) {
@@ -56,11 +54,10 @@ export async function getServicesByUserId(req, res, next) {
     next(error);
   }
 }
-
-export async function getServicesByProviderId(req, res, next) {
+export async function getServicesByBusinessId(req, res, next) {
   try {
-    const services = await serviceServices.getServicesByProviderId(
-      req.params.providerId
+    const services = await serviceServices.getServicesByBusinessId(
+      req.params.BusinessId
     );
     res.status(200).json(services);
   } catch (error) {
@@ -91,7 +88,7 @@ export async function updateService(req, res, next) {
 
 export async function deleteService(req, res, next) {
   try {
-    await serviceServices.deleteService(req.params.id);
+    await serviceServices.deleteService(req.params.id, req.auth.BusinessId);
     res.sendStatus(200);
   } catch (error) {
     if (error instanceof AppError) error.appendTrace(req.requestId);

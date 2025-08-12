@@ -1,24 +1,54 @@
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
-export const createBusiness = async (profileData) => {
-  return await db.Business.create({
-    name: profileData.name,
-    about: profileData.about,
-    description: profileData.description,
-    // views: profileData.views || 0,
-    email: profileData.email,
-    phone_number: profileData.phone_number,
-    image: profileData.image,
+export const createBusiness = async (profileData, t) => {
+  return await db.Business.create(
+    {
+      name: profileData.name,
+      about: profileData.about,
+      description: profileData.description,
+      email: profileData.email,
+      phone_number: profileData.phone_number,
+      image: profileData.image,
+    },
+    { transaction: t }
+  );
+};
+
+export const getAllBusiness = async () => {
+  return await db.Business.findAll({
+    attributes: [
+      "id",
+      "name",
+      "about",
+      "description",
+      "phone_number",
+      "image",
+      "isVerified",
+      "total_reviews",
+      "rating",
+      "email",
+      "views",
+    ],
   });
 };
 
-export const getAllBusiness = async (filters = {}) => {
-  return await db.Business.findAll({ where: filters });
-};
-
 export const getBusinessById = async (id) => {
-  const profile = await db.Business.findByPk(id);
+  const profile = await db.Business.findByPk(id, {
+    attributes: [
+      "id",
+      "name",
+      "about",
+      "description",
+      "phone_number",
+      "image",
+      "isVerified",
+      "total_reviews",
+      "rating",
+      "email",
+      "views",
+    ],
+  });
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
   return profile;
@@ -39,7 +69,6 @@ export const deleteBusiness = async (id) => {
   await profile.destroy();
   return { id, message: "Business deleted" };
 };
-
 export const restoreBusiness = async (id) => {
   const profile = await db.Business.findOne({
     where: { id },
@@ -63,4 +92,18 @@ export const incrementViews = async (id) => {
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
   return await profile.increment("views");
+};
+export const updateBusinessRating = async (id, newRating) => {
+  const profile = await db.Business.findByPk(id);
+  if (!profile)
+    throw new AppError(404, "Business not found", true, "Business not found");
+  const currentTotalReviews = profile.total_reviews || 0;
+  const currentRating = profile.rating || 0;
+  const updatedTotalReviews = currentTotalReviews + 1;
+  const updatedRating =
+    (currentRating * currentTotalReviews + newRating) / updatedTotalReviews;
+  return await profile.update({
+    rating: updatedRating,
+    total_reviews: updatedTotalReviews,
+  });
 };

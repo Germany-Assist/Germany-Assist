@@ -30,6 +30,18 @@ User.init(
     image: {
       type: DataTypes.TEXT(),
     },
+    role: {
+      type: DataTypes.STRING(30),
+      allowNull: false,
+    },
+    is_root: {
+      type: DataTypes.BOOLEAN(),
+      allowNull: false,
+    },
+    BusinessId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
   },
   {
     sequelize,
