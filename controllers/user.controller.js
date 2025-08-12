@@ -103,8 +103,7 @@ export async function loginUserController(req, res, next) {
       isVerified: user.isVerified,
       role: user.role,
       is_root: user.is_root,
-      representing_id: user.representing_id,
-      representing_type: user.representing_type,
+      businessId: user.businessId,
     };
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -154,8 +153,7 @@ export async function loginUserTokenController(req, res, next) {
       isVerified: user.isVerified,
       role: user.role,
       is_root: user.is_root,
-      representing_id: user.representing_id,
-      representing_type: user.representing_type,
+      businessId: user.businessId,
     };
     res.send(sanitizedUser);
   } catch (error) {
