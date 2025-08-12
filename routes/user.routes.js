@@ -6,15 +6,40 @@ import {
 import { validateExpress } from "../middlewares/expressValidator.js";
 import * as userControllers from "../controllers/user.controller.js";
 import { authenticateJwt } from "../middlewares/jwt.middleware.js";
+import {
+  authorizeRequest,
+  authorizeRole,
+} from "../middlewares/authorize.checkpoint.js";
 const userRouter = Router();
 
 // register and i will give you new access token and refresh token in a cookie
+
+//clint
 userRouter.post(
   "/",
   createUserValidators,
   validateExpress,
-  userControllers.createUserController
+  userControllers.createUserController("client", true)
 );
+//admin
+userRouter.post(
+  "/admin",
+  authenticateJwt,
+  authorizeRole(["admin"]),
+  createUserValidators,
+  validateExpress,
+  userControllers.createUserController("admin", true)
+);
+//rep
+userRouter.post(
+  "/rep",
+  authenticateJwt,
+  authorizeRole(["root"]),
+  createUserValidators,
+  validateExpress,
+  userControllers.createUserController("rep", false)
+);
+
 // give me user name and password and i will give you new access token and refresh token in a cookie
 userRouter.post(
   "/login",
@@ -41,8 +66,4 @@ userRouter.get(
   userControllers.loginUserTokenController
 );
 
-// this needs to be discused further snice we need polices to know what should be alowed to be updated
-// userRouter.patch("/:id", async (req, res, next) => {
-//   updateUser;
-// });
 export default userRouter;

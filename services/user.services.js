@@ -4,17 +4,8 @@ import { hashPassword, hashCompare } from "../utils/bycrypt.util.js";
 import { AppError } from "../utils/error.class.js";
 import { sequelize } from "../database/connection.js";
 
-export const createUser = async (userData) => {
-  const { firstName, lastName, email, DOB, image } = userData;
-  const password = hashPassword(userData.password);
-  return await db.User.create({
-    firstName,
-    lastName,
-    email,
-    DOB,
-    image,
-    password,
-  });
+export const createUser = async (userData, t) => {
+  return await db.User.create(userData, { transaction: t });
 };
 
 export const loginUser = async (userData) => {
@@ -57,8 +48,13 @@ export const updateUser = async (id, updates) => {
 
 export const deleteUser = async (id) => {
   const user = await db.User.findByPk(id);
-  if (!user)
-    throw new AppError(401, "User not found", true, "invalid credentials");
+  if (!user) throw new AppError(401, "User not found", true, "User not found");
   await user.destroy();
   return user;
+};
+export const alterUserVerification = async (id, status) => {
+  const user = await db.User.findByPk(id);
+  if (!user)
+    throw new AppError(401, "User not found", true, "invalid credentials");
+  return await user.update({ isVerified: status });
 };

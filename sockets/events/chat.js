@@ -13,7 +13,7 @@ const MAX_CALLS = 10;
 
 function isRateLimited(socket, eventName, limit) {
   const now = Date.now();
-  const key = `${socket.user.userId}:${eventName}`;
+  const key = `${socket.user.id}:${eventName}`;
   if (!rateLimits[key]) {
     rateLimits[key] = [];
   }
@@ -33,7 +33,7 @@ export default function chatNamespace(io) {
   chat.use(socketAuthMiddleware);
   //
   chat.on("connection", async (socket) => {
-    const userId = socket.user.userId;
+    const userId = socket.user.id;
     try {
       infoLogger(`New connection to chat app: ${socket.id} user id ${userId}`);
       //step 1 register the user online

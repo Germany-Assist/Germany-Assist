@@ -16,8 +16,8 @@ Coupon.init(
       type: DataTypes.DATE(),
       allowNull: false,
     },
-    ProviderId: {
-      type: DataTypes.INTEGER(),
+    BusinessId: {
+      type: DataTypes.UUID,
       allowNull: false,
     },
   },

@@ -1,122 +1,87 @@
-export const userPolicyTemplate = {
-  version: "1.0",
-  name: "user inline policy",
-  description: "default",
-  lastUpdate: Date.now(),
-  statements: {
-    clints: {
-      business: {
-        3: {
-          coupon: {
-            create: {
-              allow: true,
-            },
-          },
-        },
-      },
-      provider: {
-        2: {},
-      },
-    },
-    asset: {
-      upload: {
-        allow: true,
-        // spaaces will be in megabytes
-        spaceLimit: 10,
-        maxMedia: {
-          image: 0.4,
-          vedio: 10,
-        },
-        mediaType: ["jpg", "png"],
-      },
-    },
-    provider: {
-      create: {
-        allow: true,
-        limit: 1,
-        current: 0,
-      },
-    },
-    business: {
-      create: {
-        allow: true,
-        limit: 1,
-        current: 0,
-      },
-    },
-    review: {
-      create: {
-        allow: true,
-      },
-    },
-  },
-};
-export const businessPolicyTemplate = {
-  version: "1.0",
-  name: "business policy",
-  description: "default",
-  lastUpdate: Date.now(),
-  statements: {
-    asset: {
-      upload: {
-        allow: true,
-        users: [1, 2, 3],
-        // spaaces will be in megabytes
-        spaceLimit: 100,
-        maxMedia: {
-          image: 0.4,
-          vedio: 10,
-        },
-        mediaType: ["*"],
-      },
-    },
-    post: {
-      create: {
-        users: [1, 2, 3],
-        allow: true,
-      },
-    },
-    coupon: {
-      create: {
-        users: [1, 2, 3],
-        allow: true,
-      },
-    },
-  },
-};
-export const providerPolicyTemplate = {
-  version: "1.0",
-  name: "provider policy",
-  description: "default",
-  lastUpdate: Date.now(),
-  statements: {
-    asset: {
-      upload: {
-        allow: true,
-        users: [],
-        spaceLimit: 100,
-        maxMedia: {
-          image: 0.4,
-          vedio: 10,
-        },
-        mediaType: ["*"],
-      },
-    },
-    coupon: {
-      create: {
-        users: [],
-        allow: true,
-        // allow: false,
-        // reason: "Exceeds business plan limits",
-      },
-    },
-    services: {
-      create: {
-        allow: true,
-      },
-      update: {
-        allow: true,
-      },
-    },
-  },
-};
+export const clientPermissions = [
+  2, // read asset
+  6, // read contract
+  11, // apply coupon
+  14, // read service
+  15, // create review
+  16, // read review
+  26, // read post
+  27, // create comment
+  28, // read comment
+];
+
+export const repBusinessPermissions = [
+  2, // read asset
+  3, // update asset (limited)
+  6, // read contract
+  7, // sign contract (if delegated)
+  10, // read coupon
+  14, // read service
+  15, // create review (optional)
+  16, // read review
+  17, // update review (if delegated)
+  26, // read post
+  27, // create comment
+  28, // read comment
+  29, // update comment (limited)
+  40, // view analytics (optional)
+];
+
+export const rootBusinessPermissions = [
+  1, // create asset
+  2, // read asset
+  3, // update asset
+  4, // delete asset
+  5, // restore asset
+  6, // export asset
+  7, // create contract
+  8, // read contract
+  9, // sign contract
+  10, // terminate contract
+  11, // approve contract
+  12, // reject contract
+  13, // create coupon
+  14, // read coupon
+  15, // apply coupon
+  16, // deactivate coupon
+  17, // approve coupon
+  18, // reject coupon
+  19, // create service
+  20, // read service
+  21, // update service
+  22, // delete service
+  23, // publish service
+  24, // unpublish service
+  25, // approve service
+  26, // reject service
+  27, // create review
+  28, // read review
+  29, // update review
+  30, // delete review
+  31, // moderate review
+  32, // create post
+  33, // read post
+  34, // update post
+  35, // delete post
+  36, // publish post
+  37, // unpublish post
+  38, // moderate post
+  39, // restore post
+  40, // assign permission
+  41, // revoke permission
+  42, // list permissions
+  43, // create comment
+  44, // read comment
+  45, // update comment
+  46, // delete comment
+  47, // moderate comment
+  48, // create business
+  49, // read business
+  50, // update business
+  51, // delete business
+  52, // restore business
+  53, // manage business users
+  54, // view analytics
+];
+
+export const adminPermissions = ["*"]; // wildcard: all permissions

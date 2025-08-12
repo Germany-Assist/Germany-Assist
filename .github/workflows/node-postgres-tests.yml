@@ -46,6 +46,7 @@ jobs:
 
       - name: Run tests
         env:
+          ENV_IS_LOADED: "true"
           WORKFLOW_TEST: "true"
           NODE_ENV: "test"
           SERVER_PORT: "3000"

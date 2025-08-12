@@ -2,9 +2,9 @@ import { sequelize } from "../connection.js";
 import { DataTypes, Model } from "sequelize";
 // please note that this model was only created to be used in seeds,
 // this model will be created automatically by the constrains
-export default class UsersServices extends Model {}
+export default class UserService extends Model {}
 
-UsersServices.init(
+UserService.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -26,7 +26,8 @@ UsersServices.init(
   },
   {
     sequelize,
-    modelName: "users_services",
-    tableName: "users_services",
+    paranoid: true,
+    modelName: "user_service",
+    tableName: "user_service",
   }
 );

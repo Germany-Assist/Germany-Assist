@@ -1,11 +1,19 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
+import { v4 as uuidv4 } from "uuid";
 class Business extends Model {}
 
 Business.init(
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      defaultValue: uuidv4,
+      unique: true,
+      primaryKey: true,
+    },
     name: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING(200),
       allowNull: false,
     },
     about: {
@@ -32,6 +40,12 @@ Business.init(
     isVerified: {
       type: DataTypes.BOOLEAN(),
       defaultValue: false,
+    },
+    rating: {
+      type: DataTypes.FLOAT(),
+    },
+    total_reviews: {
+      type: DataTypes.INTEGER(),
     },
   },
   {

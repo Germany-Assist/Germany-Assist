@@ -1,12 +1,12 @@
 import assteRouter from "./assets.routes.js";
 import businessRouter from "./busniess.routes.js";
-import providerRouter from "./provider.routes.js";
 import contractRouter from "./contract.routes.js";
 import couponRouter from "./coupons.routes.js";
 import reviewRouter from "./review.routes.js";
 import serviceRouter from "./service.routes.js";
 import userRouter from "./user.routes.js";
 import { Router } from "express";
+import { NODE_ENV } from "../configs/serverConfig.js";
 
 const apiRouter = Router();
 
@@ -14,13 +14,13 @@ const apiRouter = Router();
 
 apiRouter
   .use("/user", userRouter) // ✅
-  .use("/asset", assteRouter) // ✅
-  .use("/coupon", couponRouter) // ✅
-  .use("/contract", contractRouter) // ✅
-  .use("/businessProfile", businessRouter) // ✅
-  .use("/provider", providerRouter) // ✅
-  .use("/review", reviewRouter) // ✅
-  .use("/service", serviceRouter); // ✅
+  .use("/asset", assteRouter) //
+  .use("/coupon", couponRouter) //
+  .use("/contract", contractRouter) //
+  .use("/business", businessRouter) // ✅
+  .use("/review", reviewRouter) //
+  .use("/service", serviceRouter); //
+
 // Transactions;
 // Posts;
 // Comments;

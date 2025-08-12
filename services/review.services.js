@@ -65,7 +65,7 @@ export const restoreReview = async (id) => {
   return review;
 };
 export const getAverageRatingForServiceId = async (ServiceId) => {
-  ///this will be discussed further please vist the provider services last service to understand
+  ///this will be discussed further please vist the business services last service to understand
   return await db.Review.findOne({
     where: { ServiceId },
     attributes: [

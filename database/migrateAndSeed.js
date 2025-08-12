@@ -2,13 +2,14 @@
 import { sequelize } from "./connection.js";
 import assistsSeed from "./seeds/assists_seeds.js";
 import businessSeed from "./seeds/business_seeds.js";
-import providerSeed from "./seeds/provider_seeds.js";
 import servicesSeed from "./seeds/services_seeds.js";
 import seedUsers from "./seeds/users_seeds.js";
 import userServicesSeed from "./seeds/users_services_seeds.js";
 import reviewSeed from "./seeds/review_seeds.js";
 import couponSeed from "./seeds/coupon_seeds.js";
 import contractSeed from "./seeds/contracts_seeds.js";
+import seedPermissions from "./seeds/permission_seed.js";
+
 process.env.SEEDING = true;
 
 ///////////////////////////////////////////////////////////////////////
@@ -19,13 +20,12 @@ import Asset from "./models/assets.js";
 import Business from "./models/business.js";
 import Contracts from "./models/contract.js";
 import User from "./models/user.js";
-import UserServices from "./models/onlyToSeed_users_services.js";
-import Providers from "./models/provider.js";
+import UserService from "./models/user_service.js";
 import Services from "./models/service.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
 import Chat from "./models/chat.js";
-
+import Permission from "./models/permission.js";
 ///////////////////////////////////////////////////////////////////////
 //
 //
@@ -40,17 +40,20 @@ try {
 
     //Stage 2
     //Seeds the data
+    await seedPermissions();
     if (process.env.NODE_ENV != "test") {
       console.log("starting to seeds ⌛");
-      await seedUsers();
-      await businessSeed();
-      await providerSeed();
-      await contractSeed();
-      await servicesSeed();
-      await assistsSeed();
-      await userServicesSeed();
-      await reviewSeed();
-      await couponSeed();
+      // await seedUsers();
+      // await businessSeed();
+      // await contractSeed();
+      // await servicesSeed();
+      // await assistsSeed();
+      // await userServicesSeed();
+      // await reviewSeed();
+      // await couponSeed();
+      // await resourceSeed();
+      // await actionSeed();
+
       console.log("finnished seeding 👍");
     }
     //Stage 3
