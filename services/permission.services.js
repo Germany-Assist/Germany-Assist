@@ -1,5 +1,7 @@
+import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
+
 export const hasPermission = async (id, role, BusinessId, resource, action) => {
   const permission = await db.User.findOne({
     where: { id, role, BusinessId },
@@ -19,11 +21,20 @@ export const hasPermission = async (id, role, BusinessId, resource, action) => {
   return false;
 };
 
-export const assignPermission = async (userId, permissionId) => {
-  const permission = await db.UserPermission.create({
-    UserId: userId,
-    PermissionId: permissionId,
-  });
+export const adjustPermission = async (userId, permissionId, effect) => {
+  if (effect === "revoke") {
+    const permission = await db.UserPermission.destroy({
+      where: {
+        UserId: userId,
+        PermissionId: permissionId,
+      },
+    });
+  } else if (effect === "assign") {
+    const permission = await db.UserPermission.create({
+      UserId: userId,
+      PermissionId: permissionId,
+    });
+  }
 };
 
 export const initPermissions = async (userId, template, t) => {

@@ -50,19 +50,27 @@ describe("User Authentication API", () => {
   });
 
   describe("POST /user - User Registration", () => {
-    it("should create a new user with valid data", async () => {
+    it("should create a new client with valid data", async () => {
       const response = await request(app).post("/api/user").send({
         firstName: "New",
         lastName: "User",
         email: "new@example.com",
         password: "StrongPassword123!",
         DOB: "1995-05-15",
+        image: "image.url.png",
       });
       assert.strictEqual(response.status, 201);
+      assert.ok(response.body.accessToken);
       assert.strictEqual(typeof response.body.accessToken, "string");
-      assert.strictEqual(response.body.user.email, "new@example.com");
+      assert.strictEqual(response.body.user.firstName, "New");
+      assert.strictEqual(response.body.user.lastName, "User");
+      let date = new Date("1995-05-15").toISOString();
+      assert.strictEqual(response.body.user.DOB, `${date}`);
+      assert.strictEqual(response.body.user.is_root, true);
+      assert.strictEqual(response.body.user.BusinessId, null);
+      assert.strictEqual(response.body.user.isVerified, false);
+      assert.strictEqual(response.body.user.image, "image.url.png");
     });
-
     it("should reject invalid email format", async () => {
       const response = await request(app).post("/api/user").send({
         firstName: "New",

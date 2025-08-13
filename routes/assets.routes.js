@@ -1,12 +1,12 @@
 import express from "express";
 import * as assetController from "../controllers/assets.controller.js";
-const assteRouter = express.Router();
+const assetRouter = express.Router();
 
-assteRouter.post("/", assetController.createAsset);
-assteRouter.get("/", assetController.getAllAssets);
-assteRouter.get("/:id", assetController.getAssetById);
-assteRouter.put("/:id", assetController.updateAsset);
-assteRouter.delete("/:id", assetController.deleteAsset);
-assteRouter.post("/:id/restore", assetController.restoreAsset);
+assetRouter.post("/", assetController.createAsset);
+assetRouter.get("/", assetController.getAllAssets);
+assetRouter.get("/:id", assetController.getAssetById);
+assetRouter.put("/:id", assetController.updateAsset);
+assetRouter.delete("/:id", assetController.deleteAsset);
+assetRouter.post("/:id/restore", assetController.restoreAsset);
 
-export default assteRouter;
+export default assetRouter;
