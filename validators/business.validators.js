@@ -36,19 +36,19 @@ export const createBusinessValidator = [
     .withMessage("Email is required")
     .isEmail()
     .withMessage("Invalid email format")
-    .normalizeEmail()
-    .custom(async (email) => {
-      const user = await db.User.findOne({ where: { email } });
-      if (user) {
-        throw new AppError(
-          409,
-          "Email already in use",
-          true,
-          "Email already in use"
-        );
-      }
-      return true;
-    }),
+    .normalizeEmail(),
+  // .custom(async (email) => {
+  //   const user = await db.User.findOne({ where: { email } });
+  //   if (user) {
+  //     throw new AppError(
+  //       409,
+  //       "Email already in use",
+  //       true,
+  //       "Email already in use"
+  //     );
+  //   }
+  //   return true;
+  // }),
 
   // Phone number validation (basic international format)
   body("phone_number")
@@ -125,20 +125,19 @@ export const updateBusinessValidator = [
     .trim()
     .isEmail()
     .withMessage("Invalid email format")
-    .normalizeEmail()
-    .custom(async (email) => {
-      const user = await db.User.findOne({ where: { email } });
-      if (user) {
-        throw new AppError(
-          409,
-          "Email already in use",
-          true,
-          "Email already in use"
-        );
-      }
-      return true;
-    }),
-
+    .normalizeEmail(),
+  // .custom(async (email) => {
+  //   const user = await db.User.findOne({ where: { email } });
+  //   if (user) {
+  //     throw new AppError(
+  //       409,
+  //       "Email already in use",
+  //       true,
+  //       "Email already in use"
+  //     );
+  //   }
+  //   return true;
+  // }),
   // Phone number validation (basic international format)
   body("phone_number")
     .optional()

@@ -136,7 +136,6 @@ describe("User Authentication API", () => {
       );
     });
   });
-
   describe("GET /api/user/logout", () => {
     it("should clear the refresh token cookie", async () => {
       const response = await request(app).get("/api/user/logout").expect(200);

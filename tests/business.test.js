@@ -79,15 +79,15 @@ afterEach(() => {
 describe("business routes", { timeout: 5000 }, () => {
   describe("create business", () => {
     it("should create business successfully", async () => {
-      const initPermissionsStub = sandbox
+      const initPermissionsStub = await sandbox
         .stub(permissionServices, "initPermissions")
         .resolves(true);
 
-      const createUserStub = sandbox
+      const createUserStub = await sandbox
         .stub(userServices, "createUser")
         .resolves(rootStubData);
 
-      const createBusinessStub = sandbox
+      const createBusinessStub = await sandbox
         .stub(businessServices, "createBusiness")
         .resolves(businessStubData);
 
