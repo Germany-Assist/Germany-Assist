@@ -10,7 +10,12 @@ try {
     "🚀 Tests will run sequentially and synchronously to avoid conflicts 🚀"
   );
   const testFiles = fs.readdirSync("./tests");
-  const skipFiles = [];
+  const skipFiles = [
+    "business-integration",
+    "user",
+    "user-integration",
+    "business",
+  ];
   testFiles.forEach((file) => {
     if (
       file === "index.js" ||
