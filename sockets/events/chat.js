@@ -127,8 +127,6 @@ export default function chatNamespace(io) {
             }
             return false;
           }
-          console.log("i have an issue");
-
           let onlineFriends = activeUsers.onlineFriends(userId);
           if (onlineFriends && onlineFriends.includes(Number(friendId))) {
             if (typeof callback === "function") {
