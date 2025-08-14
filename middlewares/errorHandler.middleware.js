@@ -13,6 +13,8 @@ export function errorMiddleware(err, req, res, next) {
     });
   } else if (err.name === "UnauthorizedError") {
     res.sendStatus(401);
+  } else if (err.message === "Validation error") {
+    res.status(422).json({ message: err.errors[0].message });
   } else {
     res.status(500).json({ message: "opps something went wrong" });
   }

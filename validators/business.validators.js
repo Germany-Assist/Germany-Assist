@@ -37,20 +37,6 @@ export const createBusinessValidator = [
     .isEmail()
     .withMessage("Invalid email format")
     .normalizeEmail(),
-  // .custom(async (email) => {
-  //   const user = await db.User.findOne({ where: { email } });
-  //   if (user) {
-  //     throw new AppError(
-  //       409,
-  //       "Email already in use",
-  //       true,
-  //       "Email already in use"
-  //     );
-  //   }
-  //   return true;
-  // }),
-
-  // Phone number validation (basic international format)
   body("phone_number")
     .optional()
     .trim()
@@ -126,19 +112,6 @@ export const updateBusinessValidator = [
     .isEmail()
     .withMessage("Invalid email format")
     .normalizeEmail(),
-  // .custom(async (email) => {
-  //   const user = await db.User.findOne({ where: { email } });
-  //   if (user) {
-  //     throw new AppError(
-  //       409,
-  //       "Email already in use",
-  //       true,
-  //       "Email already in use"
-  //     );
-  //   }
-  //   return true;
-  // }),
-  // Phone number validation (basic international format)
   body("phone_number")
     .optional()
     .trim()
@@ -158,6 +131,11 @@ export const updateBusinessValidator = [
           return true;
         }
       }
-      throw new Error("Please provide a valid image URL or base64 string");
+      throw new AppError(
+        422,
+        "Please provide a valid image URL or base64 string",
+        true,
+        "Please provide a valid image URL or base64 string"
+      );
     }),
 ];

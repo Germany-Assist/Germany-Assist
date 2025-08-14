@@ -1,7 +1,6 @@
 import { sequelize } from "../connection.js";
 import { DataTypes, Model } from "sequelize";
-// please note that this model was only created to be used in seeds,
-// this model will be created automatically by the constrains
+
 export default class UserService extends Model {}
 
 UserService.init(
@@ -14,14 +13,26 @@ UserService.init(
     UserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        isInt: { msg: "UserId must be an integer" },
+        min: { args: [1], msg: "UserId must be greater than 0" },
+      },
     },
     ServiceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        isInt: { msg: "ServiceId must be an integer" },
+        min: { args: [1], msg: "ServiceId must be greater than 0" },
+      },
     },
     type: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notEmpty: { msg: "Type cannot be empty" },
+        len: { args: [2, 50], msg: "Type must be between 2 and 50 characters" },
+      },
     },
   },
   {

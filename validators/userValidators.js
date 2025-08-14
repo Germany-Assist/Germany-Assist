@@ -30,18 +30,6 @@ export const createUserValidators = [
     .isEmail()
     .withMessage("Invalid email format")
     .normalizeEmail(),
-  // .custom(async (email) => {
-  //   const user = await db.User.findOne({ where: { email } });
-  //   if (user) {
-  //     throw new AppError(
-  //       409,
-  //       "Email already in use",
-  //       true,
-  //       "Email already in use"
-  //     );
-  //   }
-  //   return true;
-  // }),
   body("password")
     .notEmpty()
     .withMessage("Password is required")
