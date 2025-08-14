@@ -1,10 +1,5 @@
 import { NODE_ENV } from "../configs/serverConfig.js";
-import {
-  alterUserVerification,
-  createUser,
-  getUserById,
-  loginUser,
-} from "../services/user.services.js";
+import userServices from "../services/user.services.js";
 import {
   generateAccessToken,
   generateTokens,
@@ -19,7 +14,7 @@ import {
   clientPermissions,
   repBusinessPermissions,
 } from "../database/templates.js";
-import { initPermissions } from "../services/permission.services.js";
+import permissionServices from "../services/permission.services.js";
 // register and i will give you new access token and refresh token in a cookie
 
 export const createUserController =
@@ -29,7 +24,8 @@ export const createUserController =
       infoLogger(`creating new ${role}`);
       const { firstName, lastName, email, DOB, image } = req.body;
       const password = hashPassword(req.body.password);
-      const user = await createUser(
+
+      const user = await userServices.createUser(
         {
           firstName,
           lastName,
@@ -58,7 +54,7 @@ export const createUserController =
         default:
           break;
       }
-      await initPermissions(user.id, permissionTemplate, t);
+      await permissionServices.initPermissions(user.id, permissionTemplate, t);
       const { accessToken, refreshToken } = generateTokens(user);
       const sanitizedUser = {
         id: user.id,
@@ -91,7 +87,7 @@ export const createUserController =
 // give me user name and password and i will give you new access token and refresh token in a cookie
 export async function loginUserController(req, res, next) {
   try {
-    const user = await loginUser(req.body);
+    const user = await userServices.loginUser(req.body);
     const { accessToken, refreshToken } = generateTokens(user);
     const sanitizedUser = {
       id: user.id,
@@ -142,7 +138,7 @@ export async function refreshUserToken(req, res, next) {
 //send me your token and i will send you your profile back
 export async function loginUserTokenController(req, res, next) {
   try {
-    const user = await getUserById(req.auth.id);
+    const user = await userServices.getUserById(req.auth.id);
     const sanitizedUser = {
       id: user.id,
       firstName: user.firstName,
@@ -162,7 +158,7 @@ export async function loginUserTokenController(req, res, next) {
 }
 export async function activateUser(req, res, next) {
   try {
-    await alterUserVerification(req.params.id, true);
+    await userServices.alterUserVerification(req.params.id, true);
     res.send(200);
   } catch (error) {
     next(error);

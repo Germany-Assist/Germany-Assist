@@ -44,4 +44,13 @@ export const initPermissions = async (userId, template, t) => {
   const rules = await db.UserPermission.bulkCreate(permissions, {
     transaction: t,
   });
+  if (!rules)
+    throw new AppError(
+      500,
+      "failed to create permissions",
+      false,
+      "failed to create permissions"
+    );
+  return true;
 };
+export default { initPermissions, adjustPermission, hasPermission };

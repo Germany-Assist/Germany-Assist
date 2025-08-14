@@ -1,11 +1,11 @@
-import * as businessServices from "../services/business.services.js";
+import businessServices from "../services/business.services.js";
 import { AppError } from "../utils/error.class.js";
-import { createUser } from "../services/user.services.js";
+import userServices from "../services/user.services.js";
 import { hashPassword } from "../utils/bycrypt.util.js";
 import { generateTokens } from "../middlewares/jwt.middleware.js";
 import { sequelize } from "../database/connection.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
-import { initPermissions } from "../services/permission.services.js";
+import permissionServices from "../services/permission.services.js";
 import { rootBusinessPermissions } from "../database/templates.js";
 export async function createBusiness(req, res, next) {
   const t = await sequelize.transaction();
@@ -13,7 +13,8 @@ export async function createBusiness(req, res, next) {
     const { email } = req.body;
     const password = hashPassword(req.body.password);
     const profile = await businessServices.createBusiness(req.body, t);
-    const user = await createUser(
+
+    const user = await userServices.createUser(
       {
         firstName: "business",
         lastName: "root",
@@ -25,6 +26,7 @@ export async function createBusiness(req, res, next) {
       },
       t
     );
+
     const sanitizedUser = {
       id: user.id,
       firstName: user.firstName,
@@ -36,7 +38,11 @@ export async function createBusiness(req, res, next) {
       is_root: user.is_root,
       BusinessId: user.BusinessId,
     };
-    await initPermissions(user.id, rootBusinessPermissions, t);
+    await permissionServices.initPermissions(
+      user.id,
+      rootBusinessPermissions,
+      t
+    );
     const { accessToken, refreshToken } = generateTokens(user);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,

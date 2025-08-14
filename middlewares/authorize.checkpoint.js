@@ -1,12 +1,12 @@
 import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
-import { getUserById } from "../services/user.services.js";
+import userServices from "../services/user.services.js";
 import { AppError } from "../utils/error.class.js";
 import { hasPermission } from "../services/permission.services.js";
 export const authorizeRole = (targetRoles) => async (req, res, next) => {
   try {
     if (targetRoles.includes(req.auth.role)) {
-      const user = await getUserById(req.auth.id);
+      const user = await userServices.getUserById(req.auth.id);
       if (!user.isVerified)
         throw new AppError(
           403,
