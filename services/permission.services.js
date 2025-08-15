@@ -21,25 +21,36 @@ export const hasPermission = async (id, role, BusinessId, resource, action) => {
   return false;
 };
 
-export const adjustPermission = async (userId, permissionId, effect) => {
+export const adjustPermission = async (userId, action, resource, effect) => {
+  const permission = await db.Permission.findOne({
+    where: { action, resource },
+  });
+  if (!permission)
+    throw new AppError(404, "no permission found", true, "not found");
   if (effect === "revoke") {
     const permission = await db.UserPermission.destroy({
       where: {
         UserId: userId,
-        PermissionId: permissionId,
+        PermissionId: permission.id,
       },
     });
   } else if (effect === "assign") {
     const permission = await db.UserPermission.create({
       UserId: userId,
-      PermissionId: permissionId,
+      PermissionId: permission.id,
     });
   }
 };
 
 export const initPermissions = async (userId, template, t) => {
-  const permissions = template.map((i) => {
-    return { UserId: userId, PermissionId: i };
+  const permissionsIds = await db.Permission.findAll({
+    where: {
+      [Op.or]: template,
+    },
+    attributes: ["id"],
+  });
+  const permissions = permissionsIds.map((i) => {
+    return { UserId: userId, PermissionId: i.id };
   });
   const rules = await db.UserPermission.bulkCreate(permissions, {
     transaction: t,

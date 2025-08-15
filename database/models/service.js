@@ -29,7 +29,7 @@ Service.init(
     },
     UserId: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       validate: {
         isInt: { msg: "UserId must be an integer" },
         min: { args: [1], msg: "UserId must be greater than 0" },
@@ -37,7 +37,7 @@ Service.init(
     },
     BusinessId: {
       type: DataTypes.UUID,
-      allowNull: true,
+      allowNull: false,
       validate: {
         isUUID: { args: 4, msg: "BusinessId must be a valid UUIDv4" },
       },

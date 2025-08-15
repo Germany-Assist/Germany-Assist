@@ -6,7 +6,7 @@ import { generateTokens } from "../middlewares/jwt.middleware.js";
 import { sequelize } from "../database/connection.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 import permissionServices from "../services/permission.services.js";
-import { rootBusinessPermissions } from "../database/templates.js";
+import { roleTemplates } from "../database/templates.js";
 export async function createBusiness(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -40,7 +40,7 @@ export async function createBusiness(req, res, next) {
     };
     await permissionServices.initPermissions(
       user.id,
-      rootBusinessPermissions,
+      roleTemplates.root_business,
       t
     );
     const { accessToken, refreshToken } = generateTokens(user);

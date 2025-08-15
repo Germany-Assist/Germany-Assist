@@ -7,7 +7,13 @@ import {
 } from "../middlewares/authorize.checkpoint.js";
 const serviceRouter = express.Router();
 
-serviceRouter.post("/", serviceController.createService);
+serviceRouter.post(
+  "/",
+  authenticateJwt,
+  authorizeRole(["admin", "rep", "root"]),
+  authorizeRequest("service", "create"),
+  serviceController.createService
+);
 serviceRouter.delete("/:id", serviceController.deleteService);
 serviceRouter.get("/", serviceController.getAllServices);
 serviceRouter.get("/:id", serviceController.getServiceById);

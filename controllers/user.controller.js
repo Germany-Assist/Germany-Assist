@@ -9,12 +9,8 @@ import { debugLogger, infoLogger } from "../utils/loggers.js";
 import { AppError } from "../utils/error.class.js";
 import { hashPassword } from "../utils/bycrypt.util.js";
 import { sequelize } from "../database/connection.js";
-import {
-  adminPermissions,
-  clientPermissions,
-  repBusinessPermissions,
-} from "../database/templates.js";
 import permissionServices from "../services/permission.services.js";
+import { roleTemplates } from "../database/templates.js";
 // register and i will give you new access token and refresh token in a cookie
 
 export const createUserController =
@@ -42,14 +38,14 @@ export const createUserController =
       let permissionTemplate = [];
       switch (role) {
         case "rep":
-          permissionTemplate = repBusinessPermissions;
+          permissionTemplate = roleTemplates.rep_business;
           break;
 
         case "admin":
-          permissionTemplate = adminPermissions;
+          permissionTemplate = roleTemplates.admin;
 
         case "client":
-          permissionTemplate = clientPermissions;
+          permissionTemplate = roleTemplates.client;
 
         default:
           break;

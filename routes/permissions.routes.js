@@ -11,6 +11,7 @@ import {
 } from "../controllers/permission.controller.js";
 const permissionRouter = express.Router();
 /// important to check the ownership of the specific target
+
 permissionRouter.post(
   "/assign/:id",
   authenticateJwt,
@@ -19,6 +20,7 @@ permissionRouter.post(
   authorizeOwnership("business", "BusinessId", "User"),
   assignPermission
 );
+
 permissionRouter.post(
   "/revoke/:id",
   authenticateJwt,

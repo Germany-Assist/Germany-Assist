@@ -18,7 +18,6 @@ export async function createService(req, res, next) {
     await serviceServices.createService(service);
     res.sendStatus(201);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

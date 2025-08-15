@@ -126,7 +126,7 @@ export const authorizeOwnership =
     } else {
       throw new AppError(
         500,
-        "messing ownerType for authorizeOwnership function",
+        "messing ownerType for authorize Ownership function",
         false,
         "ops"
       );
@@ -139,13 +139,14 @@ export const authorizeOwnership =
         false,
         "ops"
       );
+    //this will not work on business
     const isOwner = await db[resource].findOne({
       where: { id: targetId, [ownerField]: ownerId },
     });
     if (!isOwner)
       throw new AppError(
         403,
-        `Unauthorized attempt by ${ownerId} to resource ${resource}`,
+        `Unauthorized attempt by ${ownerId} to resource ${resource} wrong ownership`,
         true,
         `Unauthorized`
       );
