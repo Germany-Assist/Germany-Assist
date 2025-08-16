@@ -43,6 +43,12 @@ Coupon.init(
         isUUID: { args: 4, msg: "Business ID must be a valid UUIDv4" },
       },
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.BusinessId;
+      },
+    },
   },
   {
     sequelize,

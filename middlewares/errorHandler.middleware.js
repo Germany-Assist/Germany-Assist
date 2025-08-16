@@ -8,6 +8,7 @@ export function errorMiddleware(err, req, res, next) {
   } else {
     err.trace = req.requestId;
   }
+
   if (err.isOperational) {
     res.status(err.httpCode).json({
       message: err.publicMessage,
@@ -19,7 +20,7 @@ export function errorMiddleware(err, req, res, next) {
       errors: messages,
     });
   } else if (err.name === "UnauthorizedError") {
-    res.sendStatus(401);
+    res.status(401).send({ message: err.message });
   } else {
     res.status(500).json({ message: "opps something went wrong" });
   }

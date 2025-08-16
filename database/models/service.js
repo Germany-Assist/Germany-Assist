@@ -103,6 +103,12 @@ Service.init(
         isUrl: { msg: "Image must be a valid URL" },
       },
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.BusinessId;
+      },
+    },
   },
   {
     sequelize,

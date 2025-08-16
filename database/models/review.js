@@ -40,6 +40,12 @@ Review.init(
         min: { args: [1], msg: "ServiceId must be greater than 0" },
       },
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.UserId;
+      },
+    },
   },
   {
     sequelize,

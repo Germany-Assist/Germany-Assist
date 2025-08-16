@@ -27,15 +27,16 @@ export const adjustPermission = async (userId, action, resource, effect) => {
   });
   if (!permission)
     throw new AppError(404, "no permission found", true, "not found");
+
   if (effect === "revoke") {
-    const permission = await db.UserPermission.destroy({
+    const revokePermission = await db.UserPermission.destroy({
       where: {
         UserId: userId,
         PermissionId: permission.id,
       },
     });
   } else if (effect === "assign") {
-    const permission = await db.UserPermission.create({
+    const assignPermission = await db.UserPermission.create({
       UserId: userId,
       PermissionId: permission.id,
     });

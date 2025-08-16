@@ -92,31 +92,21 @@ export const authorizeRequest =
  * owns a specific resource before allowing the request to proceed.
  *
  * @param {string} ownerType - The type of owner. Can be either `"user"` or `"business"`.
- * @param {string} ownerField - The name of the database field in the resource table
- *   that stores the owner ID (e.g., `"BusinessId"`, `"UserId"`, `"id"` for self-owned profiles).
  * @param {string} resource - The name of the Sequelize model to check ownership against.
- *
- * @throws {AppError} - 500 if `ownerType` or `targetId` is missing,
- *   403 if the authenticated user does not own the target resource.
- *
  * @returns {Function} Express middleware function `(req, res, next)`.
- *
  * @example
  * // Example: Only allow a user to update their own profile
  * router.put(
  *   "/users/:id",
- *   authorizeOwnership("user", "id", "User"),
+ *   authorizeOwnership("user","User"),
  *   updateUserController
  * );
- *
- *
- * @note The `ownerField` in the `resource` model must match the `ownerId` for ownership to be valid.
  * @note The `ownerId` is extracted from the authenticated user's token — it will be `id` for
  *   `ownerType: "user"` or `BusinessId` for `ownerType: "business"`.
- * @note The `targetId` is extracted from either the `id` field in `req.params` or `req.body`.
+ * @note The `targetId` is extracted from either the `id` field in `req.params` or `req.body` if both exist it will throw an error.
  */
 export const authorizeOwnership =
-  (ownerType, ownerField, resource) => async (req, res, next) => {
+  (ownerType, resource) => async (req, res, next) => {
     let ownerId;
     let targetId;
     if (ownerType === "business") {
@@ -131,6 +121,14 @@ export const authorizeOwnership =
         "ops"
       );
     }
+
+    if (req.body && req.body.id && req.params && req.params.id)
+      throw new AppError(
+        500,
+        "conflict in the id attempt of bypassing",
+        false,
+        "ops"
+      );
     targetId = req?.params?.id ?? req?.body?.id;
     if (!targetId)
       throw new AppError(
@@ -139,16 +137,15 @@ export const authorizeOwnership =
         false,
         "ops"
       );
-    //this will not work on business
-    const isOwner = await db[resource].findOne({
-      where: { id: targetId, [ownerField]: ownerId },
-    });
-    if (!isOwner)
+    const exist = await db[resource].findByPk(targetId);
+    if (exist && exist.owner === ownerId) {
+      next();
+    } else {
       throw new AppError(
         403,
-        `Unauthorized attempt by ${ownerId} to resource ${resource} wrong ownership`,
+        `Unauthorized attempt by "${ownerId}" to resource "${resource}" wrong ownership`,
         true,
         `Unauthorized`
       );
-    next();
+    }
   };

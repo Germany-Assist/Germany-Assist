@@ -108,6 +108,12 @@ Business.init(
         min: { args: [0], msg: "Total reviews cannot be negative" },
       },
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.id;
+      },
+    },
   },
   {
     sequelize,

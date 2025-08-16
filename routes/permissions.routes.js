@@ -13,16 +13,16 @@ const permissionRouter = express.Router();
 /// important to check the ownership of the specific target
 
 permissionRouter.post(
-  "/assign/:id",
+  "/assign",
   authenticateJwt,
   authorizeRole(["root", "admin"]),
   authorizeRequest("permission", "assign"),
-  authorizeOwnership("business", "BusinessId", "User"),
+  authorizeOwnership("business", "User"),
   assignPermission
 );
 
 permissionRouter.post(
-  "/revoke/:id",
+  "/revoke",
   authenticateJwt,
   authorizeRole(["root", "admin"]),
   authorizeRequest("permission", "revoke"),

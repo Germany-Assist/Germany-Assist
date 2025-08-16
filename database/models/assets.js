@@ -80,6 +80,16 @@ Asset.init(
         min: { args: [0], msg: "Requests cannot be negative" },
       },
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        if (this.type === "user") {
+          return this.UserId;
+        } else {
+          return this.BusinessId;
+        }
+      },
+    },
   },
   {
     sequelize,
