@@ -107,3 +107,13 @@ export const updateBusinessRating = async (id, newRating) => {
     total_reviews: updatedTotalReviews,
   });
 };
+export default {
+  createBusiness,
+  getAllBusiness,
+  getBusinessById,
+  updateBusiness,
+  deleteBusiness,
+  restoreBusiness,
+  incrementViews,
+  updateBusinessRating,
+};

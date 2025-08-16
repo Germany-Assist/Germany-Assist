@@ -42,6 +42,13 @@ User.init(
       type: DataTypes.UUID,
       allowNull: true,
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        if (this.role === "root" || this.role === "rep") return this.BusinessId;
+        return this.id;
+      },
+    },
   },
   {
     sequelize,

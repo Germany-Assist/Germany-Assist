@@ -2,6 +2,7 @@ import express from "express";
 import * as businessController from "../controllers/business.controller.js";
 import { authenticateJwt } from "../middlewares/jwt.middleware.js";
 import {
+  authorizeOwnership,
   authorizeRequest,
   authorizeRole,
 } from "../middlewares/authorize.checkpoint.js";
@@ -21,8 +22,6 @@ businessRouter.post(
 );
 businessRouter.get("/", businessController.getAllBusiness);
 businessRouter.get("/:id", businessController.getBusinessById);
-
-//private - restricted fields [name,about,description,email,phone_number,image]
 businessRouter.put(
   "/:id",
   updateBusinessValidator,

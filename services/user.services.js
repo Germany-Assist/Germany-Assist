@@ -5,7 +5,7 @@ import { AppError } from "../utils/error.class.js";
 import { sequelize } from "../database/connection.js";
 
 export const createUser = async (userData, t) => {
-  return await db.User.create(userData, { transaction: t });
+  return await db.User.create(userData, { transaction: t, raw: true });
 };
 
 export const loginUser = async (userData) => {
@@ -57,4 +57,14 @@ export const alterUserVerification = async (id, status) => {
   if (!user)
     throw new AppError(401, "User not found", true, "invalid credentials");
   return await user.update({ isVerified: status });
+};
+
+export default {
+  createUser,
+  loginUser,
+  getUserById,
+  alterUserVerification,
+  deleteUser,
+  updateUser,
+  userExists,
 };

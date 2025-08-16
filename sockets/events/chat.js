@@ -5,7 +5,10 @@ import { debugLogger, infoLogger } from "../../utils/loggers.js";
 import { activeUsers } from "../index.js";
 import { v4 as uuidv4 } from "uuid";
 import { AppError } from "../../utils/error.class.js";
-import { getUserById, userExists } from "../../services/user.services.js";
+import userServices, {
+  getUserById,
+  userExists,
+} from "../../services/user.services.js";
 
 const rateLimits = {};
 const RATE_LIMIT_WINDOW_MS = 1000;
@@ -110,7 +113,8 @@ export default function chatNamespace(io) {
               return false;
             }
           }
-          if (!(await userExists(friendId))) {
+
+          if (!(await userServices.userExists(friendId))) {
             socket.validationError(
               "The specified user does not exist",
               "add-new-friend"
