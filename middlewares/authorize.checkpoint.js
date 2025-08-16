@@ -25,7 +25,7 @@ export const authorizeRole = (targetRoles) => async (req, res, next) => {
           undefined,
           req.requestId
         );
-      if (!user.BusinessId === req.auth.BusinessId)
+      if (user.BusinessId !== req.auth.BusinessId)
         throw new AppError(
           403,
           "mismatch data between the token and the database ",
@@ -116,7 +116,7 @@ export const authorizeOwnership =
     } else {
       throw new AppError(
         500,
-        "messing ownerType for authorize Ownership function",
+        "messing params for authorize Ownership function",
         false,
         "ops"
       );
