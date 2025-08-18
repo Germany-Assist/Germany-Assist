@@ -13,6 +13,7 @@ import db from "../database/dbIndex.js";
 import { setTimeout as delay } from "node:timers/promises";
 import assert from "node:assert";
 import { alterUserVerification } from "../services/user.services.js";
+import { hashIdDecode } from "../utils/hashId.util.js";
 
 const dummyBusiness = {
   name: "amr business",
@@ -99,7 +100,7 @@ describe("business routes", { timeout: 5000 }, () => {
       await db.User.destroy({ where: {}, force: true });
       await db.Business.destroy({ where: {}, force: true });
       root = await request(app).post("/api/business").send(dummyBusiness);
-      await alterUserVerification(root.body.user.id, true);
+      await alterUserVerification(hashIdDecode(root.body.user.id), true);
     });
     it("should create a representative by the root token", async () => {
       rep = await request(app)
@@ -122,7 +123,7 @@ describe("business routes", { timeout: 5000 }, () => {
         .post("/api/business")
         .send({ ...dummyBusiness, email: "alte2@mail.com" });
       await delay(500);
-      await alterUserVerification(root.body.user.id, true);
+      await alterUserVerification(hashIdDecode(root.body.user.id), true);
       assert.strictEqual(root.status, 201);
       assert.strictEqual(root2.status, 201);
     });

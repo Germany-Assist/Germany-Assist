@@ -251,9 +251,9 @@ export default function chatNamespace(io) {
           return socket.validationError("Missing participant", "send-message");
         }
         if (
-          !message.body &&
-          typeof message.body !== "string" &&
-          message.body.trim().length === 0 &&
+          !message.body ||
+          typeof message.body !== "string" ||
+          message.body.trim().length === 0 ||
           message.body.trim().length > 1000
         ) {
           if (typeof ack === "function")

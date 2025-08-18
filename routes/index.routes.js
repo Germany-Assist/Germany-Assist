@@ -15,7 +15,7 @@ const apiRouter = Router();
 ///// WARNING THESE END POINT NEEDS 1.Validation 2.Authorization 3.Authentication
 
 apiRouter
-  .use("/user", userRouter) //
+  .use("/user", userRouter) //              | hash Id | permissions
   .use("/asset", assetRouter) //
   .use("/coupon", couponRouter) //
   .use("/contract", contractRouter) //

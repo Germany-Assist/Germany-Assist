@@ -45,7 +45,7 @@ app.get("/health", (req, res) => {
 
 app
   .use("/", async (req, res, next) => {
-    throw new AppError(404, "bad route", false);
+    throw new AppError(404, "bad route", true, "Bad Route");
   })
   .use(errorMiddleware);
 

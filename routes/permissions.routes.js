@@ -1,10 +1,6 @@
 import express from "express";
 import { authenticateJwt } from "../middlewares/jwt.middleware.js";
-import {
-  authorizeOwnership,
-  authorizeRequest,
-  authorizeRole,
-} from "../middlewares/authorize.checkpoint.js";
+import { authorizeRequest } from "../middlewares/authorize.checkpoint.js";
 import {
   assignPermission,
   revokePermission,
@@ -15,18 +11,30 @@ const permissionRouter = express.Router();
 permissionRouter.post(
   "/assign",
   authenticateJwt,
-  authorizeRole(["root", "admin"]),
-  authorizeRequest("permission", "assign"),
-  authorizeOwnership("business", "User"),
+  authorizeRequest(
+    ["root", "admin", "superAdmin"],
+    true,
+    "permission",
+    "assign",
+    true,
+    "business",
+    "User"
+  ),
   assignPermission
 );
 
 permissionRouter.post(
   "/revoke",
   authenticateJwt,
-  authorizeRole(["root", "admin"]),
-  authorizeRequest("permission", "revoke"),
-  authorizeOwnership("business", "BusinessId", "User"),
+  authorizeRequest(
+    ["root", "admin", "superAdmin"],
+    true,
+    "permission",
+    "revoke",
+    true,
+    "business",
+    "User"
+  ),
   revokePermission
 );
 export default permissionRouter;

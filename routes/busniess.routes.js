@@ -1,16 +1,13 @@
 import express from "express";
 import * as businessController from "../controllers/business.controller.js";
 import { authenticateJwt } from "../middlewares/jwt.middleware.js";
-import {
-  authorizeOwnership,
-  authorizeRequest,
-  authorizeRole,
-} from "../middlewares/authorize.checkpoint.js";
+
 import {
   createBusinessValidator,
   updateBusinessValidator,
 } from "../validators/business.validators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
+import { authorizeRequest } from "../middlewares/authorize.checkpoint.js";
 const businessRouter = express.Router();
 
 //public
@@ -22,27 +19,51 @@ businessRouter.post(
 );
 businessRouter.get("/", businessController.getAllBusiness);
 businessRouter.get("/:id", businessController.getBusinessById);
+
 businessRouter.put(
   "/:id",
   updateBusinessValidator,
   validateExpress,
   authenticateJwt,
-  authorizeRole(["root", "rep"]),
-  authorizeRequest("business", "update"),
+  authorizeRequest(
+    ["root", "superAdmin"],
+    true,
+    "business",
+    "update",
+    true,
+    "business",
+    "Business"
+  ),
   businessController.updateBusiness
 );
-//private root only
+
 businessRouter.delete(
   "/:id",
   authenticateJwt,
-  authorizeRole(["root"]),
+  authorizeRequest(
+    ["root", "superAdmin"],
+    true,
+    "business",
+    "delete",
+    true,
+    "business",
+    "Business"
+  ),
   businessController.deleteBusiness
 );
-//private root only
+
 businessRouter.post(
   "/:id/restore",
   authenticateJwt,
-  authorizeRole(["admin"]),
+  authorizeRequest(
+    ["root", "superAdmin"],
+    true,
+    "business",
+    "restore",
+    true,
+    "business",
+    "Business"
+  ),
   businessController.restoreBusiness
 );
 

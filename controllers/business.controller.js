@@ -4,16 +4,16 @@ import userServices from "../services/user.services.js";
 import { hashPassword } from "../utils/bycrypt.util.js";
 import { generateTokens } from "../middlewares/jwt.middleware.js";
 import { sequelize } from "../database/connection.js";
-import { NODE_ENV } from "../configs/serverConfig.js";
+import { NODE_ENV, REFRESH_COOKIE_AGE } from "../configs/serverConfig.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
+import { hashIdEncode } from "../utils/hashId.util.js";
 export async function createBusiness(req, res, next) {
   const t = await sequelize.transaction();
   try {
     const { email } = req.body;
     const password = hashPassword(req.body.password);
     const profile = await businessServices.createBusiness(req.body, t);
-
     const user = await userServices.createUser(
       {
         firstName: "business",
@@ -28,7 +28,7 @@ export async function createBusiness(req, res, next) {
     );
 
     const sanitizedUser = {
-      id: user.id,
+      id: hashIdEncode(user.id),
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -48,7 +48,7 @@ export async function createBusiness(req, res, next) {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: REFRESH_COOKIE_AGE,
     });
     await t.commit();
     res
@@ -64,7 +64,6 @@ export async function getAllBusiness(req, res, next) {
     const profiles = await businessServices.getAllBusiness();
     res.status(200).json(profiles);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -73,48 +72,45 @@ export async function getBusinessById(req, res, next) {
     const profile = await businessServices.getBusinessById(req.params.id);
     res.status(200).json(profile);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
 export async function updateBusiness(req, res, next) {
   try {
-    const { name, about, description, email, phone_number, image } = req.body;
-    const list = [name, about, description, email, phone_number, image];
+    const allowedFields = [
+      "name",
+      "about",
+      "description",
+      "email",
+      "phone_number",
+      "image",
+    ];
     const updateFields = {};
-
-    list.forEach((e) => {
-      if (e) updateFields[e] = e;
+    allowedFields.forEach((field) => {
+      if (req.body[field]) updateFields[field] = req.body[field];
     });
-
     const profile = await businessServices.updateBusiness(
-      parseInt(req.params.id),
+      req.params.id,
       updateFields
     );
     res.status(200).json(profile);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
 export async function deleteBusiness(req, res, next) {
-  console.log("attempt of delete");
   try {
     const result = await businessServices.deleteBusiness(req.params.id);
     res.sendStatus(200);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
 export async function restoreBusiness(req, res, next) {
   try {
-    const profile = await businessServices.restoreBusiness(
-      parseInt(req.params.id)
-    );
+    const profile = await businessServices.restoreBusiness(req.params.id);
     res.status(200).json(profile);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

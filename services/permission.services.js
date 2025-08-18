@@ -2,9 +2,8 @@ import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
-export const hasPermission = async (id, role, BusinessId, resource, action) => {
-  const permission = await db.User.findOne({
-    where: { id, role, BusinessId },
+export const userAndPermission = async (id, resource, action) => {
+  const user = await db.User.findByPk(id, {
     include: [
       {
         model: db.Permission,
@@ -13,11 +12,12 @@ export const hasPermission = async (id, role, BusinessId, resource, action) => {
           resource,
           action,
         },
-        required: true,
+        required: false,
+        attributes: ["id"],
       },
     ],
   });
-  if (permission) return true;
+  if (user) return user;
   return false;
 };
 
@@ -65,4 +65,4 @@ export const initPermissions = async (userId, template, t) => {
     );
   return true;
 };
-export default { initPermissions, adjustPermission, hasPermission };
+export default { initPermissions, adjustPermission, userAndPermission };

@@ -35,7 +35,7 @@ export async function revokePermission(req, res, next) {
       )
     )
       throw new AppError(403, "unAuthorized", true, "Permission denied");
-    permissionServices.adjustPermission(id, action, resource, "revoke");
+    await permissionServices.adjustPermission(id, action, resource, "revoke");
     res.sendStatus(200);
   } catch (error) {
     next(error);
