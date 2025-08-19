@@ -1,6 +1,6 @@
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
-import { userAndPermission } from "../services/permission.services.js";
+import permissionServices from "../services/permission.services.js";
 
 export const authorizeRequest =
   (
@@ -13,6 +13,12 @@ export const authorizeRequest =
     ownerResource
   ) =>
   async (req, res, next) => {
+    if (targetRoles.length < 1)
+      throw new AppError(500, "invalid parameters", false);
+    if (requirePermission && !(resource && action))
+      throw new AppError(500, "invalid parameters", false);
+    if (requireOwner && !(ownerType && ownerResource))
+      throw new AppError(500, "invalid parameters", false);
     try {
       let userId = req.auth.id;
       let hasPermission = true;
@@ -35,16 +41,16 @@ export const authorizeRequest =
           throw new AppError(404, "Invalid resource", true, "Invalid resource");
         isOwner = Boolean(subject && subject.owner === ownerId);
       }
-      const user = await userAndPermission(
+      const user = await permissionServices.userAndPermission(
         userId,
         requirePermission ? resource : undefined,
         requirePermission ? action : undefined
       );
+      if (!user) throw new AppError(404, "Invalid User", false, "Unauthorized");
       if (requirePermission) {
-        hasPermission = Boolean(user.userToPermission.length);
+        hasPermission = Boolean(user.userToPermission?.length);
       }
       //checking phase
-      if (!user) throw new AppError(404, "Invalid User", false, "Unauthorized");
       if (!targetRoles.includes(user.role))
         throw new AppError(403, "Improper Role", true, "Improper Role");
       if (!user.isVerified)

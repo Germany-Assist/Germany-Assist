@@ -15,14 +15,14 @@ const dummyBusiness = {
   about: "amrco translate",
   description:
     "We translate with cutting-edge technology, serving clients globally since 2015.",
-  email: "what@translate.com",
+  email: "amr@business.com",
   phone_number: "+1 (555) 123-4567",
   password: "Aa@123456",
 };
 const dummyRepresentative = {
   firstName: "rep",
   lastName: "rep",
-  email: "rep@rep.com",
+  email: "amr@rep.com",
   password: "Aa@123456",
   DOB: "1990-07-13",
   image: "www.image/url.png",
@@ -32,7 +32,7 @@ const rootStubData = {
   id: 50,
   firstName: "business",
   lastName: "root",
-  email: "contacwt@technova.com",
+  email: "amr@business.com",
   password: "$2b$10$AOKPqoo3xXzcVAzy4ChLau.nPgi8OBmJRwUszdepa7bnvL6UbomoG",
   role: "root",
   BusinessId: "b75aef98-d8ff-4912-9ee3-eb43d7ae78b0",
@@ -45,7 +45,7 @@ const repStubData = {
   id: 50,
   firstName: "business",
   lastName: "rep",
-  email: "contacwt@technova.com",
+  email: "amr@rep.com",
   password: "$2b$10$AOKPqoo3xXzcVAzy4ChLau.nPgi8OBmJRwUszdepa7bnvL6UbomoG",
   role: "rep",
   BusinessId: "b75aef98-d8ff-4912-9ee3-eb43d7ae78b0",
@@ -67,7 +67,16 @@ const businessStubData = {
   rating: null,
   total_reviews: null,
 };
-
+const userAndPermissionStubData = {
+  firstName: "business",
+  lastName: "root",
+  email: "amr@business.com",
+  password: "$2b$10$AOKPqoo3xXzcVAzy4ChLau.nPgi8OBmJRwUszdepa7bnvL6UbomoG",
+  role: "root",
+  BusinessId: "b75aef98-d8ff-4912-9ee3-eb43d7ae78b0",
+  userToPermission: [["Permission"]],
+  isVerified: true,
+};
 beforeEach(() => {
   sandbox = sinon.createSandbox();
 });
@@ -127,19 +136,18 @@ describe("business routes", { timeout: 5000 }, () => {
         .onSecondCall()
         .resolves(repStubData);
 
-      const getUserByIdStub = sandbox
-        .stub(userServices, "getUserById")
-        .resolves(rootStubData);
+      const userAndPermissionStub = sandbox
+        .stub(permissionServices, "userAndPermission")
+        .resolves(userAndPermissionStubData);
 
       const root = await request(app).post("/api/business").send(dummyBusiness);
-
       const rep = await request(app)
         .post("/api/user/rep")
         .set("Authorization", `Bearer ${root.body.accessToken}`)
         .send(dummyRepresentative);
       assert.strictEqual(createUserStub.callCount, 2);
       assert.ok(createBusinessStub.calledOnce);
-      // assert.ok(getUserByIdStub.calledOnce); this was commented for validation will be updated soon
+      assert.ok(userAndPermissionStub.calledOnce);
       assert.strictEqual(rep.status, 201);
       assert.strictEqual(rep.body.user.role, "rep");
       assert.strictEqual(rep.body.user.BusinessId, root.body.business.id);

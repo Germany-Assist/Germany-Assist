@@ -1,5 +1,5 @@
 import { roleTemplates } from "../database/templates.js";
-import * as permissionServices from "../services/permission.services.js";
+import permissionServices from "../services/permission.services.js";
 import { AppError } from "../utils/error.class.js";
 export async function assignPermission(req, res, next) {
   try {

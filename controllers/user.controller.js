@@ -75,7 +75,6 @@ export const createUserController =
       next(error);
     }
   };
-// give me user name and password and i will give you new access token and refresh token in a cookie
 export async function loginUserController(req, res, next) {
   try {
     const user = await userServices.loginUser(req.body);

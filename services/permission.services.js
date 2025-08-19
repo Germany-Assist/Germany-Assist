@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
-export const userAndPermission = async (id, resource, action) => {
+const userAndPermission = async (id, resource, action) => {
   const user = await db.User.findByPk(id, {
     include: [
       {
@@ -21,7 +21,7 @@ export const userAndPermission = async (id, resource, action) => {
   return false;
 };
 
-export const adjustPermission = async (userId, action, resource, effect) => {
+const adjustPermission = async (userId, action, resource, effect) => {
   const permission = await db.Permission.findOne({
     where: { action, resource },
   });
@@ -43,7 +43,7 @@ export const adjustPermission = async (userId, action, resource, effect) => {
   }
 };
 
-export const initPermissions = async (userId, template, t) => {
+const initPermissions = async (userId, template, t) => {
   const permissionsIds = await db.Permission.findAll({
     where: {
       [Op.or]: template,

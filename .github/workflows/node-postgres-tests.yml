@@ -61,7 +61,7 @@ jobs:
           REFRESH_TOKEN_SECRET: "refSecret"
           ACCESS_TOKEN_EXPIRE_DURATION: "15m"
           REFRESH_TOKEN_EXPIRE_DURATION: "7d"
-          REFRESH_COOKIE_AGE: "604,800,000"
+          REFRESH_COOKIE_AGE: "604800000"
           HASH_ID_SALT: "A!S@F#G$654321"
           CLIENT_URL: "localhost:3000"
         run: npm run workflowTest

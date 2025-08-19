@@ -10,4 +10,5 @@ export const REFRESH_TOKEN_EXPIRE_DURATION =
 export const CLIENT_URL = process.env.CLIENT_URL;
 export const ENV_IS_LOADED = Boolean(process.env.ENV_IS_LOADED) || false;
 export const REFRESH_COOKIE_AGE = parseInt(process.env.REFRESH_COOKIE_AGE);
+
 export const HASH_ID_SALT = process.env.HASH_ID_SALT;
