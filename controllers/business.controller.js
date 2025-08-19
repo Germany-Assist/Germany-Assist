@@ -81,7 +81,6 @@ export async function updateBusiness(req, res, next) {
       "name",
       "about",
       "description",
-      "email",
       "phone_number",
       "image",
     ];
@@ -90,7 +89,7 @@ export async function updateBusiness(req, res, next) {
       if (req.body[field]) updateFields[field] = req.body[field];
     });
     const profile = await businessServices.updateBusiness(
-      req.params.id,
+      req.body.id,
       updateFields
     );
     res.status(200).json(profile);
@@ -100,7 +99,7 @@ export async function updateBusiness(req, res, next) {
 }
 export async function deleteBusiness(req, res, next) {
   try {
-    const result = await businessServices.deleteBusiness(req.params.id);
+    const result = await businessServices.deleteBusiness(req.body.id);
     res.sendStatus(200);
   } catch (error) {
     next(error);
@@ -108,7 +107,7 @@ export async function deleteBusiness(req, res, next) {
 }
 export async function restoreBusiness(req, res, next) {
   try {
-    const profile = await businessServices.restoreBusiness(req.params.id);
+    const profile = await businessServices.restoreBusiness(req.body.id);
     res.status(200).json(profile);
   } catch (error) {
     next(error);

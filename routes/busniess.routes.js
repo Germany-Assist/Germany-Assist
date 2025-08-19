@@ -19,9 +19,8 @@ businessRouter.post(
 );
 businessRouter.get("/", businessController.getAllBusiness);
 businessRouter.get("/:id", businessController.getBusinessById);
-
 businessRouter.put(
-  "/:id",
+  "/",
   updateBusinessValidator,
   validateExpress,
   authenticateJwt,
@@ -36,12 +35,11 @@ businessRouter.put(
   ),
   businessController.updateBusiness
 );
-
 businessRouter.delete(
-  "/:id",
+  "/",
   authenticateJwt,
   authorizeRequest(
-    ["root", "superAdmin"],
+    ["root", "superAdmin", "admin"],
     true,
     "business",
     "delete",
@@ -51,19 +49,10 @@ businessRouter.delete(
   ),
   businessController.deleteBusiness
 );
-
 businessRouter.post(
-  "/:id/restore",
+  "/restore",
   authenticateJwt,
-  authorizeRequest(
-    ["root", "superAdmin"],
-    true,
-    "business",
-    "restore",
-    true,
-    "business",
-    "Business"
-  ),
+  authorizeRequest(["superAdmin", "admin"], true, "business", "restore", false),
   businessController.restoreBusiness
 );
 

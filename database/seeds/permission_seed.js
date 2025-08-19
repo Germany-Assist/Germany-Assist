@@ -64,7 +64,7 @@ const permissionsData = [
   { action: "delete", resource: "permission", description: "delete" }, //super:superUser
   { action: "assign", resource: "permission", description: "Assign " }, //ownership:root //super:superAdmin //(only permissions that they hold by default)//super:superUser
   { action: "revoke", resource: "permission", description: "Revoke " }, //ownership:root //super:superAdmin //(only permissions that they hold by default)//super:superUser
-  { action: "list", resource: "permission", description: "List all" }, //ownership:root //super:superAdmin //(only permissions that they hold by default)//super:superUser
+  { action: "list", resource: "permission", description: "List" }, //ownership:root //super:superAdmin //(only permissions that they hold by default)//super:superUser
 
   // Comment permissions
   { action: "create", resource: "comment", description: "Create comments" }, //client

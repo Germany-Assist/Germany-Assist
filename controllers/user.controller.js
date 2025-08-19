@@ -30,6 +30,7 @@ export const createUserController =
           role,
           is_root,
           BusinessId: role == "rep" ? req.auth.BusinessId : null,
+          isVerified: role == "admin" ? true : false,
         },
         t
       );
@@ -147,6 +148,29 @@ export async function activateUser(req, res, next) {
   try {
     await userServices.alterUserVerification(req.params.id, true);
     res.send(200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getAllUsers(req, res, next) {
+  try {
+    const users = await userServices.getAllUsers();
+    const usersWithIds = users.map((e) => {
+      return { ...e, id: hashIdEncode(e.id) };
+    });
+    res.send(usersWithIds);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getAllRepsScope(req, res, next) {
+  try {
+    const users = await userServices.getAllRepsScope(req.auth.BusinessId);
+    const usersWithIds = users.map((e) => {
+      return { ...e, id: hashIdEncode(e.id) };
+    });
+    res.send(usersWithIds);
   } catch (error) {
     next(error);
   }

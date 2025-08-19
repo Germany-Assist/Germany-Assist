@@ -41,9 +41,9 @@ try {
     //Stage 2
     //Seeds the data
     await seedPermissions();
+    await seedUsers();
     if (process.env.NODE_ENV != "test") {
       console.log("starting to seeds ⌛");
-      // await seedUsers();
       // await businessSeed();
       // await contractSeed();
       // await servicesSeed();

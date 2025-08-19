@@ -59,6 +59,21 @@ export const alterUserVerification = async (id, status) => {
   return await user.update({ isVerified: status });
 };
 
+export const getAllUsers = async () => {
+  const users = await db.User.findAll({
+    attributes: { exclude: ["password"] },
+    raw: true,
+  });
+  return users;
+};
+export const getAllRepsScope = async (BusinessId) => {
+  const reps = await db.User.findAll({
+    where: { BusinessId },
+    attributes: { exclude: ["password"] },
+    raw: true,
+  });
+  return reps;
+};
 export default {
   createUser,
   loginUser,
@@ -67,4 +82,6 @@ export default {
   deleteUser,
   updateUser,
   userExists,
+  getAllUsers,
+  getAllRepsScope,
 };

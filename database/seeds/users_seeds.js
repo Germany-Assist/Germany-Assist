@@ -62,11 +62,10 @@ const data = [
     firstName: "root",
     lastName: "root",
     email: "root@root.com",
-    password: "$2b$10$YcCsWPYPnrHtcHeGycyvXuhpvjcTZg85aOnstJFBIXQdw6JfN2tXS", // "password123" hashed
+    password: "$2b$10$YcCsWPYPnrHtcHeGycyvXuhpvjcTZg85aOnstJFBIXQdw6JfN2tXS",
     DOB: new Date("2010-01-01"),
     isVerified: true,
-    image: "https://example.com/images/john-doe.jpg",
-    role: "admin",
+    role: "superAdmin",
     is_root: true,
   },
 ];

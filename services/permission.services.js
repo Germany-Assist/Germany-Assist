@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
@@ -65,4 +65,28 @@ const initPermissions = async (userId, template, t) => {
     );
   return true;
 };
-export default { initPermissions, adjustPermission, userAndPermission };
+
+async function getUserPermissions(id) {
+  const permissions = await db.User.findOne({
+    where: { id },
+    attributes: [],
+    include: {
+      model: db.Permission,
+      as: "userToPermission",
+      attributes: [
+        ["action", "action"],
+        ["resource", "resource"],
+      ],
+      through: {
+        attributes: [],
+      },
+    },
+  });
+  return permissions.userToPermission;
+}
+export default {
+  initPermissions,
+  adjustPermission,
+  userAndPermission,
+  getUserPermissions,
+};

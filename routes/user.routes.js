@@ -10,23 +10,20 @@ import { hashIdDecode } from "../utils/hashId.util.js";
 import { authorizeRequest } from "../middlewares/authorize.checkpoint.js";
 const userRouter = Router();
 
-//clint
 userRouter.post(
   "/",
   createUserValidators,
   validateExpress,
   userControllers.createUserController("client", true)
 );
-//admin
 userRouter.post(
   "/admin",
   authenticateJwt,
   createUserValidators,
   validateExpress,
-  authorizeRequest(["admin", "superAdmin"], true, "user", "create", false),
+  authorizeRequest(["superAdmin", "admin"], true, "user", "create", false),
   userControllers.createUserController("admin", true)
 );
-//rep
 userRouter.post(
   "/rep",
   authenticateJwt,
@@ -35,7 +32,6 @@ userRouter.post(
   authorizeRequest(["root"], true, "user", "create"),
   userControllers.createUserController("rep", false)
 );
-
 userRouter.post(
   "/login",
   loginValidators,
@@ -56,6 +52,19 @@ userRouter.get(
   "/login",
   authenticateJwt,
   userControllers.loginUserTokenController
+);
+
+userRouter.get(
+  "/admin/all",
+  authenticateJwt,
+  authorizeRequest(["admin", "superAdmin"], true, "user", "read"),
+  userControllers.getAllUsers
+);
+userRouter.get(
+  "/root/rep",
+  authenticateJwt,
+  authorizeRequest(["root", "rep"], true, "user", "read"),
+  userControllers.getAllRepsScope
 );
 
 export default userRouter;
