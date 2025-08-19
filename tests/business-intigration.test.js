@@ -130,7 +130,8 @@ describe("business routes", { timeout: 5000 }, () => {
 
     it("should reject id for invalid permission", async () => {
       const resp = await request(app)
-        .delete(`/api/business/${root.body.business.id}`)
+        .delete(`/api/business`)
+        .send({ id: root.body.business.id })
         .set("Authorization", `Bearer ${root2.body.accessToken}`);
       assert.strictEqual(resp.status, 403);
     });
@@ -138,7 +139,8 @@ describe("business routes", { timeout: 5000 }, () => {
       const beforeDelete = await request(app).get("/api/business");
       assert.strictEqual(beforeDelete.body.length, 2);
       const resp = await request(app)
-        .delete(`/api/business/${root.body.business.id}`)
+        .delete(`/api/business`)
+        .send({ id: root.body.business.id })
         .set("Authorization", `Bearer ${root.body.accessToken}`);
       assert.strictEqual(resp.status, 200);
       const afterDelete = await request(app).get("/api/business");
