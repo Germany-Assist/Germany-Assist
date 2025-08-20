@@ -21,6 +21,7 @@ export const authorizeRequest =
       throw new AppError(500, "invalid parameters", false);
     if (requireOwner && !(ownerType && ownerResource))
       throw new AppError(500, "invalid parameters", false);
+
     try {
       let userId = req.auth.id;
       let hasPermission = true;
@@ -37,21 +38,24 @@ export const authorizeRequest =
           throw new AppError(400, "Conflicting IDs", true, "forbidden");
         // i need to add decode im thinking of making a middleware
         targetId = req?.params?.id ?? req?.body?.id;
-        if (!targetId) throw new AppError(422, "Missing Id", true, "ops");
+        if (!targetId)
+          throw new AppError(422, "Missing Id", true, "Missing Id");
         if (uuidValidate(targetId) && uuidVersion(targetId) === 4) {
           targetId = targetId;
         } else {
           targetId = hashIdDecode(targetId);
         }
-        const subject = await db[ownerResource].findByPk(targetId);
+        const subject = await db[ownerResource].findByPk(targetId, {
+          paranoid: false,
+        });
         if (!subject)
           throw new AppError(404, "Invalid resource", true, "Invalid resource");
         isOwner = Boolean(subject && subject.owner === ownerId);
       }
       const user = await permissionServices.userAndPermission(
         userId,
-        requirePermission ? resource : undefined,
-        requirePermission ? action : undefined
+        requirePermission ? resource : null,
+        requirePermission ? action : null
       );
       if (!user) throw new AppError(404, "Invalid User", false, "Unauthorized");
       if (requirePermission) {

@@ -1,13 +1,14 @@
 import * as serviceServices from "../services/service.services.js";
 import { AppError } from "../utils/error.class.js";
+import { hashIdDecode, hashIdEncode } from "../utils/hashId.util.js";
 
 export async function createService(req, res, next) {
   try {
     const service = {
-      title: req.body.title,
-      description: req.body.description,
       UserId: req.auth.id,
       BusinessId: req.auth.BusinessId,
+      title: req.body.title,
+      description: req.body.description,
       type: req.body.type,
       rating: 0,
       total_reviews: 0,
@@ -25,19 +26,45 @@ export async function createService(req, res, next) {
 export async function getAllServices(req, res, next) {
   try {
     const services = await serviceServices.getAllServices();
-    res.status(200).json(services);
+    const servicesWithHashedId = services.map((i) => {
+      return { ...i, id: hashIdEncode(i.id) };
+    });
+    res.status(200).json(servicesWithHashedId);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
-
+export async function getAllServicesAdmin(req, res, next) {
+  try {
+    const services = await serviceServices.getAllServicesAdmin();
+    const servicesWithHashedId = services.map((i) => {
+      return { ...i, id: hashIdEncode(i.id), UserId: hashIdEncode(i.UserId) };
+    });
+    res.status(200).json(servicesWithHashedId);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getAllServicesBusiness(req, res, next) {
+  try {
+    const services = await serviceServices.getAllServicesBusiness(
+      req.auth.BusinessId
+    );
+    const servicesWithHashedId = services.map((i) => {
+      return { ...i, id: hashIdEncode(i.id), UserId: hashIdEncode(i.UserId) };
+    });
+    res.status(200).json(servicesWithHashedId);
+  } catch (error) {
+    next(error);
+  }
+}
 export async function getServiceById(req, res, next) {
   try {
-    const service = await serviceServices.getServiceById(req.params.id);
-    res.status(200).json(service);
+    const service = await serviceServices.getServiceById(
+      hashIdDecode(req.params.id)
+    );
+    res.status(200).json({ ...service, id: hashIdEncode(service.id) });
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -49,18 +76,17 @@ export async function getServicesByUserId(req, res, next) {
     );
     res.status(200).json(services);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
 export async function getServicesByBusinessId(req, res, next) {
   try {
     const services = await serviceServices.getServicesByBusinessId(
-      req.params.BusinessId
+      req.params.id
     );
+
     res.status(200).json(services);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -70,37 +96,41 @@ export async function getServicesByType(req, res, next) {
     const services = await serviceServices.getServicesByType(req.params.type);
     res.status(200).json(services);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
-
+///
 export async function updateService(req, res, next) {
   try {
-    await serviceServices.updateService(req.params.id, req.body);
+    const allowedFields = ["title", "description", "type", "price", "image"];
+    let updateFields = {};
+    allowedFields.forEach((i) => {
+      if (req.body[i]) updateFields[i] = req.body[i];
+    });
+    await serviceServices.updateService(
+      hashIdDecode(req.body.id),
+      updateFields
+    );
     res.sendStatus(200);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
 
 export async function deleteService(req, res, next) {
   try {
-    await serviceServices.deleteService(req.params.id, req.auth.BusinessId);
+    await serviceServices.deleteService(hashIdDecode(req.body.id));
     res.sendStatus(200);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
 
 export async function restoreService(req, res, next) {
   try {
-    await serviceServices.restoreService(req.params.id);
+    await serviceServices.restoreService(hashIdDecode(req.body.id));
     res.sendStatus(200);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }
@@ -110,7 +140,6 @@ export async function incrementServiceViews(req, res, next) {
     await serviceServices.incrementServiceViews(req.params.id);
     res.sendStatus(200);
   } catch (error) {
-    if (error instanceof AppError) error.appendTrace(req.requestId);
     next(error);
   }
 }

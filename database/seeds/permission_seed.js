@@ -40,7 +40,7 @@ const permissionsData = [
   { action: "approve", resource: "service", description: "Approve services" }, //super:admin,superAdmin
   { action: "reject", resource: "service", description: "Reject services" }, //super:admin,superAdmin
   { action: "statistical", resource: "service", description: "statistical" }, //ownership:root,rep //super:admin,superAdmin
-
+  { action: "restore", resource: "service", description: "restore" }, //ownership:root,rep //super:admin,superAdmin
   // Review permissions
   { action: "create", resource: "review", description: "Create reviews" }, //client
   { action: "read", resource: "review", description: "View reviews" }, //public

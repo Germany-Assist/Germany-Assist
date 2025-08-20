@@ -1,3 +1,5 @@
+//this will be moved to the database but currently is here for speed of development
+//however the mechanics of using it wont change since it will be loaded to the cache
 export const roleTemplates = {
   // Business owner
   root_business: [
@@ -78,6 +80,7 @@ export const roleTemplates = {
     { action: "publish", resource: "service" },
     { action: "unpublish", resource: "service" },
     { action: "statistical", resource: "service" },
+    { action: "restore", resource: "service" },
 
     // Posts
     { action: "approve", resource: "post" },

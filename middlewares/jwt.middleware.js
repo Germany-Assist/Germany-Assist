@@ -47,10 +47,12 @@ export function generateAccessToken(user) {
 }
 
 export function generateRefreshToken(user) {
-  return jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, {
+  const { id, role, is_root, BusinessId } = user;
+  return jwt.sign({ id, role, is_root, BusinessId }, REFRESH_TOKEN_SECRET, {
     expiresIn: REFRESH_TOKEN_EXPIRE_DURATION,
   });
 }
+
 export function generateTokens(user) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);

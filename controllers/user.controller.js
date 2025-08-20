@@ -111,7 +111,7 @@ export async function refreshUserToken(req, res, next) {
       return res.sendStatus(401);
     }
     const user = verifyToken(refreshToken);
-    const accessToken = generateAccessToken({ id: user.id });
+    const accessToken = generateAccessToken(user);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,

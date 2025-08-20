@@ -5,14 +5,56 @@ export async function createService(serviceData) {
   return await db.Service.create(serviceData);
 }
 export async function getAllServices() {
-  return await db.Service.findAll();
+  return await db.Service.findAll({
+    raw: true,
+    where: { approved: true, rejected: false, published: true },
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "BusinessId",
+      "views",
+      "type",
+      "rating",
+      "total_reviews",
+      "price",
+      "ContractId",
+      "image",
+    ],
+  });
+}
+export async function getAllServicesAdmin() {
+  return await db.Service.findAll({ raw: true });
+}
+export async function getAllServicesBusiness(businessId) {
+  return await db.Service.findAll({
+    where: { BusinessId: businessId },
+    raw: true,
+  });
 }
 export async function getServiceById(id) {
-  let service = await db.Service.findByPk(id);
+  let service = await db.Service.findOne({
+    where: { id, approved: true, rejected: false, published: true },
+    raw: true,
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "BusinessId",
+      "views",
+      "type",
+      "rating",
+      "total_reviews",
+      "price",
+      "ContractId",
+      "image",
+    ],
+  });
   if (!service)
     throw new AppError(404, "Service not found", true, "Service not found");
   return service;
 }
+
 export async function getServicesByUserId(userId) {
   return await db.Service.findAll({ where: { UserId: userId } });
 }
@@ -29,20 +71,15 @@ export async function updateService(id, updateData) {
   const service = await db.Service.findByPk(id);
   if (!service)
     throw new AppError(404, "Service not found", true, "Service not found");
-  if (updateData.title) service.title = updateData.title;
-  if (updateData.description) service.description = updateData.description;
-  if (updateData.type) service.type = updateData.type;
-  if (updateData.price) service.price = updateData.price;
-  if (updateData.image) service.image = updateData.image;
-  return await service.save();
+  return service.update(updateData);
 }
-export async function deleteService(id, BusinessId) {
+export async function deleteService(id) {
   const service = await db.Service.findOne({
-    where: { [Op.and]: [{ id }, { BusinessId }] },
+    where: { id },
   });
   if (!service)
     throw new AppError(404, "Service not found", true, "Service not found");
-  if (service.BusinessId == BusinessId) return await service.destroy();
+  return await service.destroy();
 }
 export async function restoreService(id) {
   const service = await db.Service.findByPk(id, { paranoid: false });

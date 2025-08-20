@@ -103,6 +103,21 @@ Service.init(
         isUrl: { msg: "Image must be a valid URL" },
       },
     },
+    approved: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    rejected: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    published: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     owner: {
       type: DataTypes.VIRTUAL,
       get() {

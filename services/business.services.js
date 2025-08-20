@@ -49,6 +49,8 @@ export const getBusinessById = async (id) => {
       "views",
     ],
   });
+  profile.views += 1;
+  await profile.save();
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
   return profile;
@@ -93,6 +95,7 @@ export const incrementViews = async (id) => {
     throw new AppError(404, "Business not found", true, "Business not found");
   return await profile.increment("views");
 };
+
 export const updateBusinessRating = async (id, newRating) => {
   const profile = await db.Business.findByPk(id);
   if (!profile)
