@@ -49,6 +49,7 @@ export async function createBusiness(req, res, next) {
       secure: NODE_ENV === "production" ? true : false,
       sameSite: "strict",
       maxAge: REFRESH_COOKIE_AGE,
+      path: "/api/user/refresh-token",
     });
     await t.commit();
     res

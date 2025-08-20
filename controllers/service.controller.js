@@ -84,7 +84,6 @@ export async function getServicesByBusinessId(req, res, next) {
     const services = await serviceServices.getServicesByBusinessId(
       req.params.id
     );
-
     res.status(200).json(services);
   } catch (error) {
     next(error);

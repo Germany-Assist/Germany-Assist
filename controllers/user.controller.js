@@ -97,6 +97,7 @@ export async function loginUserController(req, res, next) {
       secure: NODE_ENV === "production" ? true : false,
       sameSite: "strict",
       maxAge: REFRESH_COOKIE_AGE,
+      path: "/api/user/refresh-token",
     });
     res.json({ accessToken, user: sanitizedUser });
   } catch (error) {
@@ -117,6 +118,7 @@ export async function refreshUserToken(req, res, next) {
       secure: NODE_ENV === "production" ? true : false,
       sameSite: "strict",
       maxAge: REFRESH_COOKIE_AGE,
+      path: "/api/user/refresh-token",
     });
     res.send({ accessToken });
   } catch (error) {
