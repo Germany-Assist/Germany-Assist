@@ -8,10 +8,7 @@ import { NODE_ENV, REFRESH_COOKIE_AGE } from "../configs/serverConfig.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
 import { hashIdEncode } from "../utils/hashId.util.js";
-import {
-  checkOwnership,
-  checkRoleAndPermission,
-} from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.requests.util.js";
 export async function createBusiness(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -81,7 +78,7 @@ export async function getBusinessById(req, res, next) {
 }
 export async function updateBusiness(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission(
+    const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["root_business", "superAdmin"],
@@ -89,7 +86,7 @@ export async function updateBusiness(req, res, next) {
       "business",
       "update"
     );
-    const isOwner = await checkOwnership(
+    const isOwner = await authUtils.checkOwnership(
       req.body.id,
       req.auth.BusinessId,
       "Business"
@@ -118,7 +115,7 @@ export async function updateBusiness(req, res, next) {
 }
 export async function deleteBusiness(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission(
+    const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["root_business", "superAdmin", "admin"],
@@ -126,7 +123,7 @@ export async function deleteBusiness(req, res, next) {
       "business",
       "delete"
     );
-    const isOwner = await checkOwnership(
+    const isOwner = await authUtils.checkOwnership(
       req.body.id,
       req.auth.BusinessId,
       "Business"
@@ -134,14 +131,14 @@ export async function deleteBusiness(req, res, next) {
     if (!hasPermission || !isOwner)
       throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
     await businessServices.deleteBusiness(req.body.id);
-    res.sendStatus(200);
+    res.status(200).json({ message: "success" });
   } catch (error) {
     next(error);
   }
 }
 export async function restoreBusiness(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission(
+    const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["superAdmin", "admin"],

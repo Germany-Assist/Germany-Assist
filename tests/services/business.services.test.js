@@ -14,9 +14,7 @@ describe("Business Service Unit Tests", () => {
   it("getBusinessById - should return business and increment views", async () => {
     const fakeProfile = { id: 1, increment: sinon.stub(), save: sinon.stub() };
     sinon.stub(db.Business, "findByPk").resolves(fakeProfile);
-
     const result = await getBusinessById(1);
-
     sinon.assert.calledOnce(fakeProfile.increment);
     sinon.assert.calledOnce(fakeProfile.save);
     assert.strictEqual(result, fakeProfile);
@@ -37,9 +35,7 @@ describe("Business Service Unit Tests", () => {
       update: sinon.stub().resolves("updated"),
     };
     sinon.stub(db.Business, "findByPk").resolves(fakeProfile);
-
     const result = await updateBusinessRating(1, 5);
-
     assert.strictEqual(fakeProfile.update.calledOnce, true);
     assert.strictEqual(result, "updated");
   });

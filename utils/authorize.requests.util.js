@@ -3,7 +3,7 @@ import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import { AppError } from "./error.class.js";
 import permissionServices from "../services/permission.services.js";
 
-export async function checkRoleAndPermission(
+async function checkRoleAndPermission(
   userId,
   businessId,
   targetRoles,
@@ -83,3 +83,4 @@ export async function checkOwnership(targetId, ownerId, resource) {
     throw new AppError(500, "Ownership check failed", false, error.message);
   }
 }
+export default { checkRoleAndPermission, checkOwnership };

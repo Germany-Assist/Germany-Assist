@@ -1,9 +1,6 @@
 import { roleTemplates } from "../database/templates.js";
 import permissionServices from "../services/permission.services.js";
-import {
-  checkOwnership,
-  checkRoleAndPermission,
-} from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.requests.util.js";
 import { AppError } from "../utils/error.class.js";
 import { hashIdDecode } from "../utils/hashId.util.js";
 
@@ -51,14 +48,14 @@ function extractPermissionData(req, requireId = true) {
 
 export async function assignPermission(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission(
+    const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
+      req.auth.BusinessId,
       ["root_business", "superAdmin"],
       true,
       "permission",
       "assign"
     );
-
     if (!hasPermission) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }
@@ -98,8 +95,9 @@ export async function assignPermission(req, res, next) {
 
 export async function revokePermission(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission(
+    const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
+      req.auth.BusinessId,
       ["root_business", "superAdmin"],
       true,
       "permission",
@@ -143,8 +141,9 @@ export async function revokePermission(req, res, next) {
 
 export async function getUserPermissions(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission(
+    const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
+      req.auth.BusinessId,
       ["root_business", "superAdmin"],
       true,
       "permission",
@@ -158,7 +157,7 @@ export async function getUserPermissions(req, res, next) {
       throw new AppError(422, "Missing user ID", true, "Invalid request");
     }
     const decodedId = hashIdDecode(id);
-    const isOwner = await checkOwnership(
+    const isOwner = await authUtils.checkOwnership(
       decodedId,
       req.auth.BusinessId,
       "User"
@@ -185,12 +184,12 @@ export async function getUserPermissions(req, res, next) {
 
 export async function getPersonalPermissions(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission({
-      req,
-      userId: req.auth.id,
-      targetRoles: ["root_business", "superAdmin", "admin", "user"],
-      requirePermission: false,
-    });
+    const hasPermission = await authUtils.checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["root_business", "superAdmin", "admin", "user"],
+      false
+    );
     if (!hasPermission) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }
@@ -208,12 +207,12 @@ export async function getPersonalPermissions(req, res, next) {
 
 export async function getAvailablePermissions(req, res, next) {
   try {
-    const hasPermission = await checkRoleAndPermission({
-      req,
-      userId: req.auth.id,
-      targetRoles: ["*"],
-      requirePermission: false,
-    });
+    const hasPermission = await authUtils.checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["*"],
+      false
+    );
     if (!hasPermission) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }

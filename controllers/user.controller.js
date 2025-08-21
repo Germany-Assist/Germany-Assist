@@ -6,12 +6,13 @@ import { sequelize } from "../database/connection.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
 import { hashIdDecode, hashIdEncode } from "../utils/hashId.util.js";
-import { checkRoleAndPermission } from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.requests.util.js";
+
 import userServices from "../services/user.services.js";
 export const createUserController =
   (role, is_root) => async (req, res, next) => {
     const t = await sequelize.transaction();
-    await checkRoleAndPermission(
+    await authUtils.authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["superAdmin", "admin", "root_business"],
@@ -153,7 +154,7 @@ export async function loginUserTokenController(req, res, next) {
 
 export async function getAllUsers(req, res, next) {
   try {
-    await checkRoleAndPermission(
+    await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["admin", "superAdmin"],
@@ -172,7 +173,7 @@ export async function getAllUsers(req, res, next) {
 }
 export async function getBusinessReps(req, res, next) {
   try {
-    await checkRoleAndPermission(
+    await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["root_business", "rep"],
@@ -192,7 +193,7 @@ export async function getBusinessReps(req, res, next) {
 
 export async function verifyUser(req, res, next) {
   try {
-    await checkRoleAndPermission(
+    await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.BusinessId,
       ["admin", "superAdmin"],
