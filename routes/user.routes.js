@@ -5,9 +5,8 @@ import {
 } from "../validators/userValidators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
 import * as userControllers from "../controllers/user.controller.js";
-import { authenticateJwt } from "../middlewares/jwt.middleware.js";
+import jwt from "../middlewares/jwt.middleware.js";
 import { hashIdDecode } from "../utils/hashId.util.js";
-import { authorizeRequest } from "../middlewares/authorize.checkpoint.js";
 const userRouter = Router();
 
 userRouter.post(
@@ -18,18 +17,16 @@ userRouter.post(
 );
 userRouter.post(
   "/admin",
-  authenticateJwt,
+  jwt.authenticateJwt,
   createUserValidators,
   validateExpress,
-  authorizeRequest(["superAdmin", "admin"], true, "user", "create", false),
   userControllers.createUserController("admin", true)
 );
 userRouter.post(
   "/rep",
-  authenticateJwt,
+  jwt.authenticateJwt,
   createUserValidators,
   validateExpress,
-  authorizeRequest(["root"], true, "user", "create"),
   userControllers.createUserController("rep", false)
 );
 userRouter.post(
@@ -46,25 +43,21 @@ userRouter.get("/logout", (req, res, next) => {
   });
   res.sendStatus(200);
 });
-userRouter.post("/refresh-token", userControllers.refreshUserToken);
-
+userRouter.get(
+  "/admin/verify/:id",
+  jwt.authenticateJwt,
+  userControllers.verifyUser
+);
 userRouter.get(
   "/login",
-  authenticateJwt,
+  jwt.authenticateJwt,
   userControllers.loginUserTokenController
 );
-
-userRouter.get(
-  "/admin/all",
-  authenticateJwt,
-  authorizeRequest(["admin", "superAdmin"], true, "user", "read"),
-  userControllers.getAllUsers
-);
+userRouter.post("/refresh-token", userControllers.refreshUserToken);
+userRouter.get("/admin/all", jwt.authenticateJwt, userControllers.getAllUsers);
 userRouter.get(
   "/root/rep",
-  authenticateJwt,
-  authorizeRequest(["root", "rep"], true, "user", "read"),
-  userControllers.getAllRepsScope
+  jwt.authenticateJwt,
+  userControllers.getBusinessReps
 );
-
 export default userRouter;

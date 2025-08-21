@@ -1,6 +1,5 @@
 import express from "express";
-import { authenticateJwt } from "../middlewares/jwt.middleware.js";
-import { authorizeRequest } from "../middlewares/authorize.checkpoint.js";
+import jwt from "../middlewares/jwt.middleware.js";
 import {
   assignPermission,
   getPersonalPermissions,
@@ -9,64 +8,17 @@ import {
 } from "../controllers/permission.controller.js";
 const permissionRouter = express.Router();
 
-permissionRouter.post(
-  "/assign",
-  authenticateJwt,
-  authorizeRequest(
-    ["root", "superAdmin"],
-    true,
-    "permission",
-    "assign",
-    true,
-    "business",
-    "User"
-  ),
-  assignPermission
-);
-permissionRouter.post(
-  "/revoke",
-  authenticateJwt,
-  authorizeRequest(
-    ["root", "superAdmin"],
-    true,
-    "permission",
-    "revoke",
-    true,
-    "business",
-    "User"
-  ),
-  revokePermission
-);
+permissionRouter.post("/assign", jwt.authenticateJwt, assignPermission);
+permissionRouter.post("/revoke", jwt.authenticateJwt, revokePermission);
 permissionRouter.get(
   "/user/personal",
-  authenticateJwt,
-  authorizeRequest(["root", "superAdmin"], true, "permission", "list", false),
+  jwt.authenticateJwt,
   getPersonalPermissions
 );
-permissionRouter.post(
-  "/user",
-  authenticateJwt,
-  authorizeRequest(
-    ["root", "superAdmin", "admin"],
-    true,
-    "permission",
-    "list",
-    true,
-    "business",
-    "User"
-  ),
-  getUserPermissions
-);
+permissionRouter.post("/user", jwt.authenticateJwt, getUserPermissions);
 permissionRouter.get(
   "/user/available",
-  authenticateJwt,
-  authorizeRequest(
-    ["root", "superAdmin", "admin"],
-    true,
-    "permission",
-    "list",
-    false
-  ),
+  jwt.authenticateJwt,
   getPersonalPermissions
 );
 export default permissionRouter;

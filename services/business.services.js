@@ -49,18 +49,19 @@ export const getBusinessById = async (id) => {
       "views",
     ],
   });
-  profile.views += 1;
-  await profile.save();
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
+  profile.increment("views");
+  await profile.save();
   return profile;
 };
 
 export const updateBusiness = async (id, updateData) => {
-  const profile = await db.Business.findByPk(id);
-  if (!profile)
-    throw new AppError(404, "Business not found", true, "Business not found");
-  await profile.update(updateData);
+  const [count, [profile]] = await db.Business.update(updateData, {
+    where: { id },
+    returning: true,
+  });
+  if (count === 0) throw new AppError(404, "Business not found", true);
   return profile;
 };
 
@@ -89,14 +90,10 @@ export const restoreBusiness = async (id) => {
   return profile;
 };
 
-export const incrementViews = async (id) => {
-  const profile = await db.Business.findByPk(id);
-  if (!profile)
-    throw new AppError(404, "Business not found", true, "Business not found");
-  return await profile.increment("views");
-};
-
 export const updateBusinessRating = async (id, newRating) => {
+  if (typeof newRating !== "number" || newRating < 0 || newRating > 5) {
+    throw new AppError(400, "Invalid rating value", true);
+  }
   const profile = await db.Business.findByPk(id);
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
@@ -117,6 +114,5 @@ export default {
   updateBusiness,
   deleteBusiness,
   restoreBusiness,
-  incrementViews,
   updateBusinessRating,
 };

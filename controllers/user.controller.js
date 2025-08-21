@@ -1,20 +1,24 @@
 import { NODE_ENV, REFRESH_COOKIE_AGE } from "../configs/serverConfig.js";
-import userServices from "../services/user.services.js";
-import {
-  generateAccessToken,
-  generateTokens,
-  verifyToken,
-} from "../middlewares/jwt.middleware.js";
+import jwt from "../middlewares/jwt.middleware.js";
 import { infoLogger } from "../utils/loggers.js";
-import { hashPassword } from "../utils/bycrypt.util.js";
+import { hashPassword } from "../utils/bcrypt.util.js";
 import { sequelize } from "../database/connection.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
-import { hashIdEncode } from "../utils/hashId.util.js";
-
+import { hashIdDecode, hashIdEncode } from "../utils/hashId.util.js";
+import { checkRoleAndPermission } from "../utils/authorize.requests.util.js";
+import userServices from "../services/user.services.js";
 export const createUserController =
   (role, is_root) => async (req, res, next) => {
     const t = await sequelize.transaction();
+    await checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["superAdmin", "admin", "root_business"],
+      true,
+      "user",
+      "create"
+    );
     try {
       infoLogger(`creating new ${role}`);
       const { firstName, lastName, email, DOB, image } = req.body;
@@ -49,7 +53,7 @@ export const createUserController =
           break;
       }
       await permissionServices.initPermissions(user.id, permissionTemplate, t);
-      const { accessToken, refreshToken } = generateTokens(user);
+      const { accessToken, refreshToken } = jwt.generateTokens(user);
       const sanitizedUser = {
         id: hashIdEncode(user.id),
         firstName: user.firstName,
@@ -79,7 +83,7 @@ export const createUserController =
 export async function loginUserController(req, res, next) {
   try {
     const user = await userServices.loginUser(req.body);
-    const { accessToken, refreshToken } = generateTokens(user);
+    const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = {
       id: hashIdEncode(user.id),
       firstName: user.firstName,
@@ -111,8 +115,8 @@ export async function refreshUserToken(req, res, next) {
     if (!refreshToken) {
       return res.sendStatus(401);
     }
-    const user = verifyToken(refreshToken);
-    const accessToken = generateAccessToken(user);
+    const user = jwt.verifyToken(refreshToken);
+    const accessToken = jwt.generateAccessToken(user);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
@@ -146,17 +150,17 @@ export async function loginUserTokenController(req, res, next) {
     next(error);
   }
 }
-export async function activateUser(req, res, next) {
-  try {
-    await userServices.alterUserVerification(req.params.id, true);
-    res.send(200);
-  } catch (error) {
-    next(error);
-  }
-}
 
 export async function getAllUsers(req, res, next) {
   try {
+    await checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["admin", "superAdmin"],
+      true,
+      "user",
+      "read"
+    );
     const users = await userServices.getAllUsers();
     const usersWithIds = users.map((e) => {
       return { ...e, id: hashIdEncode(e.id) };
@@ -166,13 +170,38 @@ export async function getAllUsers(req, res, next) {
     next(error);
   }
 }
-export async function getAllRepsScope(req, res, next) {
+export async function getBusinessReps(req, res, next) {
   try {
-    const users = await userServices.getAllRepsScope(req.auth.BusinessId);
+    await checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["root_business", "rep"],
+      true,
+      "user",
+      "read"
+    );
+    const users = await userServices.getBusinessReps(req.auth.BusinessId);
     const usersWithIds = users.map((e) => {
       return { ...e, id: hashIdEncode(e.id) };
     });
     res.send(usersWithIds);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function verifyUser(req, res, next) {
+  try {
+    await checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["admin", "superAdmin"],
+      true,
+      "user",
+      "verify"
+    );
+    await userServices.alterUserVerification(hashIdDecode(req.params.id), true);
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }
