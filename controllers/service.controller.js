@@ -1,6 +1,6 @@
 import * as serviceServices from "../services/service.services.js";
 import { AppError } from "../utils/error.class.js";
-import { hashIdDecode, hashIdEncode } from "../utils/hashId.util.js";
+import hashIdUtil from "../utils/hashId.util.js";
 
 export async function createService(req, res, next) {
   try {
@@ -27,7 +27,7 @@ export async function getAllServices(req, res, next) {
   try {
     const services = await serviceServices.getAllServices();
     const servicesWithHashedId = services.map((i) => {
-      return { ...i, id: hashIdEncode(i.id) };
+      return { ...i, id: hashIdUtil.hashIdEncode(i.id) };
     });
     res.status(200).json(servicesWithHashedId);
   } catch (error) {
@@ -38,7 +38,11 @@ export async function getAllServicesAdmin(req, res, next) {
   try {
     const services = await serviceServices.getAllServicesAdmin();
     const servicesWithHashedId = services.map((i) => {
-      return { ...i, id: hashIdEncode(i.id), UserId: hashIdEncode(i.UserId) };
+      return {
+        ...i,
+        id: hashIdUtil.hashIdEncode(i.id),
+        UserId: hashIdUtil.hashIdEncode(i.UserId),
+      };
     });
     res.status(200).json(servicesWithHashedId);
   } catch (error) {
@@ -51,7 +55,11 @@ export async function getAllServicesBusiness(req, res, next) {
       req.auth.BusinessId
     );
     const servicesWithHashedId = services.map((i) => {
-      return { ...i, id: hashIdEncode(i.id), UserId: hashIdEncode(i.UserId) };
+      return {
+        ...i,
+        id: hashIdUtil.hashIdEncode(i.id),
+        UserId: hashIdUtil.hashIdEncode(i.UserId),
+      };
     });
     res.status(200).json(servicesWithHashedId);
   } catch (error) {
@@ -61,9 +69,11 @@ export async function getAllServicesBusiness(req, res, next) {
 export async function getServiceById(req, res, next) {
   try {
     const service = await serviceServices.getServiceById(
-      hashIdDecode(req.params.id)
+      hashIdUtil.hashIdDecode(req.params.id)
     );
-    res.status(200).json({ ...service, id: hashIdEncode(service.id) });
+    res
+      .status(200)
+      .json({ ...service, id: hashIdUtil.hashIdEncode(service.id) });
   } catch (error) {
     next(error);
   }
@@ -107,7 +117,7 @@ export async function updateService(req, res, next) {
       if (req.body[i]) updateFields[i] = req.body[i];
     });
     await serviceServices.updateService(
-      hashIdDecode(req.body.id),
+      hashIdUtil.hashIdDecode(req.body.id),
       updateFields
     );
     res.sendStatus(200);
@@ -118,7 +128,7 @@ export async function updateService(req, res, next) {
 
 export async function deleteService(req, res, next) {
   try {
-    await serviceServices.deleteService(hashIdDecode(req.body.id));
+    await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.body.id));
     res.sendStatus(200);
   } catch (error) {
     next(error);

@@ -1,19 +1,20 @@
 import businessServices from "../services/business.services.js";
 import { AppError } from "../utils/error.class.js";
 import userServices from "../services/user.services.js";
-import { hashPassword } from "../utils/bcrypt.util.js";
+import bcryptUtil from "../utils/bcrypt.util.js";
 import jwt from "../middlewares/jwt.middleware.js";
 import { sequelize } from "../database/connection.js";
 import { NODE_ENV, REFRESH_COOKIE_AGE } from "../configs/serverConfig.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
-import { hashIdEncode } from "../utils/hashId.util.js";
+import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.requests.util.js";
+
 export async function createBusiness(req, res, next) {
   const t = await sequelize.transaction();
   try {
     const { email } = req.body;
-    const password = hashPassword(req.body.password);
+    const password = bcryptUtil.hashPassword(req.body.password);
     const profile = await businessServices.createBusiness(req.body, t);
     const user = await userServices.createUser(
       {
@@ -28,7 +29,7 @@ export async function createBusiness(req, res, next) {
       t
     );
     const sanitizedUser = {
-      id: hashIdEncode(user.id),
+      id: hashIdUtil.hashIdEncode(user.id),
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -38,11 +39,13 @@ export async function createBusiness(req, res, next) {
       is_root: user.is_root,
       BusinessId: user.BusinessId,
     };
-    await permissionServices.initPermissions(
+    const root_permissions = await permissionServices.initPermissions(
       user.id,
       roleTemplates.root_business,
       t
     );
+    if (!root_permissions)
+      throw new AppError(500, "failed to create permissions", false);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,

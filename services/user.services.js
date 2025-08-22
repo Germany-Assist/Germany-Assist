@@ -1,9 +1,7 @@
 import { Model, Op } from "sequelize";
 import db from "../database/dbIndex.js";
-import { hashPassword, hashCompare } from "../utils/bcrypt.util.js";
+import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
-import { sequelize } from "../database/connection.js";
-
 export const createUser = async (userData, t) => {
   return await db.User.create(userData, { transaction: t, raw: true });
 };
@@ -13,7 +11,7 @@ export const loginUser = async (userData) => {
   const user = await getUserByEmail(email);
   if (!user)
     throw new AppError(401, "User not found", true, "invalid credentials");
-  const compare = hashCompare(password, user.password);
+  const compare = bcryptUtil.hashCompare(password, user.password);
   if (!compare)
     throw new AppError(401, "wrong password", true, "invalid credentials");
   return user;

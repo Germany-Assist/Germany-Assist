@@ -10,7 +10,6 @@ import assert from "node:assert";
 
 describe("Business Service Unit Tests", () => {
   afterEach(() => sinon.restore());
-
   it("getBusinessById - should return business and increment views", async () => {
     const fakeProfile = { id: 1, increment: sinon.stub(), save: sinon.stub() };
     sinon.stub(db.Business, "findByPk").resolves(fakeProfile);
@@ -19,14 +18,12 @@ describe("Business Service Unit Tests", () => {
     sinon.assert.calledOnce(fakeProfile.save);
     assert.strictEqual(result, fakeProfile);
   });
-
   it("getBusinessById - should throw AppError if not found", async () => {
     sinon.stub(db.Business, "findByPk").resolves(null);
     await assert.rejects(async () => {
       await getBusinessById(999);
     }, AppError);
   });
-
   it("updateBusinessRating - should calculate new rating correctly", async () => {
     const fakeProfile = {
       id: 1,
@@ -39,7 +36,6 @@ describe("Business Service Unit Tests", () => {
     assert.strictEqual(fakeProfile.update.calledOnce, true);
     assert.strictEqual(result, "updated");
   });
-
   it("updateBusinessRating - invalid rating should throw", async () => {
     await assert.rejects(async () => {
       await updateBusinessRating(1, 6);

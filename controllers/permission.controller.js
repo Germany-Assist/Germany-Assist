@@ -2,7 +2,7 @@ import { roleTemplates } from "../database/templates.js";
 import permissionServices from "../services/permission.services.js";
 import authUtils from "../utils/authorize.requests.util.js";
 import { AppError } from "../utils/error.class.js";
-import { hashIdDecode } from "../utils/hashId.util.js";
+import hashIdUtil from "../utils/hashId.util.js";
 
 function getAllowedPermissions(role) {
   switch (role) {
@@ -60,7 +60,7 @@ export async function assignPermission(req, res, next) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }
     const { id, action, resource } = extractPermissionData(req);
-    const decodedId = hashIdDecode(id);
+    const decodedId = hashIdUtil.hashIdDecode(id);
     const isOwner = await checkOwnership(
       decodedId,
       req.auth.BusinessId,
@@ -108,7 +108,7 @@ export async function revokePermission(req, res, next) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }
     const { id, action, resource } = extractPermissionData(req);
-    const decodedId = hashIdDecode(id);
+    const decodedId = hashIdUtil.hashIdDecode(id);
     const isOwner = await checkOwnership(
       decodedId,
       req.auth.BusinessId,
@@ -156,7 +156,7 @@ export async function getUserPermissions(req, res, next) {
     if (!id) {
       throw new AppError(422, "Missing user ID", true, "Invalid request");
     }
-    const decodedId = hashIdDecode(id);
+    const decodedId = hashIdUtil.hashIdDecode(id);
     const isOwner = await authUtils.checkOwnership(
       decodedId,
       req.auth.BusinessId,

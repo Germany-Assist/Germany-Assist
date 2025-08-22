@@ -36,7 +36,7 @@ User.init(
     },
     is_root: {
       type: DataTypes.BOOLEAN(),
-      allowNull: false,
+      defaultValue: false,
     },
     BusinessId: {
       type: DataTypes.UUID,

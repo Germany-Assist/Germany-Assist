@@ -6,28 +6,27 @@ import {
 import { validateExpress } from "../middlewares/expressValidator.js";
 import * as userControllers from "../controllers/user.controller.js";
 import jwt from "../middlewares/jwt.middleware.js";
-import { hashIdDecode } from "../utils/hashId.util.js";
 const userRouter = Router();
 
 userRouter.post(
   "/",
   createUserValidators,
   validateExpress,
-  userControllers.createUserController("client", true)
+  userControllers.createClientController
 );
 userRouter.post(
   "/admin",
   jwt.authenticateJwt,
   createUserValidators,
   validateExpress,
-  userControllers.createUserController("admin", true)
+  userControllers.createAdminController
 );
 userRouter.post(
   "/rep",
   jwt.authenticateJwt,
   createUserValidators,
   validateExpress,
-  userControllers.createUserController("rep", false)
+  userControllers.createRepController
 );
 userRouter.post(
   "/login",

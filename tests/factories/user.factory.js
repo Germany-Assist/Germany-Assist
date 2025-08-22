@@ -7,7 +7,7 @@ export async function userFactory(overrides = {}) {
     lastName: "Doe",
     email: "user@test.com",
     password: hashPassword("123456"),
-    role: "root_business",
+    role: "client",
     BusinessId: null,
   };
   return await db.User.create({ ...defaults, ...overrides });
