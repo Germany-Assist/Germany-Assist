@@ -4,6 +4,7 @@ import { AppError } from "../utils/error.class.js";
 
 const userAndPermission = async (id, resource, action) => {
   const user = await db.User.findByPk(id, {
+    attributes: { exclude: ["password"] },
     include: [
       {
         model: db.Permission,

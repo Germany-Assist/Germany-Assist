@@ -1,13 +1,14 @@
 import businessServices from "../services/business.services.js";
 import { AppError } from "../utils/error.class.js";
 import userServices from "../services/user.services.js";
-import { hashPassword } from "../utils/bycrypt.util.js";
-import { generateTokens } from "../middlewares/jwt.middleware.js";
+import { hashPassword } from "../utils/bcrypt.util.js";
+import jwt from "../middlewares/jwt.middleware.js";
 import { sequelize } from "../database/connection.js";
 import { NODE_ENV, REFRESH_COOKIE_AGE } from "../configs/serverConfig.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
 import { hashIdEncode } from "../utils/hashId.util.js";
+import authUtils from "../utils/authorize.requests.util.js";
 export async function createBusiness(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -20,13 +21,12 @@ export async function createBusiness(req, res, next) {
         lastName: "root",
         email,
         password,
-        role: "root",
+        role: "root_business",
         BusinessId: profile.id,
         is_root: true,
       },
       t
     );
-
     const sanitizedUser = {
       id: hashIdEncode(user.id),
       firstName: user.firstName,
@@ -43,7 +43,7 @@ export async function createBusiness(req, res, next) {
       roleTemplates.root_business,
       t
     );
-    const { accessToken, refreshToken } = generateTokens(user);
+    const { accessToken, refreshToken } = jwt.generateTokens(user);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
@@ -78,6 +78,21 @@ export async function getBusinessById(req, res, next) {
 }
 export async function updateBusiness(req, res, next) {
   try {
+    const hasPermission = await authUtils.checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["root_business", "superAdmin"],
+      true,
+      "business",
+      "update"
+    );
+    const isOwner = await authUtils.checkOwnership(
+      req.body.id,
+      req.auth.BusinessId,
+      "Business"
+    );
+    if (!hasPermission || !isOwner)
+      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
     const allowedFields = [
       "name",
       "about",
@@ -100,14 +115,39 @@ export async function updateBusiness(req, res, next) {
 }
 export async function deleteBusiness(req, res, next) {
   try {
-    const result = await businessServices.deleteBusiness(req.body.id);
-    res.sendStatus(200);
+    const hasPermission = await authUtils.checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["root_business", "superAdmin", "admin"],
+      true,
+      "business",
+      "delete"
+    );
+    const isOwner = await authUtils.checkOwnership(
+      req.body.id,
+      req.auth.BusinessId,
+      "Business"
+    );
+    if (!hasPermission || !isOwner)
+      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
+    await businessServices.deleteBusiness(req.body.id);
+    res.status(200).json({ message: "success" });
   } catch (error) {
     next(error);
   }
 }
 export async function restoreBusiness(req, res, next) {
   try {
+    const hasPermission = await authUtils.checkRoleAndPermission(
+      req.auth.id,
+      req.auth.BusinessId,
+      ["superAdmin", "admin"],
+      true,
+      "business",
+      "delete"
+    );
+    if (!hasPermission)
+      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
     const profile = await businessServices.restoreBusiness(req.body.id);
     res.status(200).json(profile);
   } catch (error) {
