@@ -23,7 +23,10 @@ describe("Create Business Controller Unit Tests", () => {
   afterEach(() => sinon.restore());
 
   it("should create a business successfully", async () => {
-    const fakeTransaction = { commit: sinon.stub(), rollback: sinon.stub() };
+    const fakeTransaction = {
+      commit: sinon.stub(),
+      permissionServicesrollback: sinon.stub(),
+    };
     sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
     sinon
       .stub(businessServices, "createBusiness")
@@ -206,5 +209,4 @@ describe("GetById Business Controller Unit Test", () => {
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, { id: 1 });
   });
-  it("Should call next on Error", async () => {});
 });

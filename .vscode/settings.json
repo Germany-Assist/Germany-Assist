@@ -1,0 +1,5 @@
+{
+  "nodejs-testing.include": ["./tests"],
+  "nodejs-testing.exclude": ["**/node_modules/**"],
+  "nodejs-testing.concurrency": 1
+}
