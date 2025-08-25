@@ -73,7 +73,6 @@ export const roleTemplates = {
     { action: "create", resource: "coupon" },
     { action: "read", resource: "coupon" },
     { action: "deactivate", resource: "coupon" },
-
     // Services
     { action: "approve", resource: "service" },
     { action: "reject", resource: "service" },

@@ -59,7 +59,6 @@ export async function createClientController(req, res, next) {
 }
 export async function createRepController(req, res, next) {
   const t = await sequelize.transaction();
-
   await authUtils.checkRoleAndPermission(
     req.auth.id,
     req.auth.BusinessId,

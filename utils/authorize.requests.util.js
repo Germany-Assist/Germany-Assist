@@ -2,6 +2,7 @@ import db from "../database/dbIndex.js";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import { AppError } from "./error.class.js";
 import permissionServices from "../services/permission.services.js";
+import hashIdUtil from "./hashId.util.js";
 
 async function checkRoleAndPermission(
   userId,
@@ -39,12 +40,7 @@ async function checkRoleAndPermission(
     if (user.BusinessId !== businessId)
       throw new AppError(403, "Manipulated token", true, "forbidden");
     if (!hasPermission && requirePermission && user.role !== "superAdmin")
-      throw new AppError(
-        403,
-        "Missing required permission",
-        true,
-        "Missing required permission"
-      );
+      throw new AppError(403, "Permission Denied", true, "Permission Denied");
     return user;
   } catch (error) {
     if (error instanceof AppError) {
@@ -63,7 +59,7 @@ export async function checkOwnership(targetId, ownerId, resource) {
     if (uuidValidate(targetId) && uuidVersion(targetId) === 4) {
       decodedTargetId = targetId;
     } else {
-      decodedTargetId = hashIdDecode(targetId);
+      decodedTargetId = hashIdUtil.hashIdDecode(targetId);
     }
     const subject = await db[resource].findByPk(decodedTargetId, {
       paranoid: false,
@@ -80,7 +76,7 @@ export async function checkOwnership(targetId, ownerId, resource) {
     if (error instanceof AppError) {
       throw error;
     }
-    throw new AppError(500, "Ownership check failed", false, error.message);
+    throw new AppError(500, error.message, false, "Ownership check failed");
   }
 }
 export default { checkRoleAndPermission, checkOwnership };

@@ -6,9 +6,14 @@ import hashIdUtil from "../utils/hashId.util.js";
 
 function getAllowedPermissions(role) {
   switch (role) {
+    case "client":
+      return roleTemplates.client;
+    case "rep":
+      return roleTemplates.rep_business;
     case "root_business":
       return roleTemplates.root_business;
     case "superAdmin":
+      return ["*"];
     case "admin":
       return roleTemplates.admin;
     default:
@@ -61,7 +66,7 @@ export async function assignPermission(req, res, next) {
     }
     const { id, action, resource } = extractPermissionData(req);
     const decodedId = hashIdUtil.hashIdDecode(id);
-    const isOwner = await checkOwnership(
+    const isOwner = await authUtils.checkOwnership(
       decodedId,
       req.auth.BusinessId,
       "User"
@@ -109,7 +114,7 @@ export async function revokePermission(req, res, next) {
     }
     const { id, action, resource } = extractPermissionData(req);
     const decodedId = hashIdUtil.hashIdDecode(id);
-    const isOwner = await checkOwnership(
+    const isOwner = await authUtils.checkOwnership(
       decodedId,
       req.auth.BusinessId,
       "User"

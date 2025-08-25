@@ -25,7 +25,7 @@ describe("Create Business Controller Unit Tests", () => {
   it("should create a business successfully", async () => {
     const fakeTransaction = {
       commit: sinon.stub(),
-      permissionServicesrollback: sinon.stub(),
+      rollback: sinon.stub(),
     };
     sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
     sinon
