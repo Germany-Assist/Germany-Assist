@@ -105,16 +105,6 @@ export async function getServiceById(req, res, next) {
   }
 }
 
-// export async function getServicesByUserId(req, res, next) {
-//   try {
-//     const services = await serviceServices.getServicesByUserId(
-//       req.params.userId
-//     );
-//     res.status(200).json(services);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
 export async function getServicesByBusinessId(req, res, next) {
   try {
     const services = await serviceServices.getServicesByBusinessId(

@@ -124,9 +124,3 @@ export async function restoreService(id) {
     throw new AppError(404, "Service not found", true, "Service not found");
   return await service.restore();
 }
-export async function incrementServiceViews(id) {
-  const service = await db.Service.findByPk(id);
-  if (!service)
-    throw new AppError(404, "Service not found", true, "Service not found");
-  return await service.increment("views");
-}
