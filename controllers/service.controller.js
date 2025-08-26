@@ -1,4 +1,4 @@
-import * as serviceServices from "../services/service.services.js";
+import serviceServices from "../services/service.services.js";
 import { AppError } from "../utils/error.class.js";
 import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.requests.util.js";
