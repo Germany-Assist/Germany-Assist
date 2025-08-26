@@ -1,4 +1,4 @@
-import * as serviceServices from "../../services/service.services.js";
+import serviceServices from "../../services/service.services.js";
 import sinon from "sinon";
 import { it, before, after, describe, beforeEach, afterEach } from "node:test";
 import db from "../../database/dbIndex.js";
