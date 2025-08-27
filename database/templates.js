@@ -2,7 +2,7 @@
 //however the mechanics of using it wont change since it will be loaded to the cache
 export const roleTemplates = {
   // serviceProvider owner
-  root_serviceProvider: [
+  service_provider_root: [
     // Assets
     { action: "create", resource: "asset" },
     { action: "update", resource: "asset" },
@@ -40,7 +40,7 @@ export const roleTemplates = {
     { action: "delete", resource: "user" },
   ],
   // serviceProvider representative
-  rep_serviceProvider: [
+  service_provider_rep: [
     // Assets
     { action: "create", resource: "asset" },
     { action: "statistical", resource: "asset" },

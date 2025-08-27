@@ -8,17 +8,18 @@ UserRole.init(
     user_id: { type: DataTypes.INTEGER, allowNull: false },
     related_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
     },
-    relatedType: {
-      type: DataTypes.ENUM("Employer", "ServiceProvider"),
+    related_type: {
+      type: DataTypes.ENUM("Employer", "ServiceProvider", "client"),
     },
     role: {
       type: DataTypes.ENUM(
         "service_provider_root",
         "service_provider_rep",
         "employer_root",
-        "employer_rep"
+        "employer_rep",
+        "client"
       ),
       allowNull: false,
     },

@@ -8,7 +8,7 @@ import { NODE_ENV, REFRESH_COOKIE_AGE } from "../configs/serverConfig.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
 import hashIdUtil from "../utils/hashId.util.js";
-import authUtils from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.util.js";
 
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
@@ -21,35 +21,45 @@ export async function createServiceProvider(req, res, next) {
     );
     const user = await userServices.createUser(
       {
-        firstName: "serviceProvider",
-        lastName: "root",
+        first_name: "serviceProvider",
+        last_name: "root",
         email,
         password,
-        role: "root_serviceProvider",
-        service_provider_id: profile.id,
-        is_root: true,
       },
       t
     );
-    const sanitizedUser = {
-      id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-      role: user.role,
-      is_root: user.is_root,
-      service_provider_id: user.service_provider_id,
-    };
+    const role = await userServices.createUserRole(
+      user.id,
+      "service_provider_root",
+      "ServiceProvider",
+      profile.id,
+      t
+    );
     const root_permissions = await permissionServices.initPermissions(
       user.id,
       roleTemplates.root_serviceProvider,
       t
     );
+    const sanitizedUser = {
+      id: hashIdUtil.hashIdEncode(user.id),
+      first_name: user.first_name,
+      last_name: user.last_name,
+      dob: user.dob,
+      email: user.email,
+      image: user.image,
+      is_verified: user.is_verified,
+      role: role.role,
+      related_type: role.related_type,
+      related_id: role.related_id,
+    };
     if (!root_permissions)
       throw new AppError(500, "failed to create permissions", false);
-    const { accessToken, refreshToken } = jwt.generateTokens(user);
+    const { accessToken, refreshToken } = jwt.generateTokens(
+      user.id,
+      role.role,
+      role.related_type,
+      role.related_id
+    );
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: NODE_ENV === "production" ? true : false,
@@ -89,7 +99,7 @@ export async function updateServiceProvider(req, res, next) {
     const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.service_provider,
-      ["root_serviceProvider", "superAdmin"],
+      ["service_provider_root", "superAdmin"],
       true,
       "serviceProvider",
       "update"
@@ -126,7 +136,7 @@ export async function deleteServiceProvider(req, res, next) {
     const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
       req.auth.service_provider_id,
-      ["root_serviceProvider", "superAdmin", "admin"],
+      ["service_provider_root", "superAdmin", "admin"],
       true,
       "serviceProvider",
       "delete"

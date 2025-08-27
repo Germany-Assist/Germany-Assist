@@ -5,13 +5,14 @@ import permissionServices from "../services/permission.services.js";
 import hashIdUtil from "./hashId.util.js";
 
 async function checkRoleAndPermission(
-  userId,
-  businessId,
+  auth,
   targetRoles,
   requirePermission = false,
   resource = null,
   action = null
 ) {
+  const userId = auth.id;
+  const relatedId = auth.related_id;
   if (!userId) throw new AppError(500, "invalid parameters", false);
   if (!targetRoles || targetRoles.length < 1)
     throw new AppError(500, "invalid parameters", false);
@@ -28,16 +29,17 @@ async function checkRoleAndPermission(
     if (requirePermission) {
       hasPermission = Boolean(user.userToPermission?.length);
     }
+
     //checking phase
     if (
-      user.role !== "superAdmin" &&
+      user.UserRole.role !== "superAdmin" &&
       !targetRoles.includes("*") &&
-      !targetRoles.includes(user.role)
+      !targetRoles.includes(user.UserRole.role)
     )
       throw new AppError(403, "Improper Role", true, "Improper Role");
     if (!user.is_verified)
       throw new AppError(403, "Unverified User", true, "Unverified User");
-    if (user.BusinessId !== businessId)
+    if (user.UserRole.related_id !== relatedId)
       throw new AppError(403, "Manipulated token", true, "forbidden");
     if (!hasPermission && requirePermission && user.role !== "superAdmin")
       throw new AppError(403, "Permission Denied", true, "Permission Denied");
@@ -80,4 +82,5 @@ export async function checkOwnership(targetId, ownerId, resource) {
     throw new AppError(500, error.message, false, "Ownership check failed");
   }
 }
-export default { checkRoleAndPermission, checkOwnership };
+const authUtil = { checkRoleAndPermission, checkOwnership };
+export default authUtil;

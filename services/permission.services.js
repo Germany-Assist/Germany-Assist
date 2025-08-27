@@ -16,6 +16,9 @@ const userAndPermission = async (id, resource, action) => {
         required: false,
         attributes: ["id"],
       },
+      {
+        model: db.UserRole,
+      },
     ],
   });
   if (user) return user;

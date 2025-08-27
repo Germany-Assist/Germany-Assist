@@ -24,7 +24,8 @@ export const defineConstrains = () => {
   ServiceProvider.hasMany(Coupon);
   ServiceProvider.hasMany(Asset);
 
-  User.hasOne(UserRole);
+  User.hasOne(UserRole, { foreignKey: "user_id" });
+  UserRole.belongsTo(User, { foreignKey: "user_id" });
   ServiceProvider.hasMany(UserRole, {
     foreignKey: "related_id",
     scope: { related_type: "Employer" },

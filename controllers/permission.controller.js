@@ -1,6 +1,6 @@
 import { roleTemplates } from "../database/templates.js";
 import permissionServices from "../services/permission.services.js";
-import authUtils from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.util.js";
 import { AppError } from "../utils/error.class.js";
 import hashIdUtil from "../utils/hashId.util.js";
 

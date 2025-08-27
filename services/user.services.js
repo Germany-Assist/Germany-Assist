@@ -3,7 +3,23 @@ import db from "../database/dbIndex.js";
 import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
 export const createUser = async (userData, t) => {
-  return await db.User.create(userData, { transaction: t, raw: true });
+  return await db.User.create(userData, {
+    transaction: t,
+    include: { model: db.UserRole },
+  });
+};
+
+export const createUserRole = async (
+  user_id,
+  role,
+  related_type,
+  related_id,
+  t
+) => {
+  return await db.UserRole.create(
+    { user_id, related_id: related_id ?? null, related_type, role },
+    { transaction: t, raw: true }
+  );
 };
 
 export const loginUser = async (userData) => {
@@ -20,6 +36,8 @@ export const loginUser = async (userData) => {
 export const getUserById = async (id) => {
   const user = await db.User.findByPk(id, {
     attributes: { exclude: ["password"] },
+    include: { model: db.UserRole },
+    nest: false,
   });
   if (!user)
     throw new AppError(401, "User not found", true, "invalid credentials");
@@ -34,7 +52,11 @@ export const userExists = async (id) => {
   }
 };
 const getUserByEmail = async (email) => {
-  return await db.User.findOne({ where: { email } });
+  return await db.User.findOne({
+    where: { email },
+    include: { model: db.UserRole },
+    nest: false,
+  });
 };
 
 export const updateUser = async (id, updates) => {
@@ -74,6 +96,7 @@ export const getBusinessReps = async (BusinessId) => {
 };
 export default {
   createUser,
+  createUserRole,
   loginUser,
   getUserById,
   alterUserVerification,

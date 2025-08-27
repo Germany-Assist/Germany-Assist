@@ -6,52 +6,58 @@ import { sequelize } from "../database/connection.js";
 import permissionServices from "../services/permission.services.js";
 import { roleTemplates } from "../database/templates.js";
 import hashIdUtil from "../utils/hashId.util.js";
-import authUtils from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.util.js";
 import userServices from "../services/user.services.js";
-
+import { AppError } from "../utils/error.class.js";
+export const cookieOptions = {
+  httpOnly: true,
+  secure: NODE_ENV === "production" ? true : false,
+  sameSite: "strict",
+  maxAge: REFRESH_COOKIE_AGE,
+  path: "/api/user/refresh-token",
+};
+const sanitizeUser = (user) => {
+  return {
+    id: hashIdUtil.hashIdEncode(user.id),
+    firstName: user.first_name,
+    lastName: user.last_name,
+    dob: user.dob,
+    email: user.email,
+    image: user.image,
+    isVerified: user.is_verified,
+    role: user.UserRole.role,
+    related_type: user.UserRole.related_type,
+    related_id: user.UserRole.related_id,
+  };
+};
 export async function createClientController(req, res, next) {
   const t = await sequelize.transaction();
-  infoLogger(`creating new client`);
   try {
     const { firstName, lastName, email, dob, image } = req.body;
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         email,
         password,
         dob,
         image,
-        role: "client",
-        BusinessId: null,
         is_verified: false,
+        UserRole: {
+          role: "client",
+          related_type: "client",
+          related_id: null,
+        },
       },
       t
     );
     await permissionServices.initPermissions(user.id, roleTemplates.client, t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    const sanitizedUser = {
-      id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-      role: user.role,
-      is_root: user.is_root,
-      BusinessId: user.BusinessId,
-    };
-    res.status(201);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: REFRESH_COOKIE_AGE,
-    });
-    res.json({ accessToken, user: sanitizedUser });
+    const sanitizedUser = sanitizeUser(user);
     await t.commit();
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+    res.status(201).json({ accessToken, user: sanitizedUser });
   } catch (error) {
     await t.rollback();
     next(error);
@@ -59,60 +65,56 @@ export async function createClientController(req, res, next) {
 }
 export async function createRepController(req, res, next) {
   const t = await sequelize.transaction();
-  await authUtils.checkRoleAndPermission(
-    req.auth.id,
-    req.auth.BusinessId,
-    ["superAdmin", "admin", "root_business"],
+  const permission = await authUtils.checkRoleAndPermission(
+    req.auth,
+    [("service_provider_root", "employer_root")],
     true,
     "user",
     "create"
   );
-
-  infoLogger(`creating new Rep`);
+  if (!permission) throw new AppError(403, "forbidden", true, "forbidden");
+  let repRole, repRelatedType;
+  switch (req.auth.role) {
+    case "service_provider_root":
+      repRole = "service_provider_rep";
+      repRelatedType = "ServiceProvider";
+      break;
+    case "employer_root":
+      repRole = "employer_rep";
+      repRelatedType = "Employer";
+      break;
+    default:
+      throw new AppError(400, "failed to set role", false);
+  }
   try {
-    const { firstName, lastName, email, DOB, image } = req.body;
+    const { firstName, lastName, email, dob, image } = req.body;
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         email,
         password,
-        DOB,
+        dob,
         image,
-        role: "rep",
-        BusinessId: req.auth.BusinessId,
-        isVerified: false,
+        UserRole: {
+          role: repRole,
+          related_type: repRelatedType,
+          related_id: req.auth.related_id,
+        },
       },
       t
     );
     await permissionServices.initPermissions(
       user.id,
-      roleTemplates.rep_business,
+      roleTemplates[repRole],
       t
     );
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    const sanitizedUser = {
-      id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-      role: user.role,
-      is_root: user.is_root,
-      BusinessId: user.BusinessId,
-    };
-    res.status(201);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: REFRESH_COOKIE_AGE,
-    });
-    res.json({ accessToken, user: sanitizedUser });
+    const sanitizedUser = sanitizeUser(user);
     await t.commit();
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+    res.status(201).res.json({ accessToken, user: sanitizedUser });
   } catch (error) {
     await t.rollback();
     next(error);
@@ -134,75 +136,58 @@ export async function createAdminController(req, res, next) {
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         email,
         password,
         DOB,
         image,
         role: "admin",
-        isVerified: false,
+        is_verified: false,
       },
       t
     );
 
     await permissionServices.initPermissions(user.id, roleTemplates.admin, t);
-    const { accessToken, refreshToken } = jwt.generateTokens(user);
+    const { accessToken, refreshToken } = jwt.generateTokens(
+      id,
+      role.role,
+      role.related_type,
+      role.related_id
+    );
     const sanitizedUser = {
       id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      dob: user.dob,
       email: user.email,
       image: user.image,
-      isVerified: user.isVerified,
-      role: user.role,
-      is_root: user.is_root,
-      BusinessId: user.BusinessId,
+      isVerified: user.is_verified,
+      role: user.UserRole.role,
+      relatedType: user.UserRole.related_type,
+      relatedId: user.UserRole.related_id,
     };
-    res.status(201);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: REFRESH_COOKIE_AGE,
-    });
-    res.json({ accessToken, user: sanitizedUser });
     await t.commit();
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+    res.status(201).res.json({ accessToken, user: sanitizedUser });
   } catch (error) {
     await t.rollback();
     next(error);
   }
 }
+
 export async function loginUserController(req, res, next) {
   try {
     const user = await userServices.loginUser(req.body);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    const sanitizedUser = {
-      id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
-      email: user.email,
-      image: user.image,
-      isVerified: user.isVerified,
-      role: user.role,
-      is_root: user.is_root,
-      businessId: user.BusinessId,
-    };
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: REFRESH_COOKIE_AGE,
-      path: "/api/user/refresh-token",
-    });
-    res.status(200);
-    res.json({ accessToken, user: sanitizedUser });
+    const sanitizedUser = sanitizeUser(user);
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+    res.status(200).res.json({ accessToken, user: sanitizedUser });
   } catch (error) {
     next(error);
   }
 }
+
 export async function refreshUserToken(req, res, next) {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -211,13 +196,7 @@ export async function refreshUserToken(req, res, next) {
     }
     const user = jwt.verifyToken(refreshToken);
     const accessToken = jwt.generateAccessToken(user);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: NODE_ENV === "production" ? true : false,
-      sameSite: "strict",
-      maxAge: REFRESH_COOKIE_AGE,
-      path: "/api/user/refresh-token",
-    });
+    res.cookie("refreshToken", refreshToken, cookieOptions);
     res.send({ accessToken });
   } catch (error) {
     next(error);
@@ -228,15 +207,16 @@ export async function loginUserTokenController(req, res, next) {
     const user = await userServices.getUserById(req.auth.id);
     const sanitizedUser = {
       id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      DOB: user.DOB,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      dob: user.dob,
       email: user.email,
       image: user.image,
-      isVerified: user.isVerified,
-      role: user.role,
-      is_root: user.is_root,
-      businessId: user.BusinessId,
+      isVerified: user.is_verified,
+      isRoot: user.is_root,
+      role: user.UserRole.role,
+      relatedType: user.UserRole.related_type,
+      relatedId: user.UserRole.related_id,
     };
     res.send(sanitizedUser);
   } catch (error) {

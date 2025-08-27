@@ -4,11 +4,11 @@ class User extends Model {}
 
 User.init(
   {
-    firstName: {
+    first_name: {
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    lastName: {
+    last_name: {
       type: DataTypes.STRING(50),
     },
     email: {
