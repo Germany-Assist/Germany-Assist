@@ -13,7 +13,7 @@ export async function createClientController(req, res, next) {
   const t = await sequelize.transaction();
   infoLogger(`creating new client`);
   try {
-    const { firstName, lastName, email, DOB, image } = req.body;
+    const { firstName, lastName, email, dob, image } = req.body;
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
@@ -21,11 +21,11 @@ export async function createClientController(req, res, next) {
         lastName,
         email,
         password,
-        DOB,
+        dob,
         image,
         role: "client",
         BusinessId: null,
-        isVerified: false,
+        is_verified: false,
       },
       t
     );

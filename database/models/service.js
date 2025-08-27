@@ -27,7 +27,7 @@ Service.init(
         },
       },
     },
-    UserId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -35,7 +35,7 @@ Service.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    BusinessId: {
+    service_provider_id: {
       type: DataTypes.UUID,
       allowNull: false,
       validate: {
@@ -88,12 +88,12 @@ Service.init(
         min: { args: [0], msg: "Price cannot be negative" },
       },
     },
-    ContractId: {
+    contract_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
-        isInt: { msg: "ContractId must be an integer" },
-        min: { args: [1], msg: "ContractId must be greater than 0" },
+        isInt: { msg: "Contract Id must be an integer" },
+        min: { args: [1], msg: "Contract Id must be greater than 0" },
       },
     },
     image: {

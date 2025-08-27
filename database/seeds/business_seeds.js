@@ -1,4 +1,4 @@
-import Business from "../models/business.js";
+import Business from "../models/service_provider.js";
 const data = [
   {
     name: "TechNova Solutions",

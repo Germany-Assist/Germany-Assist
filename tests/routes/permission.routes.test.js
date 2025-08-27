@@ -1,7 +1,6 @@
 import request from "supertest";
 import { app } from "../../app.js";
 import db from "../../database/dbIndex.js";
-import { businessFactory } from "../factories/business.factory.js";
 import { before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
 import { alterUserVerification } from "../../services/user.services.js";
@@ -11,7 +10,7 @@ describe("Tests the permission controller and ownership", () => {
   beforeEach(async () => {
     await db.UserPermission.destroy({ where: {}, force: true });
     await db.User.destroy({ where: {}, force: true });
-    await db.Business.destroy({ where: {}, force: true });
+    await db.ServiceProvider.destroy({ where: {}, force: true });
     //should create new bussiness
     //1.business
     //2.root account

@@ -1,5 +1,5 @@
 import assetRouter from "./assets.routes.js";
-import businessRouter from "./busniess.routes.js";
+import serviceProviderRouter from "./serviceProvider.routes.js";
 import contractRouter from "./contract.routes.js";
 import couponRouter from "./coupons.routes.js";
 import reviewRouter from "./review.routes.js";
@@ -19,7 +19,7 @@ apiRouter
   .use("/asset", assetRouter) //
   .use("/coupon", couponRouter) //
   .use("/contract", contractRouter) //
-  .use("/business", businessRouter) //
+  .use("/serviceProvider", serviceProviderRouter) //
   .use("/review", reviewRouter) //
   .use("/service", serviceRouter) //
   .use("/permission", permissionRouter);

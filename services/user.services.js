@@ -54,7 +54,7 @@ export const alterUserVerification = async (id, status) => {
   const user = await db.User.findByPk(id);
   if (!user)
     throw new AppError(401, "User not found", true, "invalid credentials");
-  return await user.update({ isVerified: status });
+  return await user.update({ is_verified: status });
 };
 
 export const getAllUsers = async () => {

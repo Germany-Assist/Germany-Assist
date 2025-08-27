@@ -1,5 +1,14 @@
 {
-  "nodejs-testing.include": ["./tests"],
-  "nodejs-testing.exclude": ["**/node_modules/**"],
-  "nodejs-testing.concurrency": 1
+  "nodejs-testing.include": ["./tests"], // only look inside ./tests for test files
+  "nodejs-testing.exclude": ["**/node_modules/**"], // ignore node_modules
+  "nodejs-testing.concurrency": 1, // run one test file at a time
+  "nodejs-testing.runtime": "node", // use the Node binary on your PATH
+  "nodejs-testing.runtimeArgs": [
+    // extra args passed to node
+    "--test",
+    "--env-file=test.env" // load variables from test.env
+  ],
+  "nodejs-testing.env": {
+    "NODE_ENV": "test" // inject NODE_ENV=test
+  }
 }

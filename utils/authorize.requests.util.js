@@ -35,7 +35,7 @@ async function checkRoleAndPermission(
       !targetRoles.includes(user.role)
     )
       throw new AppError(403, "Improper Role", true, "Improper Role");
-    if (!user.isVerified)
+    if (!user.is_verified)
       throw new AppError(403, "Unverified User", true, "Unverified User");
     if (user.BusinessId !== businessId)
       throw new AppError(403, "Manipulated token", true, "forbidden");
@@ -51,6 +51,7 @@ async function checkRoleAndPermission(
 }
 
 export async function checkOwnership(targetId, ownerId, resource) {
+  ///capitalize first letter for safety
   if (!targetId) throw new AppError(422, "Missing Target Id", false);
   if (!ownerId) throw new AppError(422, "Missing Owner ID", false);
   if (!resource) throw new AppError(500, "Resource model required", false);

@@ -18,10 +18,6 @@ Permission.init(
           args: /^[a-z_]+$/i, // Only letters and underscores
           msg: "Action can only contain letters and underscores",
         },
-        isIn: {
-          args: [["create", "read", "update", "delete", "manage"]],
-          msg: "Action must be one of: create, read, update, delete, manage",
-        },
       },
     },
     resource: {

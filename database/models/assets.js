@@ -24,7 +24,7 @@ Asset.init(
         },
       },
     },
-    UserId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -32,14 +32,14 @@ Asset.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    BusinessId: {
+    service_provider_id: {
       type: DataTypes.UUID,
       allowNull: true,
       validate: {
-        isUUID: { args: 4, msg: "BusinessId must be a valid UUIDv4" },
+        isUUID: { args: 4, msg: "Service Provider must be a valid UUIDv4" },
       },
     },
-    ServiceId: {
+    service_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
@@ -47,7 +47,7 @@ Asset.init(
         min: { args: [1], msg: "ServiceId must be greater than 0" },
       },
     },
-    PostId: {
+    post_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
@@ -71,20 +71,20 @@ Asset.init(
         isUrl: { msg: "URL must be a valid URL" },
       },
     },
-    requests: {
+    views: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
       validate: {
-        isInt: { msg: "Requests must be an integer" },
-        min: { args: [0], msg: "Requests cannot be negative" },
+        isInt: { msg: "views must be an integer" },
+        min: { args: [0], msg: "views cannot be negative" },
       },
     },
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
         if (this.type === "user") {
-          return this.UserId;
+          return this.user_id;
         } else {
           return this.BusinessId;
         }

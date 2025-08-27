@@ -6,9 +6,9 @@ export async function serviceFactory(overrides = {}) {
     type: "service",
     total_reviews: 128,
     price: 4999.99,
-    ContractId: 1,
+    contract_id: 1,
     image: "https://example.com/d.jpg",
-    BusinessId: "",
-    UserId: "",
+    service_provider_id: "",
+    user_id: "",
   };
 }

@@ -1,6 +1,6 @@
 import sinon from "sinon";
-import * as businessController from "../../controllers/business.controller.js";
-import businessServices from "../../services/business.services.js";
+import serviceProviderController from "../../controllers/serviceProvider.controller.js";
+import serviceProviderServices from "../../services/serviceProvider.services.js";
 import userServices from "../../services/user.services.js";
 import permissionServices from "../../services/permission.services.js";
 import jwt from "../../middlewares/jwt.middleware.js";
@@ -9,7 +9,7 @@ import { afterEach, before, beforeEach, describe, it } from "node:test";
 import authUtils from "../../utils/authorize.requests.util.js";
 import { AppError } from "../../utils/error.class.js";
 import assert from "node:assert";
-describe("Create Business Controller Unit Tests", () => {
+describe("Create Service Provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
     req = { body: { email: "test@biz.com", password: "123456" } };
@@ -22,25 +22,25 @@ describe("Create Business Controller Unit Tests", () => {
   });
   afterEach(() => sinon.restore());
 
-  it("should create a business successfully", async () => {
+  it("should create a service provider successfully", async () => {
     const fakeTransaction = {
       commit: sinon.stub(),
       rollback: sinon.stub(),
     };
     sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
     sinon
-      .stub(businessServices, "createBusiness")
+      .stub(serviceProviderServices, "createServiceProvider")
       .resolves({ id: 1, name: "Biz" });
     sinon
       .stub(userServices, "createUser")
-      .resolves({ id: 1, firstName: "business" });
+      .resolves({ id: 1, firstName: "serviceProvider" });
     sinon.stub(permissionServices, "initPermissions").resolves(true);
     sinon
       .stub(jwt, "generateTokens")
       .returns({ accessToken: "a", refreshToken: "r" });
 
-    await businessController.createBusiness(req, res, next);
-    sinon.assert.calledOnce(businessServices.createBusiness);
+    await serviceProviderController.createServiceProvider(req, res, next);
+    sinon.assert.calledOnce(serviceProviderServices.createServiceProvider);
     sinon.assert.calledWith(res.status, 201);
     sinon.assert.calledOnce(res.json);
     sinon.assert.calledOnce(res.cookie);
@@ -49,21 +49,23 @@ describe("Create Business Controller Unit Tests", () => {
   it("should rollback on error", async () => {
     const fakeTransaction = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
-    sinon.stub(businessServices, "createBusiness").throws(new AppError());
-    await businessController.createBusiness(req, res, next);
+    sinon
+      .stub(serviceProviderServices, "createServiceProvider")
+      .throws(new AppError());
+    await serviceProviderController.createServiceProvider(req, res, next);
     sinon.assert.calledOnce(fakeTransaction.rollback);
     sinon.assert.calledOnce(next);
   });
 });
-describe("Delete Business Controller Unit Tests", () => {
+describe("Delete Service Provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
     req = {
       auth: {
         user: {
           id: 1,
-          businessId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
-          role: "root_business",
+          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          role: "root_serviceProvider",
         },
       },
       body: { id: 2 },
@@ -72,32 +74,34 @@ describe("Delete Business Controller Unit Tests", () => {
     next = sinon.stub();
   });
   afterEach(() => sinon.restore());
-  it("should delete business successfully", async () => {
-    sinon.stub(businessServices, "deleteBusiness").resolves(true);
+  it("should delete Service Provider successfully", async () => {
+    sinon.stub(serviceProviderServices, "deleteServiceProvider").resolves(true);
     sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
     sinon.stub(authUtils, "checkOwnership").resolves(true);
-    await businessController.deleteBusiness(req, res, next);
-    sinon.assert.calledOnce(businessServices.deleteBusiness);
+    await serviceProviderController.deleteServiceProvider(req, res, next);
+    sinon.assert.calledOnce(serviceProviderServices.deleteServiceProvider);
     sinon.assert.calledOnce(authUtils.checkRoleAndPermission);
     sinon.assert.calledOnce(authUtils.checkOwnership);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledOnce(res.json);
   });
   it("should call next with error if service throws", async () => {
-    sinon.stub(businessServices, "deleteBusiness").throws(new Error("fail"));
-    await businessController.deleteBusiness(req, res, next);
+    sinon
+      .stub(serviceProviderServices, "deleteServiceProvider")
+      .throws(new Error("fail"));
+    await serviceProviderController.deleteServiceProvider(req, res, next);
     sinon.assert.calledOnce(next);
   });
 });
-describe("Update Business Controller Unit Tests", () => {
+describe("Update service provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
     req = {
       auth: {
         user: {
           id: 1,
-          businessId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
-          role: "root_business",
+          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          role: "root_serviceProvider",
         },
       },
       body: { id: 2 },
@@ -106,34 +110,36 @@ describe("Update Business Controller Unit Tests", () => {
     next = sinon.stub();
   });
   afterEach(() => sinon.restore());
-  it("should update business successfully", async () => {
+  it("should update service provider successfully", async () => {
     sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
     sinon.stub(authUtils, "checkOwnership").resolves(true);
     sinon
-      .stub(businessServices, "updateBusiness")
+      .stub(serviceProviderServices, "updateServiceProvider")
       .resolves({ newBody: "newBody" });
-    await businessController.updateBusiness(req, res, next);
+    await serviceProviderController.updateServiceProvider(req, res, next);
     sinon.assert.calledOnce(authUtils.checkOwnership);
     sinon.assert.calledOnce(authUtils.checkRoleAndPermission);
-    sinon.assert.calledOnce(businessServices.updateBusiness);
+    sinon.assert.calledOnce(serviceProviderServices.updateServiceProvider);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, { newBody: "newBody" });
   });
   it("should call next with error if service throws", async () => {
-    sinon.stub(businessServices, "updateBusiness").throws(new AppError());
-    await businessController.updateBusiness(req, res, next);
+    sinon
+      .stub(serviceProviderServices, "updateServiceProvider")
+      .throws(new AppError());
+    await serviceProviderController.updateServiceProvider(req, res, next);
     sinon.assert.calledOnce(next);
   });
 });
-describe("Restore Business Controller Unit Tests", () => {
+describe("Restore service provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
     req = {
       auth: {
         user: {
           id: 1,
-          businessId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
-          role: "root_business",
+          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          role: "root_serviceProvider",
         },
       },
       body: { id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324" },
@@ -143,25 +149,27 @@ describe("Restore Business Controller Unit Tests", () => {
   });
   afterEach(() => sinon.restore());
 
-  it("Should Restore business successfully", async () => {
+  it("Should Restore service provider successfully", async () => {
     sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
     sinon
-      .stub(businessServices, "restoreBusiness")
+      .stub(serviceProviderServices, "restoreServiceProvider")
       .resolves({ newBody: "newBody" });
 
-    await businessController.restoreBusiness(req, res, next);
+    await serviceProviderController.restoreServiceProvider(req, res, next);
     sinon.assert.calledOnce(authUtils.checkRoleAndPermission);
-    sinon.assert.calledOnce(businessServices.restoreBusiness);
+    sinon.assert.calledOnce(serviceProviderServices.restoreServiceProvider);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, { newBody: "newBody" });
   });
   it("Should call next with error if service throws", async () => {
-    sinon.stub(businessServices, "restoreBusiness").throws(new AppError());
-    await businessController.restoreBusiness(req, res, next);
+    sinon
+      .stub(serviceProviderServices, "restoreServiceProvider")
+      .throws(new AppError());
+    await serviceProviderController.restoreServiceProvider(req, res, next);
     sinon.assert.calledOnce(next);
   });
 });
-describe("GetAll Business Controller Unit Test", () => {
+describe("GetAll service provider Controller Unit Test", () => {
   let req, res, next;
   beforeEach(() => {
     req = {};
@@ -174,22 +182,28 @@ describe("GetAll Business Controller Unit Test", () => {
   afterEach(() => {
     sinon.restore();
   });
-  it("Should get all business successfully", async () => {
+  it("Should get all service provider successfully", async () => {
     sinon
-      .stub(businessServices, "getAllBusiness")
+      .stub(serviceProviderServices, "getAllServiceProvider")
       .resolves([{ id: 1 }, { id: 2 }]);
-    const resp = await businessController.getAllBusiness(req, res, next);
-    sinon.assert.calledOnce(businessServices.getAllBusiness);
+    const resp = await serviceProviderController.getAllServiceProvider(
+      req,
+      res,
+      next
+    );
+    sinon.assert.calledOnce(serviceProviderServices.getAllServiceProvider);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, [{ id: 1 }, { id: 2 }]);
   });
   it("Should call next on Error", async () => {
-    sinon.stub(businessServices, "getAllBusiness").throws(new AppError());
-    await businessController.getAllBusiness(req, res, next);
+    sinon
+      .stub(serviceProviderServices, "getAllServiceProvider")
+      .throws(new AppError());
+    await serviceProviderController.getAllServiceProvider(req, res, next);
     sinon.assert.calledOnce(next);
   });
 });
-describe("GetById Business Controller Unit Test", () => {
+describe("GetById service provider Controller Unit Test", () => {
   let req, res, next;
   beforeEach(() => {
     req = { params: { id: 1 } };
@@ -202,10 +216,12 @@ describe("GetById Business Controller Unit Test", () => {
   afterEach(() => {
     sinon.restore();
   });
-  it("Should GetById Business successfully", async () => {
-    sinon.stub(businessServices, "getBusinessById").resolves({ id: 1 });
-    await businessController.getBusinessById(req, res, next);
-    sinon.assert.calledOnce(businessServices.getBusinessById);
+  it("Should GetById service provider successfully", async () => {
+    sinon
+      .stub(serviceProviderServices, "getServiceProviderById")
+      .resolves({ id: 1 });
+    await serviceProviderController.getServiceProviderById(req, res, next);
+    sinon.assert.calledOnce(serviceProviderServices.getServiceProviderById);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, { id: 1 });
   });

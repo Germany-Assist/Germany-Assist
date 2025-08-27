@@ -1,8 +1,8 @@
 //this will be moved to the database but currently is here for speed of development
 //however the mechanics of using it wont change since it will be loaded to the cache
 export const roleTemplates = {
-  // Business owner
-  root_business: [
+  // serviceProvider owner
+  root_serviceProvider: [
     // Assets
     { action: "create", resource: "asset" },
     { action: "update", resource: "asset" },
@@ -29,9 +29,9 @@ export const roleTemplates = {
     { action: "revoke", resource: "permission" },
     { action: "list", resource: "permission" },
 
-    // Business
-    { action: "update", resource: "business" },
-    { action: "delete", resource: "business" },
+    // serviceProvider
+    { action: "update", resource: "serviceProvider" },
+    { action: "delete", resource: "serviceProvider" },
 
     // Users (reps)
     { action: "create", resource: "user" },
@@ -39,9 +39,8 @@ export const roleTemplates = {
     { action: "update", resource: "user" },
     { action: "delete", resource: "user" },
   ],
-
-  // Business representative
-  rep_business: [
+  // serviceProvider representative
+  rep_serviceProvider: [
     // Assets
     { action: "create", resource: "asset" },
     { action: "statistical", resource: "asset" },
@@ -60,7 +59,7 @@ export const roleTemplates = {
     { action: "update", resource: "user" },
   ],
 
-  // 🔹 Admin (system/business moderator)
+  // 🔹 Admin (system/serviceProvider moderator)
   admin: [
     // Assets
     { action: "restore", resource: "asset" },
@@ -89,10 +88,10 @@ export const roleTemplates = {
     // Reviews
     { action: "delete", resource: "review" },
 
-    // Business
-    { action: "delete", resource: "business" },
-    { action: "restore", resource: "business" },
-    { action: "verify", resource: "business" },
+    // serviceProvider
+    { action: "delete", resource: "serviceProvider" },
+    { action: "restore", resource: "serviceProvider" },
+    { action: "verify", resource: "serviceProvider" },
 
     // Users
     { action: "create", resource: "user" },
