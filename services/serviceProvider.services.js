@@ -50,7 +50,12 @@ export const getServiceProviderById = async (id) => {
     ],
   });
   if (!profile)
-    throw new AppError(404, "Business not found", true, "Business not found");
+    throw new AppError(
+      404,
+      "Service Provider not found",
+      true,
+      "Service Provider not found"
+    );
   profile.increment("views");
   await profile.save();
   return profile;

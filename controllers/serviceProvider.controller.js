@@ -87,16 +87,15 @@ export async function updateServiceProvider(req, res, next) {
 export async function deleteServiceProvider(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.service_provider_id,
-      ["service_provider_root", "superAdmin", "admin"],
+      req.auth,
+      ["service_provider_root", "super_admin", "admin"],
       true,
       "serviceProvider",
       "delete"
     );
     const isOwner = await authUtils.checkOwnership(
       req.body.id,
-      req.auth.service_provider_id,
+      req.auth.related_id,
       "ServiceProvider"
     );
     if (!hasPermission || !isOwner)
@@ -111,7 +110,7 @@ export async function restoreServiceProvider(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth.id,
-      req.auth.service_provider_id,
+      req.auth.related_id,
       ["superAdmin", "admin"],
       true,
       "serviceProvider",

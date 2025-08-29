@@ -26,7 +26,8 @@ export const defineConstrains = () => {
 
   User.hasOne(UserRole, { foreignKey: "user_id" });
   UserRole.belongsTo(User, { foreignKey: "user_id" });
-  ServiceProvider.hasMany(UserRole, {
+
+  ServiceProvider.hasMany(Employer, {
     foreignKey: "related_id",
     scope: { related_type: "Employer" },
   });

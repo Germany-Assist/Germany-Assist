@@ -36,12 +36,6 @@ Coupon.init(
         },
       },
     },
-    owner: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        return this.BusinessId;
-      },
-    },
   },
   {
     sequelize,

@@ -121,7 +121,7 @@ Service.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        return this.BusinessId;
+        return this.service_provider_id;
       },
     },
   },

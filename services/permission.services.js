@@ -72,15 +72,12 @@ const initPermissions = async (userId, template, t) => {
 
 async function getUserPermissions(id) {
   const permissions = await db.User.findOne({
+    attributes: ["first_name"],
     where: { id },
-    attributes: [],
     include: {
       model: db.Permission,
       as: "userToPermission",
-      attributes: [
-        ["action", "action"],
-        ["resource", "resource"],
-      ],
+      attributes: ["action", "resource"],
       through: {
         attributes: [],
       },

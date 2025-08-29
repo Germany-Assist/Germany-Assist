@@ -3,7 +3,11 @@ import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import { AppError } from "./error.class.js";
 import permissionServices from "../services/permission.services.js";
 import hashIdUtil from "./hashId.util.js";
-
+import { Model } from "sequelize";
+function capitalizeFirstLetter(str) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 async function checkRoleAndPermission(
   auth,
   targetRoles,
@@ -56,11 +60,12 @@ async function checkRoleAndPermission(
   }
 }
 
-export async function checkOwnership(targetId, ownerId, resource) {
-  ///capitalize first letter for safety
+export async function checkOwnership(targetId, ownerId, resourceName) {
   if (!targetId) throw new AppError(422, "Missing Target Id", false);
   if (!ownerId) throw new AppError(422, "Missing Owner ID", false);
-  if (!resource) throw new AppError(500, "Resource model required", false);
+  if (!resourceName) throw new AppError(500, "Resource model required", false);
+  const resource = capitalizeFirstLetter(resourceName);
+  let subject, actualOwner;
   try {
     let decodedTargetId = targetId;
     if (uuidValidate(targetId) && uuidVersion(targetId) === 4) {
@@ -68,13 +73,22 @@ export async function checkOwnership(targetId, ownerId, resource) {
     } else {
       decodedTargetId = hashIdUtil.hashIdDecode(targetId);
     }
-    const subject = await db[resource].findByPk(decodedTargetId, {
-      paranoid: false,
-    });
+    if (resource === "User") {
+      subject = await db[resource].findByPk(decodedTargetId, {
+        paranoid: false,
+        include: { model: db.UserRole },
+      });
+      if (subject) actualOwner = subject.UserRole.related_id;
+    } else {
+      subject = await db[resource].findByPk(decodedTargetId, {
+        paranoid: false,
+      });
+      actualOwner = subject.owner;
+    }
     if (!subject) {
       throw new AppError(404, "Resource not found", true, "Invalid resource");
     }
-    const isOwner = Boolean(subject.owner === ownerId);
+    const isOwner = Boolean(actualOwner === ownerId);
     if (!isOwner) {
       throw new AppError(403, "Unauthorized ownership", true, "Unauthorized");
     }

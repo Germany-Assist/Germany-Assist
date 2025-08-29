@@ -90,7 +90,7 @@ export async function createRepController(req, res, next) {
   const t = await sequelize.transaction();
   const permission = await authUtils.checkRoleAndPermission(
     req.auth,
-    [("service_provider_root", "employer_root")],
+    ["service_provider_root", "employer_root"],
     true,
     "user",
     "create"

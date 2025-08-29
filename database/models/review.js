@@ -43,7 +43,7 @@ Review.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        return this.UserId;
+        return this.user_id;
       },
     },
   },

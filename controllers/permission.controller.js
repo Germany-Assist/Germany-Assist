@@ -66,8 +66,8 @@ export async function assignPermission(req, res, next) {
     const { id, action, resource } = extractPermissionData(req);
     const decodedId = hashIdUtil.hashIdDecode(id);
     const isOwner = await authUtils.checkOwnership(
-      decodedId,
-      req.auth.service_provider_id,
+      id,
+      req.auth.related_id,
       "User"
     );
     if (!isOwner) {
@@ -113,8 +113,8 @@ export async function revokePermission(req, res, next) {
     const { id, action, resource } = extractPermissionData(req);
     const decodedId = hashIdUtil.hashIdDecode(id);
     const isOwner = await authUtils.checkOwnership(
-      decodedId,
-      req.auth.service_provider_id,
+      id,
+      req.auth.related_id,
       "User"
     );
     if (!isOwner) {
@@ -158,10 +158,9 @@ export async function getUserPermissions(req, res, next) {
     if (!id) {
       throw new AppError(422, "Missing user ID", true, "Invalid request");
     }
-    const decodedId = hashIdUtil.hashIdDecode(id);
     const isOwner = await authUtils.checkOwnership(
-      decodedId,
-      req.auth.service_provider_id,
+      id,
+      req.auth.related_id,
       "User"
     );
     if (!isOwner) {
@@ -173,7 +172,7 @@ export async function getUserPermissions(req, res, next) {
       );
     }
     const userPermissions = await permissionServices.getUserPermissions(
-      decodedId
+      hashIdUtil.hashIdDecode(id)
     );
     res.status(200).json({
       success: true,
