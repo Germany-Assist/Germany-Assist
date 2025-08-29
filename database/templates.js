@@ -1,6 +1,63 @@
 //this will be moved to the database but currently is here for speed of development
 //however the mechanics of using it wont change since it will be loaded to the cache
 export const roleTemplates = {
+  employer_root: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "update", resource: "asset" },
+    { action: "delete", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "delete", resource: "service" },
+    { action: "publish", resource: "service" },
+    { action: "unpublish", resource: "service" },
+    { action: "statistical", resource: "service" },
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "delete", resource: "post" },
+    { action: "restore", resource: "post" },
+    { action: "publish", resource: "post" },
+    { action: "unpublish", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Permissions
+    { action: "assign", resource: "permission" },
+    { action: "revoke", resource: "permission" },
+    { action: "list", resource: "permission" },
+
+    // serviceProvider
+    { action: "update", resource: "serviceProvider" },
+    { action: "delete", resource: "serviceProvider" },
+
+    // Users (reps)
+    { action: "create", resource: "user" },
+    { action: "read", resource: "user" },
+    { action: "update", resource: "user" },
+    { action: "delete", resource: "user" },
+  ],
+  // serviceProvider representative
+  employer_rep: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "statistical", resource: "service" },
+
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Users rep (their own account only, enforced by middleware)
+    { action: "update", resource: "user" },
+  ],
+
   // serviceProvider owner
   service_provider_root: [
     // Assets

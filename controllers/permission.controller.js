@@ -8,11 +8,11 @@ function getAllowedPermissions(role) {
   switch (role) {
     case "client":
       return roleTemplates.client;
-    case "rep_serviceProvider":
-      return roleTemplates.rep_serviceProvider;
-    case "root_serviceProvider":
-      return roleTemplates.root_serviceProvider;
-    case "superAdmin":
+    case "service_provider_rep":
+      return roleTemplates.service_provider_rep;
+    case "service_provider_root":
+      return roleTemplates.service_provider_root;
+    case "super_admin":
       return ["*"];
     case "admin":
       return roleTemplates.admin;
@@ -54,9 +54,8 @@ function extractPermissionData(req, requireId = true) {
 export async function assignPermission(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.service_provider_id,
-      ["root_serviceProvider", "superAdmin"],
+      req.auth,
+      ["service_provider_root", "super_admin"],
       true,
       "permission",
       "assign"
@@ -101,9 +100,8 @@ export async function assignPermission(req, res, next) {
 export async function revokePermission(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.service_provider_id,
-      ["root_serviceProvider", "superAdmin"],
+      req.auth,
+      ["service_provider_root", "super_admin"],
       true,
       "permission",
       "revoke"
@@ -147,9 +145,8 @@ export async function revokePermission(req, res, next) {
 export async function getUserPermissions(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.service_provider_id,
-      ["root_serviceProvider", "superAdmin"],
+      req.auth,
+      ["service_provider_root", "super_admin"],
       true,
       "permission",
       "list"
@@ -190,9 +187,14 @@ export async function getUserPermissions(req, res, next) {
 export async function getPersonalPermissions(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.service_provider_id,
-      ["root_business", "superAdmin", "admin", "user"],
+      req.auth,
+      [
+        "service_provider_root",
+        "super_admin",
+        "admin",
+        "client",
+        "service_provider_rep",
+      ],
       false
     );
     if (!hasPermission) {
@@ -213,8 +215,7 @@ export async function getPersonalPermissions(req, res, next) {
 export async function getAvailablePermissions(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.service_provider_id,
+      req.auth,
       ["*"],
       false
     );

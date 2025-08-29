@@ -13,7 +13,7 @@ import seedPermissions from "./seeds/permission_seed.js";
 process.env.SEEDING = true;
 
 ///////////////////////////////////////////////////////////////////////
-// register the models to create skellton
+// register the models to create skelton
 // this is side effect import please follow
 // import the model here
 import Asset from "./models/assets.js";
@@ -26,6 +26,8 @@ import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
 import Chat from "./models/chat.js";
 import Permission from "./models/permission.js";
+import UserRole from "./models/user_role.js";
+import UserPermission from "./models/user_permission.js";
 ///////////////////////////////////////////////////////////////////////
 //
 //

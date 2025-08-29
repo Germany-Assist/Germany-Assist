@@ -82,15 +82,14 @@ export const alterUserVerification = async (id, status) => {
 export const getAllUsers = async () => {
   const users = await db.User.findAll({
     attributes: { exclude: ["password"] },
-    raw: true,
+    include: { model: db.UserRole },
   });
   return users;
 };
-export const getBusinessReps = async (BusinessId) => {
+export const getBusinessReps = async (related_id) => {
   const reps = await db.User.findAll({
-    where: { BusinessId },
     attributes: { exclude: ["password"] },
-    raw: true,
+    include: { model: db.UserRole, where: { related_id } },
   });
   return reps;
 };

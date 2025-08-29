@@ -11,7 +11,8 @@ UserRole.init(
       allowNull: true,
     },
     related_type: {
-      type: DataTypes.ENUM("Employer", "ServiceProvider", "client"),
+      type: DataTypes.ENUM("Employer", "ServiceProvider", "client", "admin"),
+      allowNull: true,
     },
     role: {
       type: DataTypes.ENUM(
@@ -19,7 +20,9 @@ UserRole.init(
         "service_provider_rep",
         "employer_root",
         "employer_rep",
-        "client"
+        "client",
+        "admin",
+        "super_admin"
       ),
       allowNull: false,
     },

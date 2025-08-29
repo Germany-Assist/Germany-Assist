@@ -30,6 +30,27 @@ const sanitizeUser = (user) => {
     related_id: user.UserRole.related_id,
   };
 };
+function setRoleAndType(type) {
+  let rootRole, rootRelatedType, firstName, lastName;
+  switch (type) {
+    case "serviceProvider":
+      firstName = "root";
+      lastName = "serviceProvider";
+      rootRole = "service_provider_root";
+      rootRelatedType = "ServiceProvider";
+      break;
+    case "employer":
+      firstName = "root";
+      lastName = "employer";
+      rootRole = "employer_root";
+      rootRelatedType = "Employer";
+      break;
+    default:
+      throw new AppError(400, "failed to set role", false);
+  }
+  return { rootRole, rootRelatedType, firstName, lastName };
+}
+
 export async function createClientController(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -55,9 +76,11 @@ export async function createClientController(req, res, next) {
     await permissionServices.initPermissions(user.id, roleTemplates.client, t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = sanitizeUser(user);
+    res
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .status(201)
+      .json({ accessToken, user: sanitizedUser });
     await t.commit();
-    res.cookie("refreshToken", refreshToken, cookieOptions);
-    res.status(201).json({ accessToken, user: sanitizedUser });
   } catch (error) {
     await t.rollback();
     next(error);
@@ -112,9 +135,9 @@ export async function createRepController(req, res, next) {
     );
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = sanitizeUser(user);
-    await t.commit();
     res.cookie("refreshToken", refreshToken, cookieOptions);
-    res.status(201).res.json({ accessToken, user: sanitizedUser });
+    res.status(201).json({ accessToken, user: sanitizedUser });
+    await t.commit();
   } catch (error) {
     await t.rollback();
     next(error);
@@ -123,16 +146,15 @@ export async function createRepController(req, res, next) {
 export async function createAdminController(req, res, next) {
   const t = await sequelize.transaction();
   await authUtils.checkRoleAndPermission(
-    req.auth.id,
-    req.auth.BusinessId,
-    ["superAdmin", "admin"],
+    req.auth,
+    ["super_admin"],
     true,
     "user",
     "create"
   );
   try {
     infoLogger(`creating new admin`);
-    const { firstName, lastName, email, DOB, image } = req.body;
+    const { firstName, lastName, email, dob, image } = req.body;
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
@@ -140,61 +162,75 @@ export async function createAdminController(req, res, next) {
         last_name: lastName,
         email,
         password,
-        DOB,
+        dob,
         image,
-        role: "admin",
         is_verified: false,
+        UserRole: {
+          role: "admin",
+          related_type: "admin",
+          related_id: null,
+        },
       },
       t
     );
-
     await permissionServices.initPermissions(user.id, roleTemplates.admin, t);
-    const { accessToken, refreshToken } = jwt.generateTokens(
-      id,
-      role.role,
-      role.related_type,
-      role.related_id
-    );
-    const sanitizedUser = {
-      id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.first_name,
-      lastName: user.last_name,
-      dob: user.dob,
-      email: user.email,
-      image: user.image,
-      isVerified: user.is_verified,
-      role: user.UserRole.role,
-      relatedType: user.UserRole.related_type,
-      relatedId: user.UserRole.related_id,
-    };
-    await t.commit();
+    const { accessToken, refreshToken } = jwt.generateTokens(user);
+    const sanitizedUser = sanitizeUser(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
-    res.status(201).res.json({ accessToken, user: sanitizedUser });
+    res.status(201).json({ accessToken, user: sanitizedUser });
+    await t.commit();
   } catch (error) {
     await t.rollback();
     next(error);
   }
 }
-
+export async function createRootAccount(email, password, relatedId, type, t) {
+  const { rootRole, rootRelatedType, firstName, lastName } =
+    setRoleAndType(type);
+  const user = await userServices.createUser(
+    {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password: bcryptUtil.hashPassword(password),
+      UserRole: {
+        role: rootRole,
+        related_type: rootRelatedType,
+        related_id: relatedId,
+      },
+    },
+    t
+  );
+  const root_permissions = await permissionServices.initPermissions(
+    user.id,
+    roleTemplates[rootRole],
+    t
+  );
+  if (!root_permissions)
+    throw new AppError(500, "failed to create permissions", false);
+  const sanitizedUser = sanitizeUser(user);
+  const { accessToken, refreshToken } = jwt.generateTokens(user);
+  return { sanitizedUser, accessToken, refreshToken };
+}
 export async function loginUserController(req, res, next) {
   try {
     const user = await userServices.loginUser(req.body);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = sanitizeUser(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
-    res.status(200).res.json({ accessToken, user: sanitizedUser });
+    res.status(200).json({ accessToken, user: sanitizedUser });
   } catch (error) {
     next(error);
   }
 }
-
 export async function refreshUserToken(req, res, next) {
   try {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
       return res.sendStatus(401);
     }
-    const user = jwt.verifyToken(refreshToken);
+    const { id } = jwt.verifyToken(refreshToken);
+    const user = await userServices.getUserById(id);
     const accessToken = jwt.generateAccessToken(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.send({ accessToken });
@@ -205,19 +241,7 @@ export async function refreshUserToken(req, res, next) {
 export async function loginUserTokenController(req, res, next) {
   try {
     const user = await userServices.getUserById(req.auth.id);
-    const sanitizedUser = {
-      id: hashIdUtil.hashIdEncode(user.id),
-      firstName: user.first_name,
-      lastName: user.last_name,
-      dob: user.dob,
-      email: user.email,
-      image: user.image,
-      isVerified: user.is_verified,
-      isRoot: user.is_root,
-      role: user.UserRole.role,
-      relatedType: user.UserRole.related_type,
-      relatedId: user.UserRole.related_id,
-    };
+    const sanitizedUser = sanitizeUser(user);
     res.send(sanitizedUser);
   } catch (error) {
     next(error);
@@ -226,18 +250,17 @@ export async function loginUserTokenController(req, res, next) {
 export async function getAllUsers(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
+      req.auth,
       ["admin", "superAdmin"],
       true,
       "user",
       "read"
     );
     const users = await userServices.getAllUsers();
-    const usersWithIds = users.map((e) => {
-      return { ...e, id: hashIdUtil.hashIdEncode(e.id) };
+    const sanitizedUsers = users.map((e) => {
+      return sanitizeUser(e);
     });
-    res.send(usersWithIds);
+    res.send(sanitizedUsers);
   } catch (error) {
     next(error);
   }
@@ -245,18 +268,17 @@ export async function getAllUsers(req, res, next) {
 export async function getBusinessReps(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["root_business", "rep"],
+      req.auth,
+      ["service_provider_root", "service_provider_rep"],
       true,
       "user",
       "read"
     );
-    const users = await userServices.getBusinessReps(req.auth.BusinessId);
-    const usersWithIds = users.map((e) => {
-      return { ...e, id: hashIdUtil.hashIdEncode(e.id) };
+    const users = await userServices.getBusinessReps(req.auth.related_id);
+    const sanitizedUsers = users.map((e) => {
+      return sanitizeUser(e);
     });
-    res.send(usersWithIds);
+    res.send(sanitizedUsers);
   } catch (error) {
     next(error);
   }
@@ -264,9 +286,8 @@ export async function getBusinessReps(req, res, next) {
 export async function verifyUser(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["admin", "superAdmin"],
+      req.auth,
+      ["admin", "super_admin"],
       true,
       "user",
       "verify"

@@ -32,7 +32,7 @@ async function checkRoleAndPermission(
 
     //checking phase
     if (
-      user.UserRole.role !== "superAdmin" &&
+      user.UserRole.role !== "super_admin" &&
       !targetRoles.includes("*") &&
       !targetRoles.includes(user.UserRole.role)
     )
@@ -41,7 +41,11 @@ async function checkRoleAndPermission(
       throw new AppError(403, "Unverified User", true, "Unverified User");
     if (user.UserRole.related_id !== relatedId)
       throw new AppError(403, "Manipulated token", true, "forbidden");
-    if (!hasPermission && requirePermission && user.role !== "superAdmin")
+    if (
+      requirePermission &&
+      !hasPermission &&
+      user.UserRole.role !== "super_admin"
+    )
       throw new AppError(403, "Permission Denied", true, "Permission Denied");
     return user;
   } catch (error) {
