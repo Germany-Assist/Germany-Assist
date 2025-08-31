@@ -2,14 +2,13 @@ import serviceServices from "../../services/service.services.js";
 import sinon from "sinon";
 import { it, before, after, describe, beforeEach, afterEach } from "node:test";
 import db from "../../database/dbIndex.js";
-import authUtils from "../../utils/authorize.requests.util.js";
-import { where } from "sequelize";
+import authUtil from "../../utils/authorize.util.js";
 describe("Should Service Services", () => {
   let sandBox;
   beforeEach(() => {
     sandBox = sinon.createSandbox();
-    sandBox.stub(authUtils, "checkRoleAndPermission").resolves({ user: 1 });
-    sandBox.stub(authUtils, "checkOwnership").resolves({ subject: 1 });
+    sandBox.stub(authUtil, "checkRoleAndPermission").resolves({ user: 1 });
+    sandBox.stub(authUtil, "checkOwnership").resolves({ subject: 1 });
   });
   afterEach(() => {
     sandBox.restore();

@@ -6,17 +6,17 @@ import permissionServices from "../../services/permission.services.js";
 import jwt from "../../middlewares/jwt.middleware.js";
 import { sequelize } from "../../database/connection.js";
 import { afterEach, before, beforeEach, describe, it } from "node:test";
-import authUtils from "../../utils/authorize.requests.util.js";
+import authUtil from "../../utils/authorize.util.js";
 import { AppError } from "../../utils/error.class.js";
-import assert from "node:assert";
+import userController from "../../controllers/user.controller.js";
 describe("Create Service Provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
     req = { body: { email: "test@biz.com", password: "123456" } };
     res = {
       status: sinon.stub().returnsThis(),
-      json: sinon.stub(),
-      cookie: sinon.stub(),
+      json: sinon.stub().returnsThis(),
+      cookie: sinon.stub().returnsThis(),
     };
     next = sinon.stub();
   });
@@ -27,6 +27,11 @@ describe("Create Service Provider Controller Unit Tests", () => {
       commit: sinon.stub(),
       rollback: sinon.stub(),
     };
+    sinon.stub(userController, "createRootAccount").resolves({
+      sanitizedUser: { name: "amr" },
+      accessToken: "string",
+      refreshToken: "string",
+    });
     sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
     sinon
       .stub(serviceProviderServices, "createServiceProvider")
@@ -39,7 +44,11 @@ describe("Create Service Provider Controller Unit Tests", () => {
       .stub(jwt, "generateTokens")
       .returns({ accessToken: "a", refreshToken: "r" });
 
-    await serviceProviderController.createServiceProvider(req, res, next);
+    const resp = await serviceProviderController.createServiceProvider(
+      req,
+      res,
+      next
+    );
     sinon.assert.calledOnce(serviceProviderServices.createServiceProvider);
     sinon.assert.calledWith(res.status, 201);
     sinon.assert.calledOnce(res.json);
@@ -76,12 +85,12 @@ describe("Delete Service Provider Controller Unit Tests", () => {
   afterEach(() => sinon.restore());
   it("should delete Service Provider successfully", async () => {
     sinon.stub(serviceProviderServices, "deleteServiceProvider").resolves(true);
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(authUtils, "checkOwnership").resolves(true);
+    sinon.stub(authUtil, "checkRoleAndPermission").resolves(true);
+    sinon.stub(authUtil, "checkOwnership").resolves(true);
     await serviceProviderController.deleteServiceProvider(req, res, next);
     sinon.assert.calledOnce(serviceProviderServices.deleteServiceProvider);
-    sinon.assert.calledOnce(authUtils.checkRoleAndPermission);
-    sinon.assert.calledOnce(authUtils.checkOwnership);
+    sinon.assert.calledOnce(authUtil.checkRoleAndPermission);
+    sinon.assert.calledOnce(authUtil.checkOwnership);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledOnce(res.json);
   });
@@ -111,14 +120,14 @@ describe("Update service provider Controller Unit Tests", () => {
   });
   afterEach(() => sinon.restore());
   it("should update service provider successfully", async () => {
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(authUtils, "checkOwnership").resolves(true);
+    sinon.stub(authUtil, "checkRoleAndPermission").resolves(true);
+    sinon.stub(authUtil, "checkOwnership").resolves(true);
     sinon
       .stub(serviceProviderServices, "updateServiceProvider")
       .resolves({ newBody: "newBody" });
     await serviceProviderController.updateServiceProvider(req, res, next);
-    sinon.assert.calledOnce(authUtils.checkOwnership);
-    sinon.assert.calledOnce(authUtils.checkRoleAndPermission);
+    sinon.assert.calledOnce(authUtil.checkOwnership);
+    sinon.assert.calledOnce(authUtil.checkRoleAndPermission);
     sinon.assert.calledOnce(serviceProviderServices.updateServiceProvider);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, { newBody: "newBody" });
@@ -150,13 +159,13 @@ describe("Restore service provider Controller Unit Tests", () => {
   afterEach(() => sinon.restore());
 
   it("Should Restore service provider successfully", async () => {
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
+    sinon.stub(authUtil, "checkRoleAndPermission").resolves(true);
     sinon
       .stub(serviceProviderServices, "restoreServiceProvider")
       .resolves({ newBody: "newBody" });
 
     await serviceProviderController.restoreServiceProvider(req, res, next);
-    sinon.assert.calledOnce(authUtils.checkRoleAndPermission);
+    sinon.assert.calledOnce(authUtil.checkRoleAndPermission);
     sinon.assert.calledOnce(serviceProviderServices.restoreServiceProvider);
     sinon.assert.calledWith(res.status, 200);
     sinon.assert.calledWith(res.json, { newBody: "newBody" });

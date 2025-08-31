@@ -2,8 +2,7 @@ import serviceProviderServices from "../services/serviceProvider.services.js";
 import { AppError } from "../utils/error.class.js";
 import { sequelize } from "../database/connection.js";
 import authUtils from "../utils/authorize.util.js";
-import { cookieOptions, createRootAccount } from "./user.controller.js";
-
+import userController, { cookieOptions } from "./user.controller.js";
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -12,8 +11,9 @@ export async function createServiceProvider(req, res, next) {
       req.body,
       t
     );
+
     const { sanitizedUser, accessToken, refreshToken } =
-      await createRootAccount(
+      await userController.createRootAccount(
         email,
         password,
         profile.id,
@@ -26,6 +26,7 @@ export async function createServiceProvider(req, res, next) {
       .json({ accessToken, user: sanitizedUser, serviceProvider: profile });
     await t.commit();
   } catch (error) {
+    console.log(error);
     await t.rollback();
     next(error);
   }

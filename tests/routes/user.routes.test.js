@@ -4,14 +4,14 @@ import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
 import db from "../../database/dbIndex.js";
 import assert from "node:assert";
-import { DB_PASSWORD } from "../../configs/databaseConfig.js";
+import { DB_NAME } from "../../configs/databaseConfig.js";
 
 const testUser = {
   firstName: "yousif",
   lastName: "yousif",
   email: "yousif@test21.com",
   password: "Aa@123456",
-  DOB: "1990-07-13",
+  dob: "1990-07-13",
   image: "www.image/url.png",
 };
 
@@ -34,19 +34,18 @@ after(async () => {
 
 describe("POST /user - User Registration", () => {
   it("should create a new client with valid data", async () => {
-    const response = await request(app).post("/api/user").send(testUser);
+    const response = await request(app).post("/api/user/").send(testUser);
     assert.strictEqual(response.status, 201);
-
     assert.ok(response.body.accessToken);
     assert.strictEqual(typeof response.body.accessToken, "string");
     assert.strictEqual(response.body.user.firstName, testUser.firstName);
     assert.strictEqual(response.body.user.lastName, testUser.lastName);
-    assert.strictEqual(response.body.user.BusinessId, null);
+    assert.strictEqual(response.body.user.role, "client");
     assert.strictEqual(response.body.user.isVerified, false);
     assert.strictEqual(response.body.user.image, testUser.image);
     assert.strictEqual(
-      response.body.user.DOB,
-      `${new Date(testUser.DOB).toISOString()}`
+      response.body.user.dob,
+      `${new Date(testUser.dob).toISOString()}`
     );
   });
   it("should reject invalid email format", async () => {
