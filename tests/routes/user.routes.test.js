@@ -4,7 +4,9 @@ import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
 import db from "../../database/dbIndex.js";
 import assert from "node:assert";
-import { DB_NAME } from "../../configs/databaseConfig.js";
+import jwt from "../../middlewares/jwt.middleware.js";
+import { userFactory } from "../factories/user.factory.js";
+import userController from "../../controllers/user.controller.js";
 
 const testUser = {
   firstName: "yousif",
@@ -14,7 +16,7 @@ const testUser = {
   dob: "1990-07-13",
   image: "www.image/url.png",
 };
-
+Object.freeze(testUser);
 before(async () => {
   try {
     await db.User.destroy({ where: {}, force: true });
@@ -23,7 +25,7 @@ before(async () => {
     errorLogger(error);
   }
 });
-after(async () => {
+afterEach(async () => {
   try {
     await db.User.destroy({ where: {}, force: true });
     await db.UserPermission.destroy({ where: {}, force: true });
@@ -77,10 +79,28 @@ describe("POST /user - User Registration", () => {
       )
     );
   });
+  it("should create a new admin account", async () => {
+    const user = await userFactory({
+      is_verified: true,
+      UserRole: {
+        role: "super_admin",
+        related_type: "super_admin",
+      },
+    });
+    const sanitizedUser = userController.sanitizeUser(user);
+    const accessToken = jwt.generateAccessToken(user);
+    const resp = await request(app)
+      .post("/api/user/admin")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(testUser);
+    assert.strictEqual(resp.status, 201);
+    assert.strictEqual(resp.body.user.role, "admin");
+  });
 });
 
 describe("POST /api/user/login - User Login", () => {
   it("should login with valid credentials", async () => {
+    await userFactory(testUser);
     const response = await request(app).post("/api/user/login").send({
       email: testUser.email,
       password: testUser.password,
@@ -120,6 +140,7 @@ describe("GET /api/user/logout", () => {
 
 describe("POST /api/user/refresh-token", () => {
   it("should issue a new access token with valid refresh token", async () => {
+    await userFactory(testUser);
     const loginResponse = await request(app).post("/api/user/login").send({
       email: testUser.email,
       password: testUser.password,
@@ -140,6 +161,7 @@ describe("POST /api/user/refresh-token", () => {
 
 describe("GET /api/user/login - Get Current User", () => {
   it("should return user profile with valid access token", async () => {
+    await userFactory(testUser);
     const loginResponse = await request(app).post("/api/user/login").send({
       email: testUser.email,
       password: testUser.password,

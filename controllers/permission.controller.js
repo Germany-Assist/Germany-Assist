@@ -230,3 +230,14 @@ export async function getAvailablePermissions(req, res, next) {
     next(error);
   }
 }
+const permissionController = {
+  getAvailablePermissions,
+  getPersonalPermissions,
+  getUserPermissions,
+  revokePermission,
+  assignPermission,
+  extractPermissionData,
+  validatePermissionAction,
+  getAllowedPermissions,
+};
+export default permissionController;

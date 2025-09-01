@@ -31,7 +31,6 @@ const adjustPermission = async (userId, action, resource, effect) => {
   });
   if (!permission)
     throw new AppError(404, "no permission found", true, "not found");
-
   if (effect === "revoke") {
     const revokePermission = await db.UserPermission.destroy({
       where: {

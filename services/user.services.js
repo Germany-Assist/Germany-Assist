@@ -1,7 +1,7 @@
-import { Model, Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
+
 export const createUser = async (userData, t) => {
   return await db.User.create(userData, {
     transaction: t,

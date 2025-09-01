@@ -8,28 +8,26 @@ import { AppError } from "../../utils/error.class.js";
 
 describe("Testing User Services", () => {
   let sandbox;
+  let fakeMail = "test@test.com";
+  let fakePassword = "Pass@ord";
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     sandbox.stub(bcryptUtil, "hashCompare").returns(true);
     sandbox
       .stub(db.User, "findOne")
-      .resolves({ email: "test@test.com", password: "Pass@ord" });
+      .resolves({ email: fakeMail, password: fakePassword });
   });
   afterEach(() => {
     sandbox.restore();
   });
   it("should Log User In", async () => {
-    let email = "test@test.com";
-    let password = "Pass@ord";
-    await userServices.loginUser({ email, password });
+    await userServices.loginUser({ email: fakeMail, password: fakePassword });
     sandbox.assert.calledOnce(db.User.findOne);
   });
   it("should throw a compare error", async () => {
-    let email = "test@test.com";
-    let password = "Pass@ord";
     bcryptUtil.hashCompare.callsFake(() => false);
     await assert.rejects(async () => {
-      await userServices.loginUser({ email, password });
+      await userServices.loginUser({ email: fakeMail, password: fakePassword });
     }, AppError);
     sandbox.assert.calledOnce(db.User.findOne);
   });
