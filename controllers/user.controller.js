@@ -225,7 +225,6 @@ export async function createRootAccount(
 }
 export async function loginUserController(req, res, next) {
   try {
-    console.log(req.body.password);
     const user = await userServices.loginUser(req.body);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = userController.sanitizeUser(user);
