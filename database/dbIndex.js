@@ -14,9 +14,11 @@ import Employer from "./models/employer.js";
 export const defineConstrains = () => {
   User.hasMany(Asset);
   User.hasMany(Review);
-  User.hasMany(Service);
 
-  Service.belongsTo(Contract);
+  User.hasMany(Service, { foreignKey: "user_id" });
+  Service.belongsTo(User, { foreignKey: "user_id" });
+  Service.belongsTo(Contract, { foreignKey: "contract_id" });
+
   Service.hasMany(Review);
   Service.hasMany(Asset);
 

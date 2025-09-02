@@ -15,13 +15,13 @@ async function getAllServices() {
       "id",
       "title",
       "description",
-      "BusinessId",
+      "service_provider_id",
       "views",
       "type",
       "rating",
       "total_reviews",
       "price",
-      "ContractId",
+      "contract_id",
       "image",
     ],
   });
@@ -29,9 +29,9 @@ async function getAllServices() {
 async function getAllServicesAdmin() {
   return await db.Service.findAll({ raw: true });
 }
-async function getAllServicesBusiness(businessId) {
+async function getAllServicesServiceProvider(id) {
   return await db.Service.findAll({
-    where: { BusinessId: businessId },
+    where: { service_provider_id: id },
     raw: true,
   });
 }
@@ -61,23 +61,28 @@ async function getServiceById(id) {
 }
 
 async function getServicesByUserId(userId) {
-  return await db.Service.findAll({ where: { UserId: userId } });
+  return await db.Service.findAll({ where: { user_id: userId } });
 }
 
-async function getServicesByBusinessId(BusinessId) {
+async function getServicesByServiceProviderId(id) {
   return await db.Service.findAll({
-    where: { BusinessId, published: true, approved: true, rejected: false },
+    where: {
+      service_provider_id: id,
+      published: true,
+      approved: true,
+      rejected: false,
+    },
     attributes: [
       "id",
       "title",
       "description",
-      "BusinessId",
+      "service_provider_id",
       "views",
       "type",
       "rating",
       "total_reviews",
       "price",
-      "ContractId",
+      "contract_id",
       "image",
     ],
     raw: true,
@@ -91,13 +96,13 @@ async function getServicesByType(type) {
       "id",
       "title",
       "description",
-      "BusinessId",
+      "service_provider_id",
       "views",
       "type",
       "rating",
       "total_reviews",
       "price",
-      "ContractId",
+      "contract_id",
       "image",
     ],
   });
@@ -128,10 +133,10 @@ const serviceServices = {
   createService,
   getAllServices,
   getAllServicesAdmin,
-  getAllServicesBusiness,
+  getAllServicesServiceProvider,
   getServiceById,
   getServicesByUserId,
-  getServicesByBusinessId,
+  getServicesByServiceProviderId,
   getServicesByType,
   updateService,
   deleteService,

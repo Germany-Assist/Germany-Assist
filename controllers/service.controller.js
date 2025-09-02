@@ -1,31 +1,28 @@
 import serviceServices from "../services/service.services.js";
-import { AppError } from "../utils/error.class.js";
 import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.util.js";
 
 export async function createService(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["*"],
+      req.auth,
+      ["service_provider_root", "service_provider_rep"],
       true,
       "service",
       "create"
     );
     const serviceData = {
-      UserId: req.auth.id,
-      BusinessId: req.auth.BusinessId,
+      user_id: req.auth.id,
+      service_provider_id: req.auth.related_id,
       title: req.body.title,
       description: req.body.description,
       type: req.body.type,
       rating: 0,
       total_reviews: 0,
       price: req.body.price,
-      ContractId: req.body.contractId || null,
       image: req.body.image || null,
       publish: req.body.publish
-        ? req.auth.role == "root_business"
+        ? req.auth.role == "service_provider_root"
           ? true
           : false
         : false,
@@ -34,7 +31,7 @@ export async function createService(req, res, next) {
     res.status(201).json({
       ...service,
       id: hashIdUtil.hashIdEncode(service.id),
-      UserId: hashIdUtil.hashIdEncode(service.UserId),
+      user_id: hashIdUtil.hashIdEncode(service.UserId),
     });
   } catch (error) {
     next(error);
@@ -54,16 +51,13 @@ export async function getAllServices(req, res, next) {
 }
 export async function getAllServicesAdmin(req, res, next) {
   try {
-    await authUtils.checkRoleAndPermission(req.auth.id, req.auth.BusinessId, [
-      "admin",
-      "superAdmin",
-    ]);
+    await authUtils.checkRoleAndPermission(req.auth, ["admin", "superAdmin"]);
     const services = await serviceServices.getAllServicesAdmin();
     const servicesWithHashedId = services.map((i) => {
       return {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
-        UserId: hashIdUtil.hashIdEncode(i.UserId),
+        UserId: hashIdUtil.hashIdEncode(i.user_id),
       };
     });
     res.status(200).json(servicesWithHashedId);
@@ -71,20 +65,20 @@ export async function getAllServicesAdmin(req, res, next) {
     next(error);
   }
 }
-export async function getAllServicesBusiness(req, res, next) {
+export async function getAllServicesServiceProvider(req, res, next) {
   try {
-    await authUtils.checkRoleAndPermission(req.auth.id, req.auth.BusinessId, [
-      "root_business",
-      "rep",
+    await authUtils.checkRoleAndPermission(req.auth, [
+      "service_provider_root",
+      "service_provider_rep",
     ]);
-    const services = await serviceServices.getAllServicesBusiness(
-      req.auth.BusinessId
+    const services = await serviceServices.getAllServicesServiceProvider(
+      req.auth.related_id
     );
     const servicesWithHashedId = services.map((i) => {
       return {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
-        UserId: hashIdUtil.hashIdEncode(i.UserId),
+        user_id: hashIdUtil.hashIdEncode(i.user_id),
       };
     });
     res.status(200).json(servicesWithHashedId);
@@ -92,7 +86,7 @@ export async function getAllServicesBusiness(req, res, next) {
     next(error);
   }
 }
-export async function getServiceById(req, res, next) {
+export async function getServiceByCreatorId(req, res, next) {
   try {
     const service = await serviceServices.getServiceById(
       hashIdUtil.hashIdDecode(req.params.id)
@@ -105,9 +99,9 @@ export async function getServiceById(req, res, next) {
   }
 }
 
-export async function getServicesByBusinessId(req, res, next) {
+export async function getServicesByServiceProviderId(req, res, next) {
   try {
-    const services = await serviceServices.getServicesByBusinessId(
+    const services = await serviceServices.getServicesByServiceProviderId(
       req.params.id
     );
     const servicesWithHashedId = services.map((i) => {
@@ -134,8 +128,7 @@ export async function getServicesByType(req, res, next) {
 export async function updateService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
+      req.auth,
       ["admin", "root", "superAdmin", "rep"],
       true,
       "service",
@@ -143,7 +136,7 @@ export async function updateService(req, res, next) {
     );
     const owner = await authUtils.checkOwnership(
       hashIdUtil.hashIdDecode(req.body.id),
-      req.auth.BusinessId,
+      req.auth.related_id,
       "Service"
     );
     const allowedFields = ["title", "description", "type", "price", "image"];
@@ -164,8 +157,7 @@ export async function updateService(req, res, next) {
 export async function deleteService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
+      req.auth,
       ["admin", "root", "superAdmin"],
       true,
       "service",
@@ -173,7 +165,7 @@ export async function deleteService(req, res, next) {
     );
     const owner = await authUtils.checkOwnership(
       hashIdUtil.hashIdDecode(req.body.id),
-      req.auth.BusinessId,
+      req.auth.related_id,
       "Service"
     );
     await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.body.id));
@@ -186,9 +178,9 @@ export async function deleteService(req, res, next) {
 export async function restoreService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["admin", "superAdmin"]
+      req.auth,
+      ["admin", "superAdmin"],
+      false
     );
     await serviceServices.restoreService(hashIdDecode(req.body.id));
     res.sendStatus(200);

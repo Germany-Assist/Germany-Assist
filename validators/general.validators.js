@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 export const passwordValidator = [
   body("password")
     .trim()
@@ -15,4 +15,12 @@ export const passwordValidator = [
     .matches(/[^a-zA-Z0-9]/)
     .withMessage("Password must contain at least one special character")
     .escape(),
+];
+
+// Validation for ID-based routes
+export const idHashedParamValidator = [
+  param("id").notEmpty().withMessage("ID must be a valid"),
+];
+export const idHashedBodyValidator = [
+  body("id").isInt({ min: 1 }).withMessage("ID must be a valid"),
 ];
