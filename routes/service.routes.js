@@ -17,7 +17,6 @@ serviceRouter.get(
   validateExpress,
   serviceController.getServiceByCreatorId
 );
-
 // Get services for a specific provider by ID (approved & published)
 serviceRouter.get(
   "/provider/services/:id",
@@ -26,7 +25,7 @@ serviceRouter.get(
   serviceController.getServicesByServiceProviderId
 );
 // Get services filtered by type
-serviceRouter.get("/type", serviceController.getAllServices);
+serviceRouter.post("/categories", serviceController.getByCategories);
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
 serviceRouter.post("/", jwt.authenticateJwt, serviceController.createService);
@@ -40,11 +39,15 @@ serviceRouter.get(
 serviceRouter.put(
   "/provider/services/:id",
   jwt.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
   serviceController.updateService
 );
 // Delete a service (soft delete)
 serviceRouter.delete(
   "/provider/services/:id",
+  idHashedParamValidator,
+  validateExpress,
   jwt.authenticateJwt,
   serviceController.deleteService
 );
@@ -61,5 +64,4 @@ serviceRouter.post(
   jwt.authenticateJwt,
   serviceController.restoreService
 );
-
 export default serviceRouter;

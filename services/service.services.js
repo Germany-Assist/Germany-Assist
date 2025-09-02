@@ -1,56 +1,93 @@
+import { raw } from "express";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
-async function createService(serviceData) {
+import Category from "../database/models/category.js";
+const publicAttributes = [
+  "id",
+  "title",
+  "description",
+  "service_provider_id",
+  "views",
+  "type",
+  "rating",
+  "total_reviews",
+  "price",
+  "contract_id",
+  "image",
+];
+async function createService(serviceData, transaction) {
+  let categoryRecords = [];
   const service = await db.Service.create(serviceData, {
-    raw: true,
     returning: true,
+    transaction,
   });
-  return service.get({ plain: true });
+  if (serviceData.categories && serviceData.categories.length) {
+    categoryRecords = await db.Category.findAll({
+      where: { title: serviceData.categories || [] },
+      transaction,
+    });
+    await service.addCategories(categoryRecords, { transaction });
+  }
+  return {
+    ...service.get({ plain: true }),
+    categories: categoryRecords.map((i) => i.title),
+  };
 }
 async function getAllServices() {
   return await db.Service.findAll({
-    raw: true,
+    raw: false,
     where: { approved: true, rejected: false, published: true },
-    attributes: [
-      "id",
-      "title",
-      "description",
-      "service_provider_id",
-      "views",
-      "type",
-      "rating",
-      "total_reviews",
-      "price",
-      "contract_id",
-      "image",
+    attributes: publicAttributes,
+    include: [
+      {
+        model: db.Category,
+        as: "categories",
+        attributes: ["title"],
+        through: { attributes: [] },
+      },
     ],
   });
 }
 async function getAllServicesAdmin() {
-  return await db.Service.findAll({ raw: true });
+  return await db.Service.findAll({
+    raw: false,
+    include: [
+      {
+        model: db.Category,
+        as: "categories",
+        attributes: ["title"],
+        through: { attributes: [] },
+      },
+    ],
+  });
 }
 async function getAllServicesServiceProvider(id) {
   return await db.Service.findAll({
-    where: { service_provider_id: id },
-    raw: true,
+    where: {
+      service_provider_id: id,
+    },
+    include: [
+      {
+        model: db.Category,
+        as: "categories",
+        attributes: ["title"],
+        through: { attributes: [] },
+      },
+    ],
   });
 }
 async function getServiceById(id) {
   let service = await db.Service.findOne({
     where: { id, approved: true, rejected: false, published: true },
     raw: false,
-    attributes: [
-      "id",
-      "title",
-      "description",
-      "service_provider_id",
-      "views",
-      "type",
-      "rating",
-      "total_reviews",
-      "price",
-      "contract_id",
-      "image",
+    attributes: publicAttributes,
+    include: [
+      {
+        model: db.Category,
+        as: "categories",
+        attributes: ["title"],
+        through: { attributes: [] },
+      },
     ],
   });
   if (!service)
@@ -72,39 +109,29 @@ async function getServicesByServiceProviderId(id) {
       approved: true,
       rejected: false,
     },
-    attributes: [
-      "id",
-      "title",
-      "description",
-      "service_provider_id",
-      "views",
-      "type",
-      "rating",
-      "total_reviews",
-      "price",
-      "contract_id",
-      "image",
+    include: [
+      {
+        model: db.Category,
+        as: "categories",
+        attributes: ["title"],
+        through: { attributes: [] },
+      },
     ],
-    raw: true,
+    attributes: publicAttributes,
   });
 }
 
 async function getServicesByType(type) {
   return await db.Service.findAll({
-    where: { type },
-    attributes: [
-      "id",
-      "title",
-      "description",
-      "service_provider_id",
-      "views",
-      "type",
-      "rating",
-      "total_reviews",
-      "price",
-      "contract_id",
-      "image",
-    ],
+    attributes: publicAttributes,
+    include: {
+      model: db.Category,
+      where: { title: type },
+      as: "categories",
+      attributes: ["title"],
+      through: { attributes: [] },
+    },
+    attributes: publicAttributes,
   });
 }
 

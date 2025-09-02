@@ -9,6 +9,7 @@ import reviewSeed from "./seeds/review_seeds.js";
 import couponSeed from "./seeds/coupon_seeds.js";
 import contractSeed from "./seeds/contracts_seeds.js";
 import seedPermissions from "./seeds/permission_seed.js";
+import seedCategory from "./seeds/category_seed.js";
 
 process.env.SEEDING = true;
 
@@ -28,6 +29,7 @@ import Chat from "./models/chat.js";
 import Permission from "./models/permission.js";
 import UserRole from "./models/user_role.js";
 import UserPermission from "./models/user_permission.js";
+import Category from "./models/category.js";
 ///////////////////////////////////////////////////////////////////////
 //
 //
@@ -44,6 +46,7 @@ try {
     //Seeds the data
     await seedPermissions();
     await seedUsers();
+    await seedCategory();
     if (process.env.NODE_ENV != "test") {
       console.log("starting to seeds ⌛");
       // await businessSeed();
