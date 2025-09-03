@@ -15,7 +15,7 @@ serviceRouter.get(
   "/:id",
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceByCreatorId
+  serviceController.getServiceId
 );
 // Get services for a specific provider by ID (approved & published)
 serviceRouter.get(
@@ -51,6 +51,11 @@ serviceRouter.delete(
   jwt.authenticateJwt,
   serviceController.deleteService
 );
+serviceRouter.put(
+  "/provider/services",
+  jwt.authenticateJwt,
+  serviceController.alterServiceStatusSP
+);
 /* ---------------- Admin Routes ---------------- */
 // Get all services (any status, any provider)
 serviceRouter.get(
@@ -63,5 +68,10 @@ serviceRouter.post(
   "/admin/services/:id/restore",
   jwt.authenticateJwt,
   serviceController.restoreService
+);
+serviceRouter.put(
+  "/admin/services",
+  jwt.authenticateJwt,
+  serviceController.alterServiceStatus
 );
 export default serviceRouter;

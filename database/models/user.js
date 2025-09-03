@@ -35,6 +35,12 @@ User.init(
         },
       },
     },
+    fullName: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.first_name + " " + this.last_name;
+      },
+    },
     email: {
       type: DataTypes.STRING(255),
       allowNull: false,

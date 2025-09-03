@@ -1,7 +1,5 @@
-import { raw } from "express";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
-import Category from "../database/models/category.js";
 const publicAttributes = [
   "id",
   "title",
@@ -62,7 +60,7 @@ async function getAllServicesAdmin() {
   });
 }
 async function getAllServicesServiceProvider(id) {
-  return await db.Service.findAll({
+  const services = await db.Service.findAll({
     where: {
       service_provider_id: id,
     },
@@ -73,11 +71,17 @@ async function getAllServicesServiceProvider(id) {
         attributes: ["title"],
         through: { attributes: [] },
       },
+      {
+        model: db.User,
+        attributes: ["first_name", "last_name", "fullName", "email"],
+      },
     ],
   });
+  return services;
 }
+
 async function getServiceById(id) {
-  let service = await db.Service.findOne({
+  const service = await db.Service.findOne({
     where: { id, approved: true, rejected: false, published: true },
     raw: false,
     attributes: publicAttributes,
@@ -94,7 +98,7 @@ async function getServiceById(id) {
     throw new AppError(404, "Service not found", true, "Service not found");
   service.increment("views");
   await service.save();
-  return service.get({ plain: true });
+  return service;
 }
 
 async function getServicesByUserId(userId) {
@@ -155,7 +159,32 @@ async function restoreService(id) {
     throw new AppError(404, "Service not found", true, "Service not found");
   return await service.restore();
 }
-
+async function alterServiceStatus(id, status) {
+  const service = await db.Service.findByPk(id);
+  if (!service) throw new AppError(400, "failed to find service", false);
+  if (status === "approve") {
+    service.rejected = false;
+    service.approved = true;
+  } else if (status === "reject") {
+    service.rejected = true;
+    service.approved = false;
+  } else {
+    throw new AppError(400, "failed to process request", false);
+  }
+  return await service.save();
+}
+async function alterServiceStatusSP(id, status) {
+  const service = await db.Service.findByPk(id);
+  if (!service) throw new AppError(400, "failed to find service", false);
+  if (status === "publish") {
+    service.published = true;
+  } else if (status === "unpublish") {
+    service.published = false;
+  } else {
+    throw new AppError(400, "failed to process request", false);
+  }
+  return await service.save();
+}
 const serviceServices = {
   createService,
   getAllServices,
@@ -168,5 +197,7 @@ const serviceServices = {
   updateService,
   deleteService,
   restoreService,
+  alterServiceStatus,
+  alterServiceStatusSP,
 };
 export default serviceServices;
