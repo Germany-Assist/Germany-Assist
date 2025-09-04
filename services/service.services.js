@@ -157,6 +157,13 @@ async function restoreService(id) {
   const service = await db.Service.findByPk(id, { paranoid: false });
   if (!service)
     throw new AppError(404, "Service not found", true, "Service not found");
+  if (!service.deletedAt)
+    throw new AppError(
+      400,
+      "Service isn't deleted",
+      true,
+      "Service isn't deleted"
+    );
   return await service.restore();
 }
 async function alterServiceStatus(id, status) {

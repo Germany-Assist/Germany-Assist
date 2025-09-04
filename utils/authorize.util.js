@@ -83,14 +83,20 @@ export async function checkOwnership(targetId, ownerId, resourceName) {
       subject = await db[resource].findByPk(decodedTargetId, {
         paranoid: false,
       });
+      if (!subject) {
+        throw new AppError(404, "Resource not found", true, "Invalid resource");
+      }
       actualOwner = subject.owner;
     }
-    if (!subject) {
-      throw new AppError(404, "Resource not found", true, "Invalid resource");
-    }
+
     const isOwner = Boolean(actualOwner === ownerId);
     if (!isOwner) {
-      throw new AppError(403, "Unauthorized ownership", true, "Unauthorized");
+      throw new AppError(
+        403,
+        "Unauthorized ownership",
+        true,
+        "Unauthorized ownership"
+      );
     }
     return subject;
   } catch (error) {

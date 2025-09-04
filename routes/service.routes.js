@@ -1,7 +1,10 @@
 import express from "express";
 import * as serviceController from "../controllers/service.controller.js";
 import jwt from "../middlewares/jwt.middleware.js";
-import { idHashedParamValidator } from "../validators/general.validators.js";
+import {
+  idHashedBodyValidator,
+  idHashedParamValidator,
+} from "../validators/general.validators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
 
 const serviceRouter = express.Router();
@@ -37,9 +40,9 @@ serviceRouter.get(
 );
 // Update a service (allowed fields only)
 serviceRouter.put(
-  "/provider/services/:id",
+  "/provider/services",
   jwt.authenticateJwt,
-  idHashedParamValidator,
+  idHashedBodyValidator,
   validateExpress,
   serviceController.updateService
 );
@@ -52,7 +55,7 @@ serviceRouter.delete(
   serviceController.deleteService
 );
 serviceRouter.put(
-  "/provider/services",
+  "/provider/services/status",
   jwt.authenticateJwt,
   serviceController.alterServiceStatusSP
 );
@@ -67,10 +70,12 @@ serviceRouter.get(
 serviceRouter.post(
   "/admin/services/:id/restore",
   jwt.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
   serviceController.restoreService
 );
 serviceRouter.put(
-  "/admin/services",
+  "/admin/services/status",
   jwt.authenticateJwt,
   serviceController.alterServiceStatus
 );

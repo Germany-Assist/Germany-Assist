@@ -143,7 +143,7 @@ export async function updateService(req, res, next) {
       "update"
     );
     const owner = await authUtils.checkOwnership(
-      hashIdUtil.hashIdDecode(req.body.id),
+      req.body.id,
       req.auth.related_id,
       "Service"
     );
@@ -161,7 +161,6 @@ export async function updateService(req, res, next) {
     next(error);
   }
 }
-
 export async function deleteService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
@@ -172,17 +171,16 @@ export async function deleteService(req, res, next) {
       "delete"
     );
     const owner = await authUtils.checkOwnership(
-      hashIdUtil.hashIdDecode(req.body.id),
+      req.params.id,
       req.auth.related_id,
       "Service"
     );
-    await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.body.id));
+    await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.params.id));
     res.sendStatus(200);
   } catch (error) {
     next(error);
   }
 }
-
 export async function restoreService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
@@ -190,7 +188,9 @@ export async function restoreService(req, res, next) {
       ["admin", "super_admin"],
       false
     );
-    await serviceServices.restoreService(hashIdUtil.hashIdDecode(req.body.id));
+    await serviceServices.restoreService(
+      hashIdUtil.hashIdDecode(req.params.id)
+    );
     res.sendStatus(200);
   } catch (error) {
     next(error);
@@ -235,3 +235,19 @@ export async function alterServiceStatusSP(req, res, next) {
     next(error);
   }
 }
+const serviceController = {
+  alterServiceStatusSP,
+  alterServiceStatus,
+  restoreService,
+  deleteService,
+  updateService,
+  getByCategories,
+  getServicesByServiceProviderId,
+  getServiceId,
+  getAllServicesServiceProvider,
+  getAllServicesAdmin,
+  getAllServices,
+  createService,
+  sanitizeOutput,
+};
+export default serviceController;

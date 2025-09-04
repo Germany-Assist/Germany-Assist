@@ -22,5 +22,5 @@ export const idHashedParamValidator = [
   param("id").notEmpty().withMessage("ID must be a valid"),
 ];
 export const idHashedBodyValidator = [
-  body("id").isInt({ min: 1 }).withMessage("ID must be a valid"),
+  body("id").notEmpty().withMessage("ID must be a valid"),
 ];

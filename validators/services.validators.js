@@ -31,14 +31,14 @@ export const createServiceValidator = [
     .withMessage("Price must be a valid number and cannot be negative"),
 
   body("image").optional().isURL().withMessage("Image must be a valid URL"),
+
+  body("approved").optional().isBoolean(),
+  body("rejected").optional().isBoolean(),
 ];
 
 // Validation for updating a service
 export const updateServiceValidator = [
-  param("id")
-    .isInt({ min: 1 })
-    .withMessage("Service ID must be a valid integer"),
-
+  param("id").notEmpty().withMessage("Service ID param is required"),
   body("title")
     .optional()
     .isString()
