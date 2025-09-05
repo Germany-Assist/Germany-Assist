@@ -50,6 +50,12 @@ Review.init(
   {
     sequelize,
     paranoid: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ["user_id", "service_id"],
+      },
+    ],
     validate: {
       ratingWithoutBody() {
         if (!this.body && this.rating < 3) {

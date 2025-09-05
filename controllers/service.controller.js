@@ -3,8 +3,21 @@ import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.util.js";
 import { sequelize } from "../database/connection.js";
 import { AppError } from "../utils/error.class.js";
+import db from "../database/dbIndex.js";
 const sanitizeOutput = (services) => {
+  let sanitizedReviews = undefined;
   const sanitizeData = services.map((i) => {
+    if (i.Reviews && i.Reviews.length > 0) {
+      sanitizedReviews = i.Reviews.map((i) => {
+        return {
+          body: i.body,
+          rating: i.rating,
+          userName: i.User.fullName,
+          user_id: hashIdUtil.hashIdEncode(i.User.id),
+        };
+      });
+    }
+
     const service = i.get({ plain: true });
     let temp = {
       ...service,
@@ -17,6 +30,7 @@ const sanitizeOutput = (services) => {
             user_id: hashIdUtil.hashIdEncode(service.user_id),
           }
         : undefined,
+      Reviews: sanitizedReviews,
     };
     delete temp.User;
     delete temp.user_id;
@@ -235,6 +249,7 @@ export async function alterServiceStatusSP(req, res, next) {
     next(error);
   }
 }
+
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,

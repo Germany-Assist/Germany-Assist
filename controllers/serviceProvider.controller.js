@@ -26,7 +26,6 @@ export async function createServiceProvider(req, res, next) {
       .json({ accessToken, user: sanitizedUser, serviceProvider: profile });
     await t.commit();
   } catch (error) {
-    console.log(error);
     await t.rollback();
     next(error);
   }

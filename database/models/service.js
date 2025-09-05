@@ -63,10 +63,10 @@ Service.init(
       },
     },
     rating: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       allowNull: true,
       validate: {
-        isInt: { msg: "Rating must be an integer" },
+        isNumeric: { msg: "Rating must be a number" },
         min: { args: [0], msg: "Rating cannot be negative" },
         max: { args: [5], msg: "Rating cannot be greater than 5" },
       },
