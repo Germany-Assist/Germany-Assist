@@ -118,6 +118,12 @@ Service.init(
       allowNull: false,
       defaultValue: false,
     },
+    quantity: {
+      type: DataTypes.INTEGER,
+      validate: {
+        isInt: { msg: "Contract Id must be an integer" },
+      },
+    },
     owner: {
       type: DataTypes.VIRTUAL,
       get() {

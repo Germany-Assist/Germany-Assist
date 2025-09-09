@@ -21,10 +21,11 @@ apiRouter
   .use("/review", reviewRouter) //
   .use("/service", serviceRouter) //
   .use("/permission", permissionRouter);
-// Transactions;
+
+// Categories; to be discussed
+// Transactions  to be discussed
 // Posts;
 // Comments;
-// Categories;
 // Badges;
 // Events;
 
