@@ -93,7 +93,27 @@ export const getBusinessReps = async (related_id) => {
   });
   return reps;
 };
+export const getUserProfile = async (id) => {
+  const reps = await db.User.findByPk(id, {
+    attributes: { exclude: ["password"] },
+    include: [
+      { model: db.UserRole },
+      {
+        model: db.Service,
+        as: "services",
+        through: {
+          attributes: ["id", "type"],
+        },
+        attributes: ["id"],
+      },
+    ],
+  });
+  return reps;
+};
+
+//
 export default {
+  getUserProfile,
   createUser,
   createUserRole,
   loginUser,

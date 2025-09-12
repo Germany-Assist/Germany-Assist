@@ -15,13 +15,13 @@ import Category from "./models/category.js";
 import ServiceCategory from "./models/service_category.js";
 import Payment from "./models/payment.js";
 import Order from "./models/order.js";
+import OrderItems from "./models/order_items.js";
+import StripeEvent from "./models/stripe_event.js";
 export const defineConstrains = () => {
   User.hasMany(Order, { foreignKey: "user_id" });
   Order.belongsTo(User, { foreignKey: "user_id" });
-  ServiceProvider.hasMany(Order, { foreignKey: "service_provider_id" });
-  Order.belongsTo(ServiceProvider, { foreignKey: "service_provider_id" });
-  Service.hasMany(Order, { foreignKey: "service_id" });
-  Order.belongsTo(Service, { foreignKey: "service_id" });
+  Service.hasMany(OrderItems, { foreignKey: "service_id" });
+  OrderItems.belongsTo(Service, { foreignKey: "service_id" });
   Order.hasMany(Payment, {
     foreignKey: "related_id",
     constraints: false,
@@ -33,6 +33,9 @@ export const defineConstrains = () => {
     foreignKey: "related_id",
     constraints: false,
   });
+  OrderItems.belongsTo(Order, { foreignKey: "order_id" });
+  Order.hasMany(OrderItems, { foreignKey: "order_id" });
+
   // Subscription.hasMany(Payment, {
   //   foreignKey: "related_id",
   //   constraints: false,
@@ -57,6 +60,7 @@ export const defineConstrains = () => {
   Review.belongsTo(Service, { foreignKey: "service_id" });
 
   ServiceProvider.hasMany(Service);
+  Service.belongsTo(ServiceProvider);
   ServiceProvider.hasMany(Coupon);
   ServiceProvider.hasMany(Asset);
 
@@ -119,6 +123,7 @@ export const defineConstrains = () => {
     foreignKey: "user_id",
     otherKey: "service_id",
     unique: false,
+    as: "services",
   });
   Service.belongsToMany(User, {
     through: UserService,
@@ -166,6 +171,10 @@ const db = {
   Category,
   ServiceCategory,
   UserService,
+  Payment,
+  Order,
+  OrderItems,
+  StripeEvent,
 };
 
 export default db;

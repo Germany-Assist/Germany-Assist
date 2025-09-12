@@ -6,8 +6,8 @@ export default class Payment extends Model {}
 Payment.init(
   {
     stripe_payment_intent_id: { type: DataTypes.STRING, unique: true },
-    total_amount: { type: DataTypes.INTEGER },
     currency: { type: DataTypes.STRING, defaultValue: "usd" },
+    amount: { type: DataTypes.FLOAT, allowNull: false },
     status: {
       type: DataTypes.ENUM(
         "requires_payment",

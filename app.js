@@ -19,6 +19,7 @@ import { Server } from "socket.io";
 import createSocketServer from "./sockets/index.js";
 import apiRouter from "./routes/index.routes.js";
 import { v4 as uuidv4 } from "uuid";
+import paymentsRouter from "./routes/payments.routes.js";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
@@ -29,6 +30,7 @@ app
     req.requestId = uuidv4();
     next();
   })
+  .use("/payments", paymentsRouter)
   .use(cookieParser())
   .use(express.json())
   .use(

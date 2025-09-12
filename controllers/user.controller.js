@@ -17,6 +17,25 @@ export const cookieOptions = {
   path: "/api/user/refresh-token",
 };
 const sanitizeUser = (user) => {
+  let favorite = [];
+  let cart = [];
+  if (user && user.services && user.services.length > 0) {
+    user.services.forEach((element) => {
+      let itemId = hashIdUtil.hashIdEncode(element.id);
+      let thumbnail = "not yet";
+      let userServiceId = hashIdUtil.hashIdEncode(element.user_service.id);
+      switch (element.user_service.type) {
+        case "cart":
+          cart.push({ cartId: userServiceId, itemId, thumbnail });
+          break;
+        case "favorite":
+          favorite.push({ favoriteId: userServiceId, itemId, thumbnail });
+          break;
+        default:
+          break;
+      }
+    });
+  }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
@@ -28,6 +47,8 @@ const sanitizeUser = (user) => {
     role: user.UserRole.role,
     related_type: user.UserRole.related_type,
     related_id: user.UserRole.related_id,
+    favorite,
+    cart,
   };
 };
 function setRoleAndType(type) {
@@ -260,6 +281,15 @@ export async function loginUserTokenController(req, res, next) {
     next(error);
   }
 }
+export async function getUserProfile(req, res, next) {
+  try {
+    const user = await userServices.getUserProfile(req.auth.id);
+    const sanitizedUser = userController.sanitizeUser(user);
+    res.send(sanitizedUser);
+  } catch (error) {
+    next(error);
+  }
+}
 export async function getAllUsers(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(
@@ -327,6 +357,7 @@ const userController = {
   createClientController,
   sanitizeUser,
   setRoleAndType,
+  getUserProfile,
   setRoleAndTypeRep,
 };
 export default userController;
