@@ -6,6 +6,7 @@ import hashIdUtil from "../utils/hashId.util.js";
 import { sequelize } from "../database/connection.js";
 import Stripe from "stripe";
 import { STRIPE_SK } from "../configs/serverConfig.js";
+import { errorLogger } from "../utils/loggers.js";
 const ordersRouter = Router();
 
 let stripe;
