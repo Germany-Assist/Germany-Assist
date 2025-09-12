@@ -7,7 +7,13 @@ import { sequelize } from "../database/connection.js";
 import Stripe from "stripe";
 import { STRIPE_SK } from "../configs/serverConfig.js";
 const ordersRouter = Router();
-const stripe = new Stripe(STRIPE_SK);
+
+let stripe;
+try {
+  stripe = new Stripe(STRIPE_SK);
+} catch (error) {
+  errorLogger(error);
+}
 ordersRouter.post(
   "/checkout",
   jwtMiddleware.authenticateJwt,

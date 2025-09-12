@@ -9,10 +9,14 @@ import { Op } from "sequelize";
 import { errorLogger, infoLogger } from "../utils/loggers.js";
 
 const paymentsRouter = Router();
-
-const stripe = new Stripe(STRIPE_SK, {
-  apiVersion: "2025-08-14",
-});
+let stripe;
+try {
+  stripe = new Stripe(STRIPE_SK, {
+    apiVersion: "2025-08-14",
+  });
+} catch (error) {
+  errorLogger(error);
+}
 
 paymentsRouter.post(
   "/webhook",
