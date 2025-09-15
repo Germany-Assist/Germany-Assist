@@ -50,21 +50,21 @@ function setRoleAndType(type) {
   }
   return { rootRole, rootRelatedType, firstName, lastName };
 }
-function setRoleAndTypeRep(type) {
-  let repRole, repRelatedType;
-  switch (req.auth.role) {
+function setRoleAndTypeRep(parentRole) {
+  let role, related_type;
+  switch (parentRole) {
     case "service_provider_root":
-      repRole = "service_provider_rep";
-      repRelatedType = "ServiceProvider";
+      role = "service_provider_rep";
+      related_type = "ServiceProvider";
       break;
     case "employer_root":
-      repRole = "employer_rep";
-      repRelatedType = "Employer";
+      role = "employer_rep";
+      related_type = "Employer";
       break;
     default:
       throw new AppError(400, "failed to set role", false);
   }
-  return { repRole, repRelatedType };
+  return { role, related_type };
 }
 export async function createClientController(req, res, next) {
   const t = await sequelize.transaction();
@@ -101,6 +101,7 @@ export async function createClientController(req, res, next) {
     next(error);
   }
 }
+//will work for any type of business(service Provider/employers)
 export async function createRepController(req, res, next) {
   const t = await sequelize.transaction();
   const permission = await authUtils.checkRoleAndPermission(
@@ -113,7 +114,7 @@ export async function createRepController(req, res, next) {
   if (!permission) throw new AppError(403, "forbidden", true, "forbidden");
 
   try {
-    const { repRole, repRelatedType } = userController.setRoleAndTypeRep(
+    const { role, related_type } = userController.setRoleAndTypeRep(
       req.auth.role
     );
     const { firstName, lastName, email, dob, image } = req.body;
@@ -127,18 +128,14 @@ export async function createRepController(req, res, next) {
         dob,
         image,
         UserRole: {
-          role: repRole,
-          related_type: repRelatedType,
+          role,
+          related_type,
           related_id: req.auth.related_id,
         },
       },
       t
     );
-    await permissionServices.initPermissions(
-      user.id,
-      roleTemplates[repRole],
-      t
-    );
+    await permissionServices.initPermissions(user.id, roleTemplates[role], t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = userController.sanitizeUser(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
@@ -190,15 +187,22 @@ export async function createAdminController(req, res, next) {
     next(error);
   }
 }
-export async function createRootAccount(email, password, relatedId, type, t) {
+export async function createRootAccount(
+  email,
+  unHashedPassword,
+  relatedId,
+  type,
+  t
+) {
   const { rootRole, rootRelatedType, firstName, lastName } =
-    setRoleAndType(type);
+    userController.setRoleAndType(type);
+  let password = bcryptUtil.hashPassword(unHashedPassword);
   const user = await userServices.createUser(
     {
       first_name: firstName,
       last_name: lastName,
       email,
-      password: bcryptUtil.hashPassword(password),
+      password,
       UserRole: {
         role: rootRole,
         related_type: rootRelatedType,
@@ -212,6 +216,7 @@ export async function createRootAccount(email, password, relatedId, type, t) {
     roleTemplates[rootRole],
     t
   );
+
   if (!root_permissions)
     throw new AppError(500, "failed to create permissions", false);
   const sanitizedUser = userController.sanitizeUser(user);

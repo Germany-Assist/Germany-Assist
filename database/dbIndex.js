@@ -11,12 +11,16 @@ import Permission from "./models/permission.js";
 import UserPermission from "./models/user_permission.js";
 import UserRole from "./models/user_role.js";
 import Employer from "./models/employer.js";
+import Category from "./models/category.js";
+import ServiceCategory from "./models/service_category.js";
 export const defineConstrains = () => {
   User.hasMany(Asset);
   User.hasMany(Review);
-  User.hasMany(Service);
 
-  Service.belongsTo(Contract);
+  User.hasMany(Service, { foreignKey: "user_id" });
+  Service.belongsTo(User, { foreignKey: "user_id" });
+  Service.belongsTo(Contract, { foreignKey: "contract_id" });
+
   Service.hasMany(Review);
   Service.hasMany(Asset);
 
@@ -26,24 +30,52 @@ export const defineConstrains = () => {
 
   User.hasOne(UserRole, { foreignKey: "user_id" });
   UserRole.belongsTo(User, { foreignKey: "user_id" });
-
-  ServiceProvider.hasMany(Employer, {
-    foreignKey: "related_id",
-    scope: { related_type: "Employer" },
+  //service category
+  Category.belongsToMany(Service, {
+    through: ServiceCategory,
+    as: "services",
+    foreignKey: "category_id",
+    otherKey: "service_id",
   });
+  Service.belongsToMany(Category, {
+    through: ServiceCategory,
+    as: "categories",
+    foreignKey: "service_id",
+    otherKey: "category_id",
+  });
+  // Employer -> UserRole
+  Employer.hasMany(UserRole, {
+    foreignKey: "related_id",
+    constraints: false,
+    scope: {
+      related_type: "Employer",
+    },
+    as: "roles",
+  });
+
   UserRole.belongsTo(Employer, {
     foreignKey: "related_id",
     constraints: false,
+    as: "employer",
   });
+
+  // ServiceProvider -> UserRole
   ServiceProvider.hasMany(UserRole, {
     foreignKey: "related_id",
-    scope: { related_type: "ServiceProvider" },
+    constraints: false,
+    scope: {
+      related_type: "ServiceProvider",
+    },
+    as: "roles",
   });
+
   UserRole.belongsTo(ServiceProvider, {
     foreignKey: "related_id",
     constraints: false,
+    as: "serviceProvider",
   });
 
+  //user - service
   User.belongsToMany(Service, {
     through: UserService,
     foreignKey: "user_id",
@@ -57,7 +89,7 @@ export const defineConstrains = () => {
     otherKey: "user_id",
     unique: false,
   });
-
+  //user - permission
   User.belongsToMany(Permission, {
     through: UserPermission,
     as: "userToPermission",
@@ -94,6 +126,8 @@ const db = {
   UserPermission,
   UserRole,
   Employer,
+  Category,
+  ServiceCategory,
 };
 
 export default db;

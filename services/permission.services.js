@@ -31,7 +31,6 @@ const adjustPermission = async (userId, action, resource, effect) => {
   });
   if (!permission)
     throw new AppError(404, "no permission found", true, "not found");
-
   if (effect === "revoke") {
     const revokePermission = await db.UserPermission.destroy({
       where: {
@@ -60,7 +59,7 @@ const initPermissions = async (userId, template, t) => {
   const rules = await db.UserPermission.bulkCreate(permissions, {
     transaction: t,
   });
-  if (!rules)
+  if (!rules || rules.length < 1)
     throw new AppError(
       500,
       "failed to create permissions",
@@ -69,7 +68,6 @@ const initPermissions = async (userId, template, t) => {
     );
   return true;
 };
-
 async function getUserPermissions(id) {
   const permissions = await db.User.findOne({
     attributes: ["first_name"],
@@ -85,9 +83,11 @@ async function getUserPermissions(id) {
   });
   return permissions.userToPermission;
 }
-export default {
+const permissionServices = {
   initPermissions,
   adjustPermission,
   userAndPermission,
   getUserPermissions,
 };
+
+export default permissionServices;

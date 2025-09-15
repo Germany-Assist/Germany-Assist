@@ -1,11 +1,11 @@
 import express from "express";
 import serviceProviderController from "../controllers/serviceProvider.controller.js";
 import jwt from "../middlewares/jwt.middleware.js";
-import {
-  createBusinessValidator,
-  updateBusinessValidator,
-} from "../validators/business.validators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
+import {
+  createServiceProviderValidator,
+  updateServiceProviderValidator,
+} from "../validators/serviceProvider.validators.js";
 const serviceProviderRouter = express.Router();
 
 serviceProviderRouter.get("/", serviceProviderController.getAllServiceProvider);
@@ -20,14 +20,14 @@ serviceProviderRouter.delete(
 );
 serviceProviderRouter.put(
   "/",
-  updateBusinessValidator,
+  updateServiceProviderValidator,
   validateExpress,
   jwt.authenticateJwt,
   serviceProviderController.updateServiceProvider
 );
 serviceProviderRouter.post(
   "/",
-  createBusinessValidator,
+  createServiceProviderValidator,
   validateExpress,
   serviceProviderController.createServiceProvider
 );

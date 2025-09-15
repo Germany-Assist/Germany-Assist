@@ -1,41 +1,82 @@
 import express from "express";
 import * as serviceController from "../controllers/service.controller.js";
 import jwt from "../middlewares/jwt.middleware.js";
+import {
+  idHashedBodyValidator,
+  idHashedParamValidator,
+} from "../validators/general.validators.js";
+import { validateExpress } from "../middlewares/expressValidator.js";
+
 const serviceRouter = express.Router();
 
-serviceRouter.post("/", jwt.authenticateJwt, serviceController.createService);
+/* ---------------- Public Routes ---------------- */
+// Get all services that are approved & published
 serviceRouter.get("/", serviceController.getAllServices);
-serviceRouter.get("/id/:id", serviceController.getServiceById);
-//get all the service for a business public
+
+// Get single service by ID
 serviceRouter.get(
-  "/business/id/:id",
-  serviceController.getServicesByBusinessId
+  "/:id",
+  idHashedParamValidator,
+  validateExpress,
+  serviceController.getServiceId
 );
+// Get services for a specific provider by ID (approved & published)
 serviceRouter.get(
-  "/business/private",
+  "/provider/services/:id",
+  idHashedParamValidator,
+  validateExpress,
+  serviceController.getServicesByServiceProviderId
+);
+// Get services filtered by type
+serviceRouter.post("/categories", serviceController.getByCategories);
+/* ---------------- Provider Routes ---------------- */
+// Create a new service
+serviceRouter.post("/", jwt.authenticateJwt, serviceController.createService);
+// Get all services of the authenticated provider (approved or not)
+serviceRouter.get(
+  "/provider/services",
   jwt.authenticateJwt,
-  serviceController.getAllServicesBusiness
+  serviceController.getAllServicesServiceProvider
 );
+// Update a service (allowed fields only)
+serviceRouter.put(
+  "/provider/services",
+  jwt.authenticateJwt,
+  idHashedBodyValidator,
+  validateExpress,
+  serviceController.updateService
+);
+// Delete a service (soft delete)
+serviceRouter.delete(
+  "/provider/services/:id",
+  idHashedParamValidator,
+  validateExpress,
+  jwt.authenticateJwt,
+  serviceController.deleteService
+);
+serviceRouter.put(
+  "/provider/services/status",
+  jwt.authenticateJwt,
+  serviceController.alterServiceStatusSP
+);
+/* ---------------- Admin Routes ---------------- */
+// Get all services (any status, any provider)
 serviceRouter.get(
-  "/admin",
+  "/admin/services",
   jwt.authenticateJwt,
   serviceController.getAllServicesAdmin
 );
-serviceRouter.delete("/", jwt.authenticateJwt, serviceController.deleteService);
-
+// Restore a deleted service
 serviceRouter.post(
-  "/restore",
+  "/admin/services/:id/restore",
   jwt.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
   serviceController.restoreService
 );
-
 serviceRouter.put(
-  "/update",
+  "/admin/services/status",
   jwt.authenticateJwt,
-  serviceController.updateService
+  serviceController.alterServiceStatus
 );
-
-//get all services by type
-//will be discussed further
-// serviceRouter.get("/type/:type", serviceController.getServicesByType);
 export default serviceRouter;
