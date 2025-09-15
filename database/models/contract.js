@@ -35,13 +35,13 @@ Contract.init(
         },
       },
     },
-    requests: {
+    views: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
       validate: {
-        isInt: { msg: "Requests must be an integer" },
-        min: { args: [0], msg: "Requests cannot be negative" },
+        isInt: { msg: "views must be an integer" },
+        min: { args: [0], msg: "views cannot be negative" },
       },
     },
     contract: {

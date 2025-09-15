@@ -1,8 +1,8 @@
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
-export const createBusiness = async (profileData, t) => {
-  return await db.Business.create(
+export const createServiceProvider = async (profileData, t) => {
+  return await db.ServiceProvider.create(
     {
       name: profileData.name,
       about: profileData.about,
@@ -15,8 +15,8 @@ export const createBusiness = async (profileData, t) => {
   );
 };
 
-export const getAllBusiness = async () => {
-  return await db.Business.findAll({
+export const getAllServiceProvider = async () => {
+  return await db.ServiceProvider.findAll({
     attributes: [
       "id",
       "name",
@@ -24,7 +24,7 @@ export const getAllBusiness = async () => {
       "description",
       "phone_number",
       "image",
-      "isVerified",
+      "is_verified",
       "total_reviews",
       "rating",
       "email",
@@ -33,8 +33,8 @@ export const getAllBusiness = async () => {
   });
 };
 
-export const getBusinessById = async (id) => {
-  const profile = await db.Business.findByPk(id, {
+export const getServiceProviderById = async (id) => {
+  const profile = await db.ServiceProvider.findByPk(id, {
     attributes: [
       "id",
       "name",
@@ -42,7 +42,7 @@ export const getBusinessById = async (id) => {
       "description",
       "phone_number",
       "image",
-      "isVerified",
+      "is_verified",
       "total_reviews",
       "rating",
       "email",
@@ -50,51 +50,66 @@ export const getBusinessById = async (id) => {
     ],
   });
   if (!profile)
-    throw new AppError(404, "Business not found", true, "Business not found");
+    throw new AppError(
+      404,
+      "Service Provider not found",
+      true,
+      "Service Provider not found"
+    );
   profile.increment("views");
   await profile.save();
   return profile;
 };
 
-export const updateBusiness = async (id, updateData) => {
-  const [count, [profile]] = await db.Business.update(updateData, {
+export const updateServiceProvider = async (id, updateData) => {
+  const [count, [profile]] = await db.ServiceProvider.update(updateData, {
     where: { id },
     returning: true,
   });
-  if (count === 0) throw new AppError(404, "Business not found", true);
+  if (count === 0) throw new AppError(404, "Service Provider not found", true);
   return profile;
 };
 
-export const deleteBusiness = async (id) => {
-  const profile = await db.Business.findByPk(id);
+export const deleteServiceProvider = async (id) => {
+  const profile = await db.ServiceProvider.findByPk(id);
   if (!profile)
-    throw new AppError(404, "Business not found", true, "Business not found");
+    throw new AppError(
+      404,
+      "ServiceProvider not found",
+      true,
+      "ServiceProvider not found"
+    );
   await profile.destroy();
-  return { id, message: "Business deleted" };
+  return { id, message: "ServiceProvider deleted" };
 };
-export const restoreBusiness = async (id) => {
-  const profile = await db.Business.findOne({
+export const restoreServiceProvider = async (id) => {
+  const profile = await db.ServiceProvider.findOne({
     where: { id },
     paranoid: false,
   });
   if (!profile)
-    throw new AppError(404, "Business not found", true, "Business not found");
+    throw new AppError(
+      404,
+      "Service Provider not found",
+      true,
+      "Service Provider not found"
+    );
   if (!profile.deletedAt)
     throw new AppError(
       400,
-      "Business profile is not deleted",
+      "Service Provider is not deleted",
       true,
-      "Business profile is not deleted"
+      "Service Provider is not deleted"
     );
   await profile.restore();
   return profile;
 };
 
-export const updateBusinessRating = async (id, newRating) => {
+export const updateServiceProviderRating = async (id, newRating) => {
   if (typeof newRating !== "number" || newRating < 0 || newRating > 5) {
     throw new AppError(400, "Invalid rating value", true);
   }
-  const profile = await db.Business.findByPk(id);
+  const profile = await db.ServiceProvider.findByPk(id);
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
   const currentTotalReviews = profile.total_reviews || 0;
@@ -107,12 +122,14 @@ export const updateBusinessRating = async (id, newRating) => {
     total_reviews: updatedTotalReviews,
   });
 };
-export default {
-  createBusiness,
-  getAllBusiness,
-  getBusinessById,
-  updateBusiness,
-  deleteBusiness,
-  restoreBusiness,
-  updateBusinessRating,
+const serviceProviderService = {
+  createServiceProvider,
+  getAllServiceProvider,
+  getServiceProviderById,
+  updateServiceProvider,
+  deleteServiceProvider,
+  restoreServiceProvider,
+  updateServiceProviderRating,
 };
+
+export default serviceProviderService;

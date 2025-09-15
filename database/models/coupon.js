@@ -24,7 +24,7 @@ Coupon.init(
         max: { args: [100], msg: "Discount rate cannot exceed 100%" },
       },
     },
-    expDate: {
+    exp_date: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
@@ -34,19 +34,6 @@ Coupon.init(
             throw new Error("Expiration date must be in the future");
           }
         },
-      },
-    },
-    BusinessId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      validate: {
-        isUUID: { args: 4, msg: "Business ID must be a valid UUIDv4" },
-      },
-    },
-    owner: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        return this.BusinessId;
       },
     },
   },

@@ -1,8 +1,7 @@
 //this will be moved to the database but currently is here for speed of development
 //however the mechanics of using it wont change since it will be loaded to the cache
 export const roleTemplates = {
-  // Business owner
-  root_business: [
+  employer_root: [
     // Assets
     { action: "create", resource: "asset" },
     { action: "update", resource: "asset" },
@@ -29,9 +28,9 @@ export const roleTemplates = {
     { action: "revoke", resource: "permission" },
     { action: "list", resource: "permission" },
 
-    // Business
-    { action: "update", resource: "business" },
-    { action: "delete", resource: "business" },
+    // serviceProvider
+    { action: "update", resource: "serviceProvider" },
+    { action: "delete", resource: "serviceProvider" },
 
     // Users (reps)
     { action: "create", resource: "user" },
@@ -39,9 +38,8 @@ export const roleTemplates = {
     { action: "update", resource: "user" },
     { action: "delete", resource: "user" },
   ],
-
-  // Business representative
-  rep_business: [
+  // serviceProvider representative
+  employer_rep: [
     // Assets
     { action: "create", resource: "asset" },
     { action: "statistical", resource: "asset" },
@@ -60,7 +58,65 @@ export const roleTemplates = {
     { action: "update", resource: "user" },
   ],
 
-  // 🔹 Admin (system/business moderator)
+  // serviceProvider owner
+  service_provider_root: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "update", resource: "asset" },
+    { action: "delete", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "delete", resource: "service" },
+    { action: "publish", resource: "service" },
+    { action: "unpublish", resource: "service" },
+    { action: "statistical", resource: "service" },
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "delete", resource: "post" },
+    { action: "restore", resource: "post" },
+    { action: "publish", resource: "post" },
+    { action: "unpublish", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Permissions
+    { action: "assign", resource: "permission" },
+    { action: "revoke", resource: "permission" },
+    { action: "list", resource: "permission" },
+
+    // serviceProvider
+    { action: "update", resource: "serviceProvider" },
+    { action: "delete", resource: "serviceProvider" },
+
+    // Users (reps)
+    { action: "create", resource: "user" },
+    { action: "read", resource: "user" },
+    { action: "update", resource: "user" },
+    { action: "delete", resource: "user" },
+  ],
+  // serviceProvider representative
+  service_provider_rep: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "statistical", resource: "service" },
+
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Users rep (their own account only, enforced by middleware)
+    { action: "update", resource: "user" },
+  ],
+
+  // 🔹 Admin (system/serviceProvider moderator)
   admin: [
     // Assets
     { action: "restore", resource: "asset" },
@@ -73,7 +129,6 @@ export const roleTemplates = {
     { action: "create", resource: "coupon" },
     { action: "read", resource: "coupon" },
     { action: "deactivate", resource: "coupon" },
-
     // Services
     { action: "approve", resource: "service" },
     { action: "reject", resource: "service" },
@@ -90,10 +145,10 @@ export const roleTemplates = {
     // Reviews
     { action: "delete", resource: "review" },
 
-    // Business
-    { action: "delete", resource: "business" },
-    { action: "restore", resource: "business" },
-    { action: "verify", resource: "business" },
+    // serviceProvider
+    { action: "delete", resource: "serviceProvider" },
+    { action: "restore", resource: "serviceProvider" },
+    { action: "verify", resource: "serviceProvider" },
 
     // Users
     { action: "create", resource: "user" },

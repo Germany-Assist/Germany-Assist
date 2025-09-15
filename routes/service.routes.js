@@ -5,31 +5,37 @@ const serviceRouter = express.Router();
 
 serviceRouter.post("/", jwt.authenticateJwt, serviceController.createService);
 serviceRouter.get("/", serviceController.getAllServices);
-serviceRouter.put(
-  "/update",
-  jwt.authenticateJwt,
-  serviceController.updateService
+serviceRouter.get("/id/:id", serviceController.getServiceById);
+//get all the service for a business public
+serviceRouter.get(
+  "/business/id/:id",
+  serviceController.getServicesByBusinessId
 );
-serviceRouter.get("/type/:type", serviceController.getServicesByType);
-serviceRouter.get("/:id", serviceController.getServiceById);
-serviceRouter.delete("/", jwt.authenticateJwt, serviceController.deleteService);
-serviceRouter.post(
-  "/restore",
+serviceRouter.get(
+  "/business/private",
   jwt.authenticateJwt,
-  serviceController.restoreService
-);
-serviceRouter.put(
-  "/:id/increment-views",
-  serviceController.incrementServiceViews
+  serviceController.getAllServicesBusiness
 );
 serviceRouter.get(
   "/admin",
   jwt.authenticateJwt,
   serviceController.getAllServicesAdmin
 );
-serviceRouter.get(
-  "/business/:id",
+serviceRouter.delete("/", jwt.authenticateJwt, serviceController.deleteService);
+
+serviceRouter.post(
+  "/restore",
   jwt.authenticateJwt,
-  serviceController.getServicesByBusinessId
+  serviceController.restoreService
 );
+
+serviceRouter.put(
+  "/update",
+  jwt.authenticateJwt,
+  serviceController.updateService
+);
+
+//get all services by type
+//will be discussed further
+// serviceRouter.get("/type/:type", serviceController.getServicesByType);
 export default serviceRouter;

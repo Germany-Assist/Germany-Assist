@@ -5,7 +5,7 @@ export default class UserPermission extends Model {}
 
 UserPermission.init(
   {
-    UserId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -13,7 +13,7 @@ UserPermission.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    PermissionId: {
+    permission_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -25,11 +25,10 @@ UserPermission.init(
   {
     sequelize,
     modelName: "user_permission",
-    tableName: "user_permission",
     indexes: [
       {
         unique: true,
-        fields: ["UserId", "PermissionId"],
+        fields: ["user_id", "permission_id"],
       },
     ],
   }

@@ -1,14 +1,19 @@
 import { roleTemplates } from "../database/templates.js";
 import permissionServices from "../services/permission.services.js";
-import authUtils from "../utils/authorize.requests.util.js";
+import authUtils from "../utils/authorize.util.js";
 import { AppError } from "../utils/error.class.js";
-import { hashIdDecode } from "../utils/hashId.util.js";
+import hashIdUtil from "../utils/hashId.util.js";
 
 function getAllowedPermissions(role) {
   switch (role) {
-    case "root_business":
-      return roleTemplates.root_business;
-    case "superAdmin":
+    case "client":
+      return roleTemplates.client;
+    case "service_provider_rep":
+      return roleTemplates.service_provider_rep;
+    case "service_provider_root":
+      return roleTemplates.service_provider_root;
+    case "super_admin":
+      return ["*"];
     case "admin":
       return roleTemplates.admin;
     default:
@@ -49,9 +54,8 @@ function extractPermissionData(req, requireId = true) {
 export async function assignPermission(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["root_business", "superAdmin"],
+      req.auth,
+      ["service_provider_root", "super_admin"],
       true,
       "permission",
       "assign"
@@ -60,10 +64,10 @@ export async function assignPermission(req, res, next) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }
     const { id, action, resource } = extractPermissionData(req);
-    const decodedId = hashIdDecode(id);
-    const isOwner = await checkOwnership(
-      decodedId,
-      req.auth.BusinessId,
+    const decodedId = hashIdUtil.hashIdDecode(id);
+    const isOwner = await authUtils.checkOwnership(
+      id,
+      req.auth.related_id,
       "User"
     );
     if (!isOwner) {
@@ -96,9 +100,8 @@ export async function assignPermission(req, res, next) {
 export async function revokePermission(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["root_business", "superAdmin"],
+      req.auth,
+      ["service_provider_root", "super_admin"],
       true,
       "permission",
       "revoke"
@@ -108,10 +111,10 @@ export async function revokePermission(req, res, next) {
       throw new AppError(403, "Permission denied", true, "Permission denied");
     }
     const { id, action, resource } = extractPermissionData(req);
-    const decodedId = hashIdDecode(id);
-    const isOwner = await checkOwnership(
-      decodedId,
-      req.auth.BusinessId,
+    const decodedId = hashIdUtil.hashIdDecode(id);
+    const isOwner = await authUtils.checkOwnership(
+      id,
+      req.auth.related_id,
       "User"
     );
     if (!isOwner) {
@@ -142,9 +145,8 @@ export async function revokePermission(req, res, next) {
 export async function getUserPermissions(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["root_business", "superAdmin"],
+      req.auth,
+      ["service_provider_root", "super_admin"],
       true,
       "permission",
       "list"
@@ -156,10 +158,9 @@ export async function getUserPermissions(req, res, next) {
     if (!id) {
       throw new AppError(422, "Missing user ID", true, "Invalid request");
     }
-    const decodedId = hashIdDecode(id);
     const isOwner = await authUtils.checkOwnership(
-      decodedId,
-      req.auth.BusinessId,
+      id,
+      req.auth.related_id,
       "User"
     );
     if (!isOwner) {
@@ -171,7 +172,7 @@ export async function getUserPermissions(req, res, next) {
       );
     }
     const userPermissions = await permissionServices.getUserPermissions(
-      decodedId
+      hashIdUtil.hashIdDecode(id)
     );
     res.status(200).json({
       success: true,
@@ -185,9 +186,14 @@ export async function getUserPermissions(req, res, next) {
 export async function getPersonalPermissions(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
-      ["root_business", "superAdmin", "admin", "user"],
+      req.auth,
+      [
+        "service_provider_root",
+        "super_admin",
+        "admin",
+        "client",
+        "service_provider_rep",
+      ],
       false
     );
     if (!hasPermission) {
@@ -208,8 +214,7 @@ export async function getPersonalPermissions(req, res, next) {
 export async function getAvailablePermissions(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.BusinessId,
+      req.auth,
       ["*"],
       false
     );

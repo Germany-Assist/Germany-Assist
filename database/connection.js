@@ -9,4 +9,7 @@ export const sequelize = new Sequelize({
   host: db_params.DB_HOST,
   dialect: db_params.DB_DIALECT,
   logging: false,
+  define: {
+    underscored: true,
+  },
 });

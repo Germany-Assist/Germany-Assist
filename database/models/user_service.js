@@ -10,7 +10,7 @@ UserService.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    UserId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -18,7 +18,7 @@ UserService.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    ServiceId: {
+    service_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -39,6 +39,5 @@ UserService.init(
     sequelize,
     paranoid: true,
     modelName: "user_service",
-    tableName: "user_service",
   }
 );

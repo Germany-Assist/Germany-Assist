@@ -15,7 +15,7 @@ Review.init(
         },
       },
     },
-    UserId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -32,7 +32,7 @@ Review.init(
         max: { args: [5], msg: "Rating cannot be more than 5" },
       },
     },
-    ServiceId: {
+    service_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -43,7 +43,7 @@ Review.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        return this.UserId;
+        return this.user_id;
       },
     },
   },

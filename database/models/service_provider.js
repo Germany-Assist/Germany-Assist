@@ -2,9 +2,9 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
 import { v4 as uuidv4 } from "uuid";
 
-class Business extends Model {}
+class ServiceProvider extends Model {}
 
-Business.init(
+ServiceProvider.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -87,7 +87,7 @@ Business.init(
         isUrl: { msg: "Image must be a valid URL" },
       },
     },
-    isVerified: {
+    is_verified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
@@ -121,4 +121,4 @@ Business.init(
   }
 );
 
-export default Business;
+export default ServiceProvider;

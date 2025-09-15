@@ -16,6 +16,9 @@ const userAndPermission = async (id, resource, action) => {
         required: false,
         attributes: ["id"],
       },
+      {
+        model: db.UserRole,
+      },
     ],
   });
   if (user) return user;
@@ -32,14 +35,14 @@ const adjustPermission = async (userId, action, resource, effect) => {
   if (effect === "revoke") {
     const revokePermission = await db.UserPermission.destroy({
       where: {
-        UserId: userId,
-        PermissionId: permission.id,
+        user_id: userId,
+        permission_id: permission.id,
       },
     });
   } else if (effect === "assign") {
     const assignPermission = await db.UserPermission.create({
-      UserId: userId,
-      PermissionId: permission.id,
+      user_id: userId,
+      permission_id: permission.id,
     });
   }
 };
@@ -52,7 +55,7 @@ const initPermissions = async (userId, template, t) => {
     attributes: ["id"],
   });
   const permissions = permissionsIds.map((i) => {
-    return { UserId: userId, PermissionId: i.id };
+    return { user_id: userId, permission_id: i.id };
   });
   const rules = await db.UserPermission.bulkCreate(permissions, {
     transaction: t,
@@ -69,15 +72,12 @@ const initPermissions = async (userId, template, t) => {
 
 async function getUserPermissions(id) {
   const permissions = await db.User.findOne({
+    attributes: ["first_name"],
     where: { id },
-    attributes: [],
     include: {
       model: db.Permission,
       as: "userToPermission",
-      attributes: [
-        ["action", "action"],
-        ["resource", "resource"],
-      ],
+      attributes: ["action", "resource"],
       through: {
         attributes: [],
       },

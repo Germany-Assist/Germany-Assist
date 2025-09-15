@@ -2,8 +2,8 @@ import Permission from "../models/permission.js";
 // important notes
 // 1. super refers to the ability to take action without ownership
 // 2. ownership means the ownership of the resource or the ownership of the parent resource
-// (example in business table the owner is the user related to the same business id
-//  but in the services the owner is the owner of the business who is the parent of the service)
+// (example in serviceProvider table the owner is the user related to the same serviceProvider id
+//  but in the services the owner is the owner of the serviceProvider who is the parent of the service)
 // 3. approve and reject represents the approval of an (admin  or superAdmin), approve means that it can be used.
 // 4. superAdmin, admin, superUser are deferent
 // 6.super user can access everything but its written here to illustrate the point
@@ -72,13 +72,29 @@ const permissionsData = [
   { action: "update", resource: "comment", description: "Edit comments" }, //ownership:client
   { action: "delete", resource: "comment", description: "Delete comments" }, //ownership:client
 
-  // Business permissions
-  { action: "create", resource: "business", description: "Create businesses" }, //public
-  { action: "read", resource: "business", description: "View businesses" }, //public
-  { action: "update", resource: "business", description: "Edit businesses" }, //ownership:admin,root,rep,superAdmin
-  { action: "delete", resource: "business", description: "Remove businesses" }, //ownership:root,rep //super:admin,superAdmin
-  { action: "restore", resource: "business", description: "Restore" }, //super:admin,superAdmin
-  { action: "verify", resource: "business", description: "verify" }, //super:admin,superAdmin,or future automated roll
+  // serviceProvider permissions
+  {
+    action: "create",
+    resource: "serviceProvider",
+    description: "Create serviceProvideres",
+  }, //public
+  {
+    action: "read",
+    resource: "serviceProvider",
+    description: "View serviceProvideres",
+  }, //public
+  {
+    action: "update",
+    resource: "serviceProvider",
+    description: "Edit serviceProvideres",
+  }, //ownership:admin,root,rep,superAdmin
+  {
+    action: "delete",
+    resource: "serviceProvider",
+    description: "Remove serviceProvideres",
+  }, //ownership:root,rep //super:admin,superAdmin
+  { action: "restore", resource: "serviceProvider", description: "Restore" }, //super:admin,superAdmin
+  { action: "verify", resource: "serviceProvider", description: "verify" }, //super:admin,superAdmin,or future automated roll
 
   // Users permissions
   { action: "create", resource: "user", description: "Create user" }, //ownership:root (can create representatives) //super:admin,superAdmin

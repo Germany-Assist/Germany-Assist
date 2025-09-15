@@ -4,11 +4,11 @@ class User extends Model {}
 
 User.init(
   {
-    firstName: {
+    first_name: {
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    lastName: {
+    last_name: {
       type: DataTypes.STRING(50),
     },
     email: {
@@ -20,34 +20,19 @@ User.init(
       type: DataTypes.STRING(60),
       allowNull: false,
     },
-    DOB: {
+    dob: {
       type: DataTypes.DATE(),
     },
-    isVerified: {
+    is_verified: {
+      type: DataTypes.BOOLEAN(),
+      defaultValue: false,
+    },
+    is_root: {
       type: DataTypes.BOOLEAN(),
       defaultValue: false,
     },
     image: {
       type: DataTypes.TEXT(),
-    },
-    role: {
-      type: DataTypes.STRING(30),
-      allowNull: false,
-    },
-    is_root: {
-      type: DataTypes.BOOLEAN(),
-      allowNull: false,
-    },
-    BusinessId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-    },
-    owner: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        if (this.role === "root" || this.role === "rep") return this.BusinessId;
-        return this.id;
-      },
     },
   },
   {

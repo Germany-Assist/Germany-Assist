@@ -13,11 +13,11 @@ import seedPermissions from "./seeds/permission_seed.js";
 process.env.SEEDING = true;
 
 ///////////////////////////////////////////////////////////////////////
-// register the models to create skellton
+// register the models to create skelton
 // this is side effect import please follow
 // import the model here
 import Asset from "./models/assets.js";
-import Business from "./models/business.js";
+import Business from "./models/service_provider.js";
 import Contracts from "./models/contract.js";
 import User from "./models/user.js";
 import UserService from "./models/user_service.js";
@@ -26,6 +26,8 @@ import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
 import Chat from "./models/chat.js";
 import Permission from "./models/permission.js";
+import UserRole from "./models/user_role.js";
+import UserPermission from "./models/user_permission.js";
 ///////////////////////////////////////////////////////////////////////
 //
 //
@@ -60,18 +62,19 @@ try {
     //Apply the constraints
     console.log("defining constrains ⌛");
     const res = await import("./dbIndex.js").then((module) =>
-      module.defineConstarins()
+      module.defineConstrains()
     );
     if (true) await sequelize.sync({ alter: true });
 
     console.log("constrains are ready 👍");
     await sequelize.close();
-    console.log("script has successfuly migrated and seeded the database 😀");
+    console.log("script has successful migrated and seeded the database 😀");
   } else {
-    throw new Error("shouldnt run this script in the production enviroment");
+    throw new Error("should not run this script in the production environment");
   }
   await sequelize.close();
   process.exit();
 } catch (error) {
+  console.log(error);
   console.error(error.message);
 }
