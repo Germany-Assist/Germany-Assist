@@ -81,6 +81,7 @@ async function getAllServicesServiceProvider(id) {
 }
 
 async function getServiceById(id) {
+  //i should fetch profile
   const service = await db.Service.findOne({
     where: { id, approved: true, rejected: false, published: true },
     raw: false,
@@ -91,6 +92,14 @@ async function getServiceById(id) {
         as: "categories",
         attributes: ["title"],
         through: { attributes: [] },
+      },
+      {
+        model: db.Review,
+        attributes: ["body", "rating"],
+        include: {
+          model: db.User,
+          attributes: ["first_name", "last_name", "id"],
+        },
       },
     ],
   });
@@ -192,6 +201,52 @@ async function alterServiceStatusSP(id, status) {
   }
   return await service.save();
 }
+export const updateServiceRating = async (
+  {
+    serviceId,
+    newRating = 0,
+    isUpdate = false,
+    oldRating = null,
+    isDelete = false,
+  } = {},
+  t
+) => {
+  if (typeof newRating !== "number" || newRating < 0 || newRating > 5) {
+    throw new AppError(400, "Invalid rating value", true);
+  }
+  const service = await db.Service.findByPk(serviceId);
+  if (!service) {
+    throw new AppError(404, "service not found", true, "service not found");
+  }
+  let { total_reviews: totalReviews = 0, rating: currentRating = 0 } = service;
+
+  if (isDelete) {
+    if (totalReviews <= 1) {
+      totalReviews = 0;
+      currentRating = 0;
+    } else {
+      totalReviews -= 1;
+      currentRating =
+        (currentRating * (totalReviews + 1) - newRating) / totalReviews;
+    }
+  } else if (isUpdate && oldRating !== null) {
+    currentRating =
+      (currentRating * totalReviews - oldRating + newRating) / totalReviews;
+  } else {
+    totalReviews += 1;
+    currentRating =
+      (currentRating * (totalReviews - 1) + newRating) / totalReviews;
+  }
+
+  return await service.update(
+    {
+      rating: currentRating,
+      total_reviews: totalReviews,
+    },
+    { transaction: t }
+  );
+};
+
 const serviceServices = {
   createService,
   getAllServices,
@@ -206,5 +261,6 @@ const serviceServices = {
   restoreService,
   alterServiceStatus,
   alterServiceStatusSP,
+  updateServiceRating,
 };
 export default serviceServices;

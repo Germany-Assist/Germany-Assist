@@ -1,19 +1,27 @@
 import express from "express";
-import * as reviewController from "../controllers/review.controller.js";
+import reviewController from "../controllers/review.controller.js";
+import { validateExpress } from "../middlewares/expressValidator.js";
+import { createReviewVal } from "../validators/review.validators.js";
+import jwtMiddleware from "../middlewares/jwt.middleware.js";
 
 const reviewRouter = express.Router();
 
-reviewRouter.post("/", reviewController.createReview);
-reviewRouter.get("/", reviewController.getAllReviews);
-reviewRouter.get("/:id", reviewController.getReviewById);
-reviewRouter.get("/user/:userId", reviewController.getReviewsByUserId);
-reviewRouter.get("/service/:serviceId", reviewController.getReviewsByServiceId);
-reviewRouter.get(
-  "/service/:serviceId/average",
-  reviewController.getAverageRatingForService
+reviewRouter.post(
+  "/",
+  createReviewVal,
+  validateExpress,
+  jwtMiddleware.authenticateJwt,
+  reviewController.createReview
 );
-reviewRouter.put("/:id", reviewController.updateReview);
-reviewRouter.delete("/:id", reviewController.deleteReview);
-reviewRouter.post("/:id/restore", reviewController.restoreReview);
+
+reviewRouter.get("/service/:serviceId", reviewController.getReviewsByServiceId);
+
+reviewRouter.put(
+  "/service/:id",
+  createReviewVal,
+  validateExpress,
+  jwtMiddleware.authenticateJwt,
+  reviewController.updateReview
+);
 
 export default reviewRouter;

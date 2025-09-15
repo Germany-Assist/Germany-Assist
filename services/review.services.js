@@ -1,47 +1,43 @@
 import { sequelize } from "../database/connection.js";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
-export const createReview = async (data) => {
-  const { body, userId, rating, serviceId } = data;
-  return await db.Review.create({
-    body,
-    UserId: userId,
-    rating,
-    ServiceId: serviceId,
-  });
-};
-export const getAllReviews = async (filters = {}) => {
-  return await db.Review.findAll({ where: filters });
-};
-
-export const getReviewById = async (id) => {
-  const review = await db.Review.findByPk(id);
-  if (!review)
-    throw new AppError(404, "no review found", true, "no review found");
-  return review;
-};
-
-export const getReviewsByUserId = async (userId) => {
-  const reviews = await db.Review.findAll({ where: { UserId: userId } });
-  if (!reviews)
-    throw new AppError(404, "no review found", true, "no review found");
-  return reviews;
+export const createReview = async (data, t) => {
+  const { body, rating, service_id, user_id } = data;
+  return await db.Review.create(
+    {
+      body,
+      rating,
+      user_id,
+      service_id,
+    },
+    { transaction: t }
+  );
 };
 
 export const getReviewsByServiceId = async (serviceId) => {
-  const reviews = await db.Review.findAll({ where: { ServiceId: serviceId } });
+  const reviews = await db.Review.findAll({
+    attributes: ["body", "rating"],
+    include: {
+      model: db.User,
+      attributes: ["first_name", "last_name", "id"],
+    },
+    where: { service_id: serviceId },
+  });
   if (!reviews)
     throw new AppError(404, "no reviews found", true, "no reviews found");
   return reviews;
 };
 
-export const updateReview = async (id, body, rating) => {
-  const review = await db.Review.findByPk(id);
+export const updateReview = async (data, t) => {
+  const { body, rating, service_id, user_id } = data;
+  const review = await db.Review.findOne({ where: { service_id, user_id } });
   if (!review)
-    throw new AppError(404, "no reviews found", true, "no reviews found");
+    throw new AppError(404, "no review found", true, "no review found");
+  const oldRating = review.rating;
   if (body) review.body = body;
   if (rating) review.rating = rating;
-  return await review.save();
+  await review.save({ transaction: t });
+  return oldRating;
 };
 
 export const deleteReview = async (id) => {
@@ -63,15 +59,4 @@ export const restoreReview = async (id) => {
     );
   await review.restore();
   return review;
-};
-export const getAverageRatingForServiceId = async (ServiceId) => {
-  ///this will be discussed further please vist the business services last service to understand
-  return await db.Review.findOne({
-    where: { ServiceId },
-    attributes: [
-      [sequelize.fn("AVG", sequelize.col("rating")), "averageRating"],
-      [sequelize.fn("COUNT", sequelize.col("id")), "reviewCount"],
-    ],
-    raw: true,
-  });
 };

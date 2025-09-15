@@ -27,7 +27,6 @@ test.describe("jwt.middleware", () => {
     assert.throws(
       () => jwtUtil.verifyToken("invalidToken"),
       (err) => {
-        console.log(err);
         assert(err instanceof AppError);
         assert.equal(err.message, "invalid token");
         assert.equal(err.httpCode, 401);

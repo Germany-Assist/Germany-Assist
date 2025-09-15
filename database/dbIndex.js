@@ -14,19 +14,25 @@ import Employer from "./models/employer.js";
 import Category from "./models/category.js";
 import ServiceCategory from "./models/service_category.js";
 export const defineConstrains = () => {
-  User.hasMany(Asset);
-  User.hasMany(Review);
-
   User.hasMany(Service, { foreignKey: "user_id" });
   Service.belongsTo(User, { foreignKey: "user_id" });
   Service.belongsTo(Contract, { foreignKey: "contract_id" });
 
-  Service.hasMany(Review);
-  Service.hasMany(Asset);
+  Service.hasMany(Asset, { foreignKey: "service_id" });
+  Asset.belongsTo(Service, { foreignKey: "service_id" });
+
+  Service.hasMany(Review, { foreignKey: "service_id" });
+  Review.belongsTo(Service, { foreignKey: "service_id" });
 
   ServiceProvider.hasMany(Service);
   ServiceProvider.hasMany(Coupon);
   ServiceProvider.hasMany(Asset);
+
+  User.hasMany(Asset, { foreignKey: "user_id" });
+  Asset.belongsTo(User, { foreignKey: "user_id" });
+
+  User.hasMany(Review, { foreignKey: "user_id" });
+  Review.belongsTo(User, { foreignKey: "user_id" });
 
   User.hasOne(UserRole, { foreignKey: "user_id" });
   UserRole.belongsTo(User, { foreignKey: "user_id" });
