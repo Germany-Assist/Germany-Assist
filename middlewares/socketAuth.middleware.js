@@ -1,5 +1,5 @@
 import { AppError } from "../utils/error.class.js";
-import { verifyAccessToken } from "./jwt.middleware.js";
+import jwt from "./jwt.middleware.js";
 
 export default function socketAuthMiddleware(socket, next) {
   try {
@@ -7,7 +7,7 @@ export default function socketAuthMiddleware(socket, next) {
     if (!auth)
       throw new AppError(401, "no token provided", true, "no token provided");
     const token = auth.split(" ")[1];
-    const decoded = verifyAccessToken(token);
+    const decoded = jwt.verifyAccessToken(token);
     socket.user = decoded;
     next();
   } catch (error) {

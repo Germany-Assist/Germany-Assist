@@ -1,7 +1,11 @@
 import express from "express";
 import "./utils/loggers.js";
 import { createServer } from "http";
-import { SERVER_PORT, CLIENT_URL } from "./configs/serverConfig.js";
+import {
+  SERVER_PORT,
+  CLIENT_URL,
+  ENV_IS_LOADED,
+} from "./configs/serverConfig.js";
 import { sequelize } from "./database/connection.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
@@ -41,14 +45,16 @@ app.get("/health", (req, res) => {
 
 app
   .use("/", async (req, res, next) => {
-    throw new AppError(404, "bad route", false);
+    throw new AppError(404, "bad route", true, "Bad Route");
   })
   .use(errorMiddleware);
 
 if (NODE_ENV !== "test") {
   server.listen(3000, "0.0.0.0", async () => {
     try {
+      if (!ENV_IS_LOADED) throw new Error("fail to load the env file");
       await sequelize.authenticate();
+      await sequelize.sync({ alter: true });
       await import("./database/dbIndex.js");
       infoLogger(
         `\n Server is running at port ${SERVER_PORT} 👋 \n Connected to the database successfully 👍`

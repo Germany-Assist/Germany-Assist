@@ -5,7 +5,10 @@ import { debugLogger, infoLogger } from "../../utils/loggers.js";
 import { activeUsers } from "../index.js";
 import { v4 as uuidv4 } from "uuid";
 import { AppError } from "../../utils/error.class.js";
-import { getUserById, userExists } from "../../services/user.services.js";
+import userServices, {
+  getUserById,
+  userExists,
+} from "../../services/user.services.js";
 
 const rateLimits = {};
 const RATE_LIMIT_WINDOW_MS = 1000;
@@ -13,7 +16,7 @@ const MAX_CALLS = 10;
 
 function isRateLimited(socket, eventName, limit) {
   const now = Date.now();
-  const key = `${socket.user.userId}:${eventName}`;
+  const key = `${socket.user.id}:${eventName}`;
   if (!rateLimits[key]) {
     rateLimits[key] = [];
   }
@@ -33,7 +36,7 @@ export default function chatNamespace(io) {
   chat.use(socketAuthMiddleware);
   //
   chat.on("connection", async (socket) => {
-    const userId = socket.user.userId;
+    const userId = socket.user.id;
     try {
       infoLogger(`New connection to chat app: ${socket.id} user id ${userId}`);
       //step 1 register the user online
@@ -110,7 +113,8 @@ export default function chatNamespace(io) {
               return false;
             }
           }
-          if (!(await userExists(friendId))) {
+
+          if (!(await userServices.userExists(friendId))) {
             socket.validationError(
               "The specified user does not exist",
               "add-new-friend"
@@ -247,9 +251,9 @@ export default function chatNamespace(io) {
           return socket.validationError("Missing participant", "send-message");
         }
         if (
-          !message.body &&
-          typeof message.body !== "string" &&
-          message.body.trim().length === 0 &&
+          !message.body ||
+          typeof message.body !== "string" ||
+          message.body.trim().length === 0 ||
           message.body.trim().length > 1000
         ) {
           if (typeof ack === "function")

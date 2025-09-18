@@ -1,122 +1,187 @@
-export const userPolicyTemplate = {
-  version: "1.0",
-  name: "user inline policy",
-  description: "default",
-  lastUpdate: Date.now(),
-  statements: {
-    clints: {
-      business: {
-        3: {
-          coupon: {
-            create: {
-              allow: true,
-            },
-          },
-        },
-      },
-      provider: {
-        2: {},
-      },
-    },
-    asset: {
-      upload: {
-        allow: true,
-        // spaaces will be in megabytes
-        spaceLimit: 10,
-        maxMedia: {
-          image: 0.4,
-          vedio: 10,
-        },
-        mediaType: ["jpg", "png"],
-      },
-    },
-    provider: {
-      create: {
-        allow: true,
-        limit: 1,
-        current: 0,
-      },
-    },
-    business: {
-      create: {
-        allow: true,
-        limit: 1,
-        current: 0,
-      },
-    },
-    review: {
-      create: {
-        allow: true,
-      },
-    },
-  },
-};
-export const businessPolicyTemplate = {
-  version: "1.0",
-  name: "business policy",
-  description: "default",
-  lastUpdate: Date.now(),
-  statements: {
-    asset: {
-      upload: {
-        allow: true,
-        users: [1, 2, 3],
-        // spaaces will be in megabytes
-        spaceLimit: 100,
-        maxMedia: {
-          image: 0.4,
-          vedio: 10,
-        },
-        mediaType: ["*"],
-      },
-    },
-    post: {
-      create: {
-        users: [1, 2, 3],
-        allow: true,
-      },
-    },
-    coupon: {
-      create: {
-        users: [1, 2, 3],
-        allow: true,
-      },
-    },
-  },
-};
-export const providerPolicyTemplate = {
-  version: "1.0",
-  name: "provider policy",
-  description: "default",
-  lastUpdate: Date.now(),
-  statements: {
-    asset: {
-      upload: {
-        allow: true,
-        users: [],
-        spaceLimit: 100,
-        maxMedia: {
-          image: 0.4,
-          vedio: 10,
-        },
-        mediaType: ["*"],
-      },
-    },
-    coupon: {
-      create: {
-        users: [],
-        allow: true,
-        // allow: false,
-        // reason: "Exceeds business plan limits",
-      },
-    },
-    services: {
-      create: {
-        allow: true,
-      },
-      update: {
-        allow: true,
-      },
-    },
-  },
+//this will be moved to the database but currently is here for speed of development
+//however the mechanics of using it wont change since it will be loaded to the cache
+export const roleTemplates = {
+  employer_root: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "update", resource: "asset" },
+    { action: "delete", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "delete", resource: "service" },
+    { action: "publish", resource: "service" },
+    { action: "unpublish", resource: "service" },
+    { action: "statistical", resource: "service" },
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "delete", resource: "post" },
+    { action: "restore", resource: "post" },
+    { action: "publish", resource: "post" },
+    { action: "unpublish", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Permissions
+    { action: "assign", resource: "permission" },
+    { action: "revoke", resource: "permission" },
+    { action: "list", resource: "permission" },
+
+    // serviceProvider
+    { action: "update", resource: "serviceProvider" },
+    { action: "delete", resource: "serviceProvider" },
+
+    // Users (reps)
+    { action: "create", resource: "user" },
+    { action: "read", resource: "user" },
+    { action: "update", resource: "user" },
+    { action: "delete", resource: "user" },
+  ],
+  // serviceProvider representative
+  employer_rep: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "statistical", resource: "service" },
+
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Users rep (their own account only, enforced by middleware)
+    { action: "update", resource: "user" },
+  ],
+
+  // serviceProvider owner
+  service_provider_root: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "update", resource: "asset" },
+    { action: "delete", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "delete", resource: "service" },
+    { action: "publish", resource: "service" },
+    { action: "unpublish", resource: "service" },
+    { action: "statistical", resource: "service" },
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "delete", resource: "post" },
+    { action: "restore", resource: "post" },
+    { action: "publish", resource: "post" },
+    { action: "unpublish", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Permissions
+    { action: "assign", resource: "permission" },
+    { action: "revoke", resource: "permission" },
+    { action: "list", resource: "permission" },
+
+    // serviceProvider
+    { action: "update", resource: "serviceProvider" },
+    { action: "delete", resource: "serviceProvider" },
+
+    // Users (reps)
+    { action: "create", resource: "user" },
+    { action: "read", resource: "user" },
+    { action: "update", resource: "user" },
+    { action: "delete", resource: "user" },
+  ],
+  // serviceProvider representative
+  service_provider_rep: [
+    // Assets
+    { action: "create", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+
+    // Services
+    { action: "create", resource: "service" },
+    { action: "update", resource: "service" },
+    { action: "statistical", resource: "service" },
+
+    // Posts
+    { action: "create", resource: "post" },
+    { action: "update", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Users rep (their own account only, enforced by middleware)
+    { action: "update", resource: "user" },
+  ],
+
+  // 🔹 Admin (system/serviceProvider moderator)
+  admin: [
+    // Assets
+    { action: "restore", resource: "asset" },
+    { action: "statistical", resource: "asset" },
+
+    // Contracts
+    { action: "create", resource: "contract" },
+
+    // Coupons
+    { action: "create", resource: "coupon" },
+    { action: "read", resource: "coupon" },
+    { action: "deactivate", resource: "coupon" },
+    // Services
+    { action: "approve", resource: "service" },
+    { action: "reject", resource: "service" },
+    { action: "publish", resource: "service" },
+    { action: "unpublish", resource: "service" },
+    { action: "statistical", resource: "service" },
+    { action: "restore", resource: "service" },
+
+    // Posts
+    { action: "approve", resource: "post" },
+    { action: "reject", resource: "post" },
+    { action: "statistical", resource: "post" },
+
+    // Reviews
+    { action: "delete", resource: "review" },
+
+    // serviceProvider
+    { action: "delete", resource: "serviceProvider" },
+    { action: "restore", resource: "serviceProvider" },
+    { action: "verify", resource: "serviceProvider" },
+
+    // Users
+    { action: "create", resource: "user" },
+    { action: "read", resource: "user" },
+    { action: "update", resource: "user" },
+    { action: "delete", resource: "user" },
+    { action: "restore", resource: "user" },
+    { action: "verify", resource: "user" },
+
+    // Analytics
+    { action: "view", resource: "analytics" },
+  ],
+
+  // 🔹 SuperAdmin (everything)
+  superAdmin: [
+    // Give them all permissions
+    // (could just assign permissionsData instead of listing them)
+    "*",
+  ],
+
+  // 🔹 Client (end-user)
+  client: [
+    // Reviews
+    { action: "create", resource: "review" },
+    { action: "update", resource: "review" },
+    { action: "delete", resource: "review" },
+
+    // Comments
+    { action: "create", resource: "comment" },
+    { action: "update", resource: "comment" },
+    { action: "delete", resource: "comment" },
+
+    // Coupons
+    { action: "apply", resource: "coupon" },
+  ],
 };

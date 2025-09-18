@@ -1,0 +1,25 @@
+{
+  "nodejs-testing.include": ["./tests"],
+  "nodejs-testing.exclude": ["**/node_modules/**"],
+  "nodejs-testing.concurrency": 1,
+  "nodejs-testing.runtimeArgs": ["--test", "--env-file=./test.env"],
+  "nodejs-testing.env": {
+    "ENV_IS_LOADED": "true",
+    "NODE_ENV": "test",
+    "SERVER_PORT": "3000",
+    "DB_USERNAME": "postgres",
+    "DB_PASSWORD": "123456789",
+    "DB_NAME": "germany_assist_testing",
+    "DB_HOST": "127.0.0.1",
+    "DB_DIALECT": "postgres",
+    "DB_PORT": "5432",
+    "LOG_LEVEL": "debug",
+    "ACCESS_TOKEN_SECRET": "testSecret",
+    "REFRESH_TOKEN_SECRET": "refSecret",
+    "ACCESS_TOKEN_EXPIRE_DURATION": "15m",
+    "REFRESH_TOKEN_EXPIRE_DURATION": "7d",
+    "REFRESH_COOKIE_AGE": "604800000",
+    "HASH_ID_SALT": "A!S@F#G$654321",
+    "CLIENT_URL": "localhost:3001"
+  }
+}

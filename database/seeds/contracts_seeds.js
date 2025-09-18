@@ -10,9 +10,9 @@ const data = [
       version: "2.1",
       effectiveDate: "2023-11-15",
       parties: {
-        provider: {
+        business: {
           name: "CodeMaster Academy",
-          type: "Educational Service Provider",
+          type: "Educational Service business",
         },
         client: {
           name: "Client Organization/Individual",
@@ -39,7 +39,7 @@ const data = [
         intellectualProperty: {
           ownership: "Client retains all rights to custom developed code",
           licenses:
-            "Provider may use project for portfolio with client approval",
+            "business may use project for portfolio with client approval",
         },
         confidentiality: {
           obligations:
@@ -57,8 +57,8 @@ const data = [
         },
       },
       signatures: {
-        provider: {
-          name: "Provider Representative",
+        business: {
+          name: "business Representative",
           title: "Director of Services",
           date: "2023-11-15",
         },

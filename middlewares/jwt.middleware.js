@@ -7,8 +7,7 @@ import {
 } from "../configs/serverConfig.js";
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/error.class.js";
-
-export const authenticateJwt = expressjwt({
+const authenticateJwt = expressjwt({
   secret: ACCESS_TOKEN_SECRET,
   algorithms: ["HS256"],
   getToken: (req) => {
@@ -22,7 +21,7 @@ export const authenticateJwt = expressjwt({
   },
 });
 
-export function verifyToken(token) {
+function verifyToken(token) {
   try {
     const decode = jwt.verify(token, REFRESH_TOKEN_SECRET);
     return decode;
@@ -30,7 +29,7 @@ export function verifyToken(token) {
     throw new AppError(401, "invalid token", true, "invalid token");
   }
 }
-export function verifyAccessToken(token) {
+function verifyAccessToken(token) {
   try {
     const decode = jwt.verify(token, ACCESS_TOKEN_SECRET);
     return decode;
@@ -39,19 +38,35 @@ export function verifyAccessToken(token) {
   }
 }
 
-export function generateAccessToken(user) {
-  return jwt.sign({ userId: user.id }, ACCESS_TOKEN_SECRET, {
+function generateAccessToken(user) {
+  const { id } = user;
+  const { role, related_type, related_id } = user.UserRole;
+  return jwt.sign({ id, role, related_type, related_id }, ACCESS_TOKEN_SECRET, {
     expiresIn: ACCESS_TOKEN_EXPIRE_DURATION,
   });
 }
-
-export function generateRefreshToken(user) {
-  return jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, {
-    expiresIn: REFRESH_TOKEN_EXPIRE_DURATION,
-  });
+function generateRefreshToken(user) {
+  const { id } = user;
+  const { role, related_type, related_id } = user.UserRole;
+  return jwt.sign(
+    { id, role, related_type, related_id },
+    REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: REFRESH_TOKEN_EXPIRE_DURATION,
+    }
+  );
 }
-export function generateTokens(user) {
+
+function generateTokens(user) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
   return { accessToken, refreshToken };
 }
+export default {
+  generateTokens,
+  generateRefreshToken,
+  generateAccessToken,
+  verifyAccessToken,
+  verifyToken,
+  authenticateJwt,
+};

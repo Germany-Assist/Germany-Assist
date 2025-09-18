@@ -7,7 +7,7 @@ import { CLIENT_URL } from "../configs/serverConfig.js";
 class usersLiveModel {
   users = {};
   registerUser(socket) {
-    this.users[socket.user.userId] = {
+    this.users[socket.user.id] = {
       ...socket.user,
       socketId: socket.id,
       activeSince: Date.now(),

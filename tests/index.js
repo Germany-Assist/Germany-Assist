@@ -3,33 +3,64 @@ import { sequelize } from "../database/connection.js";
 import { server } from "../app.js";
 import { errorLogger, infoLogger } from "../utils/loggers.js";
 import fs from "fs";
+
 try {
   await sequelize.authenticate();
-
   infoLogger(
     "🚀 Tests will run sequentially and synchronously to avoid conflicts 🚀"
   );
-  const testFiles = fs.readdirSync("./tests");
 
-  // this is amr from the past i will add
-  // 1.array to skip
-  // 2.array to test (in case u need to test specific things)
+  const testFolders = fs.readdirSync("./tests", { withFileTypes: true });
+  const skipFiles = ["chat"];
 
-  testFiles.forEach((file) => {
-    if (file === "index.js") return;
-    infoLogger(`🚀 Running ${file.split(".")[0]} tests...`);
-    // the WORKFLOW_TEST refers to the env values cuz they are provided in the wokflow github yml
-    if (process.env.WORKFLOW_TEST) {
-      execSync(`node --test tests/${file}`, {
-        stdio: "inherit",
-      });
-    } else {
-      execSync(`node --env-file=test.env --test tests/${file}`, {
-        stdio: "inherit",
-      });
+  for (const testFolder of testFolders) {
+    if (testFolder.isDirectory()) {
+      const folderName = testFolder.name;
+      console.log(`Running ${testFolder.name} Tests`);
+      const files = fs.readdirSync(`./tests/${folderName}`);
+      for (const file of files) {
+        if (
+          file === "index.js" ||
+          !file.endsWith(".test.js") ||
+          skipFiles.includes(file.split(".")[0])
+        ) {
+          continue;
+        }
+
+        infoLogger(`🚀 Running ${file.split(".")[0]} tests...`);
+
+        const cmd = process.env.WORKFLOW_TEST
+          ? `node --test tests/${folderName}/${file}`
+          : `node --env-file=test.env --test tests/${folderName}/${file}`;
+
+        execSync(cmd, { stdio: "inherit" });
+
+        console.log(
+          `\n ✅ just finished Running ${file.split(".")[0]} tests...`
+        );
+      }
+    } else if (testFolder.isFile()) {
+      // handle root-level test files directly
+      const file = testFolder.name;
+      if (
+        file === "index.js" ||
+        !file.endsWith(".test.js") ||
+        skipFiles.includes(file.split(".")[0])
+      ) {
+        continue;
+      }
+
+      infoLogger(`🚀 Running ${file.split(".")[0]} tests...`);
+
+      const cmd = process.env.WORKFLOW_TEST
+        ? `node --test tests/${file}`
+        : `node --env-file=test.env --test tests/${file}`;
+
+      execSync(cmd, { stdio: "inherit" });
+
+      console.log(`\n ✅ just finished Running ${file.split(".")[0]} tests...`);
     }
-    console.log(`\n ✅ just finished Running ${file.split(".")[0]} tests...`);
-  });
+  }
 
   console.log(" \n ✅ All tests complete.");
 } catch (err) {
