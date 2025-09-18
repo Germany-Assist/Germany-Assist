@@ -119,11 +119,17 @@ export const defineConstrains = () => {
 
   //user - service
   User.belongsToMany(Service, {
-    through: UserService,
+    through: { model: UserService, scope: { type: "favorite" } },
     foreignKey: "user_id",
     otherKey: "service_id",
-    unique: false,
-    as: "services",
+    as: "userFavorite",
+  });
+  //cart
+  User.belongsToMany(Service, {
+    through: { model: UserService, scope: { type: "cart" } },
+    foreignKey: "user_id",
+    otherKey: "service_id",
+    as: "userCart",
   });
   Service.belongsToMany(User, {
     through: UserService,

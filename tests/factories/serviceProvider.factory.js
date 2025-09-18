@@ -36,6 +36,7 @@ export async function serviceProviderFullFactory(overrides = {}) {
       "service_provider_root",
       user.id
     );
+
     return {
       accessToken,
       user,
