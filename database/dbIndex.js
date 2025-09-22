@@ -20,8 +20,10 @@ import StripeEvent from "./models/stripe_event.js";
 export const defineConstrains = () => {
   User.hasMany(Order, { foreignKey: "user_id" });
   Order.belongsTo(User, { foreignKey: "user_id" });
+
   Service.hasMany(OrderItems, { foreignKey: "service_id" });
   OrderItems.belongsTo(Service, { foreignKey: "service_id" });
+
   Order.hasMany(Payment, {
     foreignKey: "related_id",
     constraints: false,

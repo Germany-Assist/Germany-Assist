@@ -277,6 +277,13 @@ export async function alterCart(serviceId, userId, status) {
     throw new AppError(500, "invalid status", false);
   }
 }
+
+export async function removeItemsFromCart(userId, cartIds, t) {
+  await db.UserService.destroy({
+    where: { id: cartIds, user_id: userId, type: "cart" },
+    transaction: t,
+  });
+}
 const serviceServices = {
   createService,
   getAllServices,
@@ -294,5 +301,6 @@ const serviceServices = {
   updateServiceRating,
   alterFavorite,
   alterCart,
+  removeItemsFromCart,
 };
 export default serviceServices;
