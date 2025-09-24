@@ -68,7 +68,7 @@ export async function checkoutController(req, res, next) {
     });
     const order = await orderService.createOrder(userId, servicesIds, t);
     const sanitizedOrder = sanitizeOrder(order);
-    // await serviceServices.removeItemsFromCart(userId, cartIds);
+    await serviceServices.removeItemsFromCart(userId, cartIds);
     await t.commit();
     res.send(sanitizedOrder);
   } catch (err) {

@@ -20,6 +20,11 @@ import createSocketServer from "./sockets/index.js";
 import apiRouter from "./routes/index.routes.js";
 import { v4 as uuidv4 } from "uuid";
 import paymentsRouter from "./routes/payments.routes.js";
+import { Queue } from "bullmq";
+import IORedis, { Redis } from "ioredis";
+import { REDIS_HOST, REDIS_PORT } from "./configs/databaseConfig.js";
+import { redis } from "./utils/stripe.util.js";
+
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
@@ -40,16 +45,25 @@ app
   )
   .use(morganMiddleware)
   .use("/api", apiRouter);
-
 app.get("/health", (req, res) => {
   res.sendStatus(200);
 });
-
 app
   .use("/", async (req, res, next) => {
     throw new AppError(404, "bad route", true, "Bad Route");
   })
   .use(errorMiddleware);
+
+export const shutdownServer = async () => {
+  try {
+    await sequelize.close();
+    await redis.quit();
+    server.close();
+    process.exit(0);
+  } catch (error) {
+    errorLogger(error);
+  }
+};
 
 if (NODE_ENV !== "test") {
   server.listen(3000, "0.0.0.0", async () => {
@@ -58,6 +72,8 @@ if (NODE_ENV !== "test") {
       await sequelize.authenticate();
       await sequelize.sync({ alter: true });
       await import("./database/dbIndex.js");
+      redis.on("connect", () => infoLogger("✅ Redis connected"));
+      redis.on("ready", () => infoLogger("🚀 Redis ready"));
       infoLogger(
         `\n Server is running at port ${SERVER_PORT} 👋 \n Connected to the database successfully 👍`
       );
@@ -66,8 +82,7 @@ if (NODE_ENV !== "test") {
         `\n "Unable to connect to the database:", ${error.message} \n server is shutting down`
       );
       errorLogger(error);
-      await sequelize.close();
-      server.close();
+      await shutdownServer();
     }
   });
 }
