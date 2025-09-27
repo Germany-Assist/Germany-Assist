@@ -1,11 +1,8 @@
-import { raw } from "express";
 import { sequelize } from "../database/connection.js";
 import orderService from "../services/order.services.js";
-import serviceServices, {
-  removeItemsFromCart,
-} from "../services/service.services.js";
+import serviceServices from "../services/service.services.js";
 import hashIdUtil from "../utils/hashId.util.js";
-import stripeUtils, { createPaymentIntent } from "../utils/stripe.util.js";
+import stripeUtils from "../utils/stripe.util.js";
 import paymentServices from "../services/payment.service.js";
 import { AppError } from "../utils/error.class.js";
 //-------------------------just helpers--------------------//
@@ -68,7 +65,7 @@ export async function checkoutController(req, res, next) {
     });
     const order = await orderService.createOrder(userId, servicesIds, t);
     const sanitizedOrder = sanitizeOrder(order);
-    await serviceServices.removeItemsFromCart(userId, cartIds);
+    // await serviceServices.removeItemsFromCart(userId, cartIds);
     await t.commit();
     res.send(sanitizedOrder);
   } catch (err) {

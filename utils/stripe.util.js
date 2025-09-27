@@ -1,20 +1,14 @@
 import { STRIPE_SK, STRIPE_WEBHOOK_SECRET } from "../configs/serverConfig.js";
 import Stripe from "stripe";
 import { errorLogger } from "./loggers.js";
-import { Queue } from "bullmq";
-import Redis from "ioredis";
-import { REDIS_HOST, REDIS_PORT } from "../configs/databaseConfig.js";
+
 let stripe;
+
 try {
   stripe = new Stripe(STRIPE_SK);
 } catch (error) {
   errorLogger(error);
 }
-export const redis = new Redis({
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-});
-export const stripeQueue = new Queue("stripe-events", { redis });
 
 export async function createPaymentIntent(order, items, totalAmount) {
   return await stripe.paymentIntents.create({

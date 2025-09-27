@@ -81,7 +81,7 @@ Service.init(
       },
     },
     price: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         isInt: { msg: "Price must be a valid number" },

@@ -1,19 +1,37 @@
 import Redis from "ioredis";
+import { errorLogger, infoLogger } from "../utils/loggers.js";
+import { NODE_ENV } from "./serverConfig.js";
+import stripeQueue from "../utils/bullMQ.util.js";
+export const REDIS_HOST = process.env.REDIS_HOST || "127.0.0.1";
+export const REDIS_PORT = process.env.REDIS_PORT || 6379;
+export const REDIS_PASSWORD = process.env.REDIS_PASSWORD || undefined;
 
-export const REDIS_HOST = process.env.REDIS_HOST;
-export const REDIS_PORT = process.env.REDIS_PORT;
-
-const redis = new Redis({
-  host: REDIS_HOST || "127.0.0.1",
-  port: REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD || undefined,
+let retryCount = 0;
+export const redisConfig = {
+  host: REDIS_HOST,
+  port: REDIS_PORT,
+  password: REDIS_PASSWORD,
+  lazyConnect: true,
+  maxRetriesPerRequest: null,
   retryStrategy(times) {
-    const delay = Math.min(times * 50, 2000);
-    return delay;
+    retryCount = times;
+    if (times > 10) return null;
+    return Math.min(times * 100, 2000);
   },
-});
+};
 
-redis.on("error", (err) => console.error("❌ Redis error", err));
-redis.on("close", () => console.warn("⚠️ Redis connection closed"));
-
+const redis = new Redis(redisConfig);
+if (NODE_ENV !== "test") {
+  redis.on("connect", () => infoLogger("✅ Redis Connected"));
+  redis.on("ready", () => infoLogger("👍 Redis Ready"));
+  redis.on("error", (err) => errorLogger("❌ Redis error:", err));
+  redis.on("end", async () => {
+    if (retryCount > 10) {
+      infoLogger("⚠️ Redis connection closed after max retries");
+      await import("../app.js").then(
+        async (module) => await module.shutdownServer("Redis connection closed")
+      );
+    }
+  });
+}
 export default redis;

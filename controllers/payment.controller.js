@@ -1,14 +1,8 @@
 import { AppError } from "../utils/error.class.js";
-import { sequelize } from "../database/connection.js";
-import { errorLogger, infoLogger } from "../utils/loggers.js";
-import stripeUtils, { stripeQueue } from "../utils/stripe.util.js";
-import stripeServices, {
-  createStripeEvent,
-  getStripeEvent,
-} from "../services/stripe.service.js";
-import paymentServices from "../services/payment.service.js";
-import orderService from "../services/order.services.js";
-import orderItemServices from "../services/itemOrder.services.js";
+import { infoLogger } from "../utils/loggers.js";
+import stripeUtils from "../utils/stripe.util.js";
+import stripeServices from "../services/stripe.service.js";
+import stripeQueue from "../utils/bullMQ.util.js";
 
 export async function processPaymentWebhook(req, res, next) {
   try {
@@ -23,16 +17,15 @@ export async function processPaymentWebhook(req, res, next) {
         false
       );
     }
-    infoLogger(event.type);
-
+    res.json({ received: true });
     await stripeServices.createStripeEvent(event, "pending");
     await stripeQueue.add("process", { event });
-
-    res.json({ received: true });
+    infoLogger(event.type);
   } catch (error) {
     next(error);
   }
 }
 
 const paymentController = { processPaymentWebhook };
+
 export default paymentController;
