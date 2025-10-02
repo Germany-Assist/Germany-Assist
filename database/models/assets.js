@@ -68,7 +68,6 @@ Asset.init(
       allowNull: false,
       validate: {
         notEmpty: { msg: "URL cannot be empty" },
-        isUrl: { msg: "URL must be a valid URL" },
       },
     },
     views: {

@@ -62,7 +62,7 @@ function generateTokens(user) {
   const refreshToken = generateRefreshToken(user);
   return { accessToken, refreshToken };
 }
-export default {
+const jwtUtils = {
   generateTokens,
   generateRefreshToken,
   generateAccessToken,
@@ -70,3 +70,5 @@ export default {
   verifyToken,
   authenticateJwt,
 };
+
+export default jwtUtils;
