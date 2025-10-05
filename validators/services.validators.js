@@ -27,7 +27,7 @@ export const createServiceValidator = [
     .withMessage("Type must be one of: product, service, subscription"),
 
   body("price")
-    .isFloat({ min: 0 })
+    .isInt({ min: 0 })
     .withMessage("Price must be a valid number and cannot be negative"),
 
   body("image").optional().isURL().withMessage("Image must be a valid URL"),
@@ -60,7 +60,7 @@ export const updateServiceValidator = [
 
   body("price")
     .optional()
-    .isFloat({ min: 0 })
+    .isInt({ min: 0 })
     .withMessage("Price must be a valid number and cannot be negative"),
 
   body("image").optional().isURL().withMessage("Image must be a valid URL"),

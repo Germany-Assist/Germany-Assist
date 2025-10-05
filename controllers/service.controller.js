@@ -4,6 +4,7 @@ import authUtils from "../utils/authorize.util.js";
 import { sequelize } from "../database/connection.js";
 import { AppError } from "../utils/error.class.js";
 import db from "../database/dbIndex.js";
+import UserService from "../database/models/user_service.js";
 const sanitizeOutput = (services) => {
   let sanitizedReviews = undefined;
   const sanitizeData = services.map((i) => {
@@ -249,7 +250,78 @@ export async function alterServiceStatusSP(req, res, next) {
     next(error);
   }
 }
-
+export async function addToFavorite(req, res, next) {
+  try {
+    const { id: serviceId } = req.body;
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["client"],
+      false
+    );
+    await serviceServices.alterFavorite(
+      hashIdUtil.hashIdDecode(serviceId),
+      req.auth.id,
+      "add"
+    );
+    res.sendStatus(201);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function removeFromFavorite(req, res, next) {
+  try {
+    const { id: serviceId } = req.body;
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["client"],
+      false
+    );
+    await serviceServices.alterFavorite(
+      hashIdUtil.hashIdDecode(serviceId),
+      req.auth.id,
+      "remove"
+    );
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function addToCart(req, res, next) {
+  try {
+    const { id: serviceId } = req.body;
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["client"],
+      false
+    );
+    await serviceServices.alterCart(
+      hashIdUtil.hashIdDecode(serviceId),
+      req.auth.id,
+      "add"
+    );
+    res.sendStatus(201);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function removeFromCart(req, res, next) {
+  try {
+    const { id: serviceId } = req.body;
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["client"],
+      false
+    );
+    await serviceServices.alterCart(
+      hashIdUtil.hashIdDecode(serviceId),
+      req.auth.id,
+      "remove"
+    );
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,
@@ -264,5 +336,9 @@ const serviceController = {
   getAllServices,
   createService,
   sanitizeOutput,
+  addToFavorite,
+  removeFromFavorite,
+  addToCart,
+  removeFromCart,
 };
 export default serviceController;

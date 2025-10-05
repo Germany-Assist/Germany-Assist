@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 const publicAttributes = [
@@ -246,7 +247,43 @@ export const updateServiceRating = async (
     { transaction: t }
   );
 };
+export async function alterFavorite(serviceId, userId, status) {
+  if (status === "add") {
+    await db.UserService.create({
+      service_id: serviceId,
+      user_id: userId,
+      type: "favorite",
+    });
+  } else if (status === "remove") {
+    await db.UserService.destroy({
+      where: { service_id: serviceId, user_id: userId, type: "favorite" },
+    });
+  } else {
+    throw new AppError(500, "invalid status", false);
+  }
+}
+export async function alterCart(serviceId, userId, status) {
+  if (status === "add") {
+    await db.UserService.create({
+      service_id: serviceId,
+      user_id: userId,
+      type: "cart",
+    });
+  } else if (status === "remove") {
+    await db.UserService.destroy({
+      where: { service_id: serviceId, user_id: userId, type: "cart" },
+    });
+  } else {
+    throw new AppError(500, "invalid status", false);
+  }
+}
 
+export async function removeItemsFromCart(userId, cartIds, t) {
+  await db.UserService.destroy({
+    where: { id: cartIds, user_id: userId, type: "cart" },
+    transaction: t,
+  });
+}
 const serviceServices = {
   createService,
   getAllServices,
@@ -262,5 +299,8 @@ const serviceServices = {
   alterServiceStatus,
   alterServiceStatusSP,
   updateServiceRating,
+  alterFavorite,
+  alterCart,
+  removeItemsFromCart,
 };
 export default serviceServices;

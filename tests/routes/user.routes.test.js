@@ -5,8 +5,15 @@ import { errorLogger } from "../../utils/loggers.js";
 import db from "../../database/dbIndex.js";
 import assert from "node:assert";
 import jwt from "../../middlewares/jwt.middleware.js";
-import { userFactory } from "../factories/user.factory.js";
+import {
+  userFactory,
+  userWithTokenFactory,
+} from "../factories/user.factory.js";
 import userController from "../../controllers/user.controller.js";
+import { serviceFactory } from "../factories/service.factory.js";
+import { getUserProfile } from "../../services/user.services.js";
+import { serviceProviderFullFactory } from "../factories/serviceProvider.factory.js";
+import { sequelize } from "../../database/connection.js";
 
 const testUser = {
   firstName: "yousif",

@@ -312,6 +312,8 @@ describe("Testing Helpers For the User controllers", () => {
       role: "admin",
       related_type: "admin",
       related_id: null,
+      favorite: [],
+      cart: [],
     });
   });
 
