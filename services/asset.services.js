@@ -12,9 +12,11 @@ export const createAsset = async (data) => {
     url,
   });
 };
-
+export const createAssets = async (data) => {
+  return await db.Asset.bulkCreate(data);
+};
 // Get all assets
-/// by the way i creatd get all assets to recive filters
+/// by the way i created get all assets to receive filters
 export const getAllAssets = async (filters = {}) => {
   return await db.Asset.findAll({
     where: filters,

@@ -21,8 +21,20 @@ assetRouter.post(
 );
 assetRouter.post(
   "/documents/upload",
-  upload.single("documents"),
+  upload.array("files", 10),
   assetController.uploadDocument
+);
+assetRouter.post(
+  "/image/gallery/upload",
+  jwtUtils.authenticateJwt,
+  upload.array("image", 5),
+  assetController.uploadServiceImage
+);
+assetRouter.post(
+  "/image/service/upload",
+  jwtUtils.authenticateJwt,
+  upload.array("image", 5),
+  assetController.uploadServiceImage
 );
 // assetRouter.get("/file/:key")
 export default assetRouter;

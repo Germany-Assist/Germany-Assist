@@ -93,7 +93,7 @@ export const getBusinessReps = async (related_id) => {
   });
   return reps;
 };
-export default {
+const userServices = {
   createUser,
   createUserRole,
   loginUser,
@@ -105,3 +105,4 @@ export default {
   getAllUsers,
   getBusinessReps,
 };
+export default userServices;

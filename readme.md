@@ -271,3 +271,48 @@ app.use("/", async (req, res, next) => {
 });
 
 ```
+
+# Before Stripe
+
+### Creating Services :
+
+Please note that the super user or super admin is already created in the db and to use it just use the postman login [Super](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/example/46470876-24dfe4f1-63de-40da-bbf2-e47da257ee73?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574)
+
+1. Create a Service Provider Account [Create Sp](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-38315b01-381d-4eb0-8bff-cacd5c6a749a?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574)
+2. activate the account using the activation end point or adjust the database in the user table, using the end point as an admin you can either create an admin and activated first using the root account token or use the root account token to activate th SP directly [activate](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-bf9f4996-3fc6-4099-a2e1-1b2ca9750086?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574)
+3. After you activate the SP u can create a service [create service](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-2e79e982-102a-49b0-8451-3d779e4f6fc7?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574).
+4. finally you need to approve that service as an admin or superAdmin same as point 2 you can u use the endpoint in postman or edit the database [approve Service](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-19d07457-8e61-4e75-882b-2229a7f4e09f?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574).
+
+### Buying a service
+
+1. Create a Client account using postman [client](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-120b45b1-c277-4661-a654-e067082f8a27?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574).
+2. Search for All The Services pick a service or many and copy there hashed ids [get All](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-02a8d1b8-76fd-4fc0-9b6c-214235d1199b?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574)
+3. Add them to cart one by one [cart](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-7b6e1ef7-27dc-447a-9360-e610da74c82e?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574)
+4. U now need to place an order however you need the cart ids please fetch you profile first [Profile](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-c241bcca-2aa0-4d93-bcbe-b01f1047a0d4?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574)
+5. Now you can checkout [checkout](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-020524c4-92a8-42e5-9a28-be11fd049b39?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574) you can add an array of cart ids, please copy the order id.
+6. Using the order id u can proceed to payment [Pay](https://germany-assist-developers.postman.co/workspace/germany-assist-backend~6fc3fc31-357e-4a37-8f5d-78191eea88fb/request/46470876-e5ed7243-4a7c-420d-a5e5-c421b2aa8ee3?action=share&source=copy-link&creator=46470876&active-environment=879320a9-5ece-4a85-8f26-80d11242f574) this will send back your order with current prices and create a payment intent that you can use to pay copy the payment intent only its basically the text before the secrete something like `pi_3S6FTDELmWjKj6gv0O96BXxR`
+
+# Stripe payments
+
+To Test it
+
+🔴 Make sure u have stripe cli by confirming version `stripe -v`.
+
+Step 1
+
+please run this in a deferent terminal so it can redirect the calls to the local server make port.
+
+`stripe listen --forward-to localhost:3000/payments/webhook`
+
+step 2
+
+Please replace the intent id and run to confirm the intent.
+
+CMD
+
+`stripe payment_intents confirm pi_3S6FTDELmWjKj6gv0O96BXxR --payment-method pm_card_visa`
+
+BASH etc.
+
+`stripe payment_intents confirm pi_3S6DoNELmWjKj6gv0w1IbBAF \
+ --payment-method pm_card_visa`

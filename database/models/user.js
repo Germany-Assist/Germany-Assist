@@ -95,12 +95,22 @@ User.init(
     image: {
       type: DataTypes.TEXT,
       allowNull: true,
+      isUrl: {
+        args: {
+          require_tld: false,
+          require_protocol: true,
+          allow_underscores: true,
+          allow_trailing_dot: true,
+          allow_protocol_relative_urls: false,
+          host_whitelist: ["localhost", "127.0.0.1"],
+        },
+        msg: "Image must be a valid URL",
+      },
       validate: {
-        isUrl: { msg: "Image must be a valid URL" },
         isValidExt(value) {
-          if (value && !/\.(jpg|jpeg|png|gif)$/i.test(value)) {
+          if (value && !/\.(jpg|jpeg|png|gif|webp)$/i.test(value)) {
             throw new Error(
-              "Image URL must end with .jpg, .jpeg, .png, or .gif"
+              "Image URL must end with .jpg, .jpeg, .png, .webp, or .gif"
             );
           }
         },

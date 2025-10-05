@@ -56,12 +56,18 @@ Asset.init(
       },
     },
     type: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.ENUM(
+        "profile",
+        "thumb",
+        "service",
+        "gallery",
+        "employer"
+      ),
       allowNull: false,
-      validate: {
-        notEmpty: { msg: "Type cannot be empty" },
-        len: { args: [3, 50], msg: "Type must be between 3 and 50 characters" },
-      },
+    },
+    owner_type: {
+      type: DataTypes.ENUM("user", "service_provider", "employer"),
+      allowNull: false,
     },
     url: {
       type: DataTypes.TEXT,
@@ -82,10 +88,12 @@ Asset.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        if (this.type === "user") {
+        if (this.owner_type === "user") {
           return this.user_id;
-        } else {
-          return this.BusinessId;
+        } else if (this.owner_type === "service_provider") {
+          return this.service_provider_id;
+        } else if (this.owner_type === "employer") {
+          return this.employer_id;
         }
       },
     },
