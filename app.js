@@ -5,26 +5,26 @@ import {
   SERVER_PORT,
   CLIENT_URL,
   ENV_IS_LOADED,
+  NODE_ENV,
 } from "./configs/serverConfig.js";
 import { sequelize } from "./database/connection.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import cookieParser from "cookie-parser";
-import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
+import { errorLogger, infoLogger } from "./utils/loggers.js";
 import { AppError } from "./utils/error.class.js";
 import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
-import { NODE_ENV } from "./configs/serverConfig.js";
-import db from "./database/dbIndex.js";
-import { Server } from "socket.io";
 import createSocketServer from "./sockets/index.js";
 import apiRouter from "./routes/index.routes.js";
 import { v4 as uuidv4 } from "uuid";
 import paymentsRouter from "./routes/payments.routes.js";
+import { DB_NAME } from "./configs/databaseConfig.js";
+import redis from "./configs/redis.js";
+import "./utils/bullMQ.util.js";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
 
-app;
 app
   .use((req, res, next) => {
     req.requestId = uuidv4();
@@ -40,34 +40,61 @@ app
   )
   .use(morganMiddleware)
   .use("/api", apiRouter);
-
 app.get("/health", (req, res) => {
   res.sendStatus(200);
 });
-
 app
   .use("/", async (req, res, next) => {
     throw new AppError(404, "bad route", true, "Bad Route");
   })
   .use(errorMiddleware);
 
+export const shutdownServer = async (event) => {
+  infoLogger(`Server is shutting down due to: ${event}`);
+  try {
+    if (sequelize) {
+      await sequelize.close();
+      infoLogger("✅ Database connection closed");
+    }
+    if (redis) {
+      try {
+        await redis.quit();
+        infoLogger("✅ Redis connection closed");
+      } catch (err) {
+        infoLogger("⚠️ Redis already closed, forcing disconnect");
+        redis.disconnect();
+      }
+    }
+    if (server) {
+      await new Promise((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      });
+      infoLogger("✅ HTTP server closed");
+    }
+    process.exit(0);
+  } catch (error) {
+    errorLogger("❌ Shutdown error:", error);
+    process.exit(1);
+  }
+};
 if (NODE_ENV !== "test") {
-  server.listen(3000, "0.0.0.0", async () => {
+  server.listen(SERVER_PORT, "0.0.0.0", async () => {
     try {
-      if (!ENV_IS_LOADED) throw new Error("fail to load the env file");
+      if (!ENV_IS_LOADED) throw new Error("Failed to load .env file");
       await sequelize.authenticate();
       await sequelize.sync({ alter: true });
       await import("./database/dbIndex.js");
-      infoLogger(
-        `\n Server is running at port ${SERVER_PORT} 👋 \n Connected to the database successfully 👍`
-      );
+      infoLogger(`✅ Connected to database ${DB_NAME} successfully`);
+      infoLogger(`🚀 Server is running at port ${SERVER_PORT}`);
+      infoLogger(`🏗️  Running in ${NODE_ENV} Mode`);
+      process.on("SIGINT", () => shutdownServer("SIGINT"));
+      process.on("SIGTERM", () => shutdownServer("SIGTERM"));
     } catch (error) {
       infoLogger(
-        `\n "Unable to connect to the database:", ${error.message} \n server is shutting down`
+        `\n ❌ Startup error: ${error.message} \n Server is shutting down...`
       );
       errorLogger(error);
-      await sequelize.close();
-      server.close();
+      await shutdownServer("Startup failure");
     }
   });
 }

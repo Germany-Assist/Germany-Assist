@@ -20,6 +20,11 @@
     "REFRESH_TOKEN_EXPIRE_DURATION": "7d",
     "REFRESH_COOKIE_AGE": "604800000",
     "HASH_ID_SALT": "A!S@F#G$654321",
-    "CLIENT_URL": "localhost:3001"
+    "CLIENT_URL": "localhost:3001",
+    "STRIPE_SK": "********************************************************************************",
+    "STRIPE_WEBHOOK_SECRET": "********************************************************************************",
+    "REDIS_HOST": "127.0.0.1",
+    "REDIS_PORT": "6379",
+    "REDIS_PASSWORD": ""
   }
 }

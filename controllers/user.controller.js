@@ -19,23 +19,22 @@ export const cookieOptions = {
 const sanitizeUser = (user) => {
   let favorite = [];
   let cart = [];
-  if (user && user.services && user.services.length > 0) {
-    user.services.forEach((element) => {
-      let itemId = hashIdUtil.hashIdEncode(element.id);
-      let thumbnail = "not yet";
-      let userServiceId = hashIdUtil.hashIdEncode(element.user_service.id);
-      switch (element.user_service.type) {
-        case "cart":
-          cart.push({ cartId: userServiceId, itemId, thumbnail });
-          break;
-        case "favorite":
-          favorite.push({ favoriteId: userServiceId, itemId, thumbnail });
-          break;
-        default:
-          break;
-      }
+  if (user.userCart && user.userCart.length > 0)
+    cart = user.userCart.map((i) => {
+      return {
+        id: hashIdUtil.hashIdEncode(i.user_service.id),
+        serviceId: hashIdUtil.hashIdEncode(i.id),
+        thumbnail: "not yet",
+      };
     });
-  }
+  if (user.userFavorite && user.userFavorite.length > 0)
+    favorite = user.userFavorite.map((i) => {
+      return {
+        id: hashIdUtil.hashIdEncode(i.user_service.id),
+        serviceId: hashIdUtil.hashIdEncode(i.id),
+        thumbnail: "not yet",
+      };
+    });
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
