@@ -17,6 +17,24 @@ export const cookieOptions = {
   path: "/api/user/refresh-token",
 };
 const sanitizeUser = (user) => {
+  let favorite = [];
+  let cart = [];
+  if (user.userCart && user.userCart.length > 0)
+    cart = user.userCart.map((i) => {
+      return {
+        id: hashIdUtil.hashIdEncode(i.user_service.id),
+        serviceId: hashIdUtil.hashIdEncode(i.id),
+        thumbnail: "not yet",
+      };
+    });
+  if (user.userFavorite && user.userFavorite.length > 0)
+    favorite = user.userFavorite.map((i) => {
+      return {
+        id: hashIdUtil.hashIdEncode(i.user_service.id),
+        serviceId: hashIdUtil.hashIdEncode(i.id),
+        thumbnail: "not yet",
+      };
+    });
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
@@ -28,6 +46,8 @@ const sanitizeUser = (user) => {
     role: user.UserRole.role,
     related_type: user.UserRole.related_type,
     related_id: user.UserRole.related_id,
+    favorite,
+    cart,
   };
 };
 function setRoleAndType(type) {
@@ -260,6 +280,15 @@ export async function loginUserTokenController(req, res, next) {
     next(error);
   }
 }
+export async function getUserProfile(req, res, next) {
+  try {
+    const user = await userServices.getUserProfile(req.auth.id);
+    const sanitizedUser = userController.sanitizeUser(user);
+    res.send(sanitizedUser);
+  } catch (error) {
+    next(error);
+  }
+}
 export async function getAllUsers(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(
@@ -327,6 +356,7 @@ const userController = {
   createClientController,
   sanitizeUser,
   setRoleAndType,
+  getUserProfile,
   setRoleAndTypeRep,
 };
 export default userController;

@@ -26,18 +26,25 @@ UserService.init(
         min: { args: [1], msg: "ServiceId must be greater than 0" },
       },
     },
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: { msg: "Type cannot be empty" },
-        len: { args: [2, 50], msg: "Type must be between 2 and 50 characters" },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.user_id;
       },
+    },
+    type: {
+      type: DataTypes.ENUM("favorite", "cart"),
+      allowNull: false,
     },
   },
   {
     sequelize,
-    paranoid: true,
     modelName: "user_service",
+    indexes: [
+      {
+        unique: true,
+        fields: ["user_id", "service_id", "type"],
+      },
+    ],
   }
 );

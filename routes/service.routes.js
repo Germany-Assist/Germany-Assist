@@ -1,5 +1,5 @@
 import express from "express";
-import * as serviceController from "../controllers/service.controller.js";
+import serviceController from "../controllers/service.controller.js";
 import jwt from "../middlewares/jwt.middleware.js";
 import {
   idHashedBodyValidator,
@@ -78,5 +78,39 @@ serviceRouter.put(
   "/admin/services/status",
   jwt.authenticateJwt,
   serviceController.alterServiceStatus
+);
+
+/*------------------- Client Routes ----------------*/
+// add to favorite
+serviceRouter.post(
+  "/client/favorite",
+  jwt.authenticateJwt,
+  idHashedBodyValidator,
+  validateExpress,
+  serviceController.addToFavorite
+);
+//remove from favorite
+serviceRouter.delete(
+  "/client/favorite",
+  jwt.authenticateJwt,
+  idHashedBodyValidator,
+  validateExpress,
+  serviceController.removeFromFavorite
+);
+// add to cart
+serviceRouter.post(
+  "/client/cart",
+  jwt.authenticateJwt,
+  idHashedBodyValidator,
+  validateExpress,
+  serviceController.addToCart
+);
+//remove from cart
+serviceRouter.delete(
+  "/client/cart",
+  jwt.authenticateJwt,
+  idHashedBodyValidator,
+  validateExpress,
+  serviceController.removeFromCart
 );
 export default serviceRouter;

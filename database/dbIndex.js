@@ -13,7 +13,44 @@ import UserRole from "./models/user_role.js";
 import Employer from "./models/employer.js";
 import Category from "./models/category.js";
 import ServiceCategory from "./models/service_category.js";
+import Payment from "./models/payment.js";
+import Order from "./models/order.js";
+import OrderItems from "./models/order_items.js";
+import StripeEvent from "./models/stripe_event.js";
 export const defineConstrains = () => {
+  User.hasMany(Order, { foreignKey: "user_id" });
+  Order.belongsTo(User, { foreignKey: "user_id" });
+
+  Service.hasMany(OrderItems, { foreignKey: "service_id" });
+  OrderItems.belongsTo(Service, { foreignKey: "service_id" });
+
+  Order.hasMany(Payment, {
+    foreignKey: "related_id",
+    constraints: false,
+    scope: {
+      related_type: "order",
+    },
+  });
+  Payment.belongsTo(Order, {
+    foreignKey: "related_id",
+    constraints: false,
+  });
+  OrderItems.belongsTo(Order, { foreignKey: "order_id" });
+  Order.hasMany(OrderItems, { foreignKey: "order_id" });
+
+  // Subscription.hasMany(Payment, {
+  //   foreignKey: "related_id",
+  //   constraints: false,
+  //   scope: {
+  //     related_type: "subscription",
+  //   },
+  // });
+
+  // Payment.belongsTo(Subscription, {
+  //   foreignKey: "related_id",
+  //   constraints: false,
+  // });
+
   User.hasMany(Service, { foreignKey: "user_id" });
   Service.belongsTo(User, { foreignKey: "user_id" });
   Service.belongsTo(Contract, { foreignKey: "contract_id" });
@@ -25,6 +62,7 @@ export const defineConstrains = () => {
   Review.belongsTo(Service, { foreignKey: "service_id" });
 
   ServiceProvider.hasMany(Service);
+  Service.belongsTo(ServiceProvider);
   ServiceProvider.hasMany(Coupon);
   ServiceProvider.hasMany(Asset);
 
@@ -83,12 +121,18 @@ export const defineConstrains = () => {
 
   //user - service
   User.belongsToMany(Service, {
-    through: UserService,
+    through: { model: UserService, scope: { type: "favorite" } },
     foreignKey: "user_id",
     otherKey: "service_id",
-    unique: false,
+    as: "userFavorite",
   });
-
+  //cart
+  User.belongsToMany(Service, {
+    through: { model: UserService, scope: { type: "cart" } },
+    foreignKey: "user_id",
+    otherKey: "service_id",
+    as: "userCart",
+  });
   Service.belongsToMany(User, {
     through: UserService,
     foreignKey: "service_id",
@@ -134,6 +178,11 @@ const db = {
   Employer,
   Category,
   ServiceCategory,
+  UserService,
+  Payment,
+  Order,
+  OrderItems,
+  StripeEvent,
 };
 
 export default db;

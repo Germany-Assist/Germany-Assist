@@ -26,6 +26,8 @@ import { getServiceId } from "../../controllers/service.controller.js";
 import serviceServices from "../../services/service.services.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 import db from "../../database/dbIndex.js";
+import { getUserProfile } from "../../services/user.services.js";
+import { title } from "node:process";
 
 const API_PREFIX = "/api/service";
 let SP, admin;
@@ -39,7 +41,7 @@ beforeEach(async () => {
   admin = await userAdminFactory();
 });
 afterEach(async () => {
-  // await sequelize.sync({ force: true });
+  //
 });
 after(async () => {
   await sequelize.close();
@@ -249,4 +251,78 @@ test("Non-owner cannot update service", async () => {
     .send({ title: "Hacker Update", id: serviceId })
     .expect(403);
   assert.equal(res.body.message, "Unauthorized ownership");
+});
+describe("Testing Favorite/Cart", () => {
+  let client,
+    services = [];
+  beforeEach(async () => {
+    client = await userWithTokenFactory({ is_verified: true });
+    for (let i = 0; i < 3; i++) {
+      const service = await serviceFactory({
+        ...serviceData,
+        title: `im service number ${i}`,
+        user_id: SP.user.id,
+        service_provider_id: SP.serviceProvider.id,
+      });
+      services.push(service);
+    }
+  });
+
+  it("should test adding/removing to favorite", async () => {
+    await request(app)
+      .post("/api/service/client/favorite")
+      .set("Authorization", `Bearer ${client.accessToken}`)
+      .send({ id: hashIdUtil.hashIdEncode(services[0].id) })
+      .expect(201);
+    await request(app)
+      .post("/api/service/client/favorite")
+      .set("Authorization", `Bearer ${client.accessToken}`)
+      .send({ id: hashIdUtil.hashIdEncode(services[1].id) })
+      .expect(201);
+
+    const profile = (await getUserProfile(client.user.id)).toJSON();
+
+    assert.ok(Array.isArray(profile.userFavorite));
+    assert.strictEqual(profile.userFavorite.length, 2);
+
+    await request(app)
+      .delete("/api/service/client/favorite")
+      .set("Authorization", `Bearer ${client.accessToken}`)
+      .send({ id: hashIdUtil.hashIdEncode(services[0].id) })
+      .expect(200);
+
+    const profileUpdate = (await getUserProfile(client.user.id)).toJSON();
+
+    assert.ok(Array.isArray(profileUpdate.userFavorite));
+    assert.strictEqual(profileUpdate.userFavorite.length, 1);
+  });
+
+  it("should test adding/removing to cart", async () => {
+    await request(app)
+      .post("/api/service/client/cart")
+      .set("Authorization", `Bearer ${client.accessToken}`)
+      .send({ id: hashIdUtil.hashIdEncode(services[0].id) })
+      .expect(201);
+    await request(app)
+      .post("/api/service/client/cart")
+      .set("Authorization", `Bearer ${client.accessToken}`)
+      .send({ id: hashIdUtil.hashIdEncode(services[1].id) })
+      .expect(201);
+
+    const profile = (await getUserProfile(client.user.id)).toJSON();
+
+    assert.ok(Array.isArray(profile.userCart));
+    assert.strictEqual(profile.userCart.length, 2);
+
+    await request(app)
+      .delete("/api/service/client/cart")
+      .set("Authorization", `Bearer ${client.accessToken}`)
+      .send({ id: hashIdUtil.hashIdEncode(services[0].id) })
+      .expect(200);
+
+    const profileUpdate = (await getUserProfile(client.user.id)).toJSON();
+
+    assert.ok(Array.isArray(profileUpdate.userCart));
+    assert.strictEqual(profileUpdate.userCart.length, 1);
+  });
 });

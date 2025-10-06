@@ -52,6 +52,7 @@ userRouter.get(
   jwt.authenticateJwt,
   userControllers.loginUserTokenController
 );
+userRouter.get("/profile", jwt.authenticateJwt, userControllers.getUserProfile);
 userRouter.post("/refresh-token", userControllers.refreshUserToken);
 userRouter.get("/admin/all", jwt.authenticateJwt, userControllers.getAllUsers);
 userRouter.get(

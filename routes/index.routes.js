@@ -9,6 +9,8 @@ import permissionRouter from "./permissions.routes.js";
 
 import { Router } from "express";
 import { NODE_ENV } from "../configs/serverConfig.js";
+import paymentsRouter from "./payments.routes.js";
+import ordersRouter from "./orders.routes.js";
 
 const apiRouter = Router();
 
@@ -20,11 +22,13 @@ apiRouter
   .use("/serviceProvider", serviceProviderRouter) //
   .use("/review", reviewRouter) //
   .use("/service", serviceRouter) //
-  .use("/permission", permissionRouter);
-// Transactions;
+  .use("/permission", permissionRouter)
+  .use("/order", ordersRouter);
+
+// Categories; to be discussed
+// Transactions  to be discussed
 // Posts;
 // Comments;
-// Categories;
 // Badges;
 // Events;
 
