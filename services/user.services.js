@@ -93,6 +93,7 @@ export const getBusinessReps = async (related_id) => {
   });
   return reps;
 };
+const userServices = {
 export const getUserProfile = async (id) => {
   const user = await db.User.findByPk(id, {
     attributes: { exclude: ["password"] },
@@ -133,3 +134,4 @@ export default {
   getAllUsers,
   getBusinessReps,
 };
+export default userServices;
