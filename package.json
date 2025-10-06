@@ -24,6 +24,7 @@
   },
   "contributors": [],
   "scripts": {
+    "start": "node --env-file=.env app.js",
     "dev": "node --watch --env-file=dev.env app.js ",
     "dbInit": "node --env-file=dev.env  ./database/migrateAndSeed.js",
     "pretest": "node --env-file=test.env ./database/migrateAndSeed.js",
