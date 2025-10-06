@@ -9,6 +9,12 @@ export const sequelize = new Sequelize({
   host: db_params.DB_HOST,
   dialect: db_params.DB_DIALECT,
   logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
   define: {
     underscored: true,
   },
