@@ -1,6 +1,8 @@
 import { Sequelize } from "sequelize";
 import * as db_params from "./../configs/databaseConfig.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const sequelize = new Sequelize({
   database: db_params.DB_NAME,
   username: db_params.DB_USERNAME,
@@ -9,12 +11,14 @@ export const sequelize = new Sequelize({
   host: db_params.DB_HOST,
   dialect: db_params.DB_DIALECT,
   logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
+  dialectOptions: isProduction
+    ? {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      }
+    : {}, // No SSL for local
   define: {
     underscored: true,
   },

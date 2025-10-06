@@ -86,7 +86,7 @@ if (NODE_ENV !== "test") {
       await import("./database/dbIndex.js");
       infoLogger(`✅ Connected to database ${DB_NAME} successfully`);
       infoLogger(`🚀 Server is running at port ${SERVER_PORT}`);
-      infoLogger(`🏗️  Running in ${NODE_ENV} Mode`);
+      infoLogger(`🏗️ Running in ${NODE_ENV} Mode`);
       process.on("SIGINT", () => shutdownServer("SIGINT"));
       process.on("SIGTERM", () => shutdownServer("SIGTERM"));
     } catch (error) {
