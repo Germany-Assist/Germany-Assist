@@ -284,6 +284,31 @@ export async function removeItemsFromCart(userId, cartIds, t) {
     transaction: t,
   });
 }
+export async function createInquiry(userId, serviceId, message) {
+  await db.Inquiry.create({
+    user_id: userId,
+    service_id: serviceId,
+    message,
+  });
+}
+export function getInquires(id) {
+  return db.Inquiry.findAll({
+    attributes: ["message", "status", "user_id"],
+    include: {
+      model: db.Service,
+      attributes: ["title", "price"],
+      required: true,
+      include: {
+        model: db.ServiceProvider,
+        required: true,
+        where: { id },
+        attributes: [],
+      },
+    },
+
+    raw: true,
+  });
+}
 const serviceServices = {
   createService,
   getAllServices,
@@ -302,5 +327,7 @@ const serviceServices = {
   alterFavorite,
   alterCart,
   removeItemsFromCart,
+  createInquiry,
+  getInquires,
 };
 export default serviceServices;

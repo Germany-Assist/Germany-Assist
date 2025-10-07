@@ -6,6 +6,10 @@ import {
   idHashedParamValidator,
 } from "../validators/general.validators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
+import {
+  createInquiryValidator,
+  createServiceValidator,
+} from "../validators/services.validators.js";
 
 const serviceRouter = express.Router();
 
@@ -31,7 +35,13 @@ serviceRouter.get(
 serviceRouter.post("/categories", serviceController.getByCategories);
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
-serviceRouter.post("/", jwt.authenticateJwt, serviceController.createService);
+serviceRouter.post(
+  "/",
+  jwt.authenticateJwt,
+  createServiceValidator,
+  validateExpress,
+  serviceController.createService
+);
 // Get all services of the authenticated provider (approved or not)
 serviceRouter.get(
   "/provider/services",
@@ -112,5 +122,21 @@ serviceRouter.delete(
   idHashedBodyValidator,
   validateExpress,
   serviceController.removeFromCart
+);
+
+// this is experimental
+
+// send inquiry about a service
+serviceRouter.post(
+  "/client/inquire",
+  jwt.authenticateJwt,
+  createInquiryValidator,
+  validateExpress,
+  serviceController.inquireService
+);
+serviceRouter.get(
+  "/provider/inquire",
+  jwt.authenticateJwt,
+  serviceController.getInquiredServices
 );
 export default serviceRouter;

@@ -322,6 +322,32 @@ export async function removeFromCart(req, res, next) {
     next(error);
   }
 }
+export async function inquireService(req, res, next) {
+  try {
+    const { id, message } = req.body;
+    const serviceId = hashIdUtil.hashIdDecode(id);
+    await serviceServices.createInquiry(req.auth.id, serviceId, message);
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getInquiredServices(req, res, next) {
+  try {
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_rep", "service_provider_root"],
+      false
+    );
+    const inquires = await serviceServices.getInquires(req.auth.related_id);
+    const sanitizedInquires = inquires.map((i) => {
+      return { ...i, user_id: hashIdUtil.hashIdEncode(i.user_id) };
+    });
+    res.send(sanitizedInquires);
+  } catch (error) {
+    next(error);
+  }
+}
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,
@@ -340,5 +366,7 @@ const serviceController = {
   removeFromFavorite,
   addToCart,
   removeFromCart,
+  inquireService,
+  getInquiredServices,
 };
 export default serviceController;

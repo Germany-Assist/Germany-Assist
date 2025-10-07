@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import hashIdUtil from "../utils/hashId.util.js";
 
 // Validation for creating a new service
 export const createServiceValidator = [
@@ -14,26 +15,17 @@ export const createServiceValidator = [
     .isLength({ min: 10, max: 5000 })
     .withMessage("Description must be between 10 and 5000 characters"),
 
-  body("user_id")
-    .isInt({ min: 1 })
-    .withMessage("UserId must be an integer greater than 0"),
-
-  body("service_provider_id")
-    .isUUID(4)
-    .withMessage("Service provider ID must be a valid UUIDv4"),
-
   body("type")
     .isIn(["product", "service", "subscription"])
     .withMessage("Type must be one of: product, service, subscription"),
 
   body("price")
-    .isInt({ min: 0 })
+    .isFloat({ min: 0 })
     .withMessage("Price must be a valid number and cannot be negative"),
 
   body("image").optional().isURL().withMessage("Image must be a valid URL"),
 
-  body("approved").optional().isBoolean(),
-  body("rejected").optional().isBoolean(),
+  body("publish").optional().isBoolean(),
 ];
 
 // Validation for updating a service
@@ -64,4 +56,22 @@ export const updateServiceValidator = [
     .withMessage("Price must be a valid number and cannot be negative"),
 
   body("image").optional().isURL().withMessage("Image must be a valid URL"),
+];
+
+export const createInquiryValidator = [
+  body("id")
+    .notEmpty()
+    .withMessage("ID must be a valid")
+    .custom((i) => {
+      const unHashed = hashIdUtil.hashIdDecode(i);
+      if (!unHashed) throw new Error("invalid id");
+      return true;
+    }),
+  body("message")
+    .optional()
+    .isString()
+    .withMessage("Description must be a string")
+    .trim()
+    .isLength({ min: 0, max: 5000 })
+    .withMessage("Description must be between 10 and 5000 characters"),
 ];

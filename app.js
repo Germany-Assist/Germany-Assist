@@ -49,34 +49,42 @@ app
   })
   .use(errorMiddleware);
 
+let isShuttingDown = false;
+
 export const shutdownServer = async (event) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   infoLogger(`Server is shutting down due to: ${event}`);
   try {
-    if (sequelize) {
-      await sequelize.close();
-      infoLogger("✅ Database connection closed");
-    }
-    if (redis) {
-      try {
-        await redis.quit();
-        infoLogger("✅ Redis connection closed");
-      } catch (err) {
-        infoLogger("⚠️ Redis already closed, forcing disconnect");
-        redis.disconnect();
-      }
-    }
-    if (server) {
-      await new Promise((resolve, reject) => {
-        server.close((err) => (err ? reject(err) : resolve()));
-      });
-      infoLogger("✅ HTTP server closed");
-    }
+    await Promise.allSettled([
+      sequelize
+        ?.close()
+        .then(() => infoLogger("✅ Database connection closed")),
+      (async () => {
+        if (redis) {
+          try {
+            await redis.quit();
+            infoLogger("✅ Redis connection closed");
+          } catch {
+            infoLogger("⚠️ Redis already closed, forcing disconnect");
+            redis.disconnect();
+          }
+        }
+      })(),
+      new Promise((resolve, reject) =>
+        server?.close((err) =>
+          err ? reject(err) : resolve(infoLogger("✅ HTTP server closed"))
+        )
+      ),
+    ]);
+    await new Promise((r) => setTimeout(r, 200));
     process.exit(0);
   } catch (error) {
-    errorLogger("❌ Shutdown error:", error);
+    errorLogger(`❌ Shutdown error: ${error.message || error}`);
     process.exit(1);
   }
 };
+
 if (NODE_ENV !== "test") {
   server.listen(SERVER_PORT, "0.0.0.0", async () => {
     try {
@@ -86,9 +94,15 @@ if (NODE_ENV !== "test") {
       await import("./database/dbIndex.js");
       infoLogger(`✅ Connected to database ${DB_NAME} successfully`);
       infoLogger(`🚀 Server is running at port ${SERVER_PORT}`);
-      infoLogger(`🏗️ Running in ${NODE_ENV} Mode`);
-      process.on("SIGINT", () => shutdownServer("SIGINT"));
+      infoLogger(`🏗️  Running in ${NODE_ENV} Mode`);
+      process.on("SIGINT", () => shutdownServer("Ctrl+C Called"));
       process.on("SIGTERM", () => shutdownServer("SIGTERM"));
+      process.on("uncaughtException", (err) =>
+        shutdownServer(`Uncaught Exception: ${err}`)
+      );
+      process.on("unhandledRejection", (reason) =>
+        shutdownServer(`Unhandled Rejection: ${reason}`)
+      );
     } catch (error) {
       infoLogger(
         `\n ❌ Startup error: ${error.message} \n Server is shutting down...`

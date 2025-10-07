@@ -84,7 +84,7 @@ Service.init(
       type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
-        isInt: { msg: "Price must be a valid number" },
+        isFloat: { msg: "Price must be a valid number" },
         min: { args: [0], msg: "Price cannot be negative" },
       },
     },
