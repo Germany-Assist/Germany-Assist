@@ -8,7 +8,6 @@ export function errorMiddleware(err, req, res, next) {
   } else {
     err.trace = req.requestId;
   }
-
   if (err.isOperational) {
     res.status(err.httpCode).json({
       message: err.publicMessage,

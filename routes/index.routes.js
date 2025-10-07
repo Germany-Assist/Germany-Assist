@@ -6,10 +6,7 @@ import reviewRouter from "./review.routes.js";
 import serviceRouter from "./service.routes.js";
 import userRouter from "./user.routes.js";
 import permissionRouter from "./permissions.routes.js";
-
 import { Router } from "express";
-import { NODE_ENV } from "../configs/serverConfig.js";
-import paymentsRouter from "./payments.routes.js";
 import ordersRouter from "./orders.routes.js";
 
 const apiRouter = Router();
@@ -25,8 +22,8 @@ apiRouter
   .use("/permission", permissionRouter)
   .use("/order", ordersRouter);
 
-// Categories; to be discussed
-// Transactions  to be discussed
+//i should add categories immediately
+
 // Posts;
 // Comments;
 // Badges;
