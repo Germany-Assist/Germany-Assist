@@ -17,13 +17,20 @@ import Payment from "./models/payment.js";
 import Order from "./models/order.js";
 import OrderItems from "./models/order_items.js";
 import StripeEvent from "./models/stripe_event.js";
+import Inquiry from "./models/inquiry.js";
+
 export const defineConstrains = () => {
+  Inquiry.belongsTo(User, { foreignKey: "user_id" });
+  User.hasMany(Inquiry, { foreignKey: "user_id" });
+  Inquiry.belongsTo(Service, { foreignKey: "service_id" });
+  Service.hasMany(Inquiry, { foreignKey: "service_id" });
+  Inquiry.belongsTo(Order, { foreignKey: "order_id" });
+  Order.hasMany(Inquiry, { foreignKey: "order_id" });
+
   User.hasMany(Order, { foreignKey: "user_id" });
   Order.belongsTo(User, { foreignKey: "user_id" });
-
   Service.hasMany(OrderItems, { foreignKey: "service_id" });
   OrderItems.belongsTo(Service, { foreignKey: "service_id" });
-
   Order.hasMany(Payment, {
     foreignKey: "related_id",
     constraints: false,
@@ -183,6 +190,7 @@ const db = {
   Order,
   OrderItems,
   StripeEvent,
+  Inquiry,
 };
 
 export default db;

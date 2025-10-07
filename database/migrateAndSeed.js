@@ -18,7 +18,7 @@ process.env.SEEDING = true;
 // this is side effect import please follow
 // import the model here
 import Asset from "./models/assets.js";
-import Business from "./models/service_provider.js";
+import ServiceProvider from "./models/service_provider.js";
 import Contracts from "./models/contract.js";
 import User from "./models/user.js";
 import UserService from "./models/user_service.js";
@@ -30,6 +30,7 @@ import Permission from "./models/permission.js";
 import UserRole from "./models/user_role.js";
 import UserPermission from "./models/user_permission.js";
 import Category from "./models/category.js";
+import Inquiry from "./models/inquiry.js";
 ///////////////////////////////////////////////////////////////////////
 //
 //
