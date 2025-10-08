@@ -13,4 +13,14 @@ ordersRouter.post(
   jwtMiddleware.authenticateJwt,
   orderController.payController
 );
+ordersRouter.get(
+  "/generate/:id",
+  jwtMiddleware.authenticateJwt,
+  orderController.generateOffer
+);
+ordersRouter.post(
+  "/",
+  jwtMiddleware.authenticateJwt,
+  orderController.createOrder
+);
 export default ordersRouter;

@@ -88,14 +88,6 @@ Service.init(
         min: { args: [0], msg: "Price cannot be negative" },
       },
     },
-    contract_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        isInt: { msg: "Contract Id must be an integer" },
-        min: { args: [1], msg: "Contract Id must be greater than 0" },
-      },
-    },
     image: {
       type: DataTypes.TEXT,
       allowNull: true,

@@ -5,6 +5,8 @@ import hashIdUtil from "../utils/hashId.util.js";
 import stripeUtils from "../utils/stripe.util.js";
 import paymentServices from "../services/payment.service.js";
 import { AppError } from "../utils/error.class.js";
+import authUtil from "../utils/authorize.util.js";
+import mustache from "mustache";
 //-------------------------just helpers--------------------//
 export function generateOrderItems(orderId, services) {
   const orderItemsArray = services.map((i) => {
@@ -106,13 +108,73 @@ export async function payController(req, res, next) {
     next(err);
   }
 }
+
+export async function generateOffer(req, res, next) {
+  try {
+    authUtil.checkRoleAndPermission(req.auth, [
+      "service_provider_rep",
+      "service_provider_root",
+    ]);
+    const { id } = req.params;
+    const inquiryId = hashIdUtil.hashIdDecode(id);
+    const offer = await orderService.generateOffer(
+      req.auth.related_id,
+      inquiryId
+    );
+    const main = await offer.get({ plain: true });
+    const user = main.User;
+    const service = main.Service;
+    const contract = service.categories[0].Contract;
+    const fixed_variables = contract.fixed_variables;
+    const serviceProvider = service.ServiceProvider;
+    const template = contract.contract_template;
+    console.log(fixed_variables);
+    const data = { client_name: "amr", agency_name: "germany-assist" };
+    function render(template, data) {
+      return template.replace(/{{([^{}]+)}}/g, (_, key) => {
+        const value = data?.[key];
+        return value ?? `{{${key}}}`;
+      });
+    }
+    const preFiledTemplate = render(template, data);
+    res.send(preFiledTemplate);
+  } catch (err) {
+    next(err);
+  }
+}
+export async function createOrder(req, res, next) {
+  try {
+    //first we need the inquiry id and the variables
+    //we extract the template contract and fill the variables back and front
+    //we print the contract
+    const { id } = req.params;
+    const inquiryId = hashIdUtil.hashIdDecode(id);
+    console.log("hello");
+    //   authUtil.checkRoleAndPermission(req.auth, [
+    //     "service_provider_rep",
+    //     "service_provider_root",
+    //   ]);
+    //   const { id } = req.params;
+    //   const inquiryId = hashIdUtil.hashIdDecode(id);
+    //   const offer = await orderService.generateOffer(
+    //     req.auth.related_id,
+    //     inquiryId
+    //   );
+    //   res.send(offer);
+  } catch (err) {
+    next(err);
+  }
+}
+
 const orderController = {
   checkoutController,
   payController,
+  generateOffer,
+  createOrder,
 };
 
 export default orderController;
-//get orderById
-//get my orders
-// get orders for admins
-// get orders by id for admins
+//  get orderById
+//  get my orders
+//  get orders for admins
+//  get orders by id for admins

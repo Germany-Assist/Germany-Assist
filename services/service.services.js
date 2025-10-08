@@ -293,7 +293,7 @@ export async function createInquiry(userId, serviceId, message) {
 }
 export function getInquires(id) {
   return db.Inquiry.findAll({
-    attributes: ["message", "status", "user_id"],
+    attributes: ["id", "message", "status", "user_id"],
     include: {
       model: db.Service,
       attributes: ["title", "price"],

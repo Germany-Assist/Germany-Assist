@@ -26,11 +26,14 @@ export const defineConstrains = () => {
   Service.hasMany(Inquiry, { foreignKey: "service_id" });
   Inquiry.belongsTo(Order, { foreignKey: "order_id" });
   Order.hasMany(Inquiry, { foreignKey: "order_id" });
-
   User.hasMany(Order, { foreignKey: "user_id" });
   Order.belongsTo(User, { foreignKey: "user_id" });
-  Service.hasMany(OrderItems, { foreignKey: "service_id" });
-  OrderItems.belongsTo(Service, { foreignKey: "service_id" });
+  ServiceProvider.hasMany(Order, { foreignKey: "service_provider_id" });
+  Order.belongsTo(ServiceProvider, { foreignKey: "service_provider_id" });
+
+  Category.hasOne(Contract, { foreignKey: "category_id" });
+  Contract.belongsTo(Category, { foreignKey: "category_id" });
+
   Order.hasMany(Payment, {
     foreignKey: "related_id",
     constraints: false,
@@ -41,7 +44,14 @@ export const defineConstrains = () => {
   Payment.belongsTo(Order, {
     foreignKey: "related_id",
     constraints: false,
+    scope: {
+      related_type: "order",
+    },
   });
+
+  Service.hasMany(OrderItems, { foreignKey: "service_id" });
+  OrderItems.belongsTo(Service, { foreignKey: "service_id" });
+
   OrderItems.belongsTo(Order, { foreignKey: "order_id" });
   Order.hasMany(OrderItems, { foreignKey: "order_id" });
 
@@ -60,7 +70,6 @@ export const defineConstrains = () => {
 
   User.hasMany(Service, { foreignKey: "user_id" });
   Service.belongsTo(User, { foreignKey: "user_id" });
-  Service.belongsTo(Contract, { foreignKey: "contract_id" });
 
   Service.hasMany(Asset, { foreignKey: "service_id" });
   Asset.belongsTo(Service, { foreignKey: "service_id" });

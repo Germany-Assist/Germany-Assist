@@ -14,6 +14,15 @@ Order.init(
     },
     user_id: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    service_provider_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
   },
   { sequelize, paranoid: true }

@@ -52,7 +52,6 @@ export async function getOrderById(orderId) {
   if (!order) throw new AppError(404, "Order not found");
   return order;
 }
-
 export async function updateOrder(status, amount, id, t) {
   return await db.Order.update(
     { status, amount: amount / 100 },
@@ -65,12 +64,54 @@ export async function updateOrder(status, amount, id, t) {
     }
   );
 }
-
+export async function generateOffer(SPId, inquiryId) {
+  const offer = await db.Inquiry.findOne({
+    where: { id: inquiryId },
+    include: [
+      {
+        model: db.Service,
+        where: { service_provider_id: SPId },
+        attributes: ["id", "title", "price", "service_provider_id"],
+        required: true,
+        include: [
+          {
+            model: db.Category,
+            as: "categories",
+            through: { attributes: [] },
+            include: {
+              model: db.Contract,
+              required: true,
+              attributes: [
+                "id",
+                "contract_template",
+                "variables",
+                "title",
+                "fixed_variables",
+              ],
+            },
+            required: true,
+            attributes: ["title"],
+          },
+          {
+            model: db.ServiceProvider,
+            attributes: ["id", "name", "email", "phone_number"],
+          },
+        ],
+      },
+      {
+        model: db.User,
+        attributes: ["first_name", "last_name", "email", "id"],
+      },
+    ],
+  });
+  return offer;
+}
 export const orderService = {
   createOrder,
   getUserCartByIds,
   createOrderItems,
   getOrderById,
   updateOrder,
+  generateOffer,
 };
 export default orderService;

@@ -3,11 +3,11 @@ import { AppError } from "../utils/error.class.js";
 
 export const createContract = async (contractData) => {
   return await db.Contract.create({
-    name: contractData.name,
-    about: contractData.about,
-    description: contractData.description,
-    requests: contractData.requests || 0,
-    contract: contractData.contract,
+    title: contractData.title,
+    contract_template: contractData.contractTemplate,
+    variables: contractData.variables,
+    fixed_variables: contractData.fixedVariables,
+    category_id: contractData.categoryId,
   });
 };
 

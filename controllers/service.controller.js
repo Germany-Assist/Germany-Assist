@@ -341,7 +341,11 @@ export async function getInquiredServices(req, res, next) {
     );
     const inquires = await serviceServices.getInquires(req.auth.related_id);
     const sanitizedInquires = inquires.map((i) => {
-      return { ...i, user_id: hashIdUtil.hashIdEncode(i.user_id) };
+      return {
+        ...i,
+        user_id: hashIdUtil.hashIdEncode(i.user_id),
+        id: hashIdUtil.hashIdEncode(i.id),
+      };
     });
     res.send(sanitizedInquires);
   } catch (error) {
