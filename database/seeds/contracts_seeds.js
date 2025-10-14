@@ -2,8 +2,7 @@ import Contracts from "../models/contract.js";
 const data = [
   {
     title: "Work Visa Processing Contract",
-    contractTemplate: `
-    
+    contract_template: `
     # Visa & Work Permit Agreement
     **Agreement between:**  
     **Service Provider:**
@@ -88,7 +87,7 @@ The Client acknowledges that final approval rests entirely with the embassy or i
       "extra_point_2",
       "extra_point_3",
     ],
-    fixedVariables: [
+    fixed_variables: [
       "client_first_name",
       "client_first_last",
       "client_email",
@@ -98,7 +97,7 @@ The Client acknowledges that final approval rests entirely with the embassy or i
       "service_provider_representative",
       "agreement_date",
     ],
-    categoryId: 1,
+    category_id: 1,
   },
 ];
 export default async function contractSeed() {
