@@ -2,22 +2,11 @@ import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
-export async function createOrder(user_id, serviceIds, t) {
-  return await db.Order.create(
-    {
-      user_id,
-      status: "pending",
-      OrderItems: serviceIds,
-    },
-
-    {
-      raw: true,
-      transaction: t,
-      include: {
-        model: db.OrderItems,
-      },
-    }
-  );
+export async function createOrder(data, t) {
+  return await db.Order.create(data, {
+    raw: true,
+    transaction: t,
+  });
 }
 export async function getUserCartByIds(userId, cartIds) {
   const cartItems = await db.User.findByPk(userId, {
@@ -76,21 +65,8 @@ export async function generateOffer(SPId, inquiryId) {
         include: [
           {
             model: db.Category,
-            as: "categories",
-            through: { attributes: [] },
-            include: {
-              model: db.Contract,
-              required: true,
-              attributes: [
-                "id",
-                "contract_template",
-                "variables",
-                "title",
-                "fixed_variables",
-              ],
-            },
             required: true,
-            attributes: ["title"],
+            attributes: ["id", "contract_template", "variables", "title"],
           },
           {
             model: db.ServiceProvider,

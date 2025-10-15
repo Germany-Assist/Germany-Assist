@@ -3,8 +3,6 @@ import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.util.js";
 import { sequelize } from "../database/connection.js";
 import { AppError } from "../utils/error.class.js";
-import db from "../database/dbIndex.js";
-import UserService from "../database/models/user_service.js";
 const sanitizeOutput = (services) => {
   let sanitizedReviews = undefined;
   const sanitizeData = services.map((i) => {
@@ -18,12 +16,10 @@ const sanitizeOutput = (services) => {
         };
       });
     }
-
     const service = i.get({ plain: true });
     let temp = {
       ...service,
       id: hashIdUtil.hashIdEncode(service.id),
-      categories: service.categories.map((i) => i.title),
       creator: service.User
         ? {
             name: service.User.fullName,
@@ -64,7 +60,7 @@ export async function createService(req, res, next) {
           ? true
           : false
         : false,
-      categories: req.body.categories,
+      category: req.body.category,
     };
     const service = await serviceServices.createService(
       serviceData,
@@ -139,9 +135,7 @@ export async function getServicesByServiceProviderId(req, res, next) {
 }
 export async function getByCategories(req, res, next) {
   try {
-    const services = await serviceServices.getServicesByType(
-      req.body.categories
-    );
+    const services = await serviceServices.getServicesByType(req.body.category);
     const sanitizedServices = sanitizeOutput(services);
     res.status(200).json(sanitizedServices);
   } catch (error) {
@@ -323,12 +317,15 @@ export async function removeFromCart(req, res, next) {
   }
 }
 export async function inquireService(req, res, next) {
+  const t = await sequelize.transaction();
   try {
     const { id, message } = req.body;
     const serviceId = hashIdUtil.hashIdDecode(id);
-    await serviceServices.createInquiry(req.auth.id, serviceId, message);
+    await serviceServices.createInquiry(req.auth.id, serviceId, message, t);
     res.sendStatus(200);
+    await t.commit();
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 }

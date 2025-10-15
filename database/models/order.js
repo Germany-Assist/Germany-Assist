@@ -9,7 +9,12 @@ Order.init(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM("pending", "paid", "cancelled", "completed"),
+      type: DataTypes.ENUM(
+        "pending client approval",
+        "paid",
+        "cancelled",
+        "completed"
+      ),
       defaultValue: "pending",
     },
     user_id: {
@@ -20,10 +25,9 @@ Order.init(
       type: DataTypes.UUID,
       allowNull: false,
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
+    inquiry_id: { type: DataTypes.INTEGER, allowNull: false },
+    contract: { type: DataTypes.TEXT, allowNull: false },
+    variables: { type: DataTypes.JSONB, allowNull: false },
   },
   { sequelize, paranoid: true }
 );

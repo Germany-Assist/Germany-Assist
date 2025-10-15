@@ -71,6 +71,10 @@ Service.init(
         max: { args: [5], msg: "Rating cannot be greater than 5" },
       },
     },
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     total_reviews: {
       type: DataTypes.INTEGER,
       allowNull: true,

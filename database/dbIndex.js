@@ -2,22 +2,20 @@ import User from "./models/user.js";
 import ServiceProvider from "./models/service_provider.js";
 import Service from "./models/service.js";
 import Asset from "./models/assets.js";
-import Contract from "./models/contract.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
 import Chat from "./models/chat.js";
-import UserService from "./models/user_service.js";
 import Permission from "./models/permission.js";
 import UserPermission from "./models/user_permission.js";
 import UserRole from "./models/user_role.js";
 import Employer from "./models/employer.js";
 import Category from "./models/category.js";
-import ServiceCategory from "./models/service_category.js";
 import Payment from "./models/payment.js";
 import Order from "./models/order.js";
 import OrderItems from "./models/order_items.js";
 import StripeEvent from "./models/stripe_event.js";
 import Inquiry from "./models/inquiry.js";
+import Favorite from "./models/favorite.js";
 
 export const defineConstrains = () => {
   Inquiry.belongsTo(User, { foreignKey: "user_id" });
@@ -30,9 +28,6 @@ export const defineConstrains = () => {
   Order.belongsTo(User, { foreignKey: "user_id" });
   ServiceProvider.hasMany(Order, { foreignKey: "service_provider_id" });
   Order.belongsTo(ServiceProvider, { foreignKey: "service_provider_id" });
-
-  Category.hasOne(Contract, { foreignKey: "category_id" });
-  Contract.belongsTo(Category, { foreignKey: "category_id" });
 
   Order.hasMany(Payment, {
     foreignKey: "related_id",
@@ -91,17 +86,11 @@ export const defineConstrains = () => {
   User.hasOne(UserRole, { foreignKey: "user_id" });
   UserRole.belongsTo(User, { foreignKey: "user_id" });
   //service category
-  Category.belongsToMany(Service, {
-    through: ServiceCategory,
-    as: "services",
+  Category.hasMany(Service, {
     foreignKey: "category_id",
-    otherKey: "service_id",
   });
-  Service.belongsToMany(Category, {
-    through: ServiceCategory,
-    as: "categories",
-    foreignKey: "service_id",
-    otherKey: "category_id",
+  Service.belongsTo(Category, {
+    foreignKey: "category_id",
   });
   // Employer -> UserRole
   Employer.hasMany(UserRole, {
@@ -136,25 +125,16 @@ export const defineConstrains = () => {
   });
 
   //user - service
-  User.belongsToMany(Service, {
-    through: { model: UserService, scope: { type: "favorite" } },
+  User.belongsToMany(Favorite, {
+    through: Favorite,
     foreignKey: "user_id",
-    otherKey: "service_id",
-    as: "userFavorite",
   });
-  //cart
-  User.belongsToMany(Service, {
-    through: { model: UserService, scope: { type: "cart" } },
-    foreignKey: "user_id",
-    otherKey: "service_id",
-    as: "userCart",
-  });
-  Service.belongsToMany(User, {
-    through: UserService,
+
+  Service.belongsToMany(Favorite, {
+    through: Favorite,
     foreignKey: "service_id",
-    otherKey: "user_id",
-    unique: false,
   });
+
   //user - permission
   User.belongsToMany(Permission, {
     through: UserPermission,
@@ -184,7 +164,6 @@ const db = {
   ServiceProvider,
   Service,
   Asset,
-  Contract,
   Review,
   Coupon,
   Chat,
@@ -193,13 +172,12 @@ const db = {
   UserRole,
   Employer,
   Category,
-  ServiceCategory,
-  UserService,
   Payment,
   Order,
   OrderItems,
   StripeEvent,
   Inquiry,
+  Favorite,
 };
 
 export default db;

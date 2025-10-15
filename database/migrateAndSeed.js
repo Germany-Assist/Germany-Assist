@@ -7,7 +7,6 @@ import seedUsers from "./seeds/users_seeds.js";
 import userServicesSeed from "./seeds/users_services_seeds.js";
 import reviewSeed from "./seeds/review_seeds.js";
 import couponSeed from "./seeds/coupon_seeds.js";
-import seedContract from "./seeds/contracts_seeds.js";
 import seedPermissions from "./seeds/permission_seed.js";
 import seedCategory from "./seeds/category_seed.js";
 
@@ -19,9 +18,8 @@ process.env.SEEDING = true;
 // import the model here
 import Asset from "./models/assets.js";
 import ServiceProvider from "./models/service_provider.js";
-import Contracts from "./models/contract.js";
 import User from "./models/user.js";
-import UserService from "./models/user_service.js";
+import favorite from "./models/favorite.js";
 import Services from "./models/service.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
@@ -49,7 +47,6 @@ try {
     await seedPermissions();
     await seedUsers();
     await seedCategory();
-    await seedContract();
     console.log("finished seeding 👍");
     //Stage 3
     //Apply the constraints

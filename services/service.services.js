@@ -1,6 +1,7 @@
 import { where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
+import { sequelize } from "../database/connection.js";
 const publicAttributes = [
   "id",
   "title",
@@ -11,26 +12,21 @@ const publicAttributes = [
   "rating",
   "total_reviews",
   "price",
-  "contract_id",
   "image",
 ];
 async function createService(serviceData, transaction) {
-  let categoryRecords = [];
-  const service = await db.Service.create(serviceData, {
-    returning: true,
-    transaction,
+  const category = await db.Category.findOne({
+    where: { title: serviceData.category },
   });
-  if (serviceData.categories && serviceData.categories.length) {
-    categoryRecords = await db.Category.findAll({
-      where: { title: serviceData.categories || [] },
+  serviceData = { ...serviceData, category_id: category.id };
+  const service = await db.Service.create(
+    { ...serviceData },
+    {
+      returning: true,
       transaction,
-    });
-    await service.addCategories(categoryRecords, { transaction });
-  }
-  return {
-    ...service.get({ plain: true }),
-    categories: categoryRecords.map((i) => i.title),
-  };
+    }
+  );
+  return service.get({ plain: true });
 }
 async function getAllServices() {
   return await db.Service.findAll({
@@ -40,9 +36,7 @@ async function getAllServices() {
     include: [
       {
         model: db.Category,
-        as: "categories",
         attributes: ["title"],
-        through: { attributes: [] },
       },
     ],
   });
@@ -53,7 +47,6 @@ async function getAllServicesAdmin() {
     include: [
       {
         model: db.Category,
-        as: "categories",
         attributes: ["title"],
         through: { attributes: [] },
       },
@@ -68,9 +61,7 @@ async function getAllServicesServiceProvider(id) {
     include: [
       {
         model: db.Category,
-        as: "categories",
         attributes: ["title"],
-        through: { attributes: [] },
       },
       {
         model: db.User,
@@ -202,6 +193,7 @@ async function alterServiceStatusSP(id, status) {
   }
   return await service.save();
 }
+
 export const updateServiceRating = async (
   {
     serviceId,
@@ -284,12 +276,22 @@ export async function removeItemsFromCart(userId, cartIds, t) {
     transaction: t,
   });
 }
-export async function createInquiry(userId, serviceId, message) {
-  await db.Inquiry.create({
-    user_id: userId,
-    service_id: serviceId,
-    message,
+export async function createInquiry(userId, serviceId, message, t) {
+  const service = await db.Service.findOne({
+    where: { id: serviceId },
+    raw: true,
+    attributes: ["service_provider_id"],
+    transaction: t,
   });
+  await db.Inquiry.create(
+    {
+      user_id: userId,
+      service_id: serviceId,
+      message,
+      service_provider_id: service.service_provider_id,
+    },
+    { transaction: t }
+  );
 }
 export function getInquires(id) {
   return db.Inquiry.findAll({

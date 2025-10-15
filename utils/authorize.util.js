@@ -88,7 +88,6 @@ export async function checkOwnership(targetId, ownerId, resourceName) {
       }
       actualOwner = subject.owner;
     }
-
     const isOwner = Boolean(actualOwner === ownerId);
     if (!isOwner) {
       throw new AppError(

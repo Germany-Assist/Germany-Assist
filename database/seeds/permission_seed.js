@@ -22,6 +22,12 @@ const permissionsData = [
   { action: "approve", resource: "contract", description: "Approve contracts" }, //super:admin,superAdmin
   { action: "reject", resource: "contract", description: "Reject contracts" }, //super:admin,superAdmin
 
+  // { action: "accept", resource: "order", description: "Accept order" },
+  // { action: "reject", resource: "order", description: "Reject order" }, // client can only
+  { action: "create", resource: "order", description: "Create order" },
+  { action: "create", resource: "offer", description: "Create offer" },
+  { action: "withdraw", resource: "offer", description: "withdraw offer" },
+
   // Coupon permissions
   { action: "create", resource: "coupon", description: "Create coupons" }, //super:admin,superAdmin
   { action: "read", resource: "coupon", description: "View coupons" }, //super:admin,superAdmin

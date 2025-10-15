@@ -1,13 +1,39 @@
 import { sequelize } from "../database/connection.js";
 import orderService from "../services/order.services.js";
-import serviceServices from "../services/service.services.js";
 import hashIdUtil from "../utils/hashId.util.js";
 import stripeUtils from "../utils/stripe.util.js";
 import paymentServices from "../services/payment.service.js";
 import { AppError } from "../utils/error.class.js";
 import authUtil from "../utils/authorize.util.js";
-import mustache from "mustache";
+
 //-------------------------just helpers--------------------//
+function render(template, data) {
+  return template.replace(/{{([^{}]+)}}/g, (_, key) => {
+    const value = data?.[key];
+    return value ?? `{{${key}}}`;
+  });
+}
+
+function initContract(inquiry) {
+  const user = inquiry.User;
+  const service = inquiry.Service;
+  const serviceProvider = service.ServiceProvider;
+  const template = service.Category.contract_template;
+  const data = {
+    client_first_name: user.first_name,
+    client_last_name: user.last_name,
+    client_phone_number: user.phone_number,
+    client_email: user.email,
+    service_provider_name: serviceProvider.name,
+    service_provider_email: serviceProvider.email,
+    service_provider_id: serviceProvider.id,
+    service_provider_number: serviceProvider.phone_number,
+    service_title: service.title,
+    service_id: hashIdUtil.hashIdEncode(service.id),
+    agreement_date: new Date(Date.now()),
+  };
+  return render(template, data);
+}
 export function generateOrderItems(orderId, services) {
   const orderItemsArray = services.map((i) => {
     i = i.get({ plain: true });
@@ -111,57 +137,75 @@ export async function payController(req, res, next) {
 
 export async function generateOffer(req, res, next) {
   try {
-    authUtil.checkRoleAndPermission(req.auth, [
-      "service_provider_rep",
-      "service_provider_root",
-    ]);
     const { id } = req.params;
     const inquiryId = hashIdUtil.hashIdDecode(id);
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_rep", "service_provider_root"],
+      true,
+      "offer",
+      "create"
+    );
+    await authUtil.checkOwnership(id, req.auth.related_id, "inquiry");
     const offer = await orderService.generateOffer(
       req.auth.related_id,
       inquiryId
     );
     const main = await offer.get({ plain: true });
-    const user = main.User;
-    const service = main.Service;
-    const contract = service.categories[0].Contract;
-    const fixed_variables = contract.fixed_variables;
-    const serviceProvider = service.ServiceProvider;
-    const template = contract.contract_template;
-    console.log(fixed_variables);
-    const data = { client_name: "amr", agency_name: "germany-assist" };
-    function render(template, data) {
-      return template.replace(/{{([^{}]+)}}/g, (_, key) => {
-        const value = data?.[key];
-        return value ?? `{{${key}}}`;
-      });
-    }
-    const preFiledTemplate = render(template, data);
-    res.send(preFiledTemplate);
+    const variables = main.Service.Category.variables;
+    const contract = initContract(main);
+    res.send({ contract, variables });
   } catch (err) {
     next(err);
   }
 }
 export async function createOrder(req, res, next) {
+  const t = await sequelize.transaction();
+
   try {
-    //first we need the inquiry id and the variables
-    //we extract the template contract and fill the variables back and front
-    //we print the contract
-    const { id } = req.params;
-    const inquiryId = hashIdUtil.hashIdDecode(id);
-    console.log("hello");
-    //   authUtil.checkRoleAndPermission(req.auth, [
-    //     "service_provider_rep",
-    //     "service_provider_root",
-    //   ]);
-    //   const { id } = req.params;
-    //   const inquiryId = hashIdUtil.hashIdDecode(id);
-    //   const offer = await orderService.generateOffer(
-    //     req.auth.related_id,
-    //     inquiryId
-    //   );
-    //   res.send(offer);
+    const customerData = req.body;
+    const inquiryId = hashIdUtil.hashIdDecode(customerData.id); //inquiry id
+    // i should permissions to contracts
+    await authUtil.checkRoleAndPermission(req.auth, [
+      "service_provider_rep",
+      "service_provider_root",
+      true,
+      "order",
+      "create",
+    ]);
+    await authUtil.checkOwnership(
+      customerData.id,
+      req.auth.related_id,
+      "inquiry"
+    );
+    const offer = await orderService.generateOffer(
+      req.auth.related_id,
+      inquiryId
+    );
+    const main = await offer.get({ plain: true });
+    const variables = main.Service.Category.variables;
+    const preContract = initContract(main);
+    const data = {};
+    variables.forEach((i) => {
+      if (customerData[i]) {
+        data[i] = customerData[i];
+      }
+    });
+    const contract = render(preContract, data);
+    const orderData = {
+      contract,
+      amount: data.price,
+      status: "pending client approval",
+      user_id: main.User.id,
+      service_provider_id: main.Service.ServiceProvider.id,
+      inquiry_id: inquiryId,
+      variables: data,
+    };
+    const order = await orderService.createOrder(orderData, t);
+    res.sendStatus(201);
+    await t.commit();
   } catch (err) {
+    await t.rollback();
     next(err);
   }
 }
