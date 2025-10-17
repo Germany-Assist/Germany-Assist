@@ -109,6 +109,12 @@ const permissionsData = [
   { action: "delete", resource: "user", description: "Remove user" }, //ownership:root //super:admin,superAdmin
   { action: "restore", resource: "user", description: "Restore" }, //super:admin,superAdmin
   { action: "verify", resource: "user", description: "verify" }, //super:admin,superAdmin,or future automated roll
+
+  // category/contract permissions
+  { action: "create", resource: "category", description: "Create category" }, //ownership:root //super:admin,superAdmin
+  { action: "update", resource: "contract", description: "Update category" }, //ownership:root //super:admin,superAdmin
+  { action: "update", resource: "category", description: "Update category" }, //ownership:root //superAdmin
+  { action: "delete", resource: "category" }, //ownership:root //superAdmin
   // Analytics permissions
   {
     action: "view",

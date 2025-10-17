@@ -92,18 +92,16 @@ serviceRouter.put(
 
 /*------------------- Client Routes ----------------*/
 // add to favorite
-serviceRouter.post(
-  "/client/favorite",
+serviceRouter.put(
+  "/client/favorite/:id",
   jwt.authenticateJwt,
-  idHashedBodyValidator,
   validateExpress,
   serviceController.addToFavorite
 );
 //remove from favorite
 serviceRouter.delete(
-  "/client/favorite",
+  "/client/favorite/:id",
   jwt.authenticateJwt,
-  idHashedBodyValidator,
   validateExpress,
   serviceController.removeFromFavorite
 );

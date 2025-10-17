@@ -241,14 +241,13 @@ export const updateServiceRating = async (
 };
 export async function alterFavorite(serviceId, userId, status) {
   if (status === "add") {
-    await db.UserService.create({
+    await db.Favorite.create({
       service_id: serviceId,
       user_id: userId,
-      type: "favorite",
     });
   } else if (status === "remove") {
-    await db.UserService.destroy({
-      where: { service_id: serviceId, user_id: userId, type: "favorite" },
+    await db.Favorite.destroy({
+      where: { service_id: serviceId, user_id: userId },
     });
   } else {
     throw new AppError(500, "invalid status", false);

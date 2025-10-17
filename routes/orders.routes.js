@@ -3,15 +3,10 @@ import jwtMiddleware from "../middlewares/jwt.middleware.js";
 import orderController from "../controllers/order.controller.js";
 const ordersRouter = Router();
 
-ordersRouter.post(
-  "/checkout",
+ordersRouter.get(
+  "/checkout/:id",
   jwtMiddleware.authenticateJwt,
   orderController.checkoutController
-);
-ordersRouter.post(
-  "/pay",
-  jwtMiddleware.authenticateJwt,
-  orderController.payController
 );
 ordersRouter.get(
   "/generate/:id",

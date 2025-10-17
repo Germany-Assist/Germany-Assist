@@ -1,4 +1,5 @@
 import db from "../database/dbIndex.js";
+import Inquiry from "../database/models/inquiry.js";
 import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
 
@@ -99,20 +100,26 @@ export const getUserProfile = async (id) => {
     include: [
       { model: db.UserRole },
       {
-        model: db.Service,
-        as: "userCart",
-        through: {
-          attributes: ["id", "type"],
-        },
+        model: db.Favorite,
         attributes: ["id"],
+        include: {
+          model: db.Service,
+          attributes: ["id", "image", "title", "description"],
+        },
       },
       {
-        model: db.Service,
-        as: "userFavorite",
-        through: {
-          attributes: ["id", "type"],
-        },
-        attributes: ["id"],
+        model: db.Inquiry,
+        attributes: ["id", "status"],
+        include: [
+          {
+            model: db.Service,
+            attributes: ["id", "image", "title", "description"],
+          },
+          {
+            model: db.Order,
+            attributes: ["id", "status", "contract"],
+          },
+        ],
       },
     ],
   });

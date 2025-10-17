@@ -15,7 +15,7 @@ Order.init(
         "cancelled",
         "completed"
       ),
-      defaultValue: "pending",
+      defaultValue: "pending client approval",
     },
     user_id: {
       type: DataTypes.INTEGER,
@@ -25,7 +25,7 @@ Order.init(
       type: DataTypes.UUID,
       allowNull: false,
     },
-    inquiry_id: { type: DataTypes.INTEGER, allowNull: false },
+
     contract: { type: DataTypes.TEXT, allowNull: false },
     variables: { type: DataTypes.JSONB, allowNull: false },
   },

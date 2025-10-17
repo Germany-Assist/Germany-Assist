@@ -34,7 +34,7 @@ Favorite.init(
   },
   {
     sequelize,
-    modelName: "user_service",
+    modelName: "favorite",
     indexes: [
       {
         unique: true,

@@ -168,7 +168,8 @@ export const roleTemplates = {
     { action: "delete", resource: "user" },
     { action: "restore", resource: "user" },
     { action: "verify", resource: "user" },
-
+    { action: "create", resource: "category" }, //ownership:root //super:admin,superAdmin
+    { action: "update", resource: "contract" }, //ownership:root //super:admin,superAdmin
     // Analytics
     { action: "view", resource: "analytics" },
   ],
@@ -222,7 +223,7 @@ export const contractTemplates = {
 This Visa & Work Permit Agreement defines the terms and conditions under which the Agency will provide visa and work permit processing services for the Client.
 Regarding the following Service :
 
-** SERVICE **
+**SERVICE**
 
 * Title : {{service_title}}
 * Id : {{service_id}}

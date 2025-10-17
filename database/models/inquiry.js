@@ -14,7 +14,14 @@ Inquiry.init(
     // description that holds the first message if needed
     message: { type: DataTypes.TEXT, allowNull: true },
     //status
-    status: { type: DataTypes.ENUM("pending", "approved", "rejected") },
+    status: {
+      type: DataTypes.ENUM(
+        "pending review",
+        "approved",
+        "rejected",
+        "pending client approval"
+      ),
+    },
     //order in case of approval
     order_id: { type: DataTypes.INTEGER, allowNull: true },
     owner: {

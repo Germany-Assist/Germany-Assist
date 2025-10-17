@@ -32,7 +32,6 @@ export async function stripeProcessor(job) {
           pi.metadata.orderId,
           t
         );
-        await orderItemServices.updateManyOrderItems(items, t);
         break;
       }
       case "payment_intent.payment_failed": {
@@ -53,6 +52,7 @@ export async function stripeProcessor(job) {
     await t.commit();
   } catch (err) {
     await t.rollback();
+    errorLogger(err);
     throw err;
   }
 }
@@ -68,7 +68,6 @@ if (NODE_ENV !== "test") {
 
   const stripeWorker = new Worker("stripe-events", stripeProcessor, {
     connection: redis,
-    concurrency: 5,
   });
 
   const dlqWorker = new Worker(

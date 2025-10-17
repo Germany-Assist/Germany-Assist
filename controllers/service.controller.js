@@ -246,7 +246,7 @@ export async function alterServiceStatusSP(req, res, next) {
 }
 export async function addToFavorite(req, res, next) {
   try {
-    const { id: serviceId } = req.body;
+    const { id: serviceId } = req.params;
     const user = await authUtils.checkRoleAndPermission(
       req.auth,
       ["client"],
@@ -264,7 +264,7 @@ export async function addToFavorite(req, res, next) {
 }
 export async function removeFromFavorite(req, res, next) {
   try {
-    const { id: serviceId } = req.body;
+    const { id: serviceId } = req.params;
     const user = await authUtils.checkRoleAndPermission(
       req.auth,
       ["client"],

@@ -17,24 +17,27 @@ export const cookieOptions = {
   path: "/api/user/refresh-token",
 };
 const sanitizeUser = (user) => {
-  let favorite = [];
-  let cart = [];
-  if (user.userCart && user.userCart.length > 0)
-    cart = user.userCart.map((i) => {
+  let favorite, inquires;
+  if (user.favorites && user.favorites.length > 0)
+    favorite = user.favorites.map((i) => {
       return {
-        id: hashIdUtil.hashIdEncode(i.user_service.id),
-        serviceId: hashIdUtil.hashIdEncode(i.id),
-        thumbnail: "not yet",
+        ...i,
+        id: hashIdUtil.hashIdEncode(i.id),
+        Service: { ...i.Service, id: hashIdUtil.hashIdEncode(i.Service.id) },
       };
     });
-  if (user.userFavorite && user.userFavorite.length > 0)
-    favorite = user.userFavorite.map((i) => {
+  if (user.Inquiries && user.Inquiries.length > 0) {
+    inquires = user.Inquiries.map((i) => {
       return {
-        id: hashIdUtil.hashIdEncode(i.user_service.id),
-        serviceId: hashIdUtil.hashIdEncode(i.id),
-        thumbnail: "not yet",
+        ...i,
+        id: hashIdUtil.hashIdEncode(i.id),
+        Service: { ...i.Service, id: hashIdUtil.hashIdEncode(i.Service.id) },
+        Order: i.Order
+          ? { ...i.Order, id: hashIdUtil.hashIdEncode(i.Order.id) }
+          : null,
       };
     });
+  }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
@@ -47,7 +50,7 @@ const sanitizeUser = (user) => {
     related_type: user.UserRole.related_type,
     related_id: user.UserRole.related_id,
     favorite,
-    cart,
+    inquires,
   };
 };
 function setRoleAndType(type) {
@@ -283,7 +286,7 @@ export async function loginUserTokenController(req, res, next) {
 export async function getUserProfile(req, res, next) {
   try {
     const user = await userServices.getUserProfile(req.auth.id);
-    const sanitizedUser = userController.sanitizeUser(user);
+    const sanitizedUser = userController.sanitizeUser(await user.toJSON());
     res.send(sanitizedUser);
   } catch (error) {
     next(error);

@@ -10,15 +10,11 @@ try {
   errorLogger(error);
 }
 
-export async function createPaymentIntent(order, items, totalAmount) {
+export async function createPaymentIntent(amount, metadata) {
   return await stripe.paymentIntents.create({
-    amount: Math.round(totalAmount * 100),
+    amount: Math.round(amount * 100),
     currency: "usd",
-    metadata: {
-      orderId: order.id,
-      totalAmount,
-      items: JSON.stringify(items),
-    },
+    metadata,
     automatic_payment_methods: { enabled: true, allow_redirects: "never" },
   });
 }

@@ -29,14 +29,20 @@ export async function createOrderItems(orderItems, t) {
     transaction: t,
   });
 }
-export async function getOrderById(orderId) {
-  const order = await db.Order.findByPk(orderId, {
-    include: [
-      {
-        model: db.OrderItems,
-        include: { model: db.Service, attributes: ["id", "price"] },
-      },
-    ],
+
+export async function getOrderById(orderId, clientId) {
+  const order = await db.Order.findOne({
+    where: { id: orderId, user_id: clientId },
+  });
+  if (!order) throw new AppError(404, "Order not found");
+  return order;
+}
+// this can be merged with the above but was separated to reduce the traffic and enhance speed
+export async function getOrderCheckout(orderId, clientId) {
+  const order = await db.Order.findOne({
+    attributes: ["id", "variables", "status", "amount"],
+    where: { id: orderId, user_id: clientId },
+    raw: true,
   });
   if (!order) throw new AppError(404, "Order not found");
   return order;
@@ -89,5 +95,6 @@ export const orderService = {
   getOrderById,
   updateOrder,
   generateOffer,
+  getOrderCheckout,
 };
 export default orderService;
