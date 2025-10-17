@@ -35,6 +35,7 @@ app
   .use(express.json())
   .use(
     cors({
+      origin: CLIENT_URL,
       credentials: true,
     })
   )
