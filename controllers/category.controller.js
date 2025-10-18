@@ -1,15 +1,36 @@
 import categoryServices from "../services/category.services.js";
 import authUtil from "../utils/authorize.util.js";
 import { AppError } from "../utils/error.class.js";
+import hashIdUtil from "../utils/hashId.util.js";
 
 //--------helper-----------//
+
 export function fillContract(template, data) {
-  let text = JSON.stringify(template);
-  for (const [key, value] of Object.entries(data)) {
-    const regex = new RegExp(`{{${key}}}`, "g");
-    text = text.replace(regex, value);
-  }
-  return JSON.parse(text);
+  return template.replace(/{{([^{}]+)}}/g, (_, key) => {
+    const value = data?.[key];
+    return value ?? `{{${key}}}`;
+  });
+}
+export function initContract(inquiry) {
+  const user = inquiry.User;
+  const service = inquiry.Service;
+  const serviceProvider = service.ServiceProvider;
+  const template = service.Category.contract_template;
+  //fixed variables
+  const data = {
+    client_first_name: user.first_name,
+    client_last_name: user.last_name,
+    client_phone_number: user.phone_number,
+    client_email: user.email,
+    service_provider_name: serviceProvider.name,
+    service_provider_email: serviceProvider.email,
+    service_provider_id: serviceProvider.id,
+    service_provider_number: serviceProvider.phone_number,
+    service_title: service.title,
+    service_id: hashIdUtil.hashIdEncode(service.id),
+    agreement_date: new Date(Date.now()),
+  };
+  return fillContract(template, data);
 }
 //--------end helper-------//
 
@@ -34,16 +55,18 @@ export async function updateContract(req, res, next) {
       req.auth,
       ["admin"],
       true,
-      "category",
-      "create"
+      "contract",
+      "update"
     );
-    await categoryServices.updateContract(req.body);
+    const { id, contract_template, variables } = req.body;
+    const catId = hashIdUtil.hashIdDecode(id);
+    await categoryServices.updateContract(catId, contract_template, variables);
     res.sendStatus(201);
   } catch (error) {
     next(error);
   }
 }
-export async function updateCategory(params) {
+export async function updateCategory(req, res, next) {
   try {
     await authUtil.checkRoleAndPermission(
       req.auth,
@@ -52,65 +75,33 @@ export async function updateCategory(params) {
       "category",
       "create"
     );
-    await categoryServices.updateCategory(req.body);
+    const { id, title, label, contract_template, variables } = req.body;
+    const catId = hashIdUtil.hashIdDecode(id);
+    const data = { title, label, contract_template, variables };
+    await categoryServices.updateCategory(catId, data);
     res.sendStatus(201);
   } catch (error) {
     next(error);
   }
 }
-
-// export async function getAllContracts(req, res, next) {
-//   try {
-//     const contracts = await contractServices.getAllContracts(req.query);
-//     res.status(200).json(contracts);
-//   } catch (error) {
-//     if (error instanceof AppError) error.appendTrace(req.requestId);
-//     next(error);
-//   }
-// }
-// export async function getContractById(req, res, next) {
-//   try {
-//     const contract = await contractServices.getContractById(req.params.id);
-//     res.status(200).json(contract);
-//   } catch (error) {
-//     if (error instanceof AppError) error.appendTrace(req.requestId);
-//     next(error);
-//   }
-// }
-// export async function updateContract(req, res, next) {
-//   try {
-//     const contract = await contractServices.updateContract(
-//       req.params.id,
-//       req.body
-//     );
-//     res.status(200).json(contract);
-//   } catch (error) {
-//     if (error instanceof AppError) error.appendTrace(req.requestId);
-//     next(error);
-//   }
-// }
-// export async function deleteContract(req, res, next) {
-//   try {
-//     const result = await contractServices.deleteContract(req.params.id);
-//     res.status(200).json(result);
-//   } catch (error) {
-//     if (error instanceof AppError) error.appendTrace(req.requestId);
-//     next(error);
-//   }
-// }
-// export async function restoreContract(req, res, next) {
-//   try {
-//     const contract = await contractServices.restoreContract(req.params.id);
-//     res.status(200).json(contract);
-//   } catch (error) {
-//     if (error instanceof AppError) error.appendTrace(req.requestId);
-//     next(error);
-//   }
-// }
+export async function getAllCategories(req, res, next) {
+  try {
+    const categories = await categoryServices.getAllCategories();
+    const sanitizedCategories = categories.map((i) => {
+      return { ...i, id: hashIdUtil.hashIdEncode(i.id) };
+    });
+    res.send(sanitizedCategories);
+  } catch (error) {
+    next(error);
+  }
+}
 const categoryController = {
   fillContract,
   createCategory,
   updateContract,
   updateCategory,
+  getAllCategories,
+  fillContract,
+  initContract,
 };
 export default categoryController;

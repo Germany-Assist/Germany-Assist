@@ -46,9 +46,6 @@ export const defineConstrains = () => {
     },
   });
 
-  Service.hasMany(Order, { foreignKey: "service_id" });
-  Order.belongsTo(Service, { foreignKey: "service_id" });
-
   // Subscription.hasMany(Payment, {
   //   foreignKey: "related_id",
   //   constraints: false,

@@ -15,8 +15,19 @@ export const createCategory = async (data) => {
 };
 
 export const updateCategory = async (id, data) => {
-  return await db.Category.update(data, { where: id });
+  return await db.Category.update(data, { where: { id } });
+};
+export const getAllCategories = async (id, data) => {
+  return await db.Category.findAll({
+    raw: true,
+    attributes: ["id", "title", "label", "variables", "contract_template"],
+  });
 };
 
-const categoryServices = { createCategory, updateCategory, updateContract };
+const categoryServices = {
+  createCategory,
+  updateCategory,
+  updateContract,
+  getAllCategories,
+};
 export default categoryServices;
