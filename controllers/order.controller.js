@@ -7,9 +7,6 @@ import { AppError } from "../utils/error.class.js";
 import authUtil from "../utils/authorize.util.js";
 import inquiryServices from "../services/inquiry.services.js";
 import categoryController from "./category.controller.js";
-import { tryCatch } from "bullmq";
-
-//-------------------------just helpers--------------------//
 
 export async function checkoutController(req, res, next) {
   const t = await sequelize.transaction();
@@ -29,6 +26,7 @@ export async function checkoutController(req, res, next) {
     const metadata = {
       orderId: orderId,
     };
+
     const paymentIntent = await stripeUtils.createPaymentIntent(
       order.amount,
       metadata
@@ -39,6 +37,13 @@ export async function checkoutController(req, res, next) {
       order.id,
       t
     );
+    const inquiryUpdate = {
+      status: "checked out",
+    };
+    const inquiryFilter = {
+      order_id: orderId,
+    };
+    await inquiryServices.updateInquiry(inquiryFilter, inquiryUpdate, t);
     res.json({
       clientSecret: paymentIntent.client_secret,
       paymentId: hashIdUtil.hashIdEncode(payment.id),
@@ -93,7 +98,8 @@ export async function createOrder(req, res, next) {
 
     const offer = await orderService.generateOffer(
       req.auth.related_id,
-      inquiryId
+      inquiryId,
+      t
     );
     let existingOrder;
     if (offer.order_id)
@@ -131,7 +137,10 @@ export async function createOrder(req, res, next) {
       order_id: order.id,
       status: "pending client approval",
     };
-    await inquiryServices.updateInquiry(inquiryId, inquiryUpdate, t);
+    const inquiryFilter = {
+      id: inquiryId,
+    };
+    await inquiryServices.updateInquiry(inquiryFilter, inquiryUpdate, t);
     res.sendStatus(201);
     await t.commit();
   } catch (err) {
@@ -147,6 +156,7 @@ export async function getOrderAdmin(req, res, next) {
       id: hashIdUtil.hashIdDecode(req.params.id),
     };
     const order = await orderService.getOrder(filters);
+    console.log(order);
     res.send({
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),

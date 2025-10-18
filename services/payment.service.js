@@ -8,7 +8,7 @@ export async function createPayment(intentId, totalAmount, orderId, t) {
       amount: totalAmount,
       currency: "usd",
       status: "requires_payment",
-      related_type: "service",
+      related_type: "order",
       related_id: orderId,
     },
     { transaction: t, raw: true }

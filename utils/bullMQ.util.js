@@ -77,6 +77,7 @@ if (NODE_ENV !== "test") {
     },
     { connection: redis }
   );
+
   stripeWorker.on("completed", (job) => {
     infoLogger(`✅ Job ${job.id} is completed`);
   });

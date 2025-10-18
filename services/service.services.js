@@ -288,6 +288,7 @@ export async function createInquiry(userId, serviceId, message, t) {
       service_id: serviceId,
       message,
       service_provider_id: service.service_provider_id,
+      status: "pending service provider approval",
     },
     { transaction: t }
   );

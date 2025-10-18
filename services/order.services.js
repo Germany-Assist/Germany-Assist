@@ -33,6 +33,7 @@ export async function getOrder(filters) {
   const order = await db.Order.findOne({
     where: filters,
     raw: true,
+    // include: [db.Inquiry],
   });
   if (!order)
     throw new AppError(404, "Order not found", true, "Order not found");
@@ -70,7 +71,7 @@ export async function updateOrder(status, amount, id, t) {
     }
   );
 }
-export async function generateOffer(SPId, inquiryId) {
+export async function generateOffer(SPId, inquiryId, t) {
   const offer = await db.Inquiry.findOne({
     where: { id: inquiryId },
     include: [
@@ -96,6 +97,7 @@ export async function generateOffer(SPId, inquiryId) {
         attributes: ["first_name", "last_name", "email", "id"],
       },
     ],
+    transaction: t,
   });
   return offer;
 }

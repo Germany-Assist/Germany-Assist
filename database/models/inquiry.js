@@ -16,10 +16,10 @@ Inquiry.init(
     //status
     status: {
       type: DataTypes.ENUM(
-        "pending review",
+        "pending service provider approval",
         "approved",
         "rejected",
-        "pending client approval"
+        "checked out"
       ),
     },
     //order in case of approval

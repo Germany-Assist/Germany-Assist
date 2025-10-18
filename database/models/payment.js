@@ -18,7 +18,7 @@ Payment.init(
       allowNull: false,
     },
     related_type: {
-      type: DataTypes.ENUM("service", "subscription"),
+      type: DataTypes.ENUM("order", "subscription"),
       allowNull: false,
     },
     related_id: { type: DataTypes.INTEGER, allowNull: false },
