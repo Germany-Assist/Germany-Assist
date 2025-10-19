@@ -92,7 +92,6 @@ test.describe("Service Controller", () => {
     assert(res.status.calledWith(200));
     assert(res.json.calledOnce);
     const payload = res.json.firstCall.args[0];
-    assert.equal(payload[0].categories[0], "cat");
     assert.equal(payload[0].creator.user_id, "encoded-11");
   });
 

@@ -57,8 +57,9 @@ export async function updateServiceProvider(req, res, next) {
       "serviceProvider",
       "update"
     );
+
     const isOwner = await authUtils.checkOwnership(
-      req.body.id,
+      req.auth.related_id,
       req.auth.related_id,
       "ServiceProvider"
     );
@@ -70,13 +71,14 @@ export async function updateServiceProvider(req, res, next) {
       "description",
       "phone_number",
       "image",
+      "email",
     ];
     const updateFields = {};
     allowedFields.forEach((field) => {
       if (req.body[field]) updateFields[field] = req.body[field];
     });
     const profile = await serviceProviderServices.updateServiceProvider(
-      req.body.id,
+      req.auth.related_id,
       updateFields
     );
     res.status(200).json(profile);
@@ -88,18 +90,11 @@ export async function deleteServiceProvider(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth,
-      ["service_provider_root", "super_admin", "admin"],
+      ["superAdmin", "admin"],
       true,
       "serviceProvider",
       "delete"
     );
-    const isOwner = await authUtils.checkOwnership(
-      req.body.id,
-      req.auth.related_id,
-      "ServiceProvider"
-    );
-    if (!hasPermission || !isOwner)
-      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
     await serviceProviderServices.deleteServiceProvider(req.body.id);
     res.status(200).json({ message: "success" });
   } catch (error) {
@@ -109,15 +104,12 @@ export async function deleteServiceProvider(req, res, next) {
 export async function restoreServiceProvider(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.related_id,
+      req.auth,
       ["superAdmin", "admin"],
       true,
       "serviceProvider",
       "delete"
     );
-    if (!hasPermission)
-      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
     const profile = await serviceProviderServices.restoreServiceProvider(
       req.body.id
     );

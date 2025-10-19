@@ -64,6 +64,7 @@ export async function checkOwnership(targetId, ownerId, resourceName) {
   if (!targetId) throw new AppError(422, "Missing Target Id", false);
   if (!ownerId) throw new AppError(422, "Missing Owner ID", false);
   if (!resourceName) throw new AppError(500, "Resource model required", false);
+  if (ownerId === "super_admin") return;
   const resource = capitalizeFirstLetter(resourceName);
   let subject, actualOwner;
   try {

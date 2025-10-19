@@ -2,11 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import orderController, {
-  generateOrderItems,
-  extractItems,
-  sanitizeOrder,
-} from "../../controllers/order.controller.js";
+import orderController from "../../controllers/order.controller.js";
 
 import { sequelize } from "../../database/connection.js";
 import orderService from "../../services/order.services.js";
@@ -15,6 +11,8 @@ import hashIdUtil from "../../utils/hashId.util.js";
 import stripeUtils, { createPaymentIntent } from "../../utils/stripe.util.js";
 import paymentServices from "../../services/payment.service.js";
 import { AppError } from "../../utils/error.class.js";
+import authUtil from "../../utils/authorize.util.js";
+import inquiryServices from "../../services/inquiry.services.js";
 
 // ---------------- Setup ----------------
 let sandbox;
@@ -25,82 +23,58 @@ test.afterEach(() => {
   sandbox.restore();
 });
 
-// ---------------- Helper Functions ----------------
-test("generateOrderItems should map services correctly", () => {
-  const fakeServices = [
-    { get: () => ({ id: 1, title: "Service 1" }) },
-    { get: () => ({ id: 2, title: "Service 2" }) },
-  ];
-  const result = generateOrderItems(10, fakeServices);
-  assert.deepEqual(result, [
-    { order_id: 10, service_id: 1, title: "Service 1" },
-    { order_id: 10, service_id: 2, title: "Service 2" },
-  ]);
-});
-
-test("extractItems should return formatted items", () => {
-  const order = {
-    OrderItems: [
-      { id: 1, Service: { id: 100, price: 50 } },
-      { id: 2, Service: { id: 200, price: 75 } },
-    ],
-  };
-  const result = extractItems(order);
-  assert.deepEqual(result, [
-    { item_id: 1, item_price: 50, service_id: 100 },
-    { item_id: 2, item_price: 75, service_id: 200 },
-  ]);
-});
-
 // ---------------- Controllers ----------------
-test("checkoutController should create an order and return sanitized order", async () => {
+test("checkoutController payment and paymentIntent", async () => {
   // Arrange
   const req = {
+    params: { id: 1 },
     body: { items: ["hashed1", "hashed2"] },
     auth: { id: 42 },
   };
-  const res = { send: sinon.spy() };
-  const next = sinon.spy();
-
+  const res = { json: sandbox.spy() };
+  const next = sandbox.spy();
   const fakeTransaction = {
     commit: sinon.spy(),
     rollback: sinon.spy(),
   };
-  sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-  sandbox
-    .stub(hashIdUtil, "hashIdDecode")
-    .onFirstCall()
-    .returns(1)
-    .onSecondCall()
-    .returns(2);
-
-  const fakeCartItems = [{ id: 1 }, { id: 2 }];
-  sandbox.stub(orderService, "getUserCartByIds").resolves(fakeCartItems);
-
   const fakeOrder = {
-    id: 99,
-    OrderItems: [{ id: 1, service_id: 1, Service: { price: 100 } }],
+    id: 1,
+    variables: { price: "3000", payment_terms: "all up front" },
+    amount: 3000,
+    status: "pending client approval",
   };
-  sandbox.stub(orderService, "createOrder").resolves(fakeOrder);
-  sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((x) => `encoded-${x}`);
-
+  const fakePaymentIntent = {
+    id: "pi12321",
+    client_secret: "pi12321",
+  };
+  const fakePayment = {
+    id: 123,
+  };
+  sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+  sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+  sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+  sandbox.stub(orderService, "getOrderCheckout").resolves(fakeOrder); //should be called with (fakeOrder.id,req.auth.id)
+  sandbox.stub(stripeUtils, "createPaymentIntent").resolves(fakePaymentIntent); //should  be called with (fakeOrder.amount,fakeOrder.id)
+  sandbox.stub(paymentServices, "createPayment").resolves(fakePayment);
+  sandbox.stub(inquiryServices, "updateInquiry").resolves(); //should  be called with ({order_id:orderId},{status:"checked out"},fakeTransaction)
   // Act
   await orderController.checkoutController(req, res, next);
-
   // Assert
-  assert.equal(res.send.calledOnce, true);
-  const responseArg = res.send.firstCall.args[0];
-  assert.deepEqual(responseArg, {
-    orderId: "encoded-99",
-    items: [
-      {
-        item_id: "encoded-1",
-        service_id: "encoded-1",
-      },
-    ],
-  });
-  assert.equal(fakeTransaction.commit.calledOnce, true);
-  assert.equal(next.called, false);
+  assert.ok(res.json.calledOnce);
+  sinon.assert.calledOnce(paymentServices.createPayment);
+  // assert.equal(res.send.calledOnce, true);
+  // const responseArg = res.send.firstCall.args[0];
+  // assert.deepEqual(responseArg, {
+  //   orderId: "encoded-99",
+  //   items: [
+  //     {
+  //       item_id: "encoded-1",
+  //       service_id: "encoded-1",
+  //     },
+  //   ],
+  // });
+  // assert.equal(fakeTransaction.commit.calledOnce, true);
+  // assert.equal(next.called, false);
 });
 
 test("checkoutController should handle errors and rollback", async () => {

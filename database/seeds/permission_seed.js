@@ -114,7 +114,7 @@ const permissionsData = [
   { action: "create", resource: "category", description: "Create category" }, //ownership:root //super:admin,superAdmin
   { action: "update", resource: "contract", description: "Update category" }, //ownership:root //super:admin,superAdmin
   { action: "update", resource: "category", description: "Update category" }, //ownership:root //superAdmin
-  { action: "delete", resource: "category" }, //ownership:root //superAdmin
+  { action: "delete", resource: "category", description: "delete category" }, //ownership:root //superAdmin
   // Analytics permissions
   {
     action: "view",

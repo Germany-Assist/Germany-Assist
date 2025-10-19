@@ -76,12 +76,12 @@ export const deleteServiceProvider = async (id) => {
   if (!profile)
     throw new AppError(
       404,
-      "ServiceProvider not found",
+      "Service Provider not found",
       true,
-      "ServiceProvider not found"
+      "Service Provider not found"
     );
   await profile.destroy();
-  return { id, message: "ServiceProvider deleted" };
+  return { id, message: "Service Provider deleted" };
 };
 export const restoreServiceProvider = async (id) => {
   const profile = await db.ServiceProvider.findOne({

@@ -1,12 +1,6 @@
 // import the seed file here
 import { sequelize } from "./connection.js";
-import assistsSeed from "./seeds/assists_seeds.js";
-import businessSeed from "./seeds/business_seeds.js";
-import servicesSeed from "./seeds/services_seeds.js";
 import seedUsers from "./seeds/users_seeds.js";
-import userServicesSeed from "./seeds/users_services_seeds.js";
-import reviewSeed from "./seeds/review_seeds.js";
-import couponSeed from "./seeds/coupon_seeds.js";
 import seedPermissions from "./seeds/permission_seed.js";
 import seedCategory from "./seeds/category_seed.js";
 

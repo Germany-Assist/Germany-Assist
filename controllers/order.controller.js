@@ -31,18 +31,21 @@ export async function checkoutController(req, res, next) {
       order.amount,
       metadata
     );
+
     const payment = await paymentServices.createPayment(
       paymentIntent.id,
       Math.round(order.amount * 100),
       order.id,
       t
     );
+
     const inquiryUpdate = {
       status: "checked out",
     };
     const inquiryFilter = {
       order_id: orderId,
     };
+
     await inquiryServices.updateInquiry(inquiryFilter, inquiryUpdate, t);
     res.json({
       clientSecret: paymentIntent.client_secret,
