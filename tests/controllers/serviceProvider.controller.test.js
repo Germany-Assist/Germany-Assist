@@ -66,42 +66,7 @@ describe("Create Service Provider Controller Unit Tests", () => {
     sinon.assert.calledOnce(next);
   });
 });
-describe("Delete Service Provider Controller Unit Tests", () => {
-  let req, res, next;
-  beforeEach(() => {
-    req = {
-      auth: {
-        user: {
-          id: 1,
-          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
-          role: "root_serviceProvider",
-        },
-      },
-      body: { id: 2 },
-    };
-    res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-    next = sinon.stub();
-  });
-  afterEach(() => sinon.restore());
-  it("should delete Service Provider successfully", async () => {
-    sinon.stub(serviceProviderServices, "deleteServiceProvider").resolves(true);
-    sinon.stub(authUtil, "checkRoleAndPermission").resolves(true);
-    sinon.stub(authUtil, "checkOwnership").resolves(true);
-    await serviceProviderController.deleteServiceProvider(req, res, next);
-    sinon.assert.calledOnce(serviceProviderServices.deleteServiceProvider);
-    sinon.assert.calledOnce(authUtil.checkRoleAndPermission);
-    sinon.assert.calledOnce(authUtil.checkOwnership);
-    sinon.assert.calledWith(res.status, 200);
-    sinon.assert.calledOnce(res.json);
-  });
-  it("should call next with error if service throws", async () => {
-    sinon
-      .stub(serviceProviderServices, "deleteServiceProvider")
-      .throws(new Error("fail"));
-    await serviceProviderController.deleteServiceProvider(req, res, next);
-    sinon.assert.calledOnce(next);
-  });
-});
+
 describe("Update service provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {

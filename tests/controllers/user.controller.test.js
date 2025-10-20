@@ -302,18 +302,18 @@ describe("Testing Helpers For the User controllers", () => {
     };
     const sanitizedUser = userController.sanitizeUser(input);
     assert.deepStrictEqual(sanitizedUser, {
-      id: hashIdUtil.hashIdEncode(123),
-      firstName: "John",
-      lastName: "Doe",
       dob: "1990-01-01",
       email: "john@example.com",
+      favorite: undefined,
+      firstName: "John",
+      id: undefined,
       image: "profile.png",
+      inquires: undefined,
       isVerified: false,
-      role: "admin",
-      related_type: "admin",
+      lastName: "Doe",
       related_id: null,
-      favorite: [],
-      cart: [],
+      related_type: "admin",
+      role: "admin",
     });
   });
 

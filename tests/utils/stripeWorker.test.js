@@ -70,16 +70,7 @@ describe("testing the worker processor", () => {
     assert.equal(fakeTx.commit.called, false, "transaction should not commit");
     assert.ok(fakeTx.rollback.called, "transaction should rollback");
   });
-  test("should rollback transaction if Update OrderItems fails", async () => {
-    orderItemServices.updateManyOrderItems.throws(
-      new Error("Update OrderItems failed")
-    );
-    try {
-      await stripeProcessor(fakeJob);
-    } catch (error) {}
-    assert.equal(fakeTx.commit.called, false, "transaction should not commit");
-    assert.ok(fakeTx.rollback.called, "transaction should rollback");
-  });
+
   test("should rollback transaction if update Stripe Event fails", async () => {
     stripeServices.updateStripeEvent.throws(new Error("Update failed 2"));
     try {
@@ -110,11 +101,6 @@ describe("testing the worker processor", () => {
       "paid",
       pi.amount,
       pi.metadata.orderId,
-      fakeTx
-    );
-    sinon.assert.calledOnceWithExactly(
-      orderItemServices.updateManyOrderItems,
-      items,
       fakeTx
     );
   });

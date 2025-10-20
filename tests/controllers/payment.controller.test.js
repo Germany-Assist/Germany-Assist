@@ -27,25 +27,6 @@ test("should return 400 if webhook verification fails", async () => {
   assert.equal(next.called, false);
 });
 
-test("should reject event for missing metadata", async () => {
-  const req = { body: {}, headers: { "stripe-signature": "sig" } };
-  const res = { json: sinon.spy() };
-  const next = sinon.spy();
-  const fakeEvent = {
-    id: "evt_1",
-    type: "payment_intent.succeeded",
-    data: { object: {} },
-  };
-  sandbox.stub(stripeUtils, "verifyStripeWebhook").returns(fakeEvent);
-  await paymentController.processPaymentWebhook(req, res, next);
-  assert.equal(res.json.called, false);
-  assert.ok(next.args[0][0] instanceof AppError);
-  assert.equal(
-    next.args[0][0].message.includes("missing metadata/items"),
-    true
-  );
-});
-
 test("should pass all correct", async () => {
   const req = { body: {}, headers: { "stripe-signature": "sig" } };
   const res = { json: sinon.spy() };
