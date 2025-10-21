@@ -62,19 +62,6 @@ test("checkoutController payment and paymentIntent", async () => {
   // Assert
   assert.ok(res.json.calledOnce);
   sinon.assert.calledOnce(paymentServices.createPayment);
-  // assert.equal(res.send.calledOnce, true);
-  // const responseArg = res.send.firstCall.args[0];
-  // assert.deepEqual(responseArg, {
-  //   orderId: "encoded-99",
-  //   items: [
-  //     {
-  //       item_id: "encoded-1",
-  //       service_id: "encoded-1",
-  //     },
-  //   ],
-  // });
-  // assert.equal(fakeTransaction.commit.calledOnce, true);
-  // assert.equal(next.called, false);
 });
 
 test("checkoutController should handle errors and rollback", async () => {

@@ -159,7 +159,6 @@ export async function getOrderAdmin(req, res, next) {
       id: hashIdUtil.hashIdDecode(req.params.id),
     };
     const order = await orderService.getOrder(filters);
-    console.log(order);
     res.send({
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),

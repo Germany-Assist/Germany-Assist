@@ -19,7 +19,8 @@ Inquiry.init(
         "pending service provider approval",
         "approved",
         "rejected",
-        "checked out"
+        "checked out",
+        "pending client approval"
       ),
     },
     //order in case of approval
