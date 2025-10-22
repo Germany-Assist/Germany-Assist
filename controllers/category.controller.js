@@ -5,15 +5,13 @@ import hashIdUtil from "../utils/hashId.util.js";
 
 //--------helper-----------//
 
-export function fillContract(template, data) {
+export function fillTemplate(template, data) {
   return template.replace(/{{([^{}]+)}}/g, (_, key) => {
     const value = data?.[key];
     return value ?? `{{${key}}}`;
   });
 }
-export function initContract(inquiry) {
-  const user = inquiry.User;
-  const service = inquiry.Service;
+export function fillContract(user, service) {
   const serviceProvider = service.ServiceProvider;
   const template = service.Category.contract_template;
   //fixed variables
@@ -30,7 +28,7 @@ export function initContract(inquiry) {
     service_id: hashIdUtil.hashIdEncode(service.id),
     agreement_date: new Date(Date.now()),
   };
-  return fillContract(template, data);
+  return fillTemplate(template, data);
 }
 //--------end helper-------//
 
@@ -96,12 +94,11 @@ export async function getAllCategories(req, res, next) {
   }
 }
 const categoryController = {
-  fillContract,
   createCategory,
   updateContract,
   updateCategory,
   getAllCategories,
   fillContract,
-  initContract,
+  fillTemplate,
 };
 export default categoryController;

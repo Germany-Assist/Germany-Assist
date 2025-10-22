@@ -2,85 +2,57 @@ import { sequelize } from "../database/connection.js";
 import orderService from "../services/order.services.js";
 import hashIdUtil from "../utils/hashId.util.js";
 import stripeUtils from "../utils/stripe.util.js";
-import paymentServices from "../services/payment.service.js";
 import { AppError } from "../utils/error.class.js";
 import authUtil from "../utils/authorize.util.js";
-import inquiryServices from "../services/inquiry.services.js";
 import categoryController from "./category.controller.js";
+import userServices from "../services/user.services.js";
+import serviceServices from "../services/service.services.js";
+import ServiceProvider from "../database/models/service_provider.js";
 
 export async function checkoutController(req, res, next) {
-  const t = await sequelize.transaction();
   try {
     await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
     const { id } = req.params;
-    const orderId = hashIdUtil.hashIdDecode(id);
-    const userId = req.auth.id;
-    const order = await orderService.getOrderCheckout(orderId, userId);
-    if (order.status !== "pending client approval")
-      throw new AppError(
-        400,
-        "Order is not payable",
-        true,
-        "Order is not payable"
-      );
-    const metadata = {
-      orderId: orderId,
-    };
-
-    const paymentIntent = await stripeUtils.createPaymentIntent(
-      order.amount,
-      metadata
+    const serviceId = hashIdUtil.hashIdDecode(id);
+    const user = await userServices.getUserById(req.auth.id);
+    const service = (
+      await serviceServices.getServiceByIdPrivate(serviceId)
+    ).get({ plain: true });
+    if (!user || !service)
+      throw new AppError(404, "failed to find user or service", false);
+    // const contract = await categoryController.fillContract(user, service);
+    res.send(
+      `user ${(user.first_name_, user.first_name)} wants to buy service ${
+        service.title
+      } from SP id = ${service.ServiceProvider.id} for price of "${
+        service.price
+      }"`
     );
-
-    const payment = await paymentServices.createPayment(
-      paymentIntent.id,
-      Math.round(order.amount * 100),
-      order.id,
-      t
-    );
-
-    const inquiryUpdate = {
-      status: "checked out",
-    };
-    const inquiryFilter = {
-      order_id: orderId,
-    };
-
-    await inquiryServices.updateInquiry(inquiryFilter, inquiryUpdate, t);
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-      paymentId: hashIdUtil.hashIdEncode(payment.id),
-    });
-    await t.commit();
   } catch (err) {
-    await t.rollback();
     next(err);
   }
 }
-export async function generateOffer(req, res, next) {
+export async function payOrder(req, res, next) {
   try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
     const { id } = req.params;
-    const inquiryId = hashIdUtil.hashIdDecode(id);
-    await authUtil.checkRoleAndPermission(
-      req.auth,
-      ["service_provider_rep", "service_provider_root"],
-      true,
-      "offer",
-      "create"
-    );
-    await authUtil.checkOwnership(id, req.auth.related_id, "inquiry");
-    const offer = await orderService.generateOffer(
-      req.auth.related_id,
-      inquiryId
-    );
-    const main = await offer.get({ plain: true });
-    const variables = main.Service.Category.variables;
-    const contract = categoryController.initContract(main);
-    res.send({ contract, variables });
-  } catch (err) {
-    next(err);
+    const serviceId = hashIdUtil.hashIdDecode(id);
+    const service = (
+      await serviceServices.getServiceByIdPrivate(serviceId)
+    ).get({
+      plain: true,
+    });
+    const metadata = {
+      serviceId,
+      userId: req.auth.id,
+    };
+    const pi = await stripeUtils.createPaymentIntent(service.price, metadata);
+    res.send({ message: "success", paymentIntentId: pi.id });
+  } catch (error) {
+    next(error);
   }
 }
+
 export async function createOrder(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -300,8 +272,7 @@ export async function cancelOrderCL(req, res, next) {
 }
 const orderController = {
   checkoutController,
-  generateOffer,
-  createOrder,
+  payOrder,
   getOrderAdmin,
   getOrderSP,
   getOrderCL,

@@ -17,7 +17,7 @@ export const cookieOptions = {
   path: "/api/user/refresh-token",
 };
 const sanitizeUser = (user) => {
-  let favorite, inquires;
+  let favorite;
   if (user.favorites && user.favorites.length > 0)
     favorite = user.favorites.map((i) => {
       return {
@@ -26,18 +26,6 @@ const sanitizeUser = (user) => {
         Service: { ...i.Service, id: hashIdUtil.hashIdEncode(i.Service.id) },
       };
     });
-  if (user.Inquiries && user.Inquiries.length > 0) {
-    inquires = user.Inquiries.map((i) => {
-      return {
-        ...i,
-        id: hashIdUtil.hashIdEncode(i.id),
-        Service: { ...i.Service, id: hashIdUtil.hashIdEncode(i.Service.id) },
-        Order: i.Order
-          ? { ...i.Order, id: hashIdUtil.hashIdEncode(i.Order.id) }
-          : null,
-      };
-    });
-  }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
@@ -50,7 +38,6 @@ const sanitizeUser = (user) => {
     related_type: user.UserRole.related_type,
     related_id: user.UserRole.related_id,
     favorite,
-    inquires,
   };
 };
 function setRoleAndType(type) {

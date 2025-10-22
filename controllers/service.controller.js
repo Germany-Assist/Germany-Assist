@@ -111,9 +111,9 @@ export async function getAllServicesServiceProvider(req, res, next) {
     next(error);
   }
 }
-export async function getServiceId(req, res, next) {
+export async function getServiceByIdPublic(req, res, next) {
   try {
-    const service = await serviceServices.getServiceById(
+    const service = await serviceServices.getServiceByIdPublic(
       hashIdUtil.hashIdDecode(req.params.id)
     );
     const sanitizedServices = sanitizeOutput([service]);
@@ -280,75 +280,7 @@ export async function removeFromFavorite(req, res, next) {
     next(error);
   }
 }
-export async function addToCart(req, res, next) {
-  try {
-    const { id: serviceId } = req.body;
-    const user = await authUtils.checkRoleAndPermission(
-      req.auth,
-      ["client"],
-      false
-    );
-    await serviceServices.alterCart(
-      hashIdUtil.hashIdDecode(serviceId),
-      req.auth.id,
-      "add"
-    );
-    res.sendStatus(201);
-  } catch (error) {
-    next(error);
-  }
-}
-export async function removeFromCart(req, res, next) {
-  try {
-    const { id: serviceId } = req.body;
-    const user = await authUtils.checkRoleAndPermission(
-      req.auth,
-      ["client"],
-      false
-    );
-    await serviceServices.alterCart(
-      hashIdUtil.hashIdDecode(serviceId),
-      req.auth.id,
-      "remove"
-    );
-    res.sendStatus(200);
-  } catch (error) {
-    next(error);
-  }
-}
-export async function inquireService(req, res, next) {
-  const t = await sequelize.transaction();
-  try {
-    const { id, message } = req.body;
-    const serviceId = hashIdUtil.hashIdDecode(id);
-    await serviceServices.createInquiry(req.auth.id, serviceId, message, t);
-    res.sendStatus(200);
-    await t.commit();
-  } catch (error) {
-    await t.rollback();
-    next(error);
-  }
-}
-export async function getInquiredServices(req, res, next) {
-  try {
-    const user = await authUtils.checkRoleAndPermission(
-      req.auth,
-      ["service_provider_rep", "service_provider_root"],
-      false
-    );
-    const inquires = await serviceServices.getInquires(req.auth.related_id);
-    const sanitizedInquires = inquires.map((i) => {
-      return {
-        ...i,
-        user_id: hashIdUtil.hashIdEncode(i.user_id),
-        id: hashIdUtil.hashIdEncode(i.id),
-      };
-    });
-    res.send(sanitizedInquires);
-  } catch (error) {
-    next(error);
-  }
-}
+
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,
@@ -357,7 +289,7 @@ const serviceController = {
   updateService,
   getByCategories,
   getServicesByServiceProviderId,
-  getServiceId,
+  getServiceByIdPublic,
   getAllServicesServiceProvider,
   getAllServicesAdmin,
   getAllServices,
@@ -365,9 +297,5 @@ const serviceController = {
   sanitizeOutput,
   addToFavorite,
   removeFromFavorite,
-  addToCart,
-  removeFromCart,
-  inquireService,
-  getInquiredServices,
 };
 export default serviceController;

@@ -71,36 +71,7 @@ export async function updateOrder(status, amount, id, t) {
     }
   );
 }
-export async function generateOffer(SPId, inquiryId, t) {
-  const offer = await db.Inquiry.findOne({
-    where: { id: inquiryId },
-    include: [
-      {
-        model: db.Service,
-        where: { service_provider_id: SPId },
-        attributes: ["id", "title", "price", "service_provider_id"],
-        required: true,
-        include: [
-          {
-            model: db.Category,
-            required: true,
-            attributes: ["id", "contract_template", "variables", "title"],
-          },
-          {
-            model: db.ServiceProvider,
-            attributes: ["id", "name", "email", "phone_number"],
-          },
-        ],
-      },
-      {
-        model: db.User,
-        attributes: ["first_name", "last_name", "email", "id"],
-      },
-    ],
-    transaction: t,
-  });
-  return offer;
-}
+
 export const orderService = {
   createOrder,
   getUserCartByIds,
@@ -108,7 +79,6 @@ export const orderService = {
   getOrder,
   getOrders,
   updateOrder,
-  generateOffer,
   getOrderCheckout,
   alterOrderState,
 };

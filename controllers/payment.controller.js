@@ -10,7 +10,6 @@ export async function processPaymentWebhook(req, res, next) {
     let event = stripeUtils.verifyStripeWebhook(req.body, sig);
     if (!event) return res.status(400).send(`Webhook failed to verify`);
     res.json({ received: true });
-    await stripeServices.createStripeEvent(event, "pending");
     await stripeQueue.add("process", { event });
     infoLogger(event.type);
   } catch (error) {

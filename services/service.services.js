@@ -1,7 +1,5 @@
-import { where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
-import { sequelize } from "../database/connection.js";
 const publicAttributes = [
   "id",
   "title",
@@ -72,8 +70,7 @@ async function getAllServicesServiceProvider(id) {
   return services;
 }
 
-async function getServiceById(id) {
-  //i should fetch profile
+async function getServiceByIdPublic(id) {
   const service = await db.Service.findOne({
     where: { id, approved: true, rejected: false, published: true },
     raw: false,
@@ -81,9 +78,7 @@ async function getServiceById(id) {
     include: [
       {
         model: db.Category,
-        as: "categories",
         attributes: ["title"],
-        through: { attributes: [] },
       },
       {
         model: db.Review,
@@ -101,7 +96,26 @@ async function getServiceById(id) {
   await service.save();
   return service;
 }
-
+async function getServiceByIdPrivate(id) {
+  const service = await db.Service.findOne({
+    where: { id, approved: true, rejected: false, published: true },
+    raw: false,
+    attributes: publicAttributes,
+    include: [
+      {
+        model: db.Category,
+        attributes: ["id", "title", "contract_template"],
+      },
+      {
+        model: db.ServiceProvider,
+        attributes: ["id", "name", "email", "phone_number"],
+      },
+    ],
+  });
+  if (!service)
+    throw new AppError(404, "Service not found", true, "Service not found");
+  return service;
+}
 async function getServicesByUserId(userId) {
   return await db.Service.findAll({ where: { user_id: userId } });
 }
@@ -126,15 +140,13 @@ async function getServicesByServiceProviderId(id) {
   });
 }
 
-async function getServicesByType(type) {
-  return await db.Service.findAll({
+async function getServicesByType(title) {
+  return await db.Service.findOne({
     attributes: publicAttributes,
     include: {
       model: db.Category,
-      where: { title: type },
-      as: "categories",
+      where: { title },
       attributes: ["title"],
-      through: { attributes: [] },
     },
     attributes: publicAttributes,
   });
@@ -253,70 +265,14 @@ export async function alterFavorite(serviceId, userId, status) {
     throw new AppError(500, "invalid status", false);
   }
 }
-export async function alterCart(serviceId, userId, status) {
-  if (status === "add") {
-    await db.UserService.create({
-      service_id: serviceId,
-      user_id: userId,
-      type: "cart",
-    });
-  } else if (status === "remove") {
-    await db.UserService.destroy({
-      where: { service_id: serviceId, user_id: userId, type: "cart" },
-    });
-  } else {
-    throw new AppError(500, "invalid status", false);
-  }
-}
 
-export async function removeItemsFromCart(userId, cartIds, t) {
-  await db.UserService.destroy({
-    where: { id: cartIds, user_id: userId, type: "cart" },
-    transaction: t,
-  });
-}
-export async function createInquiry(userId, serviceId, message, t) {
-  const service = await db.Service.findOne({
-    where: { id: serviceId },
-    raw: true,
-    attributes: ["service_provider_id"],
-    transaction: t,
-  });
-  await db.Inquiry.create(
-    {
-      user_id: userId,
-      service_id: serviceId,
-      message,
-      service_provider_id: service.service_provider_id,
-      status: "pending service provider approval",
-    },
-    { transaction: t }
-  );
-}
-export function getInquires(id) {
-  return db.Inquiry.findAll({
-    attributes: ["id", "message", "status", "user_id"],
-    include: {
-      model: db.Service,
-      attributes: ["title", "price"],
-      required: true,
-      include: {
-        model: db.ServiceProvider,
-        required: true,
-        where: { id },
-        attributes: [],
-      },
-    },
-
-    raw: true,
-  });
-}
 const serviceServices = {
   createService,
   getAllServices,
   getAllServicesAdmin,
   getAllServicesServiceProvider,
-  getServiceById,
+  getServiceByIdPublic,
+  getServiceByIdPrivate,
   getServicesByUserId,
   getServicesByServiceProviderId,
   getServicesByType,
@@ -327,9 +283,5 @@ const serviceServices = {
   alterServiceStatusSP,
   updateServiceRating,
   alterFavorite,
-  alterCart,
-  removeItemsFromCart,
-  createInquiry,
-  getInquires,
 };
 export default serviceServices;

@@ -22,7 +22,6 @@ import Permission from "./models/permission.js";
 import UserRole from "./models/user_role.js";
 import UserPermission from "./models/user_permission.js";
 import Category from "./models/category.js";
-import Inquiry from "./models/inquiry.js";
 ///////////////////////////////////////////////////////////////////////
 //
 //

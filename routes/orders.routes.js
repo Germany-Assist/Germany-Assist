@@ -9,14 +9,9 @@ ordersRouter.get(
   orderController.checkoutController
 );
 ordersRouter.get(
-  "/generate/:id",
+  "/pay/:id",
   jwtMiddleware.authenticateJwt,
-  orderController.generateOffer
-);
-ordersRouter.post(
-  "/",
-  jwtMiddleware.authenticateJwt,
-  orderController.createOrder
+  orderController.payOrder
 );
 //---------get order by id-----------//
 ordersRouter.get(
@@ -50,15 +45,5 @@ ordersRouter.get(
   jwtMiddleware.authenticateJwt,
   orderController.getOrdersCL
 );
-//--------cancel Order------//
-ordersRouter.put(
-  "/serviceProvider/:id",
-  jwtMiddleware.authenticateJwt,
-  orderController.cancelOrderSP
-);
-ordersRouter.put(
-  "/client/:id",
-  jwtMiddleware.authenticateJwt,
-  orderController.cancelOrderCL
-);
+
 export default ordersRouter;

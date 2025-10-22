@@ -22,7 +22,7 @@ serviceRouter.get(
   "/:id",
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceId
+  serviceController.getServiceByIdPublic
 );
 // Get services for a specific provider by ID (approved & published)
 serviceRouter.get(
@@ -105,36 +105,5 @@ serviceRouter.delete(
   validateExpress,
   serviceController.removeFromFavorite
 );
-// add to cart
-serviceRouter.post(
-  "/client/cart",
-  jwt.authenticateJwt,
-  idHashedBodyValidator,
-  validateExpress,
-  serviceController.addToCart
-);
-//remove from cart
-serviceRouter.delete(
-  "/client/cart",
-  jwt.authenticateJwt,
-  idHashedBodyValidator,
-  validateExpress,
-  serviceController.removeFromCart
-);
 
-// this is experimental
-
-// send inquiry about a service
-serviceRouter.post(
-  "/client/inquire",
-  jwt.authenticateJwt,
-  createInquiryValidator,
-  validateExpress,
-  serviceController.inquireService
-);
-serviceRouter.get(
-  "/provider/inquire",
-  jwt.authenticateJwt,
-  serviceController.getInquiredServices
-);
 export default serviceRouter;

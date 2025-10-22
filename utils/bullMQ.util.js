@@ -1,8 +1,6 @@
 import { Queue, Worker } from "bullmq";
-import stripeServices, { getStripeEvent } from "../services/stripe.service.js";
-import paymentServices from "../services/payment.service.js";
+import stripeServices from "../services/stripe.service.js";
 import orderService from "../services/order.services.js";
-import orderItemServices from "../services/itemOrder.services.js";
 import { sequelize } from "../database/connection.js";
 import { errorLogger, infoLogger } from "./loggers.js";
 import redis from "../configs/redis.js";
@@ -14,44 +12,44 @@ export async function stripeProcessor(job) {
   const stripeEvent = await stripeServices.getStripeEvent(eventId);
   if (stripeEvent?.status === "processed") return;
   const metadata = event.data.object?.metadata;
-  let items = [];
-  try {
-    items = JSON.parse(metadata.items || "[]");
-  } catch (err) {
-    throw new Error("Invalid metadata.items JSON");
-  }
   const t = await sequelize.transaction();
   try {
     switch (event.type) {
+      case "payment_intent.created": {
+        await stripeServices.createStripeEvent(event, "pending");
+        console.log(`im creating the stripe event ${event.id}`);
+        break;
+      }
       case "payment_intent.succeeded": {
         const pi = event.data.object;
-        await paymentServices.updatePayment("succeeded", pi.id, t);
-        await orderService.updateOrder(
-          "paid",
-          pi.amount,
-          pi.metadata.orderId,
-          t
-        );
+        const orderData = {
+          amount: pi.amount,
+          status: "paid",
+          user_id: metadata.userId,
+          service_id: metadata.serviceId,
+          contract: "testing",
+          stripe_payment_intent_id: pi.id,
+          currency: "usd",
+        };
+        await orderService.createOrder(orderData, t);
         break;
       }
       case "payment_intent.payment_failed": {
-        const pi = event.data.object;
-        await paymentServices.updatePayment("failed", pi.id, t);
-        await orderService.updateOrder(
-          "canceled",
-          pi.amount,
-          pi.metadata.orderId,
-          t
-        );
+        console.log("payment failed");
         break;
       }
       default:
-        infoLogger(`Unhandled Stripe event type: ${event.type}`);
+        infoLogger(
+          `Unhandled Stripe event type: ${event.type} with the id of ${event.id}`
+        );
     }
     await stripeServices.updateStripeEvent(event.id, "processed", t);
+    console.log(`im updating as the stripe event  processed ${event.id}`);
+
     await t.commit();
   } catch (err) {
     await t.rollback();
+    console.log(err);
     errorLogger(err);
     throw err;
   }
