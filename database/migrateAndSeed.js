@@ -5,27 +5,6 @@ import seedPermissions from "./seeds/permission_seed.js";
 import seedCategory from "./seeds/category_seed.js";
 
 process.env.SEEDING = true;
-
-///////////////////////////////////////////////////////////////////////
-// register the models to create skelton
-// this is side effect import please follow
-// import the model here
-import Asset from "./models/assets.js";
-import ServiceProvider from "./models/service_provider.js";
-import User from "./models/user.js";
-import favorite from "./models/favorite.js";
-import Services from "./models/service.js";
-import Review from "./models/review.js";
-import Coupon from "./models/coupon.js";
-import Chat from "./models/chat.js";
-import Permission from "./models/permission.js";
-import UserRole from "./models/user_role.js";
-import UserPermission from "./models/user_permission.js";
-import Category from "./models/category.js";
-///////////////////////////////////////////////////////////////////////
-//
-//
-
 try {
   if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {
     //Stage 1

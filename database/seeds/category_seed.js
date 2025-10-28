@@ -1,5 +1,4 @@
 import Category from "../models/category.js";
-import { contractTemplates } from "../templates.js";
 
 const categories = [
   {

@@ -52,13 +52,13 @@ Service.init(
       },
     },
     type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM("subscription", "oneTime"),
       allowNull: false,
       validate: {
         notEmpty: { msg: "Type cannot be empty" },
         isIn: {
-          args: [["product", "service", "subscription"]],
-          msg: "Type must be one of: product, service, subscription",
+          args: [["oneTime", "subscription"]],
+          msg: "Type must be one of: oneTime, subscription",
         },
       },
     },
@@ -117,7 +117,13 @@ Service.init(
     quantity: {
       type: DataTypes.INTEGER,
       validate: {
-        isInt: { msg: "Contract Id must be an integer" },
+        isInt: { msg: "quantity must be an integer" },
+      },
+    },
+    timeline_id: {
+      type: DataTypes.INTEGER,
+      validate: {
+        isInt: { msg: "timeline_id Id must be an integer" },
       },
     },
     owner: {
