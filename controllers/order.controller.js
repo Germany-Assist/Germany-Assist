@@ -4,7 +4,6 @@ import hashIdUtil from "../utils/hashId.util.js";
 import stripeUtils from "../utils/stripe.util.js";
 import { AppError } from "../utils/error.class.js";
 import authUtil from "../utils/authorize.util.js";
-import categoryController from "./category.controller.js";
 import userServices from "../services/user.services.js";
 import serviceServices from "../services/service.services.js";
 import { v4 as uuidv4 } from "uuid";
