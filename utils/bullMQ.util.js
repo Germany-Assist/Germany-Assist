@@ -4,8 +4,8 @@ import orderService from "../services/order.services.js";
 import { sequelize } from "../database/connection.js";
 import { errorLogger, infoLogger } from "./loggers.js";
 import redis from "../configs/redis.js";
-
 import { NODE_ENV } from "../configs/serverConfig.js";
+
 export async function stripeProcessor(job) {
   const event = job.data.event;
   const eventId = event.id;
@@ -27,7 +27,6 @@ export async function stripeProcessor(job) {
           status: "paid",
           user_id: metadata.userId,
           service_id: metadata.serviceId,
-          contract: "testing",
           stripe_payment_intent_id: pi.id,
           currency: "usd",
         };

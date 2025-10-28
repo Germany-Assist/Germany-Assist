@@ -24,11 +24,7 @@ export async function getUserCartByIds(userId, cartIds) {
     throw new AppError(400, "failed to process cart items");
   return cartItems.userCart;
 }
-export async function createOrderItems(orderItems, t) {
-  return await db.OrderItems.bulkCreate(orderItems, {
-    transaction: t,
-  });
-}
+
 export async function getOrder(filters) {
   const order = await db.Order.findOne({
     where: filters,
@@ -75,7 +71,6 @@ export async function updateOrder(status, amount, id, t) {
 export const orderService = {
   createOrder,
   getUserCartByIds,
-  createOrderItems,
   getOrder,
   getOrders,
   updateOrder,

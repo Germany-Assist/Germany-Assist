@@ -7,8 +7,7 @@ import authUtil from "../utils/authorize.util.js";
 import categoryController from "./category.controller.js";
 import userServices from "../services/user.services.js";
 import serviceServices from "../services/service.services.js";
-import ServiceProvider from "../database/models/service_provider.js";
-
+import { v4 as uuidv4 } from "uuid";
 export async function checkoutController(req, res, next) {
   try {
     await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
@@ -20,7 +19,6 @@ export async function checkoutController(req, res, next) {
     ).get({ plain: true });
     if (!user || !service)
       throw new AppError(404, "failed to find user or service", false);
-    // const contract = await categoryController.fillContract(user, service);
     res.send(
       `user ${(user.first_name_, user.first_name)} wants to buy service ${
         service.title
@@ -46,81 +44,26 @@ export async function payOrder(req, res, next) {
       serviceId,
       userId: req.auth.id,
     };
-    const pi = await stripeUtils.createPaymentIntent(service.price, metadata);
-    res.send({ message: "success", paymentIntentId: pi.id });
+    // in the future subscription may go here
+    if (service.price === 0) {
+      //free service
+      const orderData = {
+        amount: 0,
+        status: "paid",
+        user_id: metadata.userId,
+        service_id: metadata.serviceId,
+        stripe_payment_intent_id: uuidv4(),
+        currency: "usd",
+      };
+      await orderService.createOrder(orderData);
+      res.send({ message: "success", clientSecret: null });
+    } else {
+      //paid service
+      const pi = await stripeUtils.createPaymentIntent(service.price, metadata);
+      res.send({ message: "success", clientSecret: pi.client_secret });
+    }
   } catch (error) {
     next(error);
-  }
-}
-
-export async function createOrder(req, res, next) {
-  const t = await sequelize.transaction();
-  try {
-    const customerData = req.body;
-    const inquiryId = hashIdUtil.hashIdDecode(customerData.id);
-    await authUtil.checkRoleAndPermission(req.auth, [
-      "service_provider_rep",
-      "service_provider_root",
-      true,
-      "order",
-      "create",
-    ]);
-    await authUtil.checkOwnership(
-      customerData.id,
-      req.auth.related_id,
-      "inquiry"
-    );
-
-    const offer = await orderService.generateOffer(
-      req.auth.related_id,
-      inquiryId,
-      t
-    );
-    let existingOrder;
-    if (offer.order_id)
-      existingOrder = await orderService.getOrder({ id: offer.order_id });
-    if (existingOrder && existingOrder.status === "pending client approval")
-      throw new AppError(
-        409,
-        "order already exists",
-        true,
-        `order already exists please cancel the order with id ${hashIdUtil.hashIdEncode(
-          existingOrder.id
-        )} first`
-      );
-
-    const main = await offer.get({ plain: true });
-    const variables = main.Service.Category.variables;
-    const preContract = categoryController.initContract(main);
-    const data = {};
-    variables.forEach((i) => {
-      if (customerData[i]) {
-        data[i] = customerData[i];
-      }
-    });
-    const contract = categoryController.fillContract(preContract, data);
-    const orderData = {
-      contract,
-      amount: data.price,
-      status: "pending client approval",
-      user_id: main.User.id,
-      service_provider_id: main.Service.ServiceProvider.id,
-      variables: data,
-    };
-    const order = await orderService.createOrder(orderData, t);
-    const inquiryUpdate = {
-      order_id: order.id,
-      status: "pending client approval",
-    };
-    const inquiryFilter = {
-      id: inquiryId,
-    };
-    await inquiryServices.updateInquiry(inquiryFilter, inquiryUpdate, t);
-    res.sendStatus(201);
-    await t.commit();
-  } catch (err) {
-    await t.rollback();
-    next(err);
   }
 }
 
