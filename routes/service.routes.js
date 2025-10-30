@@ -21,7 +21,7 @@ serviceRouter.get(
   "/:id",
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceProfilePublic
+  serviceController.getServiceProfile
 );
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
@@ -36,7 +36,12 @@ serviceRouter.post(
 serviceRouter.get(
   "/provider/services",
   jwt.authenticateJwt,
-  serviceController.getAllServicesServiceProvider
+  serviceController.getAllServicesSP
+);
+serviceRouter.get(
+  "/provider/services/:id",
+  jwt.authenticateJwt,
+  serviceController.getServiceProfilePrivate
 );
 // Update a service (allowed fields only)
 serviceRouter.put(
@@ -65,6 +70,11 @@ serviceRouter.get(
   "/admin/services",
   jwt.authenticateJwt,
   serviceController.getAllServicesAdmin
+);
+serviceRouter.get(
+  "/admin/services/:id",
+  jwt.authenticateJwt,
+  serviceController.getServiceProfilePrivate
 );
 // Restore a deleted service
 serviceRouter.post(

@@ -93,37 +93,6 @@ async function getAllServices(filters, authority) {
     data: services,
   };
 }
-async function getAllServicesAdmin() {
-  return await db.Service.findAll({
-    raw: false,
-    include: [
-      {
-        model: db.Category,
-        attributes: ["title"],
-        through: { attributes: [] },
-      },
-    ],
-  });
-}
-async function getAllServicesServiceProvider(id) {
-  const services = await db.Service.findAll({
-    where: {
-      service_provider_id: id,
-    },
-    include: [
-      {
-        model: db.Category,
-        attributes: ["title"],
-      },
-      {
-        model: db.User,
-        attributes: ["first_name", "last_name", "fullName", "email"],
-      },
-    ],
-  });
-  return services;
-}
-
 async function getServiceByIdPublic(id) {
   const service = await db.Service.findOne({
     where: { id, approved: true, rejected: false, published: true },
@@ -142,33 +111,52 @@ async function getServiceByIdPublic(id) {
           attributes: ["first_name", "last_name", "id"],
         },
       },
-    ],
-  });
-  if (!service)
-    throw new AppError(404, "Service not found", true, "Service not found");
-  service.increment("views");
-  await service.save();
-  return service.toJSON();
-}
-async function getServiceByIdPrivate(id) {
-  const service = await db.Service.findOne({
-    where: { id, approved: true, rejected: false, published: true },
-    raw: false,
-    attributes: publicAttributes,
-    include: [
-      {
-        model: db.Category,
-        attributes: ["id", "title", "contract_template"],
-      },
       {
         model: db.ServiceProvider,
         attributes: ["id", "name", "email", "phone_number"],
       },
     ],
   });
+
   if (!service)
     throw new AppError(404, "Service not found", true, "Service not found");
-  return service;
+  service.increment("views");
+  await service.save();
+  return service.toJSON();
+}
+async function getServiceByIdPrivate(id, SPID) {
+  const where = { id };
+  if (SPID) where.service_provider_id = SPID;
+  const service = await db.Service.findOne({
+    where,
+    raw: false,
+    attributes: publicAttributes,
+    include: [
+      {
+        model: db.Category,
+        attributes: ["title"],
+      },
+      {
+        model: db.Review,
+        attributes: ["body", "rating"],
+        include: {
+          model: db.User,
+          attributes: ["first_name", "last_name", "id"],
+        },
+      },
+      {
+        model: db.User,
+        attributes: ["first_name", "last_name", "email"],
+      },
+      {
+        model: db.Timeline,
+        attributes: ["id", "is_archived", "label"],
+      },
+    ],
+  });
+  if (!service)
+    throw new AppError(404, "Service not found", true, "Service not found");
+  return service.toJSON();
 }
 async function getServicesByUserId(userId) {
   return await db.Service.findAll({ where: { user_id: userId } });
@@ -227,7 +215,6 @@ async function alterServiceStatusSP(id, status) {
   }
   return await service.save();
 }
-
 export const updateServiceRating = async (
   {
     serviceId,
@@ -291,16 +278,13 @@ export async function alterFavorite(serviceId, userId, status) {
 const serviceServices = {
   createService,
   getAllServices,
-  getAllServicesAdmin,
-  getAllServicesServiceProvider,
   getServiceByIdPublic,
-  getServiceByIdPrivate,
-  getServicesByUserId,
   updateService,
   deleteService,
   restoreService,
   alterServiceStatus,
   alterServiceStatusSP,
+  getServiceByIdPrivate,
   updateServiceRating,
   alterFavorite,
 };

@@ -20,6 +20,7 @@ const sanitizeServices = (services) => {
 const sanitizeServiceProfile = (service) => {
   let temp = {
     ...service,
+    id: hashIdUtil.hashIdEncode(service.id),
     category: service.Category.title,
     reviews: service.Reviews.map((i) => {
       return {
@@ -88,10 +89,28 @@ export async function getAllServices(req, res, next) {
     next(error);
   }
 }
-export async function getServiceProfilePublic(req, res, next) {
+export async function getServiceProfile(req, res, next) {
   try {
     const service = await serviceServices.getServiceByIdPublic(
       hashIdUtil.hashIdDecode(req.params.id)
+    );
+    const sanitizedServices = sanitizeServiceProfile(service);
+    res.status(200).json(sanitizedServices);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getServiceProfilePrivate(req, res, next) {
+  try {
+    await authUtils.checkRoleAndPermission(req.auth, [
+      "admin",
+      "super_admin",
+      "service_provider_rep",
+      "service_provider_root",
+    ]);
+    const service = await serviceServices.getServiceByIdPrivate(
+      hashIdUtil.hashIdDecode(req.params.id),
+      req.auth.related_id
     );
     const sanitizedServices = sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
@@ -109,22 +128,23 @@ export async function getAllServicesAdmin(req, res, next) {
     next(error);
   }
 }
-export async function getAllServicesServiceProvider(req, res, next) {
+export async function getAllServicesSP(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(req.auth, [
       "service_provider_root",
       "service_provider_rep",
     ]);
-    const services = await serviceServices.getAllServicesServiceProvider(
-      req.auth.related_id
+    const filters = { ...req.query, serviceProvider: req.auth.related_id };
+    const services = await serviceServices.getAllServices(
+      filters,
+      "serviceProvider"
     );
-    const sanitizedServices = sanitizeOutput(services);
-    res.status(200).json(sanitizedServices);
+    const sanitizedServices = sanitizeServices(services.data);
+    res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
   }
 }
-
 export async function updateService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
@@ -270,12 +290,13 @@ const serviceController = {
   restoreService,
   deleteService,
   updateService,
-  getServiceProfilePublic,
-  getAllServicesServiceProvider,
+  getServiceProfile,
   getAllServicesAdmin,
+  getAllServicesSP,
   getAllServices,
   createService,
   sanitizeServices,
+  getServiceProfilePrivate,
   addToFavorite,
   removeFromFavorite,
 };
