@@ -1,5 +1,4 @@
 import db from "../database/dbIndex.js";
-import { AppError } from "../utils/error.class.js";
 // create new timeline
 async function createTimeline(serviceId, label = "newTimeline", t) {
   return await db.Timeline.create(
@@ -10,6 +9,7 @@ async function createTimeline(serviceId, label = "newTimeline", t) {
 async function activeTimeline(serviceId, t) {
   return await db.Timeline.findOne({
     where: { service_id: serviceId, is_archived: false },
+    include: [{ model: db.Service }],
     transaction: t,
   });
 }
@@ -20,7 +20,6 @@ async function archiveTimeline(timelineId, t) {
     { where: { id: timelineId }, transaction: t }
   );
 }
-
 // retrieve timeline
 // this should only be used by sp
 async function retrieveTimeline(timelineId) {

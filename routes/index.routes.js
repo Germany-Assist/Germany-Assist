@@ -8,6 +8,7 @@ import userRouter from "./user.routes.js";
 import permissionRouter from "./permissions.routes.js";
 import { Router } from "express";
 import ordersRouter from "./orders.routes.js";
+import postRouter from "../routes/post.routes.js";
 
 const apiRouter = Router();
 
@@ -20,11 +21,9 @@ apiRouter
   .use("/review", reviewRouter) //
   .use("/service", serviceRouter) //
   .use("/permission", permissionRouter)
-  .use("/order", ordersRouter);
+  .use("/order", ordersRouter)
+  .use("/post", postRouter);
 
-//i should add categories immediately
-
-// Posts;
 // Comments;
 // Badges;
 // Events;

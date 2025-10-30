@@ -1,0 +1,54 @@
+import { sequelize } from "../database/connection.js";
+import postServices from "../services/post.service.js";
+import timelineServices from "../services/timeline.service.js";
+import authUtil from "../utils/authorize.util.js";
+import { AppError } from "../utils/error.class.js";
+import hashIdUtil from "../utils/hashId.util.js";
+/*
+create new post should 
+1. check for role of SP
+2. timeline id
+3. timeline owner
+this should publish a sub event
+*/
+async function createNewPost(req, res, next) {
+  const t = await sequelize.transaction();
+  try {
+    const { serviceId, description, attachments } = req.body;
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_rep", "service_provider_root"],
+      true,
+      "post",
+      "create"
+    );
+    const timeline = await timelineServices.activeTimeline(
+      hashIdUtil.hashIdDecode(serviceId)
+    );
+    if (!timeline)
+      throw new AppError(
+        404,
+        "failed to find timeline",
+        true,
+        "failed to find timeline"
+      );
+    //this is just a short way to make sure of the owner instead of using the checkOwnership function due to speed and nesting
+    if (req.auth.related_id !== timeline.Service.owner)
+      throw new AppError(403, "invalid ownership", true, "invalid ownership");
+    await postServices.createNewPost({
+      description,
+      attachments,
+      timeline_id: timeline.id,
+      user_id: req.auth.id,
+    });
+    await t.commit();
+    res.send(201);
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+}
+const postController = {
+  createNewPost,
+};
+export default postController;

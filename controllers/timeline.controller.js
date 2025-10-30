@@ -1,19 +1,27 @@
-import { sequelize } from "../database/connection";
-import timelineServices from "../services/timeline.service";
-import hashIdUtil from "../utils/hashId.util";
+import { sequelize } from "../database/connection.js";
+import timelineServices from "../services/timeline.service.js";
+import authUtil from "../utils/authorize.util.js";
+import { AppError } from "../utils/error.class.js";
+import hashIdUtil from "../utils/hashId.util.js";
 
 async function newTimeline(req, res, next) {
   const t = await sequelize.transaction();
   try {
-    const serviceId = hashIdUtil.hashIdDecode(req.param.id);
+    await authUtil.checkRoleAndPermission(req.auth, [
+      "service_provider_rep",
+      "service_provider_root",
+    ]);
+    const serviceId = hashIdUtil.hashIdDecode(req.params.id);
     const { label } = req.body;
     const active = await timelineServices.activeTimeline(serviceId);
-    if (active)
+    if (!active)
       throw new AppError(
         409,
-        "There is an active timeline please archive it first",
-        true
+        "failed to find current active timeline",
+        true,
+        `failed to find current active timeline`
       );
+    await active.update({ is_archived: true }, { transaction: t });
     await timelineServices.createTimeline(serviceId, label, t);
     res.send(201);
     await t.commit();
@@ -22,7 +30,6 @@ async function newTimeline(req, res, next) {
     next(error);
   }
 }
-
 const timelineController = {
   newTimeline,
 };

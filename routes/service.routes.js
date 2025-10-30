@@ -6,13 +6,11 @@ import {
   idHashedParamValidator,
 } from "../validators/general.validators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
-import {
-  createInquiryValidator,
-  createServiceValidator,
-} from "../validators/services.validators.js";
+import { createServiceValidator } from "../validators/services.validators.js";
+import timelineRouter from "./timeline.routes.js";
 
 const serviceRouter = express.Router();
-
+serviceRouter.use("/timeline", timelineRouter);
 /* ---------------- Public Routes ---------------- */
 // Get all services that are approved & published
 serviceRouter.get("/", serviceController.getAllServices);
