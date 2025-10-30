@@ -16,23 +16,13 @@ const serviceRouter = express.Router();
 /* ---------------- Public Routes ---------------- */
 // Get all services that are approved & published
 serviceRouter.get("/", serviceController.getAllServices);
-
-// Get single service by ID
+//service profile
 serviceRouter.get(
   "/:id",
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceByIdPublic
+  serviceController.getServiceProfilePublic
 );
-// Get services for a specific provider by ID (approved & published)
-serviceRouter.get(
-  "/provider/services/:id",
-  idHashedParamValidator,
-  validateExpress,
-  serviceController.getServicesByServiceProviderId
-);
-// Get services filtered by type
-serviceRouter.post("/categories", serviceController.getByCategories);
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
 serviceRouter.post(

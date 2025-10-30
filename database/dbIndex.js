@@ -136,6 +136,8 @@ const db = {
   UserPermission,
   UserRole,
   Employer,
+  Timeline,
+  Post,
   Category,
   Order,
   StripeEvent,

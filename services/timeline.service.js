@@ -1,1 +1,39 @@
 import db from "../database/dbIndex.js";
+import { AppError } from "../utils/error.class.js";
+// create new timeline
+async function createTimeline(serviceId, label = "newTimeline", t) {
+  return await db.Timeline.create(
+    { service_id: serviceId, label: label },
+    { transaction: t }
+  );
+}
+async function activeTimeline(serviceId, t) {
+  return await db.Timeline.findOne({
+    where: { service_id: serviceId, is_archived: false },
+    transaction: t,
+  });
+}
+// archive time line
+async function archiveTimeline(timelineId, t) {
+  return await db.Timeline.update(
+    { is_archived: true },
+    { where: { id: timelineId }, transaction: t }
+  );
+}
+
+// retrieve timeline
+// this should only be used by sp
+async function retrieveTimeline(timelineId) {
+  return await db.Timeline.findOne({
+    where: { id: timelineId },
+    include: [{ model: db.Post }],
+  });
+}
+
+const timelineServices = {
+  retrieveTimeline,
+  archiveTimeline,
+  createTimeline,
+  activeTimeline,
+};
+export default timelineServices;

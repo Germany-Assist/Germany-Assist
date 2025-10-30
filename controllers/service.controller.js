@@ -3,37 +3,38 @@ import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.util.js";
 import { sequelize } from "../database/connection.js";
 import { AppError } from "../utils/error.class.js";
-const sanitizeOutput = (services) => {
-  let sanitizedReviews = undefined;
+const sanitizeServices = (services) => {
   const sanitizeData = services.map((i) => {
-    if (i.Reviews && i.Reviews.length > 0) {
-      sanitizedReviews = i.Reviews.map((i) => {
-        return {
-          body: i.body,
-          rating: i.rating,
-          userName: i.User.fullName,
-          user_id: hashIdUtil.hashIdEncode(i.User.id),
-        };
-      });
-    }
-    const service = i.get({ plain: true });
     let temp = {
-      ...service,
-      id: hashIdUtil.hashIdEncode(service.id),
-      creator: service.User
-        ? {
-            name: service.User.fullName,
-            email: service.User.email,
-            user_id: hashIdUtil.hashIdEncode(service.user_id),
-          }
-        : undefined,
-      Reviews: sanitizedReviews,
+      ...i,
+      id: hashIdUtil.hashIdEncode(i.id),
+      category: i["Category.title"],
+      serviceProvider: i["ServiceProvider.name"],
     };
-    delete temp.User;
-    delete temp.user_id;
+    delete temp["Category.title"];
+    delete temp["ServiceProvider.name"];
     return temp;
   });
   return sanitizeData;
+};
+const sanitizeServiceProfile = (service) => {
+  let temp = {
+    ...service,
+    category: service.Category.title,
+    reviews: service.Reviews.map((i) => {
+      return {
+        body: i.body,
+        rating: i.rating,
+        user: {
+          name: i.User.first_name + " " + i.User.last_name,
+          id: hashIdUtil.hashIdEncode(i.id),
+        },
+      };
+    }),
+  };
+  delete temp.Reviews;
+  delete temp.Category;
+  return temp;
 };
 export async function createService(req, res, next) {
   const transaction = await sequelize.transaction();
@@ -50,7 +51,7 @@ export async function createService(req, res, next) {
       service_provider_id: req.auth.related_id,
       title: req.body.title,
       description: req.body.description,
-      type: req.body.type,
+      type: "oneTime",
       rating: 0,
       total_reviews: 0,
       price: req.body.price,
@@ -61,6 +62,7 @@ export async function createService(req, res, next) {
           : false
         : false,
       category: req.body.category,
+      Timelines: [{ label: req.body.timelineLabel }],
     };
     const service = await serviceServices.createService(
       serviceData,
@@ -79,8 +81,19 @@ export async function createService(req, res, next) {
 }
 export async function getAllServices(req, res, next) {
   try {
-    const services = await serviceServices.getAllServices();
-    const sanitizedServices = sanitizeOutput(services);
+    const services = await serviceServices.getAllServices(req.query);
+    const sanitizedServices = sanitizeServices(services.data);
+    res.status(200).json({ ...services, data: sanitizedServices });
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getServiceProfilePublic(req, res, next) {
+  try {
+    const service = await serviceServices.getServiceByIdPublic(
+      hashIdUtil.hashIdDecode(req.params.id)
+    );
+    const sanitizedServices = sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
   } catch (error) {
     next(error);
@@ -89,9 +102,9 @@ export async function getAllServices(req, res, next) {
 export async function getAllServicesAdmin(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(req.auth, ["admin", "super_admin"]);
-    const services = await serviceServices.getAllServicesAdmin();
-    const sanitizedServices = sanitizeOutput(services);
-    res.status(200).json(sanitizedServices);
+    const services = await serviceServices.getAllServices(req.query, "admin");
+    const sanitizedServices = sanitizeServices(services.data);
+    res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
   }
@@ -111,37 +124,7 @@ export async function getAllServicesServiceProvider(req, res, next) {
     next(error);
   }
 }
-export async function getServiceByIdPublic(req, res, next) {
-  try {
-    const service = await serviceServices.getServiceByIdPublic(
-      hashIdUtil.hashIdDecode(req.params.id)
-    );
-    const sanitizedServices = sanitizeOutput([service]);
-    res.status(200).json(sanitizedServices);
-  } catch (error) {
-    next(error);
-  }
-}
-export async function getServicesByServiceProviderId(req, res, next) {
-  try {
-    const services = await serviceServices.getServicesByServiceProviderId(
-      req.params.id
-    );
-    const sanitizedServices = sanitizeOutput(services);
-    res.status(200).json(sanitizedServices);
-  } catch (error) {
-    next(error);
-  }
-}
-export async function getByCategories(req, res, next) {
-  try {
-    const services = await serviceServices.getServicesByType(req.body.category);
-    const sanitizedServices = sanitizeOutput(services);
-    res.status(200).json(sanitizedServices);
-  } catch (error) {
-    next(error);
-  }
-}
+
 export async function updateService(req, res, next) {
   try {
     const user = await authUtils.checkRoleAndPermission(
@@ -156,7 +139,7 @@ export async function updateService(req, res, next) {
       req.auth.related_id,
       "Service"
     );
-    const allowedFields = ["title", "description", "type", "price", "image"];
+    const allowedFields = ["description", "image"];
     let updateFields = {};
     allowedFields.forEach((i) => {
       if (req.body[i]) updateFields[i] = req.body[i];
@@ -287,14 +270,12 @@ const serviceController = {
   restoreService,
   deleteService,
   updateService,
-  getByCategories,
-  getServicesByServiceProviderId,
-  getServiceByIdPublic,
+  getServiceProfilePublic,
   getAllServicesServiceProvider,
   getAllServicesAdmin,
   getAllServices,
   createService,
-  sanitizeOutput,
+  sanitizeServices,
   addToFavorite,
   removeFromFavorite,
 };

@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 const publicAttributes = [
@@ -16,28 +17,81 @@ async function createService(serviceData, transaction) {
   const category = await db.Category.findOne({
     where: { title: serviceData.category },
   });
-  serviceData = { ...serviceData, category_id: category.id };
+  if (!category) throw new AppError(422, "invalid category", true);
+  serviceData.category_id = category.id;
   const service = await db.Service.create(
     { ...serviceData },
     {
+      include: [{ model: db.Timeline }],
       returning: true,
       transaction,
     }
   );
   return service.get({ plain: true });
 }
-async function getAllServices() {
-  return await db.Service.findAll({
-    raw: false,
-    where: { approved: true, rejected: false, published: true },
+async function getAllServices(filters, authority) {
+  const page = parseInt(filters.page) || 1;
+  const limit = parseInt(filters.limit) || 10;
+  const offset = (page - 1) * limit;
+  const where = {};
+  if (authority == "admin") {
+    if (filters.approved) where.approved = filters.approved;
+    if (filters.rejected) where.rejected = filters.rejected;
+    if (filters.published) where.published = filters.published;
+  } else if (authority == "serviceProvider") {
+    where.service_provider_id = filters.serviceProvider;
+    if (filters.approved) where.approved = filters.approved;
+    if (filters.rejected) where.rejected = filters.rejected;
+    if (filters.published) where.published = filters.published;
+  } else {
+    where.approved = true;
+    where.rejected = false;
+    where.published = true;
+  }
+  if (filters.maxRating || filters.minRating) {
+    where.rating = {};
+    if (filters.minRating) where.rating[Op.gte] = filters.minRating;
+    if (filters.maxRating) where.rating[Op.lte] = filters.maxRating;
+  }
+  if (filters.id) where.id = filters.id;
+  if (filters.search) where.title = { [Op.iLike]: `%${filters.search}%` };
+  if (filters.minPrice || filters.maxPrice) {
+    where.price = {};
+    if (filters.minPrice) where.price[Op.gte] = filters.minPrice;
+    if (filters.maxPrice) where.price[Op.lte] = filters.maxPrice;
+  }
+  const includeCategory = {
+    model: db.Category,
+    attributes: ["title"],
+  };
+  const includeServiceProvider = {
+    model: db.ServiceProvider,
+    attributes: ["name"],
+  };
+  if (filters.category) {
+    includeCategory.where = { title: filters.category };
+  }
+  if (filters.serviceProvider && authority !== "serviceProvider") {
+    where.service_provider_id = filters.serviceProvider;
+  }
+  const sortField = filters.sort || "createdAt";
+  const sortOrder = filters.order === "asc" ? "ASC" : "DESC";
+  const { rows: services, count } = await db.Service.findAndCountAll({
+    raw: true,
+    where,
     attributes: publicAttributes,
-    include: [
-      {
-        model: db.Category,
-        attributes: ["title"],
-      },
-    ],
+    include: [includeCategory, includeServiceProvider],
+    limit,
+    offset,
+    order: [[sortField, sortOrder]],
   });
+  return {
+    page,
+    limit,
+    total: count,
+    totalPages: Math.ceil(count / limit),
+    data: services,
+  };
 }
 async function getAllServicesAdmin() {
   return await db.Service.findAll({
@@ -94,7 +148,7 @@ async function getServiceByIdPublic(id) {
     throw new AppError(404, "Service not found", true, "Service not found");
   service.increment("views");
   await service.save();
-  return service;
+  return service.toJSON();
 }
 async function getServiceByIdPrivate(id) {
   const service = await db.Service.findOne({
@@ -118,38 +172,6 @@ async function getServiceByIdPrivate(id) {
 }
 async function getServicesByUserId(userId) {
   return await db.Service.findAll({ where: { user_id: userId } });
-}
-
-async function getServicesByServiceProviderId(id) {
-  return await db.Service.findAll({
-    where: {
-      service_provider_id: id,
-      published: true,
-      approved: true,
-      rejected: false,
-    },
-    include: [
-      {
-        model: db.Category,
-        as: "categories",
-        attributes: ["title"],
-        through: { attributes: [] },
-      },
-    ],
-    attributes: publicAttributes,
-  });
-}
-
-async function getServicesByType(title) {
-  return await db.Service.findOne({
-    attributes: publicAttributes,
-    include: {
-      model: db.Category,
-      where: { title },
-      attributes: ["title"],
-    },
-    attributes: publicAttributes,
-  });
 }
 
 async function updateService(id, updateData) {
@@ -274,8 +296,6 @@ const serviceServices = {
   getServiceByIdPublic,
   getServiceByIdPrivate,
   getServicesByUserId,
-  getServicesByServiceProviderId,
-  getServicesByType,
   updateService,
   deleteService,
   restoreService,
