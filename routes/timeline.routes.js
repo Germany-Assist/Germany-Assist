@@ -12,5 +12,11 @@ timelineRouter.post(
   validateExpress,
   timelineController.newTimeline
 );
-
+timelineRouter.get(
+  "/:id",
+  jwtUtils.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
+  timelineController.getTimelineById
+);
 export default timelineRouter;

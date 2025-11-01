@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { literal, Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 const publicAttributes = [
@@ -158,10 +158,30 @@ async function getServiceByIdPrivate(id, SPID) {
     throw new AppError(404, "Service not found", true, "Service not found");
   return service.toJSON();
 }
-async function getServicesByUserId(userId) {
-  return await db.Service.findAll({ where: { user_id: userId } });
-}
 
+async function getClientServices(userId) {
+  return await db.Service.findAll({
+    attributes: publicAttributes,
+    include: [
+      {
+        model: db.Order,
+        required: true,
+        attributes: ["id"],
+        where: {
+          user_id: userId,
+          status: { [Op.or]: ["paid", "fulfilled"] },
+        },
+        include: [
+          {
+            model: db.Timeline,
+            attributes: ["id", "label"],
+            required: true,
+          },
+        ],
+      },
+    ],
+  });
+}
 async function updateService(id, updateData) {
   const service = await db.Service.findByPk(id);
   if (!service)
@@ -287,5 +307,6 @@ const serviceServices = {
   getServiceByIdPrivate,
   updateServiceRating,
   alterFavorite,
+  getClientServices,
 };
 export default serviceServices;

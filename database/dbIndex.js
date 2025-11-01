@@ -15,11 +15,34 @@ import StripeEvent from "./models/stripe_event.js";
 import Favorite from "./models/favorite.js";
 import Timeline from "./models/timeline.js";
 import Post from "./models/post.js";
-
+import Comment from "./models/comment.js";
 export const defineConstrains = () => {
+  //comment
+  Comment.belongsTo(Post, {
+    foreignKey: "related_id",
+    constraints: false,
+  });
+  Comment.belongsTo(Comment, {
+    as: "parent",
+    foreignKey: "related_id",
+    constraints: false,
+  });
+  Comment.hasMany(Comment, {
+    as: "replies",
+    foreignKey: "related_id",
+    constraints: false,
+    scope: {
+      related_type: "comment",
+    },
+  });
   //post
   Post.belongsTo(Timeline, { foreignKey: "timeline_id" });
   Post.belongsTo(User, { foreignKey: "user_id" });
+  Post.hasMany(Comment, {
+    foreignKey: "related_id",
+    constraints: false,
+    scope: { related_type: "post" },
+  });
   //timeline
   Timeline.hasMany(Order, { foreignKey: "timeline_id" });
   Timeline.belongsTo(Service, { foreignKey: "service_id" });
@@ -141,6 +164,7 @@ const db = {
   Category,
   Order,
   StripeEvent,
+  Comment,
   Favorite,
 };
 

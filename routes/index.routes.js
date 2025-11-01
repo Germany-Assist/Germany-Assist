@@ -24,7 +24,6 @@ apiRouter
   .use("/order", ordersRouter)
   .use("/post", postRouter);
 
-// Comments;
 // Badges;
 // Events;
 

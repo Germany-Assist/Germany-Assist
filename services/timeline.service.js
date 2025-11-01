@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 // create new timeline
 async function createTimeline(serviceId, label = "newTimeline", t) {
@@ -28,11 +29,41 @@ async function retrieveTimeline(timelineId) {
     include: [{ model: db.Post }],
   });
 }
-
+async function getTimelineFull(userId, timelineId) {
+  return await db.Timeline.findOne({
+    where: { id: timelineId },
+    attributes: ["id"],
+    include: [
+      {
+        model: db.Post,
+        attributes: ["id", "description", "attachments"],
+        include: [
+          {
+            model: db.Comment,
+            attributes: ["id", "body"],
+            include: [
+              { model: db.Comment, as: "replies", attributes: ["id", "body"] },
+            ],
+          },
+        ],
+      },
+      {
+        model: db.Order,
+        attributes: [],
+        required: true,
+        where: {
+          user_id: userId,
+          status: { [Op.or]: ["paid", "fulfilled"] },
+        },
+      },
+    ],
+  });
+}
 const timelineServices = {
   retrieveTimeline,
   archiveTimeline,
   createTimeline,
   activeTimeline,
+  getTimelineFull,
 };
 export default timelineServices;

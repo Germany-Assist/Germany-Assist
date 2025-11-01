@@ -30,7 +30,20 @@ async function newTimeline(req, res, next) {
     next(error);
   }
 }
+async function getTimelineById(req, res, next) {
+  try {
+    const timelineId = hashIdUtil.hashIdDecode(req.params.id);
+    const timeline = await timelineServices.getTimelineFull(
+      req.auth.id,
+      timelineId
+    );
+    res.send(timeline);
+  } catch (error) {
+    next(error);
+  }
+}
 const timelineController = {
   newTimeline,
+  getTimelineById,
 };
 export default timelineController;

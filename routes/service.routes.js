@@ -103,5 +103,9 @@ serviceRouter.delete(
   validateExpress,
   serviceController.removeFromFavorite
 );
-
+serviceRouter.get(
+  "/client/services",
+  jwt.authenticateJwt,
+  serviceController.getClientServices
+);
 export default serviceRouter;

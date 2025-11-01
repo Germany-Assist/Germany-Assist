@@ -283,7 +283,30 @@ export async function removeFromFavorite(req, res, next) {
     next(error);
   }
 }
-
+export async function getClientServices(req, res, next) {
+  try {
+    const services = await serviceServices.getClientServices(req.auth.id);
+    const sanitizedServicesWithTimelines = services.map((i) => {
+      const ts = i.toJSON();
+      const temp = {
+        ...ts,
+        id: hashIdUtil.hashIdEncode(ts.id),
+        timelines: ts.Orders.map((t) => {
+          return {
+            orderId: hashIdUtil.hashIdEncode(t.id),
+            timelineId: hashIdUtil.hashIdEncode(t.Timeline.id),
+            timelineLabel: t.Timeline.label,
+          };
+        }),
+      };
+      delete temp.Orders;
+      return temp;
+    });
+    res.send(sanitizedServicesWithTimelines);
+  } catch (error) {
+    next(error);
+  }
+}
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,
@@ -299,5 +322,6 @@ const serviceController = {
   getServiceProfilePrivate,
   addToFavorite,
   removeFromFavorite,
+  getClientServices,
 };
 export default serviceController;
