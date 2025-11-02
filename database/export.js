@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { sequelize } from "./connection.js";
+import { NODE_ENV } from "../configs/serverConfig.js";
 
 const modelsDir = path.resolve("./database/models");
 async function importModels() {
@@ -47,5 +48,4 @@ async function exportAllModels() {
     process.exit(1);
   }
 }
-
-await exportAllModels();
+if (NODE_ENV !== "production") await exportAllModels();
