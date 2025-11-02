@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
@@ -100,6 +101,7 @@ export const getUserProfile = async (id) => {
       { model: db.UserRole },
       {
         model: db.Favorite,
+        required: false,
         attributes: ["id"],
         include: [
           {
@@ -110,8 +112,16 @@ export const getUserProfile = async (id) => {
       },
       {
         model: db.Order,
+        required: false,
         attributes: ["id"],
-        include: [{ model: db.Timeline, attributes: ["id", "label"] }],
+        where: { status: { [Op.not]: ["refunded"] } },
+        include: [
+          { model: db.Timeline, attributes: ["id", "label"] },
+          {
+            model: db.Service,
+            attributes: ["id"],
+          },
+        ],
       },
     ],
   });

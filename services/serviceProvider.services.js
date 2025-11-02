@@ -49,6 +49,9 @@ export const getServiceProviderById = async (id) => {
       "email",
       "views",
     ],
+    include: [
+      { model: db.Service, attributes: ["id", "title", "rating", "image"] },
+    ],
   });
   if (!profile)
     throw new AppError(
@@ -59,7 +62,7 @@ export const getServiceProviderById = async (id) => {
     );
   profile.increment("views");
   await profile.save();
-  return profile;
+  return profile.toJSON();
 };
 
 export const updateServiceProvider = async (id, updateData) => {

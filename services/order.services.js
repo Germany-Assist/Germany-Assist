@@ -29,11 +29,27 @@ export async function getOrder(filters) {
   const order = await db.Order.findOne({
     where: filters,
     raw: true,
-    // include: [db.Inquiry],
   });
   if (!order)
     throw new AppError(404, "Order not found", true, "Order not found");
   return order;
+}
+export async function getOrderByIdAndSPID(filters, SPID) {
+  const order = await db.Order.findOne({
+    where: filters,
+    raw: false,
+    include: [
+      {
+        model: db.Service,
+        where: { service_provider_id: SPID },
+        attributes: [],
+        required: true,
+      },
+    ],
+  });
+  if (!order)
+    throw new AppError(404, "Order not found", true, "Order not found");
+  return order.toJSON();
 }
 export async function getOrders(filters = {}) {
   const order = await db.Order.findAll({
@@ -73,6 +89,7 @@ export const orderService = {
   getUserCartByIds,
   getOrder,
   getOrders,
+  getOrderByIdAndSPID,
   updateOrder,
   getOrderCheckout,
   alterOrderState,

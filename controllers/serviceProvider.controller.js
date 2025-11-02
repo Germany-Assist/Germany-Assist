@@ -3,6 +3,7 @@ import { AppError } from "../utils/error.class.js";
 import { sequelize } from "../database/connection.js";
 import authUtils from "../utils/authorize.util.js";
 import userController, { cookieOptions } from "./user.controller.js";
+import hashIdUtil from "../utils/hashId.util.js";
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -43,7 +44,19 @@ export async function getServiceProviderById(req, res, next) {
     const profile = await serviceProviderServices.getServiceProviderById(
       req.params.id
     );
-    res.status(200).json(profile);
+    const sanitizedSPProfile = {
+      ...profile,
+      services: profile.Services.map((i) => {
+        return {
+          title: i.title,
+          rating: i.rating,
+          image: i.image,
+          id: hashIdUtil.hashIdEncode(i.id),
+        };
+      }),
+    };
+    delete sanitizedSPProfile.Services;
+    res.status(200).json(sanitizedSPProfile);
   } catch (error) {
     next(error);
   }

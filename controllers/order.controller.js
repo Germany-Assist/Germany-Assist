@@ -90,13 +90,15 @@ export async function getOrderSP(req, res, next) {
     ]);
     const filters = {
       id: hashIdUtil.hashIdDecode(req.params.id),
-      service_provider_id: req.auth.related_id,
     };
-    const order = await orderService.getOrder(filters);
+    const SPID = req.auth.related_id;
+    const order = await orderService.getOrderByIdAndSPID(filters, SPID);
     res.send({
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),
       user_id: hashIdUtil.hashIdEncode(order.user_id),
+      timeline_id: hashIdUtil.hashIdEncode(order.timeline_id),
+      service_id: hashIdUtil.hashIdEncode(order.user_iservice_id),
     });
   } catch (err) {
     next(err);
