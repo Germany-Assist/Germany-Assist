@@ -5,6 +5,11 @@ export default class Permission extends Model {}
 
 Permission.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     action: {
       type: DataTypes.STRING(50),
       allowNull: false,

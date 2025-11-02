@@ -101,10 +101,17 @@ export const getUserProfile = async (id) => {
       {
         model: db.Favorite,
         attributes: ["id"],
-        include: {
-          model: db.Service,
-          attributes: ["id", "image", "title", "description"],
-        },
+        include: [
+          {
+            model: db.Service,
+            attributes: ["id", "image", "title", "description"],
+          },
+        ],
+      },
+      {
+        model: db.Order,
+        attributes: ["id"],
+        include: [{ model: db.Timeline, attributes: ["id", "label"] }],
       },
     ],
   });

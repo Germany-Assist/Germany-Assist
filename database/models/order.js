@@ -4,6 +4,11 @@ export default class Order extends Model {}
 
 Order.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     amount: {
       type: DataTypes.FLOAT,
       allowNull: true,

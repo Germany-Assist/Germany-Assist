@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "first_name": "root",
+    "last_name": "root",
+    "email": "root@root.com",
+    "password": "$2b$10$YcCsWPYPnrHtcHeGycyvXuhpvjcTZg85aOnstJFBIXQdw6JfN2tXS",
+    "dob": "2010-01-01T00:00:00.000Z",
+    "is_verified": true,
+    "is_root": true,
+    "image": null,
+    "createdAt": "2025-11-02T12:00:42.771Z",
+    "updatedAt": "2025-11-02T12:00:42.771Z",
+    "deletedAt": null
+  }
+]

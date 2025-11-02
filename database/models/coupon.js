@@ -6,6 +6,11 @@ class Coupon extends Model {}
 
 Coupon.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     coupon_code: {
       type: DataTypes.UUID,
       allowNull: false,

@@ -30,7 +30,8 @@
     "pretest": "node --env-file=test.env ./database/migrateAndSeed.js",
     "test": "node --env-file=test.env ./tests/index.js",
     "preworkflowTest": "node ./database/migrateAndSeed.js",
-    "workflowTest": "node  ./tests/index.js"
+    "workflowTest": "node  ./tests/index.js",
+    "exportSeeds": "node --env-file=dev.env  ./database/export.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.901.0",
