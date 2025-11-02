@@ -125,12 +125,6 @@ Service.init(
         isInt: { msg: "quantity must be an integer" },
       },
     },
-    timeline_id: {
-      type: DataTypes.INTEGER,
-      validate: {
-        isInt: { msg: "timeline_id Id must be an integer" },
-      },
-    },
     owner: {
       type: DataTypes.VIRTUAL,
       get() {

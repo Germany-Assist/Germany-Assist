@@ -22,6 +22,9 @@ const sanitizeServiceProfile = (service) => {
     ...service,
     id: hashIdUtil.hashIdEncode(service.id),
     category: service.Category.title,
+    timelines: service.Timelines.map((x) => {
+      return { ...x, id: hashIdUtil.hashIdEncode(x.id) };
+    }),
     reviews: service.Reviews.map((i) => {
       return {
         body: i.body,
@@ -33,6 +36,7 @@ const sanitizeServiceProfile = (service) => {
       };
     }),
   };
+  delete temp.Timelines;
   delete temp.Reviews;
   delete temp.Category;
   return temp;

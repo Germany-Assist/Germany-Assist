@@ -255,7 +255,6 @@ export async function refreshUserToken(req, res, next) {
     const { id } = jwt.verifyToken(refreshToken);
     const user = await userServices.getUserById(id);
     const accessToken = jwt.generateAccessToken(user);
-    res.cookie("refreshToken", refreshToken, cookieOptions);
     res.send({ accessToken });
   } catch (error) {
     next(error);
