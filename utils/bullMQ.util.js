@@ -5,7 +5,7 @@ import { sequelize } from "../database/connection.js";
 import { errorLogger, infoLogger } from "./loggers.js";
 import redis from "../configs/redis.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
-
+import { writeFile } from "node:fs/promises";
 export async function stripeProcessor(job) {
   const event = job.data.event;
   const eventId = event.id;
@@ -17,7 +17,7 @@ export async function stripeProcessor(job) {
     switch (event.type) {
       case "payment_intent.created": {
         await stripeServices.createStripeEvent(event, "pending");
-        console.log(`im creating the stripe event ${event.id}`);
+        infoLogger(`im creating the stripe event ${event.id}`);
         break;
       }
       case "payment_intent.succeeded": {
@@ -34,7 +34,7 @@ export async function stripeProcessor(job) {
         break;
       }
       case "payment_intent.payment_failed": {
-        console.log("payment failed");
+        infoLogger("❌ Payment Failed");
         break;
       }
       default:
@@ -43,12 +43,10 @@ export async function stripeProcessor(job) {
         );
     }
     await stripeServices.updateStripeEvent(event.id, "processed", t);
-    console.log(`im updating as the stripe event  processed ${event.id}`);
-
+    infoLogger(`im updating as the stripe event  processed ${event.id}`);
     await t.commit();
   } catch (err) {
     await t.rollback();
-    console.log(err);
     errorLogger(err);
     throw err;
   }
@@ -71,6 +69,8 @@ if (NODE_ENV !== "test") {
     "dead-letter",
     async (job) => {
       infoLogger(`📥 Handling DLQ job ${job.id}`);
+      const filePath = path.join(process.cwd(), "emergencyDLQ.txt");
+      await writeFile(filePath, JSON.stringify(job), { flag: "a" });
     },
     { connection: redis }
   );

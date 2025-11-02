@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
@@ -52,9 +52,21 @@ export async function getOrderByIdAndSPID(filters, SPID) {
   return order.toJSON();
 }
 export async function getOrders(filters = {}) {
+  const { service_provider_id } = filters;
+  const include = [];
+  delete filters.service_provider_id;
+  if (service_provider_id) {
+    include.push({
+      model: db.Service,
+      attributes: [],
+      required: true,
+      where: { service_provider_id },
+    });
+  }
   const order = await db.Order.findAll({
     where: filters,
     raw: true,
+    include,
   });
   if (!order) throw new AppError(404, "Order not found");
   return order;
@@ -62,15 +74,7 @@ export async function getOrders(filters = {}) {
 export async function alterOrderState(status, filters) {
   const order = await db.Order.update({ status }, { where: filters });
 }
-export async function getOrderCheckout(orderId, clientId) {
-  const order = await db.Order.findOne({
-    attributes: ["id", "variables", "status", "amount"],
-    where: { id: orderId, user_id: clientId },
-    raw: true,
-  });
-  if (!order) throw new AppError(404, "Order not found");
-  return order;
-}
+
 export async function updateOrder(status, amount, id, t) {
   return await db.Order.update(
     { status, amount: amount / 100 },
@@ -91,7 +95,6 @@ export const orderService = {
   getOrders,
   getOrderByIdAndSPID,
   updateOrder,
-  getOrderCheckout,
   alterOrderState,
 };
 export default orderService;

@@ -20,7 +20,7 @@ export const updateCategory = async (id, data) => {
 export const getAllCategories = async (id, data) => {
   return await db.Category.findAll({
     raw: true,
-    attributes: ["id", "title", "label", "variables", "contract_template"],
+    attributes: ["id", "title", "label"],
   });
 };
 

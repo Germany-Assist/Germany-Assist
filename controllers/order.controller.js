@@ -77,6 +77,8 @@ export async function getOrderAdmin(req, res, next) {
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),
       user_id: hashIdUtil.hashIdEncode(order.user_id),
+      timeline_id: hashIdUtil.hashIdEncode(order.timeline_id),
+      service_id: hashIdUtil.hashIdEncode(order.service_id),
     });
   } catch (err) {
     next(err);
@@ -116,6 +118,8 @@ export async function getOrderCL(req, res, next) {
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),
       user_id: hashIdUtil.hashIdEncode(order.user_id),
+      timeline_id: hashIdUtil.hashIdEncode(order.timeline_id),
+      service_id: hashIdUtil.hashIdEncode(order.user_iservice_id),
     });
   } catch (err) {
     next(err);
@@ -133,6 +137,8 @@ export async function getOrdersAdmin(req, res, next) {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
         user_id: hashIdUtil.hashIdEncode(i.user_id),
+        timeline_id: hashIdUtil.hashIdEncode(i.timeline_id),
+        service_id: hashIdUtil.hashIdEncode(i.user_iservice_id),
       };
     });
     res.send(sanitizedOrders);
@@ -156,6 +162,8 @@ export async function getOrdersSP(req, res, next) {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
         user_id: hashIdUtil.hashIdEncode(i.user_id),
+        timeline_id: hashIdUtil.hashIdEncode(i.timeline_id),
+        service_id: hashIdUtil.hashIdEncode(i.user_iservice_id),
       };
     });
     res.send(sanitizedOrders);
@@ -176,6 +184,8 @@ export async function getOrdersCL(req, res, next) {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
         user_id: hashIdUtil.hashIdEncode(i.user_id),
+        timeline_id: hashIdUtil.hashIdEncode(i.timeline_id),
+        service_id: hashIdUtil.hashIdEncode(i.user_iservice_id),
       };
     });
     res.send(sanitizedOrders);
@@ -183,37 +193,7 @@ export async function getOrdersCL(req, res, next) {
     next(err);
   }
 }
-export async function cancelOrderSP(req, res, next) {
-  try {
-    await authUtil.checkRoleAndPermission(req.auth, [
-      "service_provider_rep",
-      "service_provider_root",
-    ]);
-    const filters = {
-      id: hashIdUtil.hashIdDecode(req.params.id),
-      service_provider_id: req.auth.related_id,
-      status: "pending client approval",
-    };
-    await orderService.alterOrderState("cancelled", filters);
-    res.sendStatus(200);
-  } catch (err) {
-    next(err);
-  }
-}
-export async function cancelOrderCL(req, res, next) {
-  try {
-    await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
-    const filters = {
-      id: hashIdUtil.hashIdDecode(req.params.id),
-      user_id: req.auth.id,
-      status: "pending client approval",
-    };
-    await orderService.alterOrderState("cancelled", filters);
-    res.sendStatus(200);
-  } catch (err) {
-    next(err);
-  }
-}
+
 const orderController = {
   checkoutController,
   payOrder,
@@ -223,8 +203,6 @@ const orderController = {
   getOrdersAdmin,
   getOrdersSP,
   getOrdersCL,
-  cancelOrderSP,
-  cancelOrderCL,
 };
 
 export default orderController;

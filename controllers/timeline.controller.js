@@ -37,7 +37,19 @@ async function getTimelineById(req, res, next) {
       req.auth.id,
       timelineId
     );
-    res.send(timeline);
+    if (!timeline)
+      throw new AppError(
+        404,
+        "failed to find timeline",
+        true,
+        "failed to find timeline"
+      );
+    res.send({
+      id: hashIdUtil.hashIdEncode(timeline.id),
+      posts: timeline.Posts?.map((i) => {
+        return { ...i, id: hashIdUtil.hashIdEncode(i.id) };
+      }),
+    });
   } catch (error) {
     next(error);
   }

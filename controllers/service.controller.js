@@ -22,7 +22,7 @@ const sanitizeServiceProfile = (service) => {
     ...service,
     id: hashIdUtil.hashIdEncode(service.id),
     category: service.Category.title,
-    timelines: service.Timelines.map((x) => {
+    timelines: service.Timelines?.map((x) => {
       return { ...x, id: hashIdUtil.hashIdEncode(x.id) };
     }),
     reviews: service.Reviews.map((i) => {

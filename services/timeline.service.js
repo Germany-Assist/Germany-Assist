@@ -21,16 +21,9 @@ async function archiveTimeline(timelineId, t) {
     { where: { id: timelineId }, transaction: t }
   );
 }
-// retrieve timeline
-// this should only be used by sp
-async function retrieveTimeline(timelineId) {
-  return await db.Timeline.findOne({
-    where: { id: timelineId },
-    include: [{ model: db.Post }],
-  });
-}
+
 async function getTimelineFull(userId, timelineId) {
-  return await db.Timeline.findOne({
+  const timeline = await db.Timeline.findOne({
     where: { id: timelineId },
     attributes: ["id"],
     include: [
@@ -58,9 +51,9 @@ async function getTimelineFull(userId, timelineId) {
       },
     ],
   });
+  return timeline.toJSON();
 }
 const timelineServices = {
-  retrieveTimeline,
   archiveTimeline,
   createTimeline,
   activeTimeline,
