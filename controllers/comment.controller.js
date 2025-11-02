@@ -2,6 +2,9 @@ import { sequelize } from "../database/connection.js";
 import commentServices from "../services/comment.services.js";
 import hashIdUtil from "../utils/hashId.util.js";
 
+// TODO: lets finish the comments
+// NOTE: i already created a new branch for comments
+
 async function createNewComment(req, res, next) {
   const t = await sequelize.transaction();
 
