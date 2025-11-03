@@ -24,7 +24,10 @@ import "./utils/bullMQ.util.js";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
-
+//TODO start with
+//1. validation
+//2. checkTheRoutes
+//3. add options for the posts routes
 app
   .use((req, res, next) => {
     req.requestId = uuidv4();
