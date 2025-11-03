@@ -19,29 +19,25 @@ import Comment from "./models/comment.js";
 export const defineConstrains = () => {
   //comment
   Comment.belongsTo(Post, {
-    foreignKey: "related_id",
+    foreignKey: "post_id",
     constraints: false,
   });
   Comment.belongsTo(Comment, {
     as: "parent",
-    foreignKey: "related_id",
-    constraints: false,
+    foreignKey: "parent_id",
+    constraints: true,
   });
   Comment.hasMany(Comment, {
     as: "replies",
-    foreignKey: "related_id",
-    constraints: false,
-    scope: {
-      related_type: "comment",
-    },
+    foreignKey: "parent_id",
+    constraints: true,
   });
   //post
   Post.belongsTo(Timeline, { foreignKey: "timeline_id" });
   Post.belongsTo(User, { foreignKey: "user_id" });
   Post.hasMany(Comment, {
-    foreignKey: "related_id",
+    foreignKey: "post_id",
     constraints: false,
-    scope: { related_type: "post" },
   });
   //timeline
   Timeline.hasMany(Order, { foreignKey: "timeline_id" });

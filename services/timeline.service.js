@@ -33,10 +33,7 @@ async function getTimelineFull(userId, timelineId) {
         include: [
           {
             model: db.Comment,
-            attributes: ["id", "body"],
-            include: [
-              { model: db.Comment, as: "replies", attributes: ["id", "body"] },
-            ],
+            attributes: ["id", "body", "parent_id"],
           },
         ],
       },
@@ -46,7 +43,7 @@ async function getTimelineFull(userId, timelineId) {
         required: true,
         where: {
           user_id: userId,
-          status: { [Op.or]: ["paid", "fulfilled"] },
+          status: { [Op.or]: ["paid", "fulfilled", "completed"] },
         },
       },
     ],

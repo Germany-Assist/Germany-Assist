@@ -17,16 +17,19 @@ Comment.init(
         isInt: { msg: "user_id must be a integer" },
       },
     },
-    related_id: {
+    post_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        isInt: { msg: "related_id must be a integer" },
+        isInt: { msg: "post_id must be a integer" },
       },
     },
-    related_type: {
-      type: DataTypes.ENUM("post", "comment"),
-      allowNull: false,
+    parent_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      validate: {
+        isInt: { msg: "post_id must be a integer" },
+      },
     },
     body: {
       type: DataTypes.TEXT,

@@ -1,9 +1,27 @@
+import { body } from "express-validator";
 import { sequelize } from "../database/connection.js";
 import timelineServices from "../services/timeline.service.js";
 import authUtil from "../utils/authorize.util.js";
 import { AppError } from "../utils/error.class.js";
 import hashIdUtil from "../utils/hashId.util.js";
 
+function formatComment(comments) {
+  return comments.map((i) => {
+    return {
+      id: hashIdUtil.hashIdEncode(i.id),
+      body: i.body,
+      parentId: i.parent_id ? hashIdUtil.hashIdEncode(i.parent_id) : null,
+    };
+  });
+}
+function formatPost(post) {
+  return {
+    id: hashIdUtil.hashIdEncode(post.id),
+    description: post.description,
+    attachments: post.attachments,
+    comments: post.Comments ? formatComment(post.Comments) : [],
+  };
+}
 async function newTimeline(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -37,18 +55,18 @@ async function getTimelineById(req, res, next) {
       req.auth.id,
       timelineId
     );
-    if (!timeline)
+
+    if (!timeline) {
       throw new AppError(
         404,
         "failed to find timeline",
         true,
         "failed to find timeline"
       );
+    }
     res.send({
       id: hashIdUtil.hashIdEncode(timeline.id),
-      posts: timeline.Posts?.map((i) => {
-        return { ...i, id: hashIdUtil.hashIdEncode(i.id) };
-      }),
+      posts: timeline.Posts?.map(formatPost) || [],
     });
   } catch (error) {
     next(error);
