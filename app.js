@@ -29,8 +29,8 @@ export const io = createSocketServer(server);
 1. validation and fixing
   A. asset validation will moved to another epic since the whole asset will be addressed then
   B. coupons needs to be discussed further
-2. checkTheRoutes
-3. add options for the posts routes
+2. add options for the posts routes
+3. testing
 */
 app
   .use((req, res, next) => {
