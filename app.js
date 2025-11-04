@@ -37,7 +37,7 @@ export const io = createSocketServer(server);
   A. POSTMAN : DONE
 */
 
-//NOTE : you are on new ready branch
+//NOTE : you are on testing branch
 app
   .use((req, res, next) => {
     req.requestId = uuidv4();
