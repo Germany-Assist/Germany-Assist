@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import hashIdUtil from "../utils/hashId.util.js";
 
 export const createTimelineValidator = [
   param("id")

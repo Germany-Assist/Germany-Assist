@@ -14,12 +14,7 @@ reviewRouter.post(
   jwtMiddleware.authenticateJwt,
   reviewController.createReview
 );
-reviewRouter.get(
-  "/service/:id",
-  idHashedParamValidator,
-  validateExpress,
-  reviewController.getReviewsByServiceId
-);
+
 reviewRouter.put(
   "/service/:id",
   createReviewVal,

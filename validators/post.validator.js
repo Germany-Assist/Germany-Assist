@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import hashIdUtil from "../utils/hashId.util.js";
 
 export const createPostValidator = [
   body("description")
@@ -23,7 +24,9 @@ export const createPostValidator = [
     .custom((attachments) => {
       for (const item of attachments) {
         if (typeof item !== "object" || Array.isArray(item)) {
-          throw new Error("Each attachment must be an object");
+          throw new Error(
+            "Attachments must be an array, Each attachment must be an object of key 'name' and key 'url' example {name:'addressForm',url:'form.drive.com'}"
+          );
         }
         if (!item.url || typeof item.url !== "string") {
           throw new Error("Each attachment must include a valid 'url' string");

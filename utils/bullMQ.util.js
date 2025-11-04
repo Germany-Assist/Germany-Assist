@@ -27,6 +27,7 @@ export async function stripeProcessor(job) {
           status: "paid",
           user_id: metadata.userId,
           service_id: metadata.serviceId,
+          timeline_id: metadata.timelineId,
           stripe_payment_intent_id: pi.id,
           currency: "usd",
         };

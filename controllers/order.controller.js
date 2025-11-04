@@ -14,16 +14,14 @@ export async function checkoutController(req, res, next) {
     const serviceId = hashIdUtil.hashIdDecode(id);
     const user = await userServices.getUserById(req.auth.id);
     const service = (
-      await serviceServices.getServiceByIdPrivate(serviceId)
+      await orderService.getServiceForPaymentPrivate(serviceId)
     ).get({ plain: true });
     if (!user || !service)
       throw new AppError(404, "failed to find user or service", false);
     res.send(
       `user ${(user.first_name_, user.first_name)} wants to buy service ${
         service.title
-      } from SP id = ${service.ServiceProvider.id} for price of "${
-        service.price
-      }"`
+      } for price of "${service.price}"`
     );
   } catch (err) {
     next(err);
@@ -34,14 +32,11 @@ export async function payOrder(req, res, next) {
     await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
     const { id } = req.params;
     const serviceId = hashIdUtil.hashIdDecode(id);
-    const service = (
-      await serviceServices.getServiceByIdPrivate(serviceId)
-    ).get({
-      plain: true,
-    });
+    const service = await orderService.getServiceForPaymentPrivate(serviceId);
     const metadata = {
       serviceId,
       userId: req.auth.id,
+      timelineId: service["Timelines.id"],
     };
     // in the future subscription may go here
     if (service.price === 0) {
@@ -51,15 +46,19 @@ export async function payOrder(req, res, next) {
         status: "paid",
         user_id: metadata.userId,
         service_id: metadata.serviceId,
+        timeline_id: metadata.timelineId,
         stripe_payment_intent_id: uuidv4(),
         currency: "usd",
       };
       await orderService.createOrder(orderData);
-      res.send({ message: "success", clientSecret: null });
+      res.send({ success: true, message: { clientSecret: null } });
     } else {
       //paid service
       const pi = await stripeUtils.createPaymentIntent(service.price, metadata);
-      res.send({ message: "success", clientSecret: pi.client_secret });
+      res.send({
+        success: true,
+        message: { clientSecret: pi.client_secret },
+      });
     }
   } catch (error) {
     next(error);

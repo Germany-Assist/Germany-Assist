@@ -79,7 +79,7 @@ async function getAllServices(filters, authority) {
   const { rows: services, count } = await db.Service.findAndCountAll({
     raw: true,
     where,
-    attributes: publicAttributes,
+    attributes: [...publicAttributes, "approved", "published", "rejected"],
     include: [includeCategory, includeServiceProvider],
     limit,
     offset,
@@ -124,13 +124,13 @@ async function getServiceByIdPublic(id) {
   await service.save();
   return service.toJSON();
 }
-async function getServiceByIdPrivate(id, SPID) {
+async function getServiceProfileForAdminAndSP(id, SPID) {
   const where = { id };
   if (SPID) where.service_provider_id = SPID;
   const service = await db.Service.findOne({
     where,
     raw: false,
-    attributes: publicAttributes,
+    attributes: [...publicAttributes, "approved", "rejected", "published"],
     include: [
       {
         model: db.Category,
@@ -169,7 +169,7 @@ async function getClientServices(userId) {
         attributes: ["id"],
         where: {
           user_id: userId,
-          status: { [Op.or]: ["paid", "fulfilled"] },
+          status: { [Op.or]: ["paid", "fulfilled", "completed"] },
         },
         include: [
           {
@@ -304,7 +304,7 @@ const serviceServices = {
   restoreService,
   alterServiceStatus,
   alterServiceStatusSP,
-  getServiceByIdPrivate,
+  getServiceProfileForAdminAndSP,
   updateServiceRating,
   alterFavorite,
   getClientServices,

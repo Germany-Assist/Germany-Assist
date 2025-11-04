@@ -26,20 +26,6 @@ export const createReview = async (data, t) => {
   );
 };
 
-export const getReviewsByServiceId = async (serviceId) => {
-  const reviews = await db.Review.findAll({
-    attributes: ["body", "rating"],
-    include: {
-      model: db.User,
-      attributes: ["first_name", "last_name", "id"],
-    },
-    where: { service_id: serviceId },
-  });
-  if (!reviews)
-    throw new AppError(404, "no reviews found", true, "no reviews found");
-  return reviews;
-};
-
 export const updateReview = async (data, t) => {
   const { body, rating, service_id, user_id } = data;
   const review = await db.Review.findOne({ where: { service_id, user_id } });

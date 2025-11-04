@@ -41,7 +41,7 @@ serviceRouter.get(
   jwt.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceProfilePrivate
+  serviceController.getServiceProfileForAdminAndSP
 );
 // Update a service (allowed fields only)
 serviceRouter.put(
@@ -76,7 +76,7 @@ serviceRouter.get(
   idHashedParamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceController.getServiceProfilePrivate
+  serviceController.getServiceProfileForAdminAndSP
 );
 // Restore a deleted service
 serviceRouter.post(

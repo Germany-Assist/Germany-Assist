@@ -34,8 +34,7 @@ export const io = createSocketServer(server);
   B. add routes for timelines update label
   C. add routes to update the post
 3. testing //phase 1 POSTMAN //phase 2 Writing tests
-  A. POSTMAN :
-    1. User Folder
+  A. POSTMAN : DONE
 */
 
 //NOTE : you are on new ready branch

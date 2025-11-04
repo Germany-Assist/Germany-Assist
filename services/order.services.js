@@ -8,6 +8,15 @@ export async function createOrder(data, t) {
     transaction: t,
   });
 }
+export async function getServiceForPaymentPrivate(id) {
+  return await db.Service.findOne({
+    raw: true,
+    where: { id, published: true, approved: true, rejected: false },
+    include: [
+      { model: db.Timeline, where: { is_archived: false }, attributes: ["id"] },
+    ],
+  });
+}
 
 export async function getOrder(filters) {
   const order = await db.Order.findOne({
@@ -61,5 +70,6 @@ export const orderService = {
   getOrder,
   getOrders,
   getOrderByIdAndSPID,
+  getServiceForPaymentPrivate,
 };
 export default orderService;

@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
+import { AppError } from "../utils/error.class.js";
 // create new timeline
 async function createTimeline(serviceId, label = "newTimeline", t) {
   return await db.Timeline.create(
@@ -48,6 +49,13 @@ async function getTimelineFull(userId, timelineId) {
       },
     ],
   });
+  if (!timeline)
+    throw new AppError(
+      404,
+      "failed to find the timeline in your orders",
+      true,
+      "failed to find the timeline in your orders"
+    );
   return timeline.toJSON();
 }
 const timelineServices = {

@@ -18,15 +18,15 @@ export function errorMiddleware(err, req, res, next) {
       message: err.publicMessage,
     });
   }
+  if (err instanceof UniqueConstraintError)
+    return res
+      .status(422)
+      .json({ success: false, message: "already exists in the database" });
   if (
     err instanceof ValidationError ||
-    err instanceof UniqueConstraintError ||
     err instanceof ForeignKeyConstraintError
   ) {
     const messages = (err.errors || []).map((e) => {
-      if (err instanceof UniqueConstraintError) {
-        return e.message || `${e.path} must be unique, already exists`;
-      }
       if (err instanceof ForeignKeyConstraintError) {
         return e.message || `Invalid reference for ${e.index}`;
       }

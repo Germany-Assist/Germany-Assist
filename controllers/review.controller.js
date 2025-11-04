@@ -39,24 +39,6 @@ export async function createReview(req, res, next) {
   }
 }
 
-export async function getReviewsByServiceId(req, res, next) {
-  try {
-    const service_id = hashIdUtil.hashIdDecode(req.params.serviceId);
-    const reviews = await reviewServices.getReviewsByServiceId(service_id);
-    const sanitizedReviews = reviews.map((i) => {
-      return {
-        body: i.body,
-        rating: i.rating,
-        userName: i.User.fullName,
-        user_id: hashIdUtil.hashIdEncode(i.User.id),
-      };
-    });
-    res.status(200).json(sanitizedReviews);
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function updateReview(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -87,5 +69,5 @@ export async function updateReview(req, res, next) {
     next(error);
   }
 }
-const reviewController = { updateReview, getReviewsByServiceId, createReview };
+const reviewController = { updateReview, createReview };
 export default reviewController;

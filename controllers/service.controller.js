@@ -41,6 +41,15 @@ const sanitizeServiceProfile = (service) => {
   delete temp.Category;
   return temp;
 };
+const formatTimelines = (timelines) => {
+  return timelines.map((i) => {
+    return {
+      id: hashIdUtil.hashIdEncode(i.id),
+      label: i.label,
+      isArchived: i.is_archived,
+    };
+  });
+};
 export async function createService(req, res, next) {
   const transaction = await sequelize.transaction();
   try {
@@ -73,10 +82,16 @@ export async function createService(req, res, next) {
       serviceData,
       transaction
     );
+    const timelines = formatTimelines(service.Timelines);
     res.status(201).json({
-      ...service,
-      id: hashIdUtil.hashIdEncode(service.id),
-      user_id: hashIdUtil.hashIdEncode(service.UserId),
+      message: "successfully created service",
+      data: {
+        id: hashIdUtil.hashIdEncode(service.id),
+        title: service.title,
+        userId: hashIdUtil.hashIdEncode(service.UserId),
+        categoryId: hashIdUtil.hashIdEncode(service.category_id),
+        timelines,
+      },
     });
     await transaction.commit();
   } catch (error) {
@@ -104,7 +119,7 @@ export async function getServiceProfile(req, res, next) {
     next(error);
   }
 }
-export async function getServiceProfilePrivate(req, res, next) {
+export async function getServiceProfileForAdminAndSP(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(req.auth, [
       "admin",
@@ -112,7 +127,7 @@ export async function getServiceProfilePrivate(req, res, next) {
       "service_provider_rep",
       "service_provider_root",
     ]);
-    const service = await serviceServices.getServiceByIdPrivate(
+    const service = await serviceServices.getServiceProfileForAdminAndSP(
       hashIdUtil.hashIdDecode(req.params.id),
       req.auth.related_id
     );
@@ -172,7 +187,7 @@ export async function updateService(req, res, next) {
       hashIdUtil.hashIdDecode(req.body.id),
       updateFields
     );
-    res.sendStatus(200);
+    res.send({ success: true, message: "Service Updated" });
   } catch (error) {
     next(error);
   }
@@ -192,7 +207,7 @@ export async function deleteService(req, res, next) {
       "Service"
     );
     await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.params.id));
-    res.sendStatus(200);
+    res.send({ success: true, message: "Service Deleted Successfully" });
   } catch (error) {
     next(error);
   }
@@ -207,7 +222,7 @@ export async function restoreService(req, res, next) {
     await serviceServices.restoreService(
       hashIdUtil.hashIdDecode(req.params.id)
     );
-    res.sendStatus(200);
+    res.send({ success: true, message: "Service Restored Successfully" });
   } catch (error) {
     next(error);
   }
@@ -323,7 +338,7 @@ const serviceController = {
   getAllServices,
   createService,
   sanitizeServices,
-  getServiceProfilePrivate,
+  getServiceProfileForAdminAndSP,
   addToFavorite,
   removeFromFavorite,
   getClientServices,
