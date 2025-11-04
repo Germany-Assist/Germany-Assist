@@ -6,13 +6,13 @@ import {
   createServiceProviderValidator,
   updateServiceProviderValidator,
 } from "../validators/serviceProvider.validators.js";
-import { idHashedParamValidator } from "../validators/general.validators.js";
+import { idUUIDparamValidator } from "../validators/general.validators.js";
 const serviceProviderRouter = express.Router();
 
 serviceProviderRouter.get("/", serviceProviderController.getAllServiceProvider);
 serviceProviderRouter.get(
   "/:id",
-  idHashedParamValidator,
+  idUUIDparamValidator,
   validateExpress,
   serviceProviderController.getServiceProviderById
 );

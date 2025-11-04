@@ -24,14 +24,21 @@ import "./utils/bullMQ.util.js";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
-//TODO start with
+//TODO start with`
 /*
 1. validation and fixing
-  A. asset validation will moved to another epic since the whole asset will be addressed then
-  B. coupons needs to be discussed further
-2. add options for the posts routes
-3. testing
+  A. asset validation will moved to another epic since the whole asset will be addressed then //i will delete this line after i create an issue 
+  B. coupons needs to be discussed further //i will delete this line after i create an issue 
+2. Extra
+  A. add options for the posts routes
+  B. add routes for timelines update label
+  C. add routes to update the post
+3. testing //phase 1 POSTMAN //phase 2 Writing tests
+  A. POSTMAN :
+    1. User Folder
 */
+
+//NOTE : you are on new ready branch
 app
   .use((req, res, next) => {
     req.requestId = uuidv4();

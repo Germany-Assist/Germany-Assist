@@ -50,7 +50,12 @@ export const getServiceProviderById = async (id) => {
       "views",
     ],
     include: [
-      { model: db.Service, attributes: ["id", "title", "rating", "image"] },
+      {
+        model: db.Service,
+        attributes: ["id", "title", "rating", "image"],
+        required: false,
+        where: { published: true, approved: true, rejected: false },
+      },
     ],
   });
   if (!profile)

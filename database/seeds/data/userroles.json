@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "related_id": null,
+    "related_type": null,
+    "role": "super_admin",
+    "createdAt": "2025-11-04T07:58:03.157Z",
+    "updatedAt": "2025-11-04T07:58:03.157Z"
+  },
+  {
+    "id": 2,
+    "user_id": 2,
+    "related_id": null,
+    "related_type": "client",
+    "role": "client",
+    "createdAt": "2025-11-04T08:02:04.494Z",
+    "updatedAt": "2025-11-04T08:02:04.494Z"
+  }
+]
