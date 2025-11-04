@@ -44,7 +44,7 @@ Service.init(
       type: DataTypes.UUID,
       allowNull: false,
       validate: {
-        isUUID: { args: 4, msg: "BusinessId must be a valid UUIDv4" },
+        isUUID: { args: 4, msg: "Service Provider ID must be a valid UUIDv4" },
       },
     },
     views: {
@@ -79,6 +79,10 @@ Service.init(
     category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        isInt: { msg: "category id must be an integer" },
+        min: { args: [1], msg: "category id must be greater than 0" },
+      },
     },
     total_reviews: {
       type: DataTypes.INTEGER,
@@ -121,6 +125,7 @@ Service.init(
     },
     quantity: {
       type: DataTypes.INTEGER,
+      allowNull: true,
       validate: {
         isInt: { msg: "quantity must be an integer" },
       },

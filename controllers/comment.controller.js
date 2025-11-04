@@ -10,7 +10,8 @@ async function createNewComment(req, res, next) {
     const post_id = hashIdUtil.hashIdDecode(req.body.postId);
     const comment_id = hashIdUtil.hashIdDecode(req.body.commentId);
     let able = await commentServices.canCommentOnPost(req.auth.id, post_id);
-    if (!able) throw new AppError(422, "Bad Type", true, "Bad Type");
+    if (!able)
+      throw new AppError(403, "permission denied", false, "permission denied");
     const data = {
       user_id: req.auth.id,
       parent_id: comment_id ?? null,

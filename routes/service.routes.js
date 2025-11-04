@@ -39,6 +39,8 @@ serviceRouter.get(
 serviceRouter.get(
   "/provider/services/:id",
   jwt.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
   serviceController.getServiceProfilePrivate
 );
 // Update a service (allowed fields only)
@@ -71,6 +73,8 @@ serviceRouter.get(
 );
 serviceRouter.get(
   "/admin/services/:id",
+  idHashedParamValidator,
+  validateExpress,
   jwt.authenticateJwt,
   serviceController.getServiceProfilePrivate
 );
@@ -92,15 +96,17 @@ serviceRouter.put(
 // add to favorite
 serviceRouter.put(
   "/client/favorite/:id",
-  jwt.authenticateJwt,
+  idHashedParamValidator,
   validateExpress,
+  jwt.authenticateJwt,
   serviceController.addToFavorite
 );
 //remove from favorite
 serviceRouter.delete(
   "/client/favorite/:id",
-  jwt.authenticateJwt,
+  idHashedParamValidator,
   validateExpress,
+  jwt.authenticateJwt,
   serviceController.removeFromFavorite
 );
 serviceRouter.get(

@@ -21,7 +21,7 @@ async function canCommentOnPost(userId, postId) {
             required: true,
             where: {
               user_id: userId,
-              status: { [Op.or]: ["paid", "fulfilled"] },
+              status: { [Op.or]: ["paid", "fulfilled", "completed"] },
             },
           },
         ],

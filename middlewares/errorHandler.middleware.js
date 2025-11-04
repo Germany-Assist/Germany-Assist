@@ -25,7 +25,7 @@ export function errorMiddleware(err, req, res, next) {
   ) {
     const messages = (err.errors || []).map((e) => {
       if (err instanceof UniqueConstraintError) {
-        return e.message || `${e.path} must be unique`;
+        return e.message || `${e.path} must be unique, already exists`;
       }
       if (err instanceof ForeignKeyConstraintError) {
         return e.message || `Invalid reference for ${e.index}`;

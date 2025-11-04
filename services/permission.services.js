@@ -13,7 +13,7 @@ const userAndPermission = async (id, resource, action) => {
           resource,
           action,
         },
-        required: false,
+        required: true,
         attributes: ["id"],
       },
       {

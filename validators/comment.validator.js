@@ -8,7 +8,7 @@ export const commentValidator = [
     .isString()
     .withMessage("comment body should only be text")
     .isLength({ max: 500, min: 2 })
-    .withMessage("Comment body cannot exceed 500 characters"),
+    .withMessage("Comment body cannot exceed 500 characters or be less that 2"),
   body("postId")
     .notEmpty()
     .withMessage("ID must be a valid id")

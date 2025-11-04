@@ -1,6 +1,18 @@
-import { sequelize } from "../database/connection.js";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
+
+export async function canReview(userId, serviceId) {
+  const can = await db.Order.findOne({
+    where: { user_id: userId, service_id: serviceId },
+  });
+  if (!can)
+    throw new AppError(
+      403,
+      "cant review without buying the service",
+      true,
+      "You cannot review a service you have not purchased"
+    );
+}
 export const createReview = async (data, t) => {
   const { body, rating, service_id, user_id } = data;
   return await db.Review.create(

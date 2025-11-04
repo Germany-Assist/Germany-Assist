@@ -26,7 +26,7 @@ async function createNewPost(req, res, next) {
         true,
         "failed to find timeline"
       );
-    //this is just a short way to make sure of the owner instead of using the checkOwnership function due to speed and nesting
+    //this is just a short way to make sure of the owner instead of using the checkOwnership function due to speed and and complicated nesting
     if (req.auth.related_id !== timeline.Service.owner)
       throw new AppError(403, "invalid ownership", true, "invalid ownership");
     const post = await postServices.createNewPost(

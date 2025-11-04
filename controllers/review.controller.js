@@ -7,12 +7,11 @@ import hashIdUtil from "../utils/hashId.util.js";
 
 export async function createReview(req, res, next) {
   const t = await sequelize.transaction();
-
   try {
     await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
-    //i guess in the future should have owner ship meaning you cant review a not requested service
     const { body, rating } = req.body;
     const service_id = hashIdUtil.hashIdDecode(req.body.id);
+    await reviewServices.canReview(req.auth.id, service_id);
     await reviewServices.createReview(
       {
         body,
@@ -22,6 +21,9 @@ export async function createReview(req, res, next) {
       },
       t
     );
+    res.sendStatus(201);
+    //return
+    //i can create a worker for this
     await serviceServices.updateServiceRating(
       {
         serviceId: service_id,
@@ -30,22 +32,10 @@ export async function createReview(req, res, next) {
       },
       t
     );
-    res.sendStatus(201);
     await t.commit();
   } catch (error) {
     await t.rollback();
-    if (error.name === "SequelizeUniqueConstraintError") {
-      next(
-        new AppError(
-          400,
-          "review already exists",
-          true,
-          "review already exists"
-        )
-      );
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -99,19 +89,3 @@ export async function updateReview(req, res, next) {
 }
 const reviewController = { updateReview, getReviewsByServiceId, createReview };
 export default reviewController;
-// export async function deleteReview(req, res, next) {
-//   try {
-//     const deleted = await reviewServices.deleteReview(req.params.id);
-//     res.sendStatus(200);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-// export async function restoreReview(req, res, next) {
-//   try {
-//     const deleted = await reviewServices.restoreReview(req.params.id);
-//     res.sendStatus(200);
-//   } catch (error) {
-//     next(error);
-//   }
-// }

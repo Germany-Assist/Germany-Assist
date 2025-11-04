@@ -25,9 +25,13 @@ export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
 //TODO start with
-//1. validation
-//2. checkTheRoutes
-//3. add options for the posts routes
+/*
+1. validation and fixing
+  A. asset validation will moved to another epic since the whole asset will be addressed then
+  B. coupons needs to be discussed further
+2. checkTheRoutes
+3. add options for the posts routes
+*/
 app
   .use((req, res, next) => {
     req.requestId = uuidv4();

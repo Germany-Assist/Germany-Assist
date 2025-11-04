@@ -20,7 +20,7 @@ Permission.init(
           msg: "Action must be between 2 and 50 characters",
         },
         is: {
-          args: /^[a-z_]+$/i, // Only letters and underscores
+          args: /^[a-z_]+$/i,
           msg: "Action can only contain letters and underscores",
         },
       },

@@ -11,7 +11,6 @@ export const validateExpress = (req, res, next) => {
       err.appendTrace(req.requestId);
       throw err;
     }
-
     next();
   } catch (error) {
     next(error);

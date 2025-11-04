@@ -14,21 +14,21 @@ Comment.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        isInt: { msg: "user_id must be a integer" },
+        isInt: { msg: "user id must be a integer" },
       },
     },
     post_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        isInt: { msg: "post_id must be a integer" },
+        isInt: { msg: "post id must be a integer" },
       },
     },
     parent_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
-        isInt: { msg: "post_id must be a integer" },
+        isInt: { msg: "parent id must be a integer" },
       },
     },
     body: {
@@ -41,10 +41,6 @@ Comment.init(
         len: {
           args: [2, 500],
           msg: "Comment must be between 2 and 500 characters",
-        },
-        is: {
-          args: /^[A-Za-z0-9\s.,!?'"-]+$/i,
-          msg: "Comment contains invalid characters",
         },
       },
     },

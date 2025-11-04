@@ -8,7 +8,6 @@ export const createServiceValidator = [
     .withMessage("Title must be a string")
     .isLength({ min: 3, max: 50 })
     .withMessage("Title must be between 3 and 50 characters"),
-
   body("description")
     .isString()
     .withMessage("Description must be a string")
@@ -17,7 +16,11 @@ export const createServiceValidator = [
   body("price")
     .isFloat({ min: 0 })
     .withMessage("Price must be a valid number and cannot be negative"),
-
+  body("category")
+    .notEmpty()
+    .withMessage("Category cannot be empty")
+    .isString()
+    .withMessage("category must be a string"),
   body("image").optional().isURL().withMessage("Image must be a valid URL"),
 
   body("publish").optional().isBoolean(),
@@ -25,7 +28,15 @@ export const createServiceValidator = [
 
 // Validation for updating a service
 export const updateServiceValidator = [
-  param("id").notEmpty().withMessage("Service ID param is required"),
+  param("id")
+    .notEmpty()
+    .withMessage("Service ID param is required")
+    .custom((i) => {
+      const unHashed = hashIdUtil.hashIdDecode(i);
+      if (!unHashed) throw new Error("invalid id");
+      return true;
+    }),
+  ,
   body("title")
     .optional()
     .isString()

@@ -20,7 +20,6 @@ function getAllowedPermissions(role) {
       throw new AppError(403, "Unauthorized role", true, "Permission denied");
   }
 }
-
 function validatePermissionAction(allowedPermissions, action, resource) {
   const isValid = allowedPermissions.some(
     (p) => p.action === action && p.resource === resource
@@ -34,56 +33,27 @@ function validatePermissionAction(allowedPermissions, action, resource) {
     );
   }
 }
-
-function extractPermissionData(req, requireId = true) {
-  const { id, action, resource } = req.body;
-  if (!action || !resource) {
-    throw new AppError(
-      400,
-      "Missing action or resource",
-      true,
-      "Invalid request"
-    );
-  }
-  if (requireId && !id) {
-    throw new AppError(400, "Missing user ID", true, "Invalid request");
-  }
-  return { id, action, resource };
-}
-
 export async function assignPermission(req, res, next) {
   try {
-    const hasPermission = await authUtils.checkRoleAndPermission(
+    const { id, action, resource } = req.body;
+    const targetUserId = hashIdUtil.hashIdDecode(id);
+
+    await authUtils.checkRoleAndPermission(
       req.auth,
       ["service_provider_root", "super_admin"],
       true,
       "permission",
       "assign"
     );
-    if (!hasPermission) {
-      throw new AppError(403, "Permission denied", true, "Permission denied");
-    }
-    const { id, action, resource } = extractPermissionData(req);
-    const decodedId = hashIdUtil.hashIdDecode(id);
-    const isOwner = await authUtils.checkOwnership(
-      id,
-      req.auth.related_id,
-      "User"
-    );
-    if (!isOwner) {
-      throw new AppError(
-        403,
-        "Ownership check failed",
-        true,
-        "Permission denied"
-      );
-    }
+
+    await authUtils.checkOwnership(id, req.auth.related_id, "User");
 
     const allowedPermissions = getAllowedPermissions(req.auth.role);
+
     validatePermissionAction(allowedPermissions, action, resource);
 
     await permissionServices.adjustPermission(
-      decodedId,
+      targetUserId,
       action,
       resource,
       "assign"
@@ -99,36 +69,23 @@ export async function assignPermission(req, res, next) {
 
 export async function revokePermission(req, res, next) {
   try {
-    const hasPermission = await authUtils.checkRoleAndPermission(
+    const { id, action, resource } = req.body;
+    const targetUserId = hashIdUtil.hashIdDecode(id);
+
+    await authUtils.checkRoleAndPermission(
       req.auth,
       ["service_provider_root", "super_admin"],
       true,
       "permission",
-      "revoke"
+      "assign"
     );
 
-    if (!hasPermission) {
-      throw new AppError(403, "Permission denied", true, "Permission denied");
-    }
-    const { id, action, resource } = extractPermissionData(req);
-    const decodedId = hashIdUtil.hashIdDecode(id);
-    const isOwner = await authUtils.checkOwnership(
-      id,
-      req.auth.related_id,
-      "User"
-    );
-    if (!isOwner) {
-      throw new AppError(
-        403,
-        "Ownership check failed",
-        true,
-        "Permission denied"
-      );
-    }
+    await authUtils.checkOwnership(id, req.auth.related_id, "User");
     const allowedPermissions = getAllowedPermissions(req.auth.role);
     validatePermissionAction(allowedPermissions, action, resource);
+
     await permissionServices.adjustPermission(
-      decodedId,
+      targetUserId,
       action,
       resource,
       "revoke"
@@ -151,26 +108,8 @@ export async function getUserPermissions(req, res, next) {
       "permission",
       "list"
     );
-    if (!hasPermission) {
-      throw new AppError(403, "Permission denied", true, "Permission denied");
-    }
-    const { id } = req.body;
-    if (!id) {
-      throw new AppError(422, "Missing user ID", true, "Invalid request");
-    }
-    const isOwner = await authUtils.checkOwnership(
-      id,
-      req.auth.related_id,
-      "User"
-    );
-    if (!isOwner) {
-      throw new AppError(
-        403,
-        "Ownership check failed",
-        true,
-        "Permission denied"
-      );
-    }
+    const { id } = req.params;
+    await authUtils.checkOwnership(id, req.auth.related_id, "User");
     const userPermissions = await permissionServices.getUserPermissions(
       hashIdUtil.hashIdDecode(id)
     );
@@ -196,9 +135,6 @@ export async function getPersonalPermissions(req, res, next) {
       ],
       false
     );
-    if (!hasPermission) {
-      throw new AppError(403, "Permission denied", true, "Permission denied");
-    }
     const userPermissions = await permissionServices.getUserPermissions(
       req.auth.id
     );
@@ -213,14 +149,6 @@ export async function getPersonalPermissions(req, res, next) {
 
 export async function getAvailablePermissions(req, res, next) {
   try {
-    const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth,
-      ["*"],
-      false
-    );
-    if (!hasPermission) {
-      throw new AppError(403, "Permission denied", true, "Permission denied");
-    }
     const availablePermissions = getAllowedPermissions(req.auth.role);
     res.status(200).json({
       success: true,
@@ -236,7 +164,6 @@ const permissionController = {
   getUserPermissions,
   revokePermission,
   assignPermission,
-  extractPermissionData,
   validatePermissionAction,
   getAllowedPermissions,
 };

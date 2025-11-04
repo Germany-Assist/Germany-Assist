@@ -29,6 +29,10 @@ Category.init(
       },
       validate: {
         notEmpty: { msg: "Label cannot be empty" },
+        len: {
+          args: [3, 300],
+          msg: "Title must be between 3 and 100 characters",
+        },
       },
     },
   },
