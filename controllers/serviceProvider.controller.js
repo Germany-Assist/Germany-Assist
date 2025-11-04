@@ -108,7 +108,7 @@ export async function deleteServiceProvider(req, res, next) {
       "serviceProvider",
       "delete"
     );
-    await serviceProviderServices.deleteServiceProvider(req.body.id);
+    await serviceProviderServices.deleteServiceProvider(req.params.id);
     res.status(200).json({ message: "success" });
   } catch (error) {
     next(error);
@@ -124,7 +124,7 @@ export async function restoreServiceProvider(req, res, next) {
       "delete"
     );
     const profile = await serviceProviderServices.restoreServiceProvider(
-      req.body.id
+      req.params.id
     );
     res.status(200).json(profile);
   } catch (error) {

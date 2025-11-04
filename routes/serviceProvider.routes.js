@@ -17,7 +17,9 @@ serviceProviderRouter.get(
   serviceProviderController.getServiceProviderById
 );
 serviceProviderRouter.delete(
-  "/",
+  "/:id",
+  idUUIDparamValidator,
+  validateExpress,
   jwt.authenticateJwt,
   serviceProviderController.deleteServiceProvider
 );
@@ -34,8 +36,10 @@ serviceProviderRouter.post(
   validateExpress,
   serviceProviderController.createServiceProvider
 );
-serviceProviderRouter.post(
-  "/restore",
+serviceProviderRouter.get(
+  "/restore/:id",
+  idUUIDparamValidator,
+  validateExpress,
   jwt.authenticateJwt,
   serviceProviderController.restoreServiceProvider
 );

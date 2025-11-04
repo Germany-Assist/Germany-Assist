@@ -174,7 +174,7 @@ export async function createAdminController(req, res, next) {
     req.auth,
     ["super_admin"],
     true,
-    "user",
+    "admin",
     "create"
   );
   try {
