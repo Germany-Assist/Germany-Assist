@@ -13,9 +13,7 @@ export async function checkoutController(req, res, next) {
     const { id } = req.params;
     const serviceId = hashIdUtil.hashIdDecode(id);
     const user = await userServices.getUserById(req.auth.id);
-    const service = (
-      await orderService.getServiceForPaymentPrivate(serviceId)
-    ).get({ plain: true });
+    const service = await orderService.getServiceForPaymentPrivate(serviceId);
     if (!user || !service)
       throw new AppError(404, "failed to find user or service", false);
     res.send(
