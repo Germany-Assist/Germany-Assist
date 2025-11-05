@@ -58,3 +58,11 @@ export const restoreReview = async (id) => {
   await review.restore();
   return review;
 };
+const reviewServices = {
+  restoreReview,
+  deleteReview,
+  updateReview,
+  createReview,
+  canReview,
+};
+export default reviewServices;

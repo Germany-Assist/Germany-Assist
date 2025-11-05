@@ -1,4 +1,3 @@
-import { Op, where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 

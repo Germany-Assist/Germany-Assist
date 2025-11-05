@@ -46,7 +46,7 @@ export const getUserById = async (id) => {
 };
 export const userExists = async (id) => {
   try {
-    let x = await getUserById(id);
+    let x = await userServices.getUserById(id);
     return true;
   } catch (error) {
     return false;

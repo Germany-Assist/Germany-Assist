@@ -28,7 +28,7 @@
     "dev": "node --watch --env-file=dev.env app.js ",
     "dbInit": "node --env-file=dev.env  ./database/migrateAndSeed.js",
     "pretest": "node --env-file=test.env ./database/migrateAndSeed.js",
-    "test": "node --env-file=test.env ./tests/index.js",
+    "test": "node --test --env-file=test.env ",
     "preworkflowTest": "node ./database/migrateAndSeed.js",
     "workflowTest": "node  ./tests/index.js",
     "export": "node --env-file=dev.env  ./database/export.js",
