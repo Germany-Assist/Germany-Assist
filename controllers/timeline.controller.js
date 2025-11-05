@@ -1,4 +1,3 @@
-import { body } from "express-validator";
 import { sequelize } from "../database/connection.js";
 import timelineServices from "../services/timeline.service.js";
 import authUtil from "../utils/authorize.util.js";

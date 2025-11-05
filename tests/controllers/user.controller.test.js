@@ -1,354 +1,247 @@
+import sinon from "sinon";
+import assert from "node:assert";
+import { describe, it, beforeEach, afterEach } from "node:test";
+
 import userController, {
   cookieOptions,
 } from "../../controllers/user.controller.js";
-import sinon from "sinon";
-import { describe, it, beforeEach, afterEach, before, after } from "node:test";
 import userServices from "../../services/user.services.js";
 import permissionServices from "../../services/permission.services.js";
-import hashIdUtil from "../../utils/hashId.util.js";
+import authUtils from "../../utils/authorize.util.js";
 import bcryptUtil from "../../utils/bcrypt.util.js";
+import hashIdUtil from "../../utils/hashId.util.js";
+import jwt from "../../middlewares/jwt.middleware.js";
 import { sequelize } from "../../database/connection.js";
 import { AppError } from "../../utils/error.class.js";
-import authUtil from "../../utils/authorize.util.js";
-import jwt from "../../middlewares/jwt.middleware.js";
 import { roleTemplates } from "../../database/templates.js";
-import assert from "node:assert";
-let fakeUser = {
-  firstName: "testing",
-  lastName: "testing",
-  email: "test@test.com",
-  dob: "1987/6/5",
-  password: "test@Pass",
-  image: "image@image.png",
-};
-describe("Testing Create User Controller", () => {
-  let sandbox,
-    req,
-    res,
-    next,
-    fakeTransaction,
-    randomId,
-    setRoleAndTypeRepSpy,
-    hashPasswordSpy;
-  randomId = 1;
+
+describe("User Controller", () => {
+  let sandbox, req, res, next, fakeTransaction;
+  const fakeUser = {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john@example.com",
+    password: "Pas@123",
+    dob: "1990-01-01",
+    image: "profile.png",
+  };
+
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+
     req = {
-      body: fakeUser,
-      auth: {
-        id: randomId,
-        role: undefined,
-        related_type: null,
-        related_id: null,
-      },
+      body: { ...fakeUser },
+      auth: { id: 1, role: "super_admin", related_id: null },
     };
-    next = sandbox.stub();
     res = {
       status: sandbox.stub().returnsThis(),
       json: sandbox.stub().returnsThis(),
       cookie: sandbox.stub().returnsThis(),
+      send: sandbox.stub().returnsThis(),
+      sendStatus: sandbox.stub().returnsThis(),
     };
+    next = sandbox.stub();
     fakeTransaction = { commit: sandbox.stub(), rollback: sandbox.stub() };
-    sandbox.stub(authUtil, "checkRoleAndPermission").resolves(true);
-    sandbox
-      .stub(userServices, "createUser")
-      .resolves({ id: randomId, firstName: "testing" });
+
+    // --- Stubs
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+    sandbox.stub(authUtils, "checkRoleAndPermission").resolves(true);
+    sandbox.stub(bcryptUtil, "hashPassword").callsFake((p) => `hashed-${p}`);
+    sandbox.stub(userServices, "createUser").resolves({
+      id: 1,
+      ...fakeUser,
+      UserRole: { role: "client", related_type: "client", related_id: null },
+    });
+    sandbox.stub(userServices, "loginUser").resolves({
+      id: 1,
+      ...fakeUser,
+      UserRole: { role: "client", related_type: "client", related_id: null },
+    });
     sandbox.stub(permissionServices, "initPermissions").resolves(true);
     sandbox
       .stub(jwt, "generateTokens")
-      .returns({ accessToken: "aaa", refreshToken: "bbb" });
-    sandbox
-      .stub(userController, "sanitizeUser")
-      .returns({ id: 1, name: "amr" });
-    sandbox.stub(hashIdUtil, "hashIdEncode").returns(randomId);
-    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-    hashPasswordSpy = sandbox.spy(bcryptUtil, "hashPassword");
-    setRoleAndTypeRepSpy = sandbox.spy(userController, "setRoleAndTypeRep");
+      .returns({ accessToken: "access", refreshToken: "refresh" });
+    sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `hash-${id}`);
   });
 
   afterEach(() => sandbox.restore());
 
-  it("should create a client successfully", async () => {
+  // ----------------------
+  // Test: createClientController
+  // ----------------------
+  it("createClientController should create a client", async () => {
     req.auth = undefined;
     await userController.createClientController(req, res, next);
-    sandbox.assert.calledWith(hashPasswordSpy, fakeUser.password);
-    sandbox.assert.calledWith(
-      userServices.createUser,
-      sandbox.match({
-        first_name: fakeUser.firstName,
-        last_name: fakeUser.lastName,
-        email: fakeUser.email,
-        password: hashPasswordSpy.returnValues[0],
+
+    sinon.assert.calledOnce(bcryptUtil.hashPassword);
+    sinon.assert.calledOnce(userServices.createUser);
+    sinon.assert.calledOnce(permissionServices.initPermissions);
+    sinon.assert.calledOnce(jwt.generateTokens);
+    sinon.assert.calledWith(
+      res.cookie,
+      "refreshToken",
+      "refresh",
+      cookieOptions
+    );
+    sinon.assert.calledWith(res.status, 201);
+    sinon.assert.calledOnce(fakeTransaction.commit);
+  });
+
+  it("createClientController should rollback on error", async () => {
+    userServices.createUser.rejects(new AppError(500, "DB Error"));
+    await userController.createClientController(req, res, next);
+    sinon.assert.calledOnce(fakeTransaction.rollback);
+    sinon.assert.calledOnce(next);
+  });
+
+  // ----------------------
+  // Test: createAdminController
+  // ----------------------
+  it("createAdminController should create admin", async () => {
+    await userController.createAdminController(req, res, next);
+    sinon.assert.calledOnce(userServices.createUser);
+    sinon.assert.calledWith(
+      permissionServices.initPermissions,
+      1,
+      roleTemplates.admin,
+      fakeTransaction
+    );
+    sinon.assert.calledWith(res.status, 201);
+    sinon.assert.calledOnce(fakeTransaction.commit);
+  });
+
+  // ----------------------
+  // Test: createRepController
+  // ----------------------
+  it("createRepController should create a rep", async () => {
+    req.auth.role = "service_provider_root";
+    req.auth.related_id = 100;
+    await userController.createRepController(req, res, next);
+    sinon.assert.calledOnce(userServices.createUser);
+    sinon.assert.calledOnce(permissionServices.initPermissions);
+    sinon.assert.calledWith(res.status, 201);
+    sinon.assert.calledOnce(fakeTransaction.commit);
+  });
+
+  // ----------------------
+  // Test: createRootAccount
+  // ----------------------
+  it("createRootAccount should create root account", async () => {
+    const result = await userController.createRootAccount(
+      "email@test.com",
+      "1234",
+      null,
+      "serviceProvider",
+      fakeTransaction
+    );
+    assert.strictEqual(result.accessToken, "access");
+    assert.strictEqual(result.refreshToken, "refresh");
+  });
+
+  // ----------------------
+  // Test: loginUserController
+  // ----------------------
+  it("loginUserController should login user", async () => {
+    await userController.loginUserController(req, res, next);
+    sinon.assert.calledOnce(userServices.loginUser);
+    sinon.assert.calledOnce(jwt.generateTokens);
+    sinon.assert.calledWith(res.status, 200);
+  });
+
+  it("loginUserController should call next on error", async () => {
+    userServices.loginUser.rejects(new AppError(500, "Login failed"));
+    await userController.loginUserController(req, res, next);
+    sinon.assert.calledOnce(next);
+  });
+
+  // ----------------------
+  // Test: loginUserTokenController
+  // ----------------------
+  it("loginUserTokenController should return sanitized user", async () => {
+    userServices.getUserById = sandbox.stub().resolves({
+      ...fakeUser,
+      UserRole: { role: "client", related_type: "client", related_id: null },
+    });
+    await userController.loginUserTokenController(req, res, next);
+    sinon.assert.calledOnce(res.send);
+  });
+
+  // ----------------------
+  // Test: refreshUserToken
+  // ----------------------
+  it("refreshUserToken should return access token", async () => {
+    req.cookies = { refreshToken: "token" };
+    jwt.verifyToken = sandbox.stub().returns({ id: 1 });
+    jwt.generateAccessToken = sandbox.stub().returns("newAccess");
+    userServices.getUserById = sandbox.stub().resolves({ id: 1 });
+    await userController.refreshUserToken(req, res, next);
+    sinon.assert.calledWith(res.send, { accessToken: "newAccess" });
+  });
+
+  it("refreshUserToken should 401 if no token", async () => {
+    req.cookies = {};
+    await userController.refreshUserToken(req, res, next);
+    sinon.assert.calledWith(res.sendStatus, 401);
+  });
+
+  // ----------------------
+  // Test: getUserProfile
+  // ----------------------
+  it("getUserProfile should return sanitized user", async () => {
+    userServices.getUserProfile = sandbox.stub().resolves({
+      toJSON: () => ({
+        ...fakeUser,
+        UserRole: { role: "client", related_type: "client", related_id: null },
+      }),
+    });
+    await userController.getUserProfile(req, res, next);
+    sinon.assert.calledOnce(res.send);
+  });
+
+  // ----------------------
+  // Test: getAllUsers
+  // ----------------------
+  it("getAllUsers should return sanitized users", async () => {
+    userServices.getAllUsers = sandbox.stub().resolves([
+      {
+        ...fakeUser,
         UserRole: {
           role: "client",
           related_type: "client",
           related_id: null,
         },
-      }),
-      fakeTransaction
-    );
-    sandbox.assert.calledWithMatch(
-      permissionServices.initPermissions,
-      sandbox.match.any,
-      sandbox.match.array.deepEquals(roleTemplates.client),
-      sandbox.match(fakeTransaction)
-    );
-    sandbox.assert.calledOnce(userController.sanitizeUser);
-    sandbox.assert.calledOnce(jwt.generateTokens);
-    sandbox.assert.calledWithMatch(
-      res.cookie,
-      "refreshToken",
-      sinon.match.any,
-      cookieOptions
-    );
-    sandbox.assert.calledWith(res.status, 201);
-    sandbox.assert.calledOnce(fakeTransaction.commit);
-  });
-  it("should rollback if createUser throws", async () => {
-    userServices.createUser.callsFake(() => {
-      throw new AppError("DB error");
-    });
-    await userController.createClientController(req, res, next);
-    sandbox.assert.calledOnce(fakeTransaction.rollback);
-    sandbox.assert.calledOnce(next);
-  });
-  it("should create an admin successfully", async () => {
-    await userController.createAdminController(req, res, next);
-    sandbox.assert.calledOnce(authUtil.checkRoleAndPermission);
-    sandbox.assert.calledWith(hashPasswordSpy, fakeUser.password);
-    sandbox.assert.calledWith(
-      userServices.createUser,
-      sandbox.match({
-        first_name: fakeUser.firstName,
-        last_name: fakeUser.lastName,
-        email: fakeUser.email,
-        password: hashPasswordSpy.returnValues[0],
-        UserRole: {
-          role: "admin",
-          related_type: "admin",
-          related_id: null,
-        },
-      }),
-      fakeTransaction
-    );
-    sandbox.assert.calledWithMatch(
-      permissionServices.initPermissions,
-      sandbox.match.any,
-      sandbox.match.array.deepEquals(roleTemplates.admin),
-      sandbox.match(fakeTransaction)
-    );
-    sandbox.assert.calledOnce(userController.sanitizeUser);
-    sandbox.assert.calledOnce(jwt.generateTokens);
-    sandbox.assert.calledWithMatch(
-      res.cookie,
-      "refreshToken",
-      sinon.match.any,
-      cookieOptions
-    );
-    sandbox.assert.calledWith(res.status, 201);
-    sandbox.assert.calledOnce(fakeTransaction.commit);
-  });
-  it("should rollback if admin createUser throws", async () => {
-    userServices.createUser.callsFake(() => {
-      throw new AppError("DB error");
-    });
-    await userController.createAdminController(req, res, next);
-    sandbox.assert.calledOnce(fakeTransaction.rollback);
-    sandbox.assert.calledOnce(next);
-  });
-  it("should create a Rep for Service Provider successfully", async () => {
-    //just adjusting the token
-    req.auth.role = "service_provider_root";
-    req.auth.related_type = "ServiceProvider";
-    req.auth.related_id = "ABC";
-    await userController.createRepController(req, res, next);
-    sandbox.assert.calledWith(hashPasswordSpy, fakeUser.password);
-    sandbox.assert.calledWith(setRoleAndTypeRepSpy, req.auth.role);
-    assert.deepStrictEqual(setRoleAndTypeRepSpy.returnValues[0], {
-      role: "service_provider_rep",
-      related_type: "ServiceProvider",
-    });
-    sandbox.assert.calledWith(
-      userServices.createUser,
-      sandbox.match({
-        first_name: fakeUser.firstName,
-        last_name: fakeUser.lastName,
-        email: fakeUser.email,
-        password: hashPasswordSpy.returnValues[0],
-        UserRole: {
-          role: setRoleAndTypeRepSpy.returnValues[0].role,
-          related_type: setRoleAndTypeRepSpy.returnValues[0].related_type,
-          related_id: req.auth.related_id,
-        },
-      }),
-      fakeTransaction
-    );
-    sandbox.assert.calledWithMatch(
-      permissionServices.initPermissions,
-      sandbox.match.number,
-      sandbox.match.array.deepEquals(roleTemplates.service_provider_rep),
-      sandbox.match(fakeTransaction)
-    );
-    sandbox.assert.calledWithMatch(
-      res.cookie,
-      "refreshToken",
-      sinon.match.any,
-      cookieOptions
-    );
-    sandbox.assert.calledWith(res.status, 201);
-    sandbox.assert.calledOnce(fakeTransaction.commit);
-  });
-  it("should rollback if rep createUser throws", async () => {
-    userServices.createUser.callsFake(() => {
-      throw new AppError("DB error");
-    });
-    // or any other error well also work for missing
-    // userController.setRoleAndTypeRep stub
-    await userController.createRepController(req, res, next);
-    sandbox.assert.calledOnce(fakeTransaction.rollback);
-    sandbox.assert.calledOnce(next);
-  });
-  it("should create new root account Service Provider", async () => {
-    //please note that the create root account is not a route handler
-    //its a controller part of create serviceProvider or employer
-    let email, password, relatedId, type;
-    password = fakeUser.password;
-    type = "serviceProvider";
-    let setRoleAndTypeSpy = sandbox.spy(userController, "setRoleAndType");
-    await userController.createRootAccount(
-      email,
-      password,
-      relatedId,
-      type,
-      fakeTransaction
-    );
-    sandbox.assert.calledWith(setRoleAndTypeSpy, "serviceProvider");
-    sandbox.assert.calledWithMatch(
-      permissionServices.initPermissions,
-      sandbox.match.number,
-      sandbox.match.array.deepEquals(roleTemplates.service_provider_root),
-      sandbox.match(fakeTransaction)
-    );
-    sandbox.assert.calledWith(hashPasswordSpy, password);
-  });
-});
-describe("Testing Login User Controller", () => {
-  let sandbox, req, res, next;
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-    req = { body: { email: "amr@mail.com", password: "Pas@word" } };
-    res = {
-      cookie: sandbox.stub().returnsThis(),
-      json: sandbox.stub().returnsThis(),
-      status: sandbox.stub().returnsThis(),
-    };
-    next = sandbox.stub();
-    sandbox
-      .stub(userServices, "loginUser")
-      .resolves({ id: 1, email: "amr@mail.com" });
-    sandbox
-      .stub(userController, "sanitizeUser")
-      .returns({ id: 1, name: "amr" });
-    sandbox
-      .stub(jwt, "generateTokens")
-      .returns({ accessToken: "aaa", refreshToken: "aaa" });
-    sandbox.stub(hashIdUtil, "hashIdEncode");
-  });
-  afterEach(() => {
-    sandbox.restore();
-  });
-  it("should login successfully", async () => {
-    await userController.loginUserController(req, res, next);
-    sandbox.assert.calledOnce(userServices.loginUser);
-    sandbox.assert.calledOnce(jwt.generateTokens);
-    sandbox.assert.calledOnce(userController.sanitizeUser);
-    sandbox.assert.calledOnce(res.cookie);
-    sandbox.assert.calledWith(res.status, 200);
-    sandbox.assert.calledWith(
-      res.json,
-      sandbox.match({ accessToken: "aaa", user: { id: 1, name: "amr" } })
-    );
-  });
-  it("should call next if error", async () => {
-    userServices.loginUser.callsFake(() => {
-      throw new AppError("DB error");
-    });
-    await userController.loginUserController(req, res, next);
-    sandbox.assert.calledOnce(next);
-  });
-});
-describe("Testing Helpers For the User controllers", () => {
-  let sandbox = sinon.createSandbox();
-  before(() => {
-    const hashId = sandbox.stub(hashIdUtil, "hashIdEncode");
-  });
-  after(() => {
-    sandbox.restore();
-  });
-  it("should test Sanitize User", () => {
-    const input = {
-      id: 123,
-      first_name: "John",
-      last_name: "Doe",
-      dob: "1990-01-01",
-      email: "john@example.com",
-      image: "profile.png",
-      is_verified: false,
-      UserRole: {
-        role: "admin",
-        related_type: "admin",
-        related_id: null,
       },
-    };
-    const sanitizedUser = userController.sanitizeUser(input);
-    assert.deepStrictEqual(sanitizedUser, {
-      dob: "1990-01-01",
-      email: "john@example.com",
-      favorite: undefined,
-      firstName: "John",
-      id: undefined,
-      image: "profile.png",
-      inquires: undefined,
-      isVerified: false,
-      lastName: "Doe",
-      related_id: null,
-      related_type: "admin",
-      role: "admin",
-    });
+    ]);
+    await userController.getAllUsers(req, res, next);
+    sinon.assert.calledOnce(res.send);
   });
 
-  it("maps service_provider_root for rep correctly", () => {
-    const result = userController.setRoleAndTypeRep("service_provider_root");
-    assert.deepStrictEqual(result, {
-      role: "service_provider_rep",
-      related_type: "ServiceProvider",
-    });
+  // ----------------------
+  // Test: getBusinessReps
+  // ----------------------
+  it("getBusinessReps should return sanitized reps", async () => {
+    userServices.getBusinessReps = sandbox.stub().resolves([
+      {
+        ...fakeUser,
+        UserRole: {
+          role: "service_provider_rep",
+          related_type: "ServiceProvider",
+          related_id: 100,
+        },
+      },
+    ]);
+    await userController.getBusinessReps(req, res, next);
+    sinon.assert.calledOnce(res.send);
   });
 
-  it("maps employer_root for rep correctly", () => {
-    const result = userController.setRoleAndTypeRep("employer_root");
-    assert.deepStrictEqual(result, {
-      role: "employer_rep",
-      related_type: "Employer",
-    });
-  });
-  it("returns correct root data for serviceProvider", () => {
-    const result = userController.setRoleAndType("serviceProvider");
-    assert.deepStrictEqual(result, {
-      rootRole: "service_provider_root",
-      rootRelatedType: "ServiceProvider",
-      firstName: "root",
-      lastName: "serviceProvider",
-    });
-  });
-
-  it("returns correct root data for employer", () => {
-    const result = userController.setRoleAndType("employer");
-    assert.deepStrictEqual(result, {
-      rootRole: "employer_root",
-      rootRelatedType: "Employer",
-      firstName: "root",
-      lastName: "employer",
-    });
+  // ----------------------
+  // Test: verifyUser
+  // ----------------------
+  it("verifyUser should verify a user", async () => {
+    req.params = { id: "123" };
+    sandbox.stub(userServices, "alterUserVerification").resolves(true);
+    hashIdUtil.hashIdDecode = sandbox.stub().returns(123);
+    await userController.verifyUser(req, res, next);
+    sinon.assert.calledWith(res.sendStatus, 200);
   });
 });

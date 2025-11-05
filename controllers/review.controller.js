@@ -2,7 +2,6 @@ import { sequelize } from "../database/connection.js";
 import * as reviewServices from "../services/review.services.js";
 import serviceServices from "../services/service.services.js";
 import authUtil from "../utils/authorize.util.js";
-import { AppError } from "../utils/error.class.js";
 import hashIdUtil from "../utils/hashId.util.js";
 
 export async function createReview(req, res, next) {
@@ -22,8 +21,8 @@ export async function createReview(req, res, next) {
       t
     );
     res.sendStatus(201);
-    //return
     //i can create a worker for this
+    // flag
     await serviceServices.updateServiceRating(
       {
         serviceId: service_id,

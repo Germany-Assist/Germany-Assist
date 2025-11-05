@@ -1,7 +1,5 @@
-import { AppError } from "../utils/error.class.js";
 import { infoLogger } from "../utils/loggers.js";
 import stripeUtils from "../utils/stripe.util.js";
-import stripeServices from "../services/stripe.service.js";
 import stripeQueue from "../utils/bullMQ.util.js";
 
 export async function processPaymentWebhook(req, res, next) {

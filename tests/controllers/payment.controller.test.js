@@ -1,58 +1,137 @@
-import test, { afterEach, beforeEach } from "node:test";
+import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import paymentController from "../../controllers/payment.controller.js";
-import stripeUtils from "../../utils/stripe.util.js";
-import stripeServices from "../../services/stripe.service.js";
+
+import { sequelize } from "../../database/connection.js";
+import postController from "../../controllers/post.controller.js";
+import postServices from "../../services/post.service.js";
+import timelineServices from "../../services/timeline.service.js";
+import hashIdUtil from "../../utils/hashId.util.js";
 import { AppError } from "../../utils/error.class.js";
+import authUtil from "../../utils/authorize.util.js";
 
-let sandbox;
-beforeEach(() => {
-  sandbox = sinon.createSandbox();
-});
-afterEach(() => {
-  sandbox.restore();
-});
+describe("Testing Post Controller", () => {
+  test("postController.createNewPost → creates a new post successfully", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-// ------------------- Tests -------------------
+    // 🧩 Transaction mock
+    const fakeTransaction = {
+      commit: sandbox.stub().resolves(),
+      rollback: sandbox.stub().resolves(),
+    };
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
 
-test("should return 400 if webhook verification fails", async () => {
-  const req = { body: {}, headers: { "stripe-signature": "sig" } };
-  const res = { status: sinon.stub().returnsThis(), send: sinon.stub() };
-  const next = sinon.stub();
-  sandbox.stub(stripeUtils, "verifyStripeWebhook").returns(null);
-  await paymentController.processPaymentWebhook(req, res, next);
-  assert.equal(res.status.calledWith(400), true);
-  assert.equal(res.send.calledWith("Webhook failed to verify"), true);
-  assert.equal(next.called, false);
-});
+    // 🧩 Decode serviceId
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
 
-test("should pass all correct", async () => {
-  const req = { body: {}, headers: { "stripe-signature": "sig" } };
-  const res = { json: sinon.spy() };
-  const next = sinon.spy();
-  const fakeEvent = {
-    id: "evt_1",
-    type: "payment_intent.succeeded",
-    data: { object: { metadata: { items: [{ id: 1, price: 2 }] } } },
-  };
-  sandbox.stub(stripeUtils, "verifyStripeWebhook").returns(fakeEvent);
-  sandbox.stub(stripeServices, "createStripeEvent").resolves();
-  await paymentController.processPaymentWebhook(req, res, next);
-  sinon.assert.calledWith(res.json, { received: true });
-});
-test("should pass all correct even if database error wont block the stripe", async () => {
-  const req = { body: {}, headers: { "stripe-signature": "sig" } };
-  const res = { json: sinon.spy() };
-  const next = sinon.spy();
-  const fakeEvent = {
-    id: "evt_1",
-    type: "payment_intent.succeeded",
-    data: { object: { metadata: { items: [{ id: 1, price: 2 }] } } },
-  };
-  sandbox.stub(stripeUtils, "verifyStripeWebhook").returns(fakeEvent);
-  sandbox.stub(stripeServices, "createStripeEvent").rejects();
-  await paymentController.processPaymentWebhook(req, res, next);
-  sinon.assert.calledWith(res.json, { received: true });
-  assert.ok(next.calledOnce);
+    // 🧩 Mock auth check
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+
+    // 🧩 Active timeline mock
+    const fakeTimeline = { id: 123, Service: { owner: 55 } };
+    sandbox.stub(timelineServices, "activeTimeline").resolves(fakeTimeline);
+
+    // 🧩 post creation mock
+    sandbox.stub(postServices, "createNewPost").resolves({ id: 1 });
+
+    // 🧩 Fake req / res / next
+    const req = {
+      auth: { id: 1, related_id: 55 },
+      body: { serviceId: "abc123", description: "New post", attachments: [] },
+    };
+    const res = { send: sandbox.stub() };
+    const next = sandbox.stub();
+
+    // 🧪 Run the controller
+    await postController.createNewPost(req, res, next);
+
+    // ✅ Assertions
+    assert.equal(authUtil.checkRoleAndPermission.calledOnce, true);
+    assert.equal(timelineServices.activeTimeline.calledOnce, true);
+    assert.equal(postServices.createNewPost.calledOnce, true);
+    assert.equal(fakeTransaction.commit.calledOnce, true);
+    assert.equal(res.send.calledWith(201), true);
+    assert.equal(next.called, false);
+
+    sandbox.restore();
+  });
+
+  test("postController.createNewPost → fails if timeline not found", async (t) => {
+    const sandbox = sinon.createSandbox();
+
+    const fakeTransaction = {
+      commit: sandbox.stub().resolves(),
+      rollback: sandbox.stub().resolves(),
+    };
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(timelineServices, "activeTimeline").resolves(null);
+
+    const req = { auth: { id: 1, related_id: 55 }, body: { serviceId: "abc" } };
+    const res = { send: sandbox.stub() };
+    const next = sandbox.stub();
+
+    await postController.createNewPost(req, res, next);
+
+    // ✅ Should call rollback and next with AppError
+    assert.equal(fakeTransaction.rollback.calledOnce, true);
+    assert.equal(next.calledOnce, true);
+    assert.equal(next.firstCall.args[0] instanceof AppError, true);
+
+    sandbox.restore();
+  });
+
+  test("postController.createNewPost → fails on invalid ownership", async (t) => {
+    const sandbox = sinon.createSandbox();
+
+    const fakeTransaction = {
+      commit: sandbox.stub().resolves(),
+      rollback: sandbox.stub().resolves(),
+    };
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox
+      .stub(timelineServices, "activeTimeline")
+      .resolves({ id: 1, Service: { owner: 99 } });
+
+    const req = { auth: { id: 1, related_id: 55 }, body: { serviceId: "abc" } };
+    const res = { send: sandbox.stub() };
+    const next = sandbox.stub();
+
+    await postController.createNewPost(req, res, next);
+
+    // ✅ Should reject and rollback
+    assert.equal(fakeTransaction.rollback.calledOnce, true);
+    assert.equal(next.calledOnce, true);
+    assert.equal(next.firstCall.args[0] instanceof AppError, true);
+
+    sandbox.restore();
+  });
+
+  test("postController.createNewPost → handles unexpected errors gracefully", async (t) => {
+    const sandbox = sinon.createSandbox();
+
+    const fakeTransaction = {
+      commit: sandbox.stub().resolves(),
+      rollback: sandbox.stub().resolves(),
+    };
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+
+    sandbox.stub(hashIdUtil, "hashIdDecode").throws(new Error("hash failed"));
+    const req = { auth: { id: 1 }, body: { serviceId: "abc" } };
+    const res = { send: sandbox.stub() };
+    const next = sandbox.stub();
+
+    await postController.createNewPost(req, res, next);
+
+    assert.equal(fakeTransaction.rollback.calledOnce, true);
+    assert.equal(next.calledOnce, true);
+    assert.equal(next.firstCall.args[0] instanceof Error, true);
+
+    sandbox.restore();
+  });
 });

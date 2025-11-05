@@ -60,6 +60,7 @@ export async function createService(req, res, next) {
       "service",
       "create"
     );
+
     const serviceData = {
       user_id: req.auth.id,
       service_provider_id: req.auth.related_id,
@@ -78,11 +79,13 @@ export async function createService(req, res, next) {
       category: req.body.category,
       Timelines: [{ label: req.body.timelineLabel }],
     };
+
     const service = await serviceServices.createService(
       serviceData,
       transaction
     );
-    const timelines = formatTimelines(service.Timelines);
+
+    const timelines = serviceController.formatTimelines(service.Timelines);
     res.status(201).json({
       message: "successfully created service",
       data: {
@@ -102,7 +105,7 @@ export async function createService(req, res, next) {
 export async function getAllServices(req, res, next) {
   try {
     const services = await serviceServices.getAllServices(req.query);
-    const sanitizedServices = sanitizeServices(services.data);
+    const sanitizedServices = serviceController.sanitizeServices(services.data);
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
@@ -329,6 +332,7 @@ export async function getClientServices(req, res, next) {
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,
+  formatTimelines,
   restoreService,
   deleteService,
   updateService,
