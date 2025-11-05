@@ -13,6 +13,7 @@ export async function stripeProcessor(job) {
   if (stripeEvent?.status === "processed") return;
   const metadata = event.data.object?.metadata;
   const t = await sequelize.transaction();
+
   try {
     switch (event.type) {
       case "payment_intent.created": {
@@ -47,6 +48,7 @@ export async function stripeProcessor(job) {
     infoLogger(`im updating as the stripe event  processed ${event.id}`);
     await t.commit();
   } catch (err) {
+    console.log(err);
     await t.rollback();
     errorLogger(err);
     throw err;
