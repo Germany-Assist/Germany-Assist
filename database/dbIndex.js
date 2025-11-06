@@ -18,9 +18,11 @@ import Post from "./models/post.js";
 import Comment from "./models/comment.js";
 export const defineConstrains = () => {
   //comment
+  Comment.belongsTo(User, {
+    foreignKey: "user_id",
+  });
   Comment.belongsTo(Post, {
     foreignKey: "post_id",
-    constraints: false,
   });
   Comment.belongsTo(Comment, {
     as: "parent",
@@ -136,12 +138,8 @@ export const defineConstrains = () => {
     onDelete: "cascade",
     unique: true,
   });
-
   return true;
 };
-if (process.env.SEEDING !== "true") {
-  defineConstrains();
-}
 
 const db = {
   User,

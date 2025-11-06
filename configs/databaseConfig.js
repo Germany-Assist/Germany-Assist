@@ -1,3 +1,4 @@
+import "./serverConfig.js";
 export const DB_USERNAME = process.env.DB_USERNAME;
 export const DB_PASSWORD = String(process.env.DB_PASSWORD);
 export const DB_NAME = process.env.DB_NAME;

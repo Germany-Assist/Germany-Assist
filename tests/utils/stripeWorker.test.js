@@ -152,7 +152,6 @@ describe("testing stripe processor", () => {
     sinon.stub(errorLogger, "call").value(() => {});
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
-
     await assert.rejects(() => stripeProcessor(job), /DB failed/);
     assert.ok(tMock.rollback.calledOnce);
 

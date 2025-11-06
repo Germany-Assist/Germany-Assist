@@ -1,0 +1,1011 @@
+[33mcommit ff97904249fab03404b1908070612949e00361c1[m[33m ([m[1;36mHEAD[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Thu Nov 6 16:28:07 2025 +0200
+
+    testing
+
+[33mcommit ca62bf177d9825df0e3545ea6da9edd9365b7bde[m[33m ([m[1;31morigin/testing/addingTesting[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Wed Nov 5 21:37:11 2025 +0200
+
+    adding controller tests
+
+[33mcommit b7c01d2b02984cc6b420e054ab26090b5af5f40f[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Wed Nov 5 17:38:30 2025 +0200
+
+    adding utils testing
+
+[33mcommit 4b3cc400eba323ec4ab51145c28e3ece794b2ca6[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Wed Nov 5 15:40:01 2025 +0200
+
+    adding service testing
+
+[33mcommit b97bcc2eee45e5b2b17825534c199c8fd6d9e52d[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 22:27:16 2025 +0200
+
+    starting testing
+
+[33mcommit 487e94d4f7ee932057afe5ba03ceacbfb340e612[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 21:38:00 2025 +0200
+
+    alot of small fixes
+
+[33mcommit b7fc830524c647b2519b606431ae967c0f21d4d0[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 15:59:04 2025 +0200
+
+    fixing permission validators
+
+[33mcommit 5875c18a035425a84361efa9420d45e6483b1d0f[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 15:30:16 2025 +0200
+
+    deleting accidental seeds
+
+[33mcommit d6c51ef0ee6b3e49a11ebe117a5210a8febd2c98[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 15:28:08 2025 +0200
+
+    fixing service provider get profile services public
+
+[33mcommit 51956faa59271a604b3ccbc71f3338031596aa94[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 02:09:34 2025 +0200
+
+    starting with adding options for posts
+
+[33mcommit 48dc19b0743ff8b98300ccc0af7b3d0c347502b6[m[33m ([m[1;31morigin/followUp/validation-routeFixing-optionsForPosts[m[33m, [m[1;32mfollowUp/validation-routeFixing-optionsForPosts[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Tue Nov 4 02:03:24 2025 +0200
+
+    adding validators and fixing the existing ones
+
+[33mcommit 61225c063bff29c89cc10c7c82500e48b6991872[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Mon Nov 3 18:06:48 2025 +0200
+
+    followUp/validation-routeFixing-optionsForPosts
+
+[33mcommit 2c64b129a3f7fbf20722d121a0a9e17c5b8dd4b5[m[33m ([m[1;31morigin/feature/comments/following-197[m[33m, [m[1;32mfeature/comments/following-197[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Mon Nov 3 16:21:24 2025 +0200
+
+    adding comment feature
+
+[33mcommit 2f65b8b0b76eae851f57f78d0f98851f4d751b30[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Mon Nov 3 00:34:27 2025 +0200
+
+    adding todo
+
+[33mcommit 66352fb74466466063556a43add1a64aa807ae37[m[33m ([m[1;31morigin/217-followUpOn-216[m[33m, [m[1;32m217-followUpOn-216[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Mon Nov 3 00:31:26 2025 +0200
+
+    fixing and refactoring
+
+[33mcommit 529e334f4a4d3c911fa703d03e77598fc0142db5[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sun Nov 2 18:36:32 2025 +0200
+
+    fixing routes
+
+[33mcommit b96eb7576e2470cd6b6a5b9e8a28518de110f061[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sun Nov 2 17:25:27 2025 +0200
+
+    fixing cookie
+
+[33mcommit 26f92ebec1fd17bfa722ab8a5fa2f563a75c6475[m[33m ([m[1;31morigin/216-finalizing-197[m[33m, [m[1;32m216-finalizing-197[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sun Nov 2 15:12:48 2025 +0200
+
+    fixing the error response message to the user
+
+[33mcommit 78895fa925a2c4037e7d37ba246aa9aa1e8dec0e[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sun Nov 2 15:01:27 2025 +0200
+
+    adding seed script
+
+[33mcommit 0384d7864c38111f0aa57b8ebebb8efe5bd68a08[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sun Nov 2 14:01:44 2025 +0200
+
+    adding seeds export script
+
+[33mcommit e5f7bab787764644bc5809844a3ec4992a3c67b0[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sun Nov 2 14:01:30 2025 +0200
+
+    adding seeds export script
+
+[33mcommit 5b2d5ea4a2f4838864e9d7d7f521f97e2057c35c[m[33m ([m[1;31morigin/197-feat-service-posts-and-comments[m[33m, [m[1;32m197-feat-service-posts-and-comments[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Sat Nov 1 17:48:54 2025 +0200
+
+    adding routes for timeline and comments
+
+[33mcommit ec111b45cb1d735b19f58e4e5022a5626c8fdc42[m[33m ([m[1;31morigin/196-feat-service-timelines-and-archiving[m[33m, [m[1;32m196-feat-service-timelines-and-archiving[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Thu Oct 30 21:19:11 2025 +0200
+
+    adding post features
+
+[33mcommit 19d024527381af73352e1c61ffe75b2905036922[m[33m ([m[1;31morigin/feature/epic-193/feture-195[m[33m)[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Thu Oct 30 15:49:12 2025 +0200
+
+    adding final routes for admin and SP in services
+
+[33mcommit c58f9c07854ee6ce0c1943f052ef302a8f75f2d8[m
+Author: Amr Imad <amrimadkh@gmail.com>
+Date:   Thu Oct 30 14:03:13 2025 +0200
+
+    adding and fixing routes for services
+
+[33mcommit c754b6032b200aa69025c5dd6207b3d75efe8983[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Tue Oct 28 15:02:09 2025 +0200
+
+    starting the timeline serviceis
+
+[33mcommit e7849edb5720ce647ee7a4a8830a8fd8998847a3[m[33m ([m[1;31morigin/feature/195-serviceOrderManagement[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Tue Oct 28 13:08:23 2025 +0200
+
+    adding posts and timeline to the database
+
+[33mcommit de04cfb35fce1786abeddc6bc17b41fba2c812b2[m[33m ([m[1;31morigin/refactoring/categoryBatchAndContacts[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Tue Oct 28 11:19:28 2025 +0200
+
+    reafactoring and deleting unneccessary code
+
+[33mcommit 2cc93ede7d24af2ca82c0ffbda817eb7d54704d0[m[33m ([m[1;31morigin/epic/servicesAndOrders[m[33m, [m[1;31morigin/epic/193/servicesAndOrders[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Tue Oct 28 10:56:00 2025 +0200
+
+    fixing order and adding free services flow
+
+[33mcommit c9ea3813d30d33d2c75ed2e4d1ddf4357f4c1e49[m[33m ([m[1;31morigin/experimental/payments/v2[m[33m, [m[1;31morigin/experimental/payments/v1[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Wed Oct 22 13:17:13 2025 +0300
+
+    adding update about payments
+
+[33mcommit 2185d0f3873eecee296c87f8f2262ac1f25c7953[m[33m ([m[1;31morigin/v3/feature[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Tue Oct 21 18:59:05 2025 +0300
+
+    fixing final before adding new branch
+
+[33mcommit 03c297417d7817926413c687e3d2f26d47a8c003[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Mon Oct 20 09:40:02 2025 +0300
+
+    fixing tests
+
+[33mcommit 48b1cfc6cc15220eae9d57d48d66c456450386e6[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Sun Oct 19 22:19:33 2025 +0300
+
+    adding test and commenting out service tests till further meeting
+
+[33mcommit 0bbd4bbbb9c15f93a5c943dc5c04d1c60928fd1a[m[33m ([m[1;31morigin/feature/payments/v2[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Sat Oct 18 16:31:33 2025 +0300
+
+    adding status edits and fixing enums
+
+[33mcommit 960e6918e2c327dfa4985d2fbb474ed75b713b46[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Sat Oct 18 14:57:04 2025 +0300
+
+    adding full routes for order
+
+[33mcommit 53b13d266d544c4306a2f1e36d3c86c8095dd6cd[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Fri Oct 17 16:22:20 2025 +0300
+
+    adding categorys
+
+[33mcommit 4b53a9488887f343455fecd6b66d0beb54b755dd[m[33m ([m[1;31morigin/paymentsAndCheckout[m[33m)[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Wed Oct 15 14:22:47 2025 +0300
+
+    includes adding inquery,offer,order permissions and fixing category and relations
+
+[33mcommit b109c1cf5514274678370a7a4d2f5f1145cd9af9[m
+Author: amr <amrimadkh@gmail.com>
+Date:   Tue Oct 14 09:58:00 2025 +0300
+
+    adding env variables to sample files and editing seeds
+
+[33mcommit ea4559fb87baf3e9d80e82c3e176a28485e60f11[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Oct 8 15:34:28 2025 +0300
+
+    adding contracts
+
+[33mcommit e8e8799774e9040d19c94c412d7b47abfa56f3a5[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Oct 7 16:39:37 2025 +0300
+
+    adding validation and inquires and fixing shutdown
+
+[33mcommit d413c7ad8508387a8d942cc883912d766575f54d[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Oct 7 10:27:39 2025 +0300
+
+    adding inquiry table
+
+[33mcommit 36ce2c08b094ab7ceedb47b492cb61737f386a0c[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Oct 7 09:42:23 2025 +0300
+
+    fixing important logging
+
+[33mcommit df327e94e4f8efe3cb6827ba0296d4860433053e[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Oct 6 22:53:10 2025 +0300
+
+    adding env files
+
+[33mcommit 3f007fcbe24e55bdad7e3ea8ff77e3107b2e7c56[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Oct 6 22:41:11 2025 +0300
+
+    adding ssl condition for production
+
+[33mcommit 182caac9fe25506859d23433240f402206abd12b[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Oct 6 22:35:27 2025 +0300
+
+    adding ssl to the database
+
+[33mcommit ff3e5784542040ac4a3f810dccb3883245f0e530[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Oct 6 22:19:12 2025 +0300
+
+    adding start script
+
+[33mcommit ac8ae68bc75dd20faf70102c4b80570e32a7461f[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Oct 6 20:09:21 2025 +0300
+
+    fixing Development
+
+[33mcommit 5b0bea34717f1c1bf18e00a91552d34eaf474f27[m
+Merge: 477da1c a6009c5
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Mon Oct 6 20:07:07 2025 +0300
+
+    Merge pull request #167 from Germany-Assist/feature/uploading
+    
+    Feature/uploading
+
+[33mcommit a6009c522ab99849d72699cdf0617746b562f6b2[m
+Merge: 29093a0 477da1c
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Mon Oct 6 17:15:10 2025 +0300
+
+    Merge branch 'Development' into feature/uploading
+
+[33mcommit 29093a03244e8ce326356fb34d38be3ade2180b4[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Oct 5 22:49:58 2025 +0300
+
+    adding upload for profile and gallery
+
+[33mcommit 477da1c566771a99f0e7987ca9668968b3ab7fd0[m
+Merge: 63981ec 169f3b4
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Sun Oct 5 15:00:47 2025 +0300
+
+    Merge pull request #158 from Germany-Assist/v7/expermental/stripe
+    
+    V7/expermental/stripe
+
+[33mcommit 169f3b4655b892a3eb1958fd79a7dc390bafc981[m
+Merge: 6f87f0a 0511ef4
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Sun Oct 5 14:59:00 2025 +0300
+
+    Merge pull request #161 from Germany-Assist/updating/stripe
+    
+    fixing favorite and cart/adding testing
+
+[33mcommit 7bc0d90fe39bea52428adf4b040502ff3053e768[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Oct 2 19:26:13 2025 +0300
+
+    adding routes for the upload and adding s3 sharp and multer
+
+[33mcommit 0511ef4c70b5e1a31ac317d3ff6f31178220be03[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Sep 27 20:29:05 2025 +0300
+
+    adding background jobs and fixing the entire flow
+
+[33mcommit d89eb468f8828040a320b91bb4e0050d324ed7c8[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Sep 24 15:39:01 2025 +0300
+
+    first
+
+[33mcommit ce540e49a00c14b212cf9fb65e8d27c603e1cfd5[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Sep 22 14:16:24 2025 +0300
+
+    adding stripe testing and controllers
+
+[33mcommit 61ada3e89892b1e0c6ed6661c4297f5e612e0eea[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Sep 22 14:12:24 2025 +0300
+
+    adding stripe testing and controllers
+
+[33mcommit b5bd3c0ba703b771e5533be5e036a99bf89418c2[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Sep 18 13:19:08 2025 +0300
+
+    fixing favorite and cart/adding testing
+
+[33mcommit 6f87f0a020c79770b4b8e19465124f1998c9d20f[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Sep 12 19:37:49 2025 +0300
+
+    fixing stripe error
+
+[33mcommit 6b20b3f43ce320de95ed5d4f6f540dfdc5813ae1[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Sep 12 19:36:23 2025 +0300
+
+    fixing stripe error
+
+[33mcommit c36e5654be8ca18854f277737a3988a02c49a49c[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Sep 12 19:29:46 2025 +0300
+
+    adding stripe
+
+[33mcommit 2db7e170bfa29eb204bf4ab4ebabe17242c167eb[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Sep 9 12:39:57 2025 +0300
+
+    adding favorite/cart
+
+[33mcommit 63981ecc16de3d30f90731e625acba5426d207e7[m
+Merge: 0ba6bc0 88f8023
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Mon Sep 15 15:55:36 2025 +0300
+
+    Merge pull request #157 from Germany-Assist/feature/ratingsAndReviews
+    
+    Feature/ratings and reviews
+
+[33mcommit 0ba6bc011c7b3193149d4ab29f71cc850859c5c0[m
+Merge: 560ef27 36e419f
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Mon Sep 15 15:55:00 2025 +0300
+
+    Merge pull request #156 from Germany-Assist/v6/finalService
+    
+    V6/final service
+
+[33mcommit 560ef275204b38781e50699804a277300c4899fa[m
+Merge: 7aab0b7 dc39d25
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Mon Sep 15 15:52:43 2025 +0300
+
+    Merge pull request #153 from Germany-Assist/patch/v2/final
+    
+    Patch/v2/final
+
+[33mcommit 88f802396f4699acaa0d5f58a507b893b0de9234[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Sep 5 22:32:02 2025 +0300
+
+    adding reviews
+
+[33mcommit 7b1c992815c6035d0b02bd39ccba4960f3f7b2c0[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Sep 5 14:51:55 2025 +0300
+
+    Update JWT tests
+
+[33mcommit 36e419f5c35d481e7dfbb62a2142eea5638df3e5[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Sep 5 02:31:42 2025 +0300
+
+    adding tests
+
+[33mcommit da63a52d833f860b09ab647bcc2154c8d5b4c188[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Sep 3 21:10:44 2025 +0300
+
+    fixing routes and adding features
+
+[33mcommit 2c0dbd0cab16c47915b07e72c8c963001b91d6ca[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Sep 2 18:39:46 2025 +0300
+
+    adding categories
+
+[33mcommit 6204243adb0c48a9dae4c80167de79997af313da[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Sep 2 11:14:46 2025 +0300
+
+    adding the services routes and validation
+
+[33mcommit 2836cbcf5e113ce8465b56fdfc53b3fae72676fa[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Sep 1 19:06:10 2025 +0300
+
+    adding validators
+
+[33mcommit 90468f3acb8a5a3afeb60fa7fdd4c02b7b3435ce[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Sep 1 16:23:29 2025 +0300
+
+    adding tests
+
+[33mcommit dc39d250ea1290ddaa35bde3238c280cef0153e2[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Aug 31 20:20:50 2025 +0300
+
+    fixing tests
+
+[33mcommit a173b725caad6d7b85a48fbd338c2e50ef4c1331[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Aug 29 20:25:43 2025 +0300
+
+    fixing permissions
+
+[33mcommit da49b45e6289b6b3f1a3e2602d70a0a58af9bb37[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Aug 29 18:22:40 2025 +0300
+
+    adding and fixing
+
+[33mcommit aad1339d52045ae302962cc9aeef78894e6a1e6f[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 27 15:44:28 2025 +0300
+
+    adding updates
+
+[33mcommit 04f4d581649c81dea9e971dd2c8acf3f0b4c607c[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 27 09:52:00 2025 +0300
+
+    dont merg
+
+[33mcommit 50a2ae590aae82d4ac82ba2b0da5a241c61816ba[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 26 11:04:07 2025 +0300
+
+    fixing tests
+
+[33mcommit 1843be11ba602ec2c497a47a8eb74e60f2598ad4[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 26 10:59:48 2025 +0300
+
+    adding everything
+
+[33mcommit 22916933cbb6fd1da4bae43d9ed24aaefb9668c3[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Aug 25 19:05:20 2025 +0300
+
+    adding tests
+
+[33mcommit b859fc0863c4bc7841402ce36e01227cad42c383[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Aug 25 17:23:53 2025 +0300
+
+    adding routes and permission
+
+[33mcommit 27e7ccfd5c14cc7c321dbf9b961dd6b5c2d57b4d[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Aug 23 20:09:08 2025 +0300
+
+    adding tests
+
+[33mcommit 50fb93632401f616bb84c61d6ff845a003fde971[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Aug 22 20:52:36 2025 +0300
+
+    adding fixes and tests
+
+[33mcommit 7aab0b752a4f8f49b640042645a64d5440531cd9[m
+Merge: 6e4a726 fd76da7
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Fri Aug 22 15:32:09 2025 +0300
+
+    Merge pull request #143 from Germany-Assist/fixing-tests,authorization
+    
+    adding tests and authorization
+
+[33mcommit fd76da76526a7fd1a4ace6f14def995c10c9c228[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 21 21:28:59 2025 +0300
+
+    adding more tests
+
+[33mcommit 1b45681d03c61d22c13bc623e0384984b1d6edbc[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 21 20:16:29 2025 +0300
+
+    adding tests and authorization
+
+[33mcommit 6e4a7261e0c0a504a17f50728eefd2c04fcd0a22[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 20 22:05:57 2025 +0300
+
+    fixing and enhancing refreshtoken
+
+[33mcommit 94521db10f6d6ab083578fc0dd1b85793c8a479c[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 20 15:05:40 2025 +0300
+
+    adding business/services routes
+
+[33mcommit 24c2eaf414765ea359303bea6dc592062c8ec0e1[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 19 20:38:35 2025 +0300
+
+    fixing tests
+
+[33mcommit 7d65d5324bf1f64d0b1339a26f547a80d45a6215[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 19 20:33:03 2025 +0300
+
+    addingRoutes
+
+[33mcommit b0a5898ef40906c5f58562ca02954b8670d59d9e[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 19 13:30:09 2025 +0300
+
+    adding validation to function checkpoint,fixing and upadting tests
+
+[33mcommit d8ae3ada42ac5c8cc14cb2bccd0cb3f5e17ad8c4[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 19 00:00:21 2025 +0300
+
+    fixing test workflow
+
+[33mcommit 7d212a04dcc7aa3de505e46427c94807a18c7aa8[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Aug 18 23:56:59 2025 +0300
+
+    updates/fixes
+
+[33mcommit 349b078a9aecce0da640d25b03984a591ce29302[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Aug 16 11:46:48 2025 +0300
+
+    fixing wrong if condition
+
+[33mcommit ed0fc04e4851b25119c71e5c65021cf22d72d1ba[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Aug 16 10:53:08 2025 +0300
+
+    updating the checkpoint
+
+[33mcommit ee911299824d47994e82a6f4ec1f6d7f7cb94a9e[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Fri Aug 15 20:05:25 2025 +0300
+
+    fixing the templates for the roles
+
+[33mcommit 1fac22cee46ca7e411263992d006d247250ad04a[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 20:01:40 2025 +0300
+
+    adding vaidation to database
+
+[33mcommit 348d01479a54ffce70b9d771d07cae2b109d9fea[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 19:57:28 2025 +0300
+
+    adding vaidation to database
+
+[33mcommit 92306d2fb8871c380f72369c68e520646f531795[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 19:13:57 2025 +0300
+
+    testing tests
+
+[33mcommit 791ef3308cdcb44bd6a658475ff5503dcfdffd1b[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 19:09:44 2025 +0300
+
+    testing if the test are fixed
+
+[33mcommit ac9ed956be35699fe8058c20bfab77f6310ef1eb[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 18:57:59 2025 +0300
+
+    fixing check if user exist
+
+[33mcommit bced8a61a4f2272a030685b329d457036c88b9e9[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 18:53:55 2025 +0300
+
+    fix timeout
+
+[33mcommit a1d39805a829b4e414f947bcc8f252494519cd97[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 18:51:07 2025 +0300
+
+    fixing check if user exist
+
+[33mcommit fffd78710902f65e50b2a62055332563e73bbeaf[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Aug 14 18:30:39 2025 +0300
+
+    adding tests
+
+[33mcommit e1cd5d67bc0571a0175834d16c1b6bf78843ac25[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 13 18:03:35 2025 +0300
+
+    updating permission controller
+
+[33mcommit b3d407bdcf85864f1c38feabdfcbdfff28aecd13[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 13 17:54:09 2025 +0300
+
+    adding authorize Ownership
+
+[33mcommit b7cc782c746b294f1277cd1bdb6483c9f74dd1c5[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 12 16:13:06 2025 +0300
+
+    fixing user old tags
+
+[33mcommit 37561a5caf3d2478a33ac0f9e336c4e38e42c3e0[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Tue Aug 12 16:02:03 2025 +0300
+
+    adding permissions
+
+[33mcommit b7de1ba49088421f5af1ae51a43dcb5089f24dcd[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 6 11:14:03 2025 +0300
+
+    adding traces to validation errors
+
+[33mcommit 06937f7e957d33ad9f995c1836b90ce2479068eb[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Aug 6 10:59:27 2025 +0300
+
+    fixing the error handling and adding traces
+
+[33mcommit 02927d7c97fc55ca60a9af87abb5733050deb1fd[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Aug 4 23:42:40 2025 +0300
+
+    fixing-workflowEnv
+
+[33mcommit d78d5bf3b42a361eb1cff3568d9c208c3518921a[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Mon Aug 4 22:57:37 2025 +0300
+
+    patchesAndFixes
+
+[33mcommit c1b7c1d55cc932e189bd81521b4aae1a7d80eede[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jul 30 13:04:32 2025 +0300
+
+    feature/updates
+
+[33mcommit 35a9d1d920c2fb3e9947f57765c637024a533092[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Jul 13 23:35:34 2025 +0300
+
+    updating the database
+
+[33mcommit e62bba51f45708bafd3dfc447a236a661c6b106b[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Jul 13 01:57:08 2025 +0300
+
+    adding validation and testing for current user routes
+
+[33mcommit d5e1179d4d8274828e02827c10de26df315f0808[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 21:26:06 2025 +0300
+
+    updating to merge with main
+
+[33mcommit cbab46eb027f8082ebfeb3d18d04b05bffb5e48e[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 21:24:57 2025 +0300
+
+    fixing env in yml file
+
+[33mcommit 97d4d96a58e1ae66c206325218ebc3566d121061[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 21:21:36 2025 +0300
+
+    updating to merge with main
+
+[33mcommit b47e974b5ba7d92cde1f195d609fce4d4ecd54ae[m
+Merge: a40ded5 37bc683
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 21:15:02 2025 +0300
+
+    testing strats
+
+[33mcommit 37bc6831eac4d54e3d6abe3450a81e8f724df383[m
+Merge: c8933a4 3b0fab0
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Sat Jul 12 20:37:03 2025 +0300
+
+    Merge pull request #121 from Germany-Assist/feature/user-endpoints
+    
+    Feature/user endpoints
+
+[33mcommit a40ded5823e84c86dad5234149188a7d79a1e116[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 20:22:26 2025 +0300
+
+    final fixing for variables and env
+
+[33mcommit a5c81a03e1b3d17e740bc1e1791ce7f9aee933c3[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 20:20:46 2025 +0300
+
+    final fixing for variables and env
+
+[33mcommit b864947ccf9d6adc8e4083d648cd2f36e55992c5[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:47:49 2025 +0300
+
+    testing caching
+
+[33mcommit bb3ea7867b63ba8a910b50dbc07a92cc87fa9b00[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:42:10 2025 +0300
+
+    fixing scripts and env variables
+
+[33mcommit c196cae1e85d9839cfb569e40424c96126f60ea9[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:37:45 2025 +0300
+
+    pushing testing for testing
+
+[33mcommit 43fd7179d3e4007fe6047444c377006fce31d06b[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:36:16 2025 +0300
+
+    fixing db password
+
+[33mcommit 0dc46fbc58b8658887f01bae8392f6f20df26104[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:34:06 2025 +0300
+
+    pushing testing for testing
+
+[33mcommit f441c1a1af8b6f7099b87b9ed6f85adf5d0d1232[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:32:16 2025 +0300
+
+    pushing testing for testing
+
+[33mcommit 0f39113a17867a78f129a14b47087a908e65fbe8[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jul 12 19:26:50 2025 +0300
+
+    pushing testing for testing
+
+[33mcommit 3b0fab0c046155ec3f7c4c8b04e773f50c2e6302[m
+Merge: 1a68e78 c8933a4
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Thu Jul 10 20:19:47 2025 +0300
+
+    Merge branch 'main' into feature/user-endpoints
+
+[33mcommit c8933a4f4d18353e7b03554b749c5806b2eed1fb[m
+Merge: d3a5ee0 7782293
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Thu Jul 10 20:12:34 2025 +0300
+
+    Merge pull request #120 from Germany-Assist/models/controllers/providerProfile
+    
+    Models/controllers/provider profile
+
+[33mcommit 1a68e78e2168add02291a6c9ab1e791eb4a89c77[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Jul 10 19:57:42 2025 +0300
+
+    1.adding some user routes
+
+[33mcommit f0cb6a7d40c77f9d4d4f346f9b067cab58b51acd[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Jul 10 19:57:24 2025 +0300
+
+    1.adding some user routes
+
+[33mcommit 7782293eef2687d00fc76c371b70d8a000dba3bd[m
+Merge: 25b6f6e d3a5ee0
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Thu Jul 10 17:26:28 2025 +0300
+
+    Merge branch 'main' into models/controllers/providerProfile
+
+[33mcommit d3a5ee013b7c768adde67b4e23186801b171d3d2[m
+Merge: c55dfc8 500984c
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Thu Jul 10 17:24:19 2025 +0300
+
+    Merge pull request #111 from Germany-Assist/feature/errorHandling
+    
+    Feature/error handling
+
+[33mcommit 500984c4a02414c2b6dbf1fdab48947cf29654aa[m
+Merge: 9909788 c55dfc8
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Thu Jul 10 17:23:42 2025 +0300
+
+    Merge branch 'main' into feature/errorHandling
+
+[33mcommit 25b6f6e52735ebb96a2f122cae27f6d808d1b15b[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Jul 10 15:34:08 2025 +0300
+
+    fixing sample.env
+
+[33mcommit 02eebe0b7a8ff6cf5d3956c3785b3f43a19fb89e[m
+Merge: fd40308 c55dfc8
+Author: adruid <ataha@gitlab.com>
+Date:   Thu Jul 10 12:56:18 2025 +0300
+
+    Merge branch 'main' into models/controllers/providerProfile
+
+[33mcommit c55dfc800070cc113ac7f6928301c2105a78327a[m
+Merge: 41b0a7a 5d71426
+Author: Druid <amrdruid@gmail.com>
+Date:   Thu Jul 10 12:49:20 2025 +0300
+
+    Merge pull request #109 from Germany-Assist/108-user-profile-processes
+    
+    108 user profile processes
+
+[33mcommit 5d714267a23d9a3c15362ce24c1b16050251e619[m
+Merge: b5fa083 41b0a7a
+Author: adruid <ataha@gitlab.com>
+Date:   Thu Jul 10 12:48:15 2025 +0300
+
+    Merge branch 'main' into 108-user-profile-processes
+
+[33mcommit 41b0a7a379a12924f4d0027ebee0cae84782db69[m
+Merge: 3b9af60 43b5d71
+Author: Druid <amrdruid@gmail.com>
+Date:   Thu Jul 10 12:37:57 2025 +0300
+
+    Merge pull request #110 from Germany-Assist/feature/logging
+    
+    Feature/logging
+
+[33mcommit fd4030857a65ef8ebbdaf065ed7543c5c09f940b[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Jul 10 01:35:24 2025 +0300
+
+    fixing unsaved file
+
+[33mcommit 3267ba0fde411b3717219de1e695a82e9e465c0d[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Jul 10 01:27:08 2025 +0300
+
+    1. adding profiles for provider/fixing some errors /removeing console.log
+
+[33mcommit 001cd4502c465b18e4634b3f34ebeaabd66e7915[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Thu Jul 10 00:22:02 2025 +0300
+
+    adding business profile controller and routes
+
+[33mcommit c727fbf7716bbf68314c8ba87671c6d9e4f1bd01[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jul 9 23:35:28 2025 +0300
+
+    adding contracts crud
+
+[33mcommit 660a0dabeaaf9deb88471a2ba55f460bf002c7fe[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jul 9 19:21:10 2025 +0300
+
+    adding coupons, fixing some values for assets
+
+[33mcommit 044820c374741db8107fd9d9aa582da483d2e084[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jul 9 16:06:22 2025 +0300
+
+    adding assets routes+controllers
+
+[33mcommit b5fa0834e67a7928fe4aa33fd10503979eb87cc5[m
+Author: Muna-Zeer <munaelzeer@gmail.com>
+Date:   Mon Jul 7 22:20:22 2025 +0300
+
+    Adding the logic of missing fields instead of the repetitive of the condition test
+
+[33mcommit 9909788af9cc8a7dff780414814517039bf48c48[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Jul 6 23:46:06 2025 +0300
+
+    fixing readmemd Spelling errors
+
+[33mcommit 22523ba3b8c886cd50488bb07072dffce8bf45b4[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Jul 6 23:34:47 2025 +0300
+
+    adding error handling/ updating the readmemd / enhancing the logging system
+
+[33mcommit 43b5d71feb52889c848e3fe46df8315e920fbfd9[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sun Jul 6 20:47:19 2025 +0300
+
+    adding logger, updating readme.md fxing others
+
+[33mcommit 1cc92230dd80dded6211713ec49255a297e19d9d[m
+Author: Muna-Zeer <munaelzeer@gmail.com>
+Date:   Thu Jul 3 15:51:41 2025 +0300
+
+    users operations endpoints
+
+[33mcommit 06e1795056c6a93cb031909c2156cd01eaac7d80[m
+Author: Muna-Zeer <munaelzeer@gmail.com>
+Date:   Wed Jul 2 09:47:20 2025 +0300
+
+    coding get user with details info
+
+[33mcommit b2fb67a725fffbce0146a3cfa89a209a7f6db5f5[m
+Author: Muna-Zeer <munaelzeer@gmail.com>
+Date:   Tue Jul 1 22:50:09 2025 +0300
+
+    writing the function of create new user
+
+[33mcommit 3b9af60f7d1e4de0ed4cbd2697549d21c24d2b3c[m
+Merge: 61f7b41 ec275f8
+Author: Amr imad <141562920+amr-imad@users.noreply.github.com>
+Date:   Mon Jun 30 15:09:23 2025 +0300
+
+    Merge pull request #105 from Germany-Assist/database/adding-models
+    
+    Database/adding models
+
+[33mcommit 6568aa1daa8b1f759f8f23c615159da805591e51[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Sat Jun 28 22:23:44 2025 +0300
+
+    adding logger
+
+[33mcommit ec275f8fb7d986b1d692610613391f3c3f445060[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jun 25 13:13:18 2025 +0300
+
+    updateing readme also fixing name of assets folder
+
+[33mcommit 54fa3e8f9fe77aa2fb107a9a217d510af7dcf413[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jun 25 11:23:01 2025 +0300
+
+    updating readme md
+
+[33mcommit ab8f67668467041e5a19bbc99c930c5f0207edd4[m
+Author: Amr imad <amrimadkh@gmail.com>
+Date:   Wed Jun 25 10:26:20 2025 +0300
+
+    adding models and seeds with scripts
+
+[33mcommit 61f7b4151e65ffb1ac6b7d0a8692b19a95444617[m
+Author: amr-imad <amrimadkh@gmail.com>
+Date:   Tue Jun 10 12:21:37 2025 +0300
+
+    scaffolding the project
