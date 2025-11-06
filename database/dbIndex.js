@@ -139,9 +139,6 @@ export const defineConstrains = () => {
 
   return true;
 };
-if (process.env.SEEDING !== "true") {
-  defineConstrains();
-}
 
 const db = {
   User,
