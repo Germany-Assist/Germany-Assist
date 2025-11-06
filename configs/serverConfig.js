@@ -1,5 +1,3 @@
-import { loadEnvFile } from "node:process";
-if (process.env.NODE_ENV === "test") loadEnvFile("./test.env");
 export const SERVER_PORT = parseInt(process.env.SERVER_PORT);
 export const NODE_ENV = process.env.NODE_ENV;
 export const LOG_LEVEL = NODE_ENV === "dev" ? "debug" : "http";

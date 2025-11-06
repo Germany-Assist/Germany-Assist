@@ -1,4 +1,3 @@
-import "./serverConfig.js";
 import Redis from "ioredis";
 import { errorLogger, infoLogger } from "../utils/loggers.js";
 import { NODE_ENV } from "./serverConfig.js";

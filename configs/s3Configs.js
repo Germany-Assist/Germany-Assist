@@ -1,4 +1,3 @@
-import "./serverConfig.js";
 import { S3Client } from "@aws-sdk/client-s3";
 
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;

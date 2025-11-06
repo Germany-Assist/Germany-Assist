@@ -26,7 +26,8 @@ async function importModels() {
 
 async function seedAll() {
   const models = await importModels();
-  await sequelize.sync({ force: true });
+  await sequelize.sync({ force: false }); // or true to reset tables
+
   for (const [name, model] of Object.entries(models)) {
     const filePath = path.join(dataDir, `${name.toLowerCase()}s.json`);
     if (fs.existsSync(filePath)) {
