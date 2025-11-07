@@ -34,6 +34,7 @@ export async function userFactory(overrides = {}) {
       plainPassword: customPassword ? customPassword : "123456@AbcsQQ",
     };
   } catch (error) {
+    console.log();
     errorLogger(error);
   }
 }

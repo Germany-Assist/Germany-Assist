@@ -1,16 +1,14 @@
-import { describe, before, after, it, beforeEach, afterEach } from "node:test";
+import { describe, it, beforeEach } from "node:test";
 import { app } from "../../app.js";
 import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
-import { defineConstrains } from "../../database/dbIndex.js";
 import assert from "node:assert";
 import jwtUtils from "../../middlewares/jwt.middleware.js";
-import seedUsers from "../../database/seeds/users_seeds.js";
-import seedPermissions from "../../database/seeds/permission_seed.js";
-import seedCategory from "../../database/seeds/category_seed.js";
-import { sequelize } from "../../database/connection.js";
 import { initDatabase } from "../../database/migrateAndSeed.js";
-
+import {
+  userFactory,
+  userWithTokenFactory,
+} from "../factories/user.factory.js";
 const testUser = {
   firstName: "yousif",
   lastName: "yousif",
@@ -28,9 +26,10 @@ beforeEach(async () => {
   }
 });
 
-describe("userRouter.post / ", () => {
+describe("userRouter.post/ create new client", () => {
   it("should create new client correctly and retrieve the correct data", async () => {
     const resp = await request(app).post("/api/user/").send(testUser);
+    const cookies = resp.headers["set-cookie"];
     assert.equal(resp.status, 201);
     assert.partialDeepStrictEqual(resp.body, {
       user: {
@@ -45,6 +44,11 @@ describe("userRouter.post / ", () => {
         related_id: null,
       },
     });
+    assert.ok(cookies);
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      { role: "client", related_type: "client", related_id: null }
+    );
     assert.partialDeepStrictEqual(
       jwtUtils.verifyAccessToken(resp.body.accessToken),
       { role: "client", related_type: "client", related_id: null }
@@ -148,7 +152,159 @@ describe("userRouter.post / ", () => {
     ]);
   });
   it("should fail for existing email", async () => {
-    const resp = await request(app).post("/api/user/").send(testUser);
-    assert.equal(resp.status, 201);
+    const user = await userFactory();
+    const resp = await request(app)
+      .post("/api/user/")
+      .send({ ...testUser, email: user.email });
+    assert.equal(resp.status, 422);
+    assert.deepEqual(resp.body, {
+      success: false,
+      message: "already exists in the database",
+    });
+  });
+});
+describe("userRouter.get/login login with token", async () => {
+  it("should login with token", async () => {
+    const user = await userWithTokenFactory();
+    const resp = await request(app)
+      .get("/api/user/login")
+      .set("Authorization", `Bearer ${user.accessToken}`);
+    assert.equal(resp.statusCode, 200);
+  });
+});
+describe("userRouter.post/login login with username and password", () => {
+  it("should login with username and password", async () => {
+    const user = await userFactory();
+    const res = await request(app).post("/api/user/login").send({
+      email: user.email,
+      password: user.plainPassword,
+    });
+    const cookies = res.headers["set-cookie"];
+    assert.equal(res.status, 200);
+    assert.partialDeepStrictEqual(res.body, {
+      user: {
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+        image: user.image,
+        isVerified: false,
+        role: user.UserRole.role,
+        related_type: user.UserRole.related_type,
+        related_id: user.UserRole.related_id,
+      },
+    });
+    assert.ok(cookies);
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      {
+        role: user.UserRole.role,
+        related_type: user.UserRole.related_type,
+        related_id: null,
+      }
+    );
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyAccessToken(res.body.accessToken),
+      {
+        role: user.UserRole.role,
+        related_type: user.UserRole.related_type,
+        related_id: null,
+      }
+    );
+  });
+  it("should fail for validation wrong password", async () => {
+    const user = await userFactory();
+    const res = await request(app).post("/api/user/login").send({
+      email: user.email,
+      password: "test",
+    });
+    assert.equal(res.status, 401);
+    assert.equal(res.body.message, "invalid credentials");
+  });
+  it("should fail for non existing user", async () => {
+    const res = await request(app).post("/api/user/login").send({
+      email: "user.email@gmail.com",
+      password: "test",
+    });
+    assert.equal(res.status, 401);
+    assert.equal(res.body.message, "invalid credentials");
+  });
+  it("should fail for validation", async () => {
+    const res = await request(app).post("/api/user/login").send({
+      email: "",
+      password: "",
+    });
+    assert.equal(res.status, 422);
+    assert.deepEqual(res.body.message.errors, [
+      {
+        type: "field",
+        value: "",
+        msg: "Email is required",
+        path: "email",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Invalid email format",
+        path: "email",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Password is required",
+        path: "password",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Password must not be empty",
+        path: "password",
+        location: "body",
+      },
+    ]);
+  });
+});
+describe("userRouter.post/refresh-token refresh access token", () => {
+  it("should send refresh cookie to get a token", async () => {
+    const user = await userFactory();
+    const login = await request(app).post("/api/user/login").send({
+      email: user.email,
+      password: user.plainPassword,
+    });
+    const cookies = login.headers["set-cookie"];
+    const res = await request(app)
+      .post("/api/user/refresh-token")
+      .set("Cookie", cookies)
+      .send();
+    assert.equal(res.status, 200);
+    assert.ok(res.body);
+  });
+  it("should fail for no cookie", async () => {
+    const res = await request(app).post("/api/user/refresh-token").send();
+    assert.equal(res.status, 401);
+  });
+});
+describe("userRouter.get/logout logout user", () => {
+  it("it should clear the cookie", async () => {
+    const res = await request(app).get("/api/user/logout").send();
+    const cookies = res.headers["set-cookie"];
+    assert.equal(res.status, 200);
+    assert.equal(
+      cookies[0],
+      "refreshToken=; Path=/api/user/refresh-token; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict"
+    );
+  });
+});
+//flag further testing on profile will be
+describe("userRouter.get/profile get user profile", () => {
+  it("should get user profile", async () => {
+    const user = await userWithTokenFactory();
+    const resp = await request(app)
+      .get("/api/user/profile")
+      .set("Authorization", `Bearer ${user.accessToken}`);
+    assert.equal(resp.statusCode, 200);
+    assert.ok(resp.body);
   });
 });
