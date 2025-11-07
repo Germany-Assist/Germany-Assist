@@ -12,7 +12,9 @@ export async function createCategory(req, res, next) {
       "create"
     );
     await categoryServices.createCategory(req.body);
-    res.sendStatus(201);
+    res
+      .status(201)
+      .send({ success: true, message: "created category successfully" });
   } catch (error) {
     next(error);
   }
@@ -31,7 +33,9 @@ export async function updateCategory(req, res, next) {
     const catId = hashIdUtil.hashIdDecode(id);
     const data = { title, label };
     await categoryServices.updateCategory(catId, data);
-    res.sendStatus(201);
+    res
+      .status(201)
+      .send({ success: true, message: "updated category successfully" });
   } catch (error) {
     next(error);
   }
@@ -42,7 +46,7 @@ export async function getAllCategories(req, res, next) {
     const sanitizedCategories = categories.map((i) => {
       return { ...i, id: hashIdUtil.hashIdEncode(i.id) };
     });
-    res.send(sanitizedCategories);
+    res.status(200).send(sanitizedCategories);
   } catch (error) {
     next(error);
   }

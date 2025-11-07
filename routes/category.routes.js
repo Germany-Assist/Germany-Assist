@@ -1,7 +1,10 @@
 import express from "express";
 import categoryController from "../controllers/category.controller.js";
 import jwt from "../middlewares/jwt.middleware.js";
-import { createCategoryValidator } from "../validators/category.validator.js";
+import {
+  createCategoryValidator,
+  updateCategoryValidator,
+} from "../validators/category.validator.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
 
 const categoryRouter = express.Router();
@@ -16,7 +19,7 @@ categoryRouter.post(
 categoryRouter.put(
   "/",
   jwt.authenticateJwt,
-  createCategoryValidator,
+  updateCategoryValidator,
   validateExpress,
   categoryController.updateCategory
 );
