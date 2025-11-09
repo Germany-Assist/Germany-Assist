@@ -13,7 +13,7 @@ describe("testing comment controller", () => {
       body: { body: "Nice post!", postId: "abc123", commentId: null },
       auth: { id: 1 },
     };
-    const res = { send: sinon.stub() };
+    const res = { send: sinon.stub(), status: sinon.stub().returnsThis() };
     const next = sinon.stub();
 
     // Transaction mock
@@ -36,7 +36,8 @@ describe("testing comment controller", () => {
 
     assert.ok(commentServices.canCommentOnPost.calledOnceWith(1, 101));
     assert.ok(commentServices.createNewComment.calledOnce);
-    assert.ok(res.send.calledOnceWith(201));
+    assert.ok(res.status.calledOnceWith(201));
+    assert.ok(res.send.calledOnce);
     assert.ok(tMock.commit.calledOnce);
     assert.ok(tMock.rollback.notCalled);
     assert.ok(next.notCalled);

@@ -27,9 +27,7 @@ beforeEach(async () => {
     errorLogger(error);
   }
 });
-after(async () => {
-  await sequelize.close();
-});
+
 describe("route", () => {
   it("should create comment successfully and create a reply", async () => {
     const { post, service, timeline } = await fullPostFactory();
