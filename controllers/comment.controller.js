@@ -11,7 +11,7 @@ async function createNewComment(req, res, next) {
     const comment_id = hashIdUtil.hashIdDecode(req.body.commentId);
     let able = await commentServices.canCommentOnPost(req.auth.id, post_id);
     if (!able)
-      throw new AppError(403, "permission denied", false, "permission denied");
+      throw new AppError(403, "permission denied", true, "permission denied");
     const data = {
       user_id: req.auth.id,
       parent_id: comment_id ?? null,
@@ -19,7 +19,9 @@ async function createNewComment(req, res, next) {
       body,
     };
     await commentServices.createNewComment(data, t);
-    res.send(201);
+    res
+      .status(201)
+      .send({ success: true, message: "Successfully Created Comment" });
     await t.commit();
   } catch (error) {
     await t.rollback();

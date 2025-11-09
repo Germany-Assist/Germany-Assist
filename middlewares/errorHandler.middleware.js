@@ -15,6 +15,7 @@ export function errorMiddleware(err, req, res, next) {
   }
   if (err instanceof AppError) {
     return res.status(err.httpCode).json({
+      success: false,
       message: err.publicMessage,
     });
   }
