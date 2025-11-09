@@ -16,6 +16,7 @@ import Favorite from "./models/favorite.js";
 import Timeline from "./models/timeline.js";
 import Post from "./models/post.js";
 import Comment from "./models/comment.js";
+import { NODE_ENV } from "../configs/serverConfig.js";
 export const defineConstrains = () => {
   //comment
   Comment.belongsTo(Post, {
@@ -139,7 +140,9 @@ export const defineConstrains = () => {
 
   return true;
 };
-
+if (NODE_ENV !== "test") {
+  defineConstrains();
+}
 const db = {
   User,
   ServiceProvider,

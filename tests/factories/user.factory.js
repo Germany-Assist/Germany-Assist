@@ -18,7 +18,7 @@ export async function userFactory(overrides = {}) {
       first_name: "John",
       last_name: "Doe",
       email: overrides.email || `user+${uuidv4()}@test.com`,
-      is_verified: false,
+      is_verified: true,
       UserRole: {
         role: "client",
         related_type: "client",

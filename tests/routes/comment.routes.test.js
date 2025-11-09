@@ -28,7 +28,7 @@ beforeEach(async () => {
   }
 });
 
-describe("route", () => {
+describe("api/post/comment - post - testing comment routes", () => {
   it("should create comment successfully and create a reply", async () => {
     const { post, service, timeline } = await fullPostFactory();
     const client = await userWithTokenFactory();

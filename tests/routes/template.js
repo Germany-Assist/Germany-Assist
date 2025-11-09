@@ -3,7 +3,7 @@ import { app } from "../../app.js";
 import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
 import { initDatabase } from "../../database/migrateAndSeed.js";
-import { assert } from "node:assert";
+import assert from "node:assert";
 beforeEach(async () => {
   try {
     await initDatabase(false);

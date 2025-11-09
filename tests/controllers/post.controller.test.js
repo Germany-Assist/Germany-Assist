@@ -82,7 +82,11 @@ describe("Post Controller - createNewPost", () => {
 
     sandbox.assert.calledOnce(fakeTransaction.commit);
     sandbox.assert.notCalled(fakeTransaction.rollback);
-    sandbox.assert.calledWith(res.send, 201);
+    sandbox.assert.calledWith(res.status, 201);
+    sandbox.assert.calledWith(res.send, {
+      success: true,
+      message: "Created Post Successfully",
+    });
     sandbox.assert.notCalled(next);
   });
 

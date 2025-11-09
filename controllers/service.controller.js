@@ -91,7 +91,7 @@ export async function createService(req, res, next) {
       data: {
         id: hashIdUtil.hashIdEncode(service.id),
         title: service.title,
-        userId: hashIdUtil.hashIdEncode(service.UserId),
+        userId: hashIdUtil.hashIdEncode(service.user_id),
         categoryId: hashIdUtil.hashIdEncode(service.category_id),
         timelines,
       },

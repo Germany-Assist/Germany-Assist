@@ -24,7 +24,7 @@ serviceRouter.get(
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
 serviceRouter.post(
-  "/",
+  "/provider",
   jwt.authenticateJwt,
   createServiceValidator,
   validateExpress,

@@ -13,36 +13,23 @@ import authUtil from "../../utils/authorize.util.js";
 describe("Testing Post Controller", () => {
   test("postController.createNewPost → creates a new post successfully", async (t) => {
     const sandbox = sinon.createSandbox();
-
-    // 🧩 Transaction mock
     const fakeTransaction = {
       commit: sandbox.stub().resolves(),
       rollback: sandbox.stub().resolves(),
     };
     sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-
-    // 🧩 Decode serviceId
     sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
-
-    // 🧩 Mock auth check
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
-
-    // 🧩 Active timeline mock
     const fakeTimeline = { id: 123, Service: { owner: 55 } };
     sandbox.stub(timelineServices, "activeTimeline").resolves(fakeTimeline);
-
-    // 🧩 post creation mock
     sandbox.stub(postServices, "createNewPost").resolves({ id: 1 });
-
-    // 🧩 Fake req / res / next
     const req = {
       auth: { id: 1, related_id: 55 },
       body: { serviceId: "abc123", description: "New post", attachments: [] },
     };
-    const res = { send: sandbox.stub() };
+    const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
     const next = sandbox.stub();
 
-    // 🧪 Run the controller
     await postController.createNewPost(req, res, next);
 
     // ✅ Assertions
@@ -50,7 +37,14 @@ describe("Testing Post Controller", () => {
     assert.equal(timelineServices.activeTimeline.calledOnce, true);
     assert.equal(postServices.createNewPost.calledOnce, true);
     assert.equal(fakeTransaction.commit.calledOnce, true);
-    assert.equal(res.send.calledWith(201), true);
+    assert.equal(res.status.calledWith(201), true);
+    assert.equal(
+      res.send.calledWith({
+        success: true,
+        message: "Created Post Successfully",
+      }),
+      true
+    );
     assert.equal(next.called, false);
 
     sandbox.restore();
@@ -70,7 +64,7 @@ describe("Testing Post Controller", () => {
     sandbox.stub(timelineServices, "activeTimeline").resolves(null);
 
     const req = { auth: { id: 1, related_id: 55 }, body: { serviceId: "abc" } };
-    const res = { send: sandbox.stub() };
+    const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
     const next = sandbox.stub();
 
     await postController.createNewPost(req, res, next);
@@ -99,7 +93,7 @@ describe("Testing Post Controller", () => {
       .resolves({ id: 1, Service: { owner: 99 } });
 
     const req = { auth: { id: 1, related_id: 55 }, body: { serviceId: "abc" } };
-    const res = { send: sandbox.stub() };
+    const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
     const next = sandbox.stub();
 
     await postController.createNewPost(req, res, next);
@@ -123,7 +117,7 @@ describe("Testing Post Controller", () => {
 
     sandbox.stub(hashIdUtil, "hashIdDecode").throws(new Error("hash failed"));
     const req = { auth: { id: 1 }, body: { serviceId: "abc" } };
-    const res = { send: sandbox.stub() };
+    const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
     const next = sandbox.stub();
 
     await postController.createNewPost(req, res, next);

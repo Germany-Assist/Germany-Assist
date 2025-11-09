@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 describe("testing comment services", () => {
-  test("✅ should return a post when user can comment", async () => {
+  test("should return a post when user can comment", async () => {
     const fakePost = { id: 10 };
     findOneStub.resolves(fakePost);
     const userId = 5;
@@ -29,7 +29,7 @@ describe("testing comment services", () => {
     assert.deepStrictEqual(statusFilter, ["paid", "fulfilled", "completed"]);
   });
 
-  test("❌ should return null when user cannot comment", async () => {
+  test("should return null when user cannot comment", async () => {
     findOneStub.resolves(null);
     const result = await commentServices.canCommentOnPost(5, 99);
     assert.strictEqual(result, null);

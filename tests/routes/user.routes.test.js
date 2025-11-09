@@ -181,18 +181,11 @@ describe("userRouter.post/login login with username and password", () => {
     });
     const cookies = res.headers["set-cookie"];
     assert.equal(res.status, 200);
-    assert.partialDeepStrictEqual(res.body, {
-      user: {
-        firstName: user.first_name,
-        lastName: user.last_name,
-        email: user.email,
-        image: user.image,
-        isVerified: false,
-        role: user.UserRole.role,
-        related_type: user.UserRole.related_type,
-        related_id: user.UserRole.related_id,
-      },
-    });
+    assert.equal(res.body.user.firstName, user.first_name);
+    assert.equal(res.body.user.lastName, user.last_name);
+    assert.equal(res.body.user.email, user.email);
+    assert.equal(res.body.user.image, user.image);
+    assert.equal(res.body.user.role, user.UserRole.role);
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
       jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),

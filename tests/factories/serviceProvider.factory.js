@@ -24,7 +24,7 @@ export async function serviceProviderFullFactory(overrides = {}) {
     const SP = await serviceProviderFactory(overrides);
     const { user, accessToken } = await userWithTokenFactory({
       email: SP.email,
-      is_verified: overrides.is_verified,
+      is_verified: true,
       UserRole: {
         role: "service_provider_root",
         related_type: "ServiceProvider",

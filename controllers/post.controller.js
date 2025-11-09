@@ -16,6 +16,7 @@ async function createNewPost(req, res, next) {
       "post",
       "create"
     );
+
     const timeline = await timelineServices.activeTimeline(
       hashIdUtil.hashIdDecode(serviceId)
     );
@@ -39,7 +40,9 @@ async function createNewPost(req, res, next) {
       t
     );
     await t.commit();
-    res.send(201);
+    res
+      .status(201)
+      .send({ success: true, message: "Created Post Successfully" });
   } catch (error) {
     await t.rollback();
     next(error);

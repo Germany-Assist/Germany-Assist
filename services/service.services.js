@@ -17,7 +17,8 @@ async function createService(serviceData, transaction) {
   const category = await db.Category.findOne({
     where: { title: serviceData.category },
   });
-  if (!category) throw new AppError(422, "invalid category", true);
+  if (!category)
+    throw new AppError(422, "invalid category", true, "invalid category");
   serviceData.category_id = category.id;
   const service = await db.Service.create(
     { ...serviceData },
