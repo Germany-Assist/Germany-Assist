@@ -62,17 +62,32 @@ Asset.init(
     },
     type: {
       type: DataTypes.ENUM(
-        "profile",
-        "thumb",
-        "service",
-        "gallery",
-        "employer"
+        "userImage",
+        "serviceProviderProfileImage",
+        "serviceProviderProfileGalleryImage",
+        "serviceProviderProfileGalleryVideo",
+        "serviceProviderProfileDocument",
+        "serviceProfileImage",
+        "serviceProfileGalleryImage",
+        "serviceProfileGalleryVideo",
+        "postAttachmentsFile",
+        "postAttachmentsVideo",
+        "postAttachmentsDocuments",
+        "postAttachmentsImage",
+        "assetImage",
+        "assetVideo",
+        "assetDocument"
       ),
       allowNull: false,
     },
     owner_type: {
       type: DataTypes.ENUM("user", "service_provider", "employer"),
       allowNull: false,
+    },
+    confirmed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     url: {
       type: DataTypes.TEXT,

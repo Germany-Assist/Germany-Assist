@@ -1,34 +1,10 @@
 import * as assetServices from "./../services/asset.services.js";
 import { v4 as uuid } from "uuid";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import path from "path";
 import { s3, S3_BUCKET_NAME, S3_ENDPOINT } from "../configs/s3Configs.js";
-import sharp from "sharp";
 import userServices from "../services/user.services.js";
+import { imageResizeS3 } from "../utils/sharp.util.js";
 
-const imageResizeS3 = async (image, id, keyPrefix, x, y) => {
-  const fileName = `${id}.webp`;
-  const key = `images/${keyPrefix}/${fileName}`;
-  const resizedImageBuffer = await sharp(image.buffer)
-    .resize(x, y)
-    .webp({ quality: 80 })
-    .toBuffer();
-  return {
-    resizedImageBuffer,
-    key,
-    id,
-    type: keyPrefix,
-  };
-};
-export async function createAsset(req, res, next) {
-  try {
-    const body = req.body;
-    const resp = await assetServices.createAsset(body);
-    res.sendStatus(201);
-  } catch (error) {
-    next(error);
-  }
-}
 export async function getAllAssets(req, res, next) {
   try {
     const resp = await assetServices.getAllAssets();
@@ -190,3 +166,70 @@ export async function uploadDocument(req, res, next) {
     next(error);
   }
 }
+export async function uploadServiceProviderImage(req, res, next) {
+  // Validation : expecting single image needs to check for limitation
+  // Processing : validate the image and format it  create thumbnail
+  // Uploading  : sending the image to the bucket
+  // assets     : should create a matching asset
+  // should respond
+  try {
+    // validation
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    // image handling
+    const file = req.file;
+    const images = [];
+    const id = uuid();
+    const imageKey = `/images/serviceProviders/profile/${id}.webp`;
+    const thumbKey = `/images/serviceProviders/profile/thumb/${id}.webp`;
+    const imageBuffer = await imageResizeS3(file, 400, 400);
+    const thumbBuffer = await imageResizeS3(file, 200, 200);
+    const image = {
+      key: imageKey,
+      buffer: imageBuffer,
+      type: "service provider profile image",
+    };
+    const thumb = {
+      key: thumbKey,
+      buffer: thumbBuffer,
+      type: "service provider profile image thumbnail",
+    };
+
+    images.push(image, thumb);
+
+    // // image uploading
+    const uploads = images.map((image) => {
+      return s3.send(
+        new PutObjectCommand({
+          Bucket: S3_BUCKET_NAME,
+          Key: image.key,
+          Body: image.buffer,
+          ContentType: "image/webp",
+          ACL: "public-read",
+        })
+      );
+    });
+    const files = await Promise.all(uploads);
+    const urls = images.map((i) => {
+      return { type: i.type, url: `${S3_ENDPOINT}/${S3_BUCKET_NAME}/${i.key}` };
+    });
+    const assets = urls.map((i) => {
+      return {
+        name: "profile",
+        media_type: "image",
+        service_provider_id: req.auth.related_id,
+        owner_type: "user",
+        user_id: req.auth.id,
+        type: i.type,
+        url: i.url,
+        confirmed: true,
+      };
+    });
+    // await assetServices.createAssets(assets);
+    // await userServices.updateUser(req.auth.id, { image: urls[0].url });
+    res.json({ message: "File uploaded successfully", urls });
+  } catch (error) {
+    next(error);
+  }
+}
+const uploadController = { uploadServiceProviderImage };
+export default uploadController;
