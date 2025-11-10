@@ -1,10 +1,72 @@
 import * as assetServices from "./../services/asset.services.js";
 import { v4 as uuid } from "uuid";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { s3, S3_BUCKET_NAME, S3_ENDPOINT } from "../configs/s3Configs.js";
+import {
+  s3,
+  S3_BUCKET_NAME,
+  S3_ENDPOINT,
+  UploadConstrains,
+  uploadImagesToS3,
+} from "../configs/s3Configs.js";
 import userServices from "../services/user.services.js";
 import { imageResizeS3 } from "../utils/sharp.util.js";
+import db from "../database/dbIndex.js";
+import { AppError } from "../utils/error.class.js";
+import authUtil from "../utils/authorize.util.js";
 
+async function validateAndCount(filters) {
+  const limit = UploadConstrains[filters.type]?.limit;
+  if (!limit || !filters.type)
+    throw new AppError(500, "Bad type for asset", false);
+  const x = await db.Asset.findAndCountAll({
+    where: { ...filters, thumb: false },
+    raw: true,
+  });
+  if (x.count === limit || x.count > limit)
+    throw new AppError(
+      409,
+      "reaching the upload limit",
+      false,
+      `You have reached the upload limit which is ${limit} for ${filters.type} filed please consider removing existing asset`
+    );
+  return true;
+}
+async function formatImagesToS3(files, type, baseKey, thumb) {
+  const images = [];
+  for (const file of files) {
+    const id = uuid();
+    const imageKey = `${baseKey}/${id}.webp`;
+    const imageBuffer = await imageResizeS3(file, 400, 400);
+    if (thumb) {
+      const thumbKey = `${baseKey}/${id}/thumb/${id}.webp`;
+      const thumbBuffer = await imageResizeS3(file, 200, 200);
+      images.push(
+        {
+          key: imageKey,
+          buffer: imageBuffer,
+          type: "serviceProviderProfileImage",
+          thumb: false,
+          id: id,
+        },
+        {
+          key: thumbKey,
+          buffer: thumbBuffer,
+          thumb: true,
+          type: "serviceProviderProfileImage",
+          id: id,
+        }
+      );
+    } else {
+      images.push({
+        key: imageKey,
+        buffer: imageBuffer,
+        type: "serviceProviderProfileImage",
+        thumb: false,
+      });
+    }
+  }
+  return images;
+}
 export async function getAllAssets(req, res, next) {
   try {
     const resp = await assetServices.getAllAssets();
@@ -167,65 +229,57 @@ export async function uploadDocument(req, res, next) {
   }
 }
 export async function uploadServiceProviderImage(req, res, next) {
-  // Validation : expecting single image needs to check for limitation
-  // Processing : validate the image and format it  create thumbnail
-  // Uploading  : sending the image to the bucket
-  // assets     : should create a matching asset
-  // should respond
   try {
-    // validation
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-    // image handling
-    const file = req.file;
-    const images = [];
-    const id = uuid();
-    const imageKey = `/images/serviceProviders/profile/${id}.webp`;
-    const thumbKey = `/images/serviceProviders/profile/thumb/${id}.webp`;
-    const imageBuffer = await imageResizeS3(file, 400, 400);
-    const thumbBuffer = await imageResizeS3(file, 200, 200);
-    const image = {
-      key: imageKey,
-      buffer: imageBuffer,
-      type: "service provider profile image",
+    //i think i will discusses with amr what permissions should be added
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_root", "service_provider_rep"],
+      true,
+      "asset",
+      "update"
+    );
+    //this should exist for all of them
+    const filters = {
+      type: "serviceProviderProfileImage",
+      service_provider_id: req.auth.related_id,
     };
-    const thumb = {
-      key: thumbKey,
-      buffer: thumbBuffer,
-      type: "service provider profile image thumbnail",
-    };
+    // this will count and throw an error if exceeding the limit; the limit is extracted from the constrains
+    await validateAndCount(filters);
 
-    images.push(image, thumb);
+    const constrains = UploadConstrains[filters.type];
+    // this will prepare the files to upload the first parameter should be an array
+    const images = await formatImagesToS3(
+      [req.file],
+      constrains.type,
+      constrains.baseKey,
+      constrains.thumb
+    );
+    //upload the images
+    const uploads = await uploadImagesToS3(images);
 
-    // // image uploading
-    const uploads = images.map((image) => {
-      return s3.send(
-        new PutObjectCommand({
-          Bucket: S3_BUCKET_NAME,
-          Key: image.key,
-          Body: image.buffer,
-          ContentType: "image/webp",
-          ACL: "public-read",
-        })
-      );
-    });
-    const files = await Promise.all(uploads);
     const urls = images.map((i) => {
-      return { type: i.type, url: `${S3_ENDPOINT}/${S3_BUCKET_NAME}/${i.key}` };
+      return {
+        type: i.type,
+        url: `${S3_ENDPOINT}/${S3_BUCKET_NAME}/${i.key}`,
+        thumb: i.thumb,
+        id: i.id,
+      };
     });
     const assets = urls.map((i) => {
       return {
-        name: "profile",
+        name: i.id,
         media_type: "image",
         service_provider_id: req.auth.related_id,
         owner_type: "user",
         user_id: req.auth.id,
         type: i.type,
+        thumb: i.thumb,
         url: i.url,
         confirmed: true,
       };
     });
-    // await assetServices.createAssets(assets);
-    // await userServices.updateUser(req.auth.id, { image: urls[0].url });
+    await assetServices.createAssets(assets);
     res.json({ message: "File uploaded successfully", urls });
   } catch (error) {
     next(error);

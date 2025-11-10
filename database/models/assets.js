@@ -11,11 +11,10 @@ Asset.init(
       autoIncrement: true,
     },
     name: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.UUID,
       allowNull: false,
       validate: {
         notEmpty: { msg: "Name cannot be empty" },
-        len: { args: [3, 50], msg: "Name must be between 3 and 50 characters" },
       },
     },
     media_type: {
@@ -104,6 +103,10 @@ Asset.init(
         isInt: { msg: "views must be an integer" },
         min: { args: [0], msg: "views cannot be negative" },
       },
+    },
+    thumb: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     },
     owner: {
       type: DataTypes.VIRTUAL,
