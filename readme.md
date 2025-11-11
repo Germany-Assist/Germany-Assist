@@ -210,3 +210,66 @@ stripe payment_intents confirm pi_xxx --payment-method pm_card_visa
 ```
 
 - Dont forget to install stripe cli and provide the secret key and the webhook secret
+
+# File Uploading
+
+**Local testing:**
+
+## 🧱 LocalStack + AWS CLI Setup (S3 Persistence)
+
+This guide explains how to set up **LocalStack** using **Docker** to emulate AWS S3 locally, with data persistence between restarts.
+
+Please note that i wrote this for bash/linux system some commands might be different on windows.
+
+---
+
+LocalStack is a fully functional local AWS cloud stack that allows you to develop and test AWS applications locally — no need for a real AWS account.
+
+In this setup:
+
+- We’ll use **Docker** to run LocalStack.
+- Use **AWS CLI** to interact with it.
+- Store S3 data persistently in a Docker volume.
+
+---
+
+## 🧩 Step 1 — Install AWS CLI
+
+```bash
+sudo apt install awscli -y
+```
+
+Or windows equivalent
+
+## 🐳 Step 2 — Run LocalStack in Docker
+
+```bash
+docker volume create localstack-data
+```
+
+And then run the container
+
+```bash
+docker run -d -it \
+  -v localstack-data:/localstack/data \
+  -p 4566:4566 \
+  -p 4510-4559:4510-4559 \
+  -e SERVICES=s3 \
+  -e DATA_DIR=/localstack/data \
+  --restart always \
+  localstack/localstack
+```
+
+## 🔑 Step 3 — Set Dummy AWS Credentials
+
+```
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
+export AWS_DEFAULT_REGION=us-east-1
+```
+
+## 🪣 Step 4 — Create an S3 Bucket
+
+```
+aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket
+```

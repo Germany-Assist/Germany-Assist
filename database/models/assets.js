@@ -88,6 +88,10 @@ Asset.init(
       allowNull: false,
       defaultValue: false,
     },
+    size: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
     url: {
       type: DataTypes.TEXT,
       allowNull: false,

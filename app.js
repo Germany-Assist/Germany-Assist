@@ -24,20 +24,6 @@ import "./utils/bullMQ.util.js";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
-//TODO start with`
-/*
-1. validation and fixing
-  A. asset validation will moved to another epic since the whole asset will be addressed then //i will delete this line after i create an issue 
-  B. coupons needs to be discussed further //i will delete this line after i create an issue 
-2. Extra
-  A. add options for the posts routes
-  B. add routes for timelines update label
-  C. add routes to update the post
-3. testing //phase 1 POSTMAN //phase 2 Writing tests
-  A. POSTMAN : DONE
-*/
-
-//NOTE : you are on testing branch
 app
   .use((req, res, next) => {
     req.requestId = uuidv4();

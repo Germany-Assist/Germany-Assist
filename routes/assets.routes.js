@@ -41,7 +41,7 @@ assetRouter.post(
   "/upload/serviceProvider/image/profileImage",
   jwtUtils.authenticateJwt,
   upload.single("image"),
-  uploadController.uploadServiceProviderImage
+  uploadController.serviceProviderProfileImage
 );
 // assetRouter.post(
 //   "/upload/serviceProvider/image/profileGallery",
