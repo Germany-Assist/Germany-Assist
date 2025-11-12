@@ -200,6 +200,7 @@ export async function createAdminController(req, res, next) {
     );
     await permissionServices.initPermissions(user.id, roleTemplates.admin, t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
+    console.log(accessToken);
     const sanitizedUser = userController.sanitizeUser(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(201).json({ accessToken, user: sanitizedUser });
@@ -250,6 +251,7 @@ export async function loginUserController(req, res, next) {
     const user = await userServices.loginUser(req.body);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = userController.sanitizeUser(user);
+    console.log(accessToken);
     res
       .cookie("refreshToken", refreshToken, cookieOptions)
       .status(200)

@@ -41,6 +41,7 @@ function verifyAccessToken(token) {
 function generateAccessToken(user) {
   const { id } = user;
   const { role, related_type, related_id } = user.UserRole;
+  console.log(id, role, related_type, related_id);
   return jwt.sign({ id, role, related_type, related_id }, ACCESS_TOKEN_SECRET, {
     expiresIn: ACCESS_TOKEN_EXPIRE_DURATION,
   });
