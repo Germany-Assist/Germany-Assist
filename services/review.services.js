@@ -1,6 +1,18 @@
-import { sequelize } from "../database/connection.js";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
+
+export async function canReview(userId, serviceId) {
+  const can = await db.Order.findOne({
+    where: { user_id: userId, service_id: serviceId },
+  });
+  if (!can)
+    throw new AppError(
+      403,
+      "cant review without buying the service",
+      true,
+      "You cannot review a service you have not purchased"
+    );
+}
 export const createReview = async (data, t) => {
   const { body, rating, service_id, user_id } = data;
   return await db.Review.create(
@@ -12,20 +24,6 @@ export const createReview = async (data, t) => {
     },
     { transaction: t }
   );
-};
-
-export const getReviewsByServiceId = async (serviceId) => {
-  const reviews = await db.Review.findAll({
-    attributes: ["body", "rating"],
-    include: {
-      model: db.User,
-      attributes: ["first_name", "last_name", "id"],
-    },
-    where: { service_id: serviceId },
-  });
-  if (!reviews)
-    throw new AppError(404, "no reviews found", true, "no reviews found");
-  return reviews;
 };
 
 export const updateReview = async (data, t) => {
@@ -60,3 +58,11 @@ export const restoreReview = async (id) => {
   await review.restore();
   return review;
 };
+const reviewServices = {
+  restoreReview,
+  deleteReview,
+  updateReview,
+  createReview,
+  canReview,
+};
+export default reviewServices;

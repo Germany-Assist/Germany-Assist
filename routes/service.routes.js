@@ -6,37 +6,42 @@ import {
   idHashedParamValidator,
 } from "../validators/general.validators.js";
 import { validateExpress } from "../middlewares/expressValidator.js";
+import { createServiceValidator } from "../validators/services.validators.js";
+import timelineRouter from "./timeline.routes.js";
 
 const serviceRouter = express.Router();
-
+serviceRouter.use("/timeline", timelineRouter);
 /* ---------------- Public Routes ---------------- */
 // Get all services that are approved & published
 serviceRouter.get("/", serviceController.getAllServices);
-
-// Get single service by ID
+//service profile
 serviceRouter.get(
   "/:id",
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceId
+  serviceController.getServiceProfile
 );
-// Get services for a specific provider by ID (approved & published)
-serviceRouter.get(
-  "/provider/services/:id",
-  idHashedParamValidator,
-  validateExpress,
-  serviceController.getServicesByServiceProviderId
-);
-// Get services filtered by type
-serviceRouter.post("/categories", serviceController.getByCategories);
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
-serviceRouter.post("/", jwt.authenticateJwt, serviceController.createService);
+serviceRouter.post(
+  "/provider",
+  jwt.authenticateJwt,
+  createServiceValidator,
+  validateExpress,
+  serviceController.createService
+);
 // Get all services of the authenticated provider (approved or not)
 serviceRouter.get(
   "/provider/services",
   jwt.authenticateJwt,
-  serviceController.getAllServicesServiceProvider
+  serviceController.getAllServicesSP
+);
+serviceRouter.get(
+  "/provider/services/:id",
+  jwt.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
+  serviceController.getServiceProfileForAdminAndSP
 );
 // Update a service (allowed fields only)
 serviceRouter.put(
@@ -66,6 +71,13 @@ serviceRouter.get(
   jwt.authenticateJwt,
   serviceController.getAllServicesAdmin
 );
+serviceRouter.get(
+  "/admin/services/:id",
+  idHashedParamValidator,
+  validateExpress,
+  jwt.authenticateJwt,
+  serviceController.getServiceProfileForAdminAndSP
+);
 // Restore a deleted service
 serviceRouter.post(
   "/admin/services/:id/restore",
@@ -82,35 +94,24 @@ serviceRouter.put(
 
 /*------------------- Client Routes ----------------*/
 // add to favorite
-serviceRouter.post(
-  "/client/favorite",
-  jwt.authenticateJwt,
-  idHashedBodyValidator,
+serviceRouter.put(
+  "/client/favorite/:id",
+  idHashedParamValidator,
   validateExpress,
+  jwt.authenticateJwt,
   serviceController.addToFavorite
 );
 //remove from favorite
 serviceRouter.delete(
-  "/client/favorite",
-  jwt.authenticateJwt,
-  idHashedBodyValidator,
+  "/client/favorite/:id",
+  idHashedParamValidator,
   validateExpress,
+  jwt.authenticateJwt,
   serviceController.removeFromFavorite
 );
-// add to cart
-serviceRouter.post(
-  "/client/cart",
+serviceRouter.get(
+  "/client/services",
   jwt.authenticateJwt,
-  idHashedBodyValidator,
-  validateExpress,
-  serviceController.addToCart
-);
-//remove from cart
-serviceRouter.delete(
-  "/client/cart",
-  jwt.authenticateJwt,
-  idHashedBodyValidator,
-  validateExpress,
-  serviceController.removeFromCart
+  serviceController.getClientServices
 );
 export default serviceRouter;

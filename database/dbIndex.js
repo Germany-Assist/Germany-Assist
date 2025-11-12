@@ -2,92 +2,115 @@ import User from "./models/user.js";
 import ServiceProvider from "./models/service_provider.js";
 import Service from "./models/service.js";
 import Asset from "./models/assets.js";
-import Contract from "./models/contract.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
 import Chat from "./models/chat.js";
-import UserService from "./models/user_service.js";
 import Permission from "./models/permission.js";
 import UserPermission from "./models/user_permission.js";
 import UserRole from "./models/user_role.js";
 import Employer from "./models/employer.js";
 import Category from "./models/category.js";
-import ServiceCategory from "./models/service_category.js";
-import Payment from "./models/payment.js";
 import Order from "./models/order.js";
-import OrderItems from "./models/order_items.js";
 import StripeEvent from "./models/stripe_event.js";
+import Favorite from "./models/favorite.js";
+import Timeline from "./models/timeline.js";
+import Post from "./models/post.js";
+import Comment from "./models/comment.js";
+import { NODE_ENV } from "../configs/serverConfig.js";
 export const defineConstrains = () => {
-  User.hasMany(Order, { foreignKey: "user_id" });
+  //comment
+  Comment.belongsTo(Post, {
+    foreignKey: "post_id",
+    constraints: false,
+  });
+  Comment.belongsTo(Comment, {
+    as: "parent",
+    foreignKey: "parent_id",
+    constraints: true,
+  });
+  Comment.hasMany(Comment, {
+    as: "replies",
+    foreignKey: "parent_id",
+    constraints: true,
+  });
+  //post
+  Post.belongsTo(Timeline, { foreignKey: "timeline_id" });
+  Post.belongsTo(User, { foreignKey: "user_id" });
+  Post.hasMany(Comment, {
+    foreignKey: "post_id",
+    constraints: false,
+  });
+  //timeline
+  Timeline.hasMany(Order, { foreignKey: "timeline_id" });
+  Timeline.belongsTo(Service, { foreignKey: "service_id" });
+  Timeline.hasMany(Post, { foreignKey: "timeline_id" });
+  //order
   Order.belongsTo(User, { foreignKey: "user_id" });
+  Order.belongsTo(Service, { foreignKey: "service_id" });
+  Order.belongsTo(Timeline, { foreignKey: "timeline_id" });
+  //user
+  User.hasMany(Post, { foreignKey: "user_id" });
+  User.hasMany(Order, { foreignKey: "user_id" });
+  User.hasMany(Service, { foreignKey: "user_id" });
+  User.hasMany(Asset, { foreignKey: "user_id" });
+  User.hasMany(Review, { foreignKey: "user_id" });
+  User.hasOne(UserRole, { foreignKey: "user_id" });
+  User.hasMany(Favorite, { foreignKey: "user_id" });
+  User.belongsToMany(Permission, {
+    through: UserPermission,
+    as: "userToPermission",
+    foreignKey: "user_id",
+    otherKey: "permission_id",
+    onDelete: "cascade",
+    unique: true,
+  });
+  //user Role
+  UserRole.belongsTo(User, { foreignKey: "user_id" });
+  UserRole.belongsTo(Employer, {
+    foreignKey: "related_id",
+    constraints: false,
+    as: "employer",
+  });
+  UserRole.belongsTo(ServiceProvider, {
+    foreignKey: "related_id",
+    constraints: false,
+    as: "serviceProvider",
+  });
+  //service
+  Service.hasMany(Order, { foreignKey: "service_id" });
+  Service.belongsTo(User, { foreignKey: "user_id" });
+  Service.hasMany(Asset, { foreignKey: "service_id" });
+  Service.hasMany(Review, { foreignKey: "service_id" });
+  Service.hasMany(Favorite, { foreignKey: "service_id" });
+  Service.hasMany(Timeline, { foreignKey: "service_id" });
+  Service.belongsTo(Category, { foreignKey: "category_id" });
+  Service.belongsTo(ServiceProvider);
+  //assets
+  Asset.belongsTo(Service, { foreignKey: "service_id" });
+  Asset.belongsTo(User, { foreignKey: "user_id" });
 
-  Service.hasMany(OrderItems, { foreignKey: "service_id" });
-  OrderItems.belongsTo(Service, { foreignKey: "service_id" });
+  //review
+  Review.belongsTo(Service, { foreignKey: "service_id" });
+  Review.belongsTo(User, { foreignKey: "user_id" });
 
-  Order.hasMany(Payment, {
+  // service provider
+  ServiceProvider.hasMany(Service);
+  ServiceProvider.hasMany(Coupon);
+  ServiceProvider.hasMany(Asset);
+  ServiceProvider.hasMany(UserRole, {
     foreignKey: "related_id",
     constraints: false,
     scope: {
-      related_type: "order",
+      related_type: "ServiceProvider",
     },
+    as: "roles",
   });
-  Payment.belongsTo(Order, {
-    foreignKey: "related_id",
-    constraints: false,
-  });
-  OrderItems.belongsTo(Order, { foreignKey: "order_id" });
-  Order.hasMany(OrderItems, { foreignKey: "order_id" });
-
-  // Subscription.hasMany(Payment, {
-  //   foreignKey: "related_id",
-  //   constraints: false,
-  //   scope: {
-  //     related_type: "subscription",
-  //   },
-  // });
-
-  // Payment.belongsTo(Subscription, {
-  //   foreignKey: "related_id",
-  //   constraints: false,
-  // });
-
-  User.hasMany(Service, { foreignKey: "user_id" });
-  Service.belongsTo(User, { foreignKey: "user_id" });
-  Service.belongsTo(Contract, { foreignKey: "contract_id" });
-
-  Service.hasMany(Asset, { foreignKey: "service_id" });
-  Asset.belongsTo(Service, { foreignKey: "service_id" });
-
-  Service.hasMany(Review, { foreignKey: "service_id" });
-  Review.belongsTo(Service, { foreignKey: "service_id" });
-
-  ServiceProvider.hasMany(Service);
-  Service.belongsTo(ServiceProvider);
-  ServiceProvider.hasMany(Coupon);
-  ServiceProvider.hasMany(Asset);
-
-  User.hasMany(Asset, { foreignKey: "user_id" });
-  Asset.belongsTo(User, { foreignKey: "user_id" });
-
-  User.hasMany(Review, { foreignKey: "user_id" });
-  Review.belongsTo(User, { foreignKey: "user_id" });
-
-  User.hasOne(UserRole, { foreignKey: "user_id" });
-  UserRole.belongsTo(User, { foreignKey: "user_id" });
-  //service category
-  Category.belongsToMany(Service, {
-    through: ServiceCategory,
-    as: "services",
+  //category
+  Category.hasMany(Service, {
     foreignKey: "category_id",
-    otherKey: "service_id",
   });
-  Service.belongsToMany(Category, {
-    through: ServiceCategory,
-    as: "categories",
-    foreignKey: "service_id",
-    otherKey: "category_id",
-  });
-  // Employer -> UserRole
+
+  // Employer
   Employer.hasMany(UserRole, {
     foreignKey: "related_id",
     constraints: false,
@@ -97,57 +120,15 @@ export const defineConstrains = () => {
     as: "roles",
   });
 
-  UserRole.belongsTo(Employer, {
-    foreignKey: "related_id",
-    constraints: false,
-    as: "employer",
-  });
-
-  // ServiceProvider -> UserRole
-  ServiceProvider.hasMany(UserRole, {
-    foreignKey: "related_id",
-    constraints: false,
-    scope: {
-      related_type: "ServiceProvider",
-    },
-    as: "roles",
-  });
-
-  UserRole.belongsTo(ServiceProvider, {
-    foreignKey: "related_id",
-    constraints: false,
-    as: "serviceProvider",
-  });
-
-  //user - service
-  User.belongsToMany(Service, {
-    through: { model: UserService, scope: { type: "favorite" } },
+  //favorite
+  Favorite.belongsTo(User, {
     foreignKey: "user_id",
-    otherKey: "service_id",
-    as: "userFavorite",
   });
-  //cart
-  User.belongsToMany(Service, {
-    through: { model: UserService, scope: { type: "cart" } },
-    foreignKey: "user_id",
-    otherKey: "service_id",
-    as: "userCart",
-  });
-  Service.belongsToMany(User, {
-    through: UserService,
+  Favorite.belongsTo(Service, {
     foreignKey: "service_id",
-    otherKey: "user_id",
-    unique: false,
   });
-  //user - permission
-  User.belongsToMany(Permission, {
-    through: UserPermission,
-    as: "userToPermission",
-    foreignKey: "user_id",
-    otherKey: "permission_id",
-    onDelete: "cascade",
-    unique: true,
-  });
+
+  //permission
   Permission.belongsToMany(User, {
     as: "permissionToUser",
     through: UserPermission,
@@ -159,16 +140,14 @@ export const defineConstrains = () => {
 
   return true;
 };
-if (process.env.SEEDING !== "true") {
+if (NODE_ENV !== "test") {
   defineConstrains();
 }
-
 const db = {
   User,
   ServiceProvider,
   Service,
   Asset,
-  Contract,
   Review,
   Coupon,
   Chat,
@@ -176,13 +155,13 @@ const db = {
   UserPermission,
   UserRole,
   Employer,
+  Timeline,
+  Post,
   Category,
-  ServiceCategory,
-  UserService,
-  Payment,
   Order,
-  OrderItems,
   StripeEvent,
+  Comment,
+  Favorite,
 };
 
 export default db;

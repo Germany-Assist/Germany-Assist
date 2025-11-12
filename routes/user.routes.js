@@ -35,11 +35,7 @@ userRouter.post(
   userControllers.loginUserController
 );
 userRouter.get("/logout", (req, res, next) => {
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
+  res.clearCookie("refreshToken", userControllers.cookieOptions);
   res.sendStatus(200);
 });
 userRouter.get(

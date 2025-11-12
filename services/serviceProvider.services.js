@@ -49,6 +49,14 @@ export const getServiceProviderById = async (id) => {
       "email",
       "views",
     ],
+    include: [
+      {
+        model: db.Service,
+        attributes: ["id", "title", "rating", "image"],
+        required: false,
+        where: { published: true, approved: true, rejected: false },
+      },
+    ],
   });
   if (!profile)
     throw new AppError(
@@ -59,7 +67,7 @@ export const getServiceProviderById = async (id) => {
     );
   profile.increment("views");
   await profile.save();
-  return profile;
+  return profile.toJSON();
 };
 
 export const updateServiceProvider = async (id, updateData) => {
@@ -76,12 +84,12 @@ export const deleteServiceProvider = async (id) => {
   if (!profile)
     throw new AppError(
       404,
-      "ServiceProvider not found",
+      "Service Provider not found",
       true,
-      "ServiceProvider not found"
+      "Service Provider not found"
     );
   await profile.destroy();
-  return { id, message: "ServiceProvider deleted" };
+  return { id, message: "Service Provider deleted" };
 };
 export const restoreServiceProvider = async (id) => {
   const profile = await db.ServiceProvider.findOne({

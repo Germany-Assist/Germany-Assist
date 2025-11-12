@@ -18,7 +18,7 @@ export async function userFactory(overrides = {}) {
       first_name: "John",
       last_name: "Doe",
       email: overrides.email || `user+${uuidv4()}@test.com`,
-      is_verified: false,
+      is_verified: true,
       UserRole: {
         role: "client",
         related_type: "client",
@@ -38,8 +38,8 @@ export async function userFactory(overrides = {}) {
   }
 }
 
-export async function userWithTokenFactory(userData) {
-  const user = await userFactory(userData);
+export async function userWithTokenFactory(overrides) {
+  const user = await userFactory(overrides);
   const { accessToken, refreshToken } = jwtMiddleware.generateTokens(user);
   return { user, accessToken };
 }
@@ -47,13 +47,13 @@ export async function userWithTokenFactory(userData) {
 export async function userAdminFactory(overrides = {}) {
   try {
     const { user, accessToken } = await userWithTokenFactory({
-      ...overrides,
       is_verified: true,
       UserRole: {
         role: "admin",
         related_type: "admin",
         related_id: null,
       },
+      ...overrides,
     });
     const Permission = await permissionFactory("admin", user.id);
     return {

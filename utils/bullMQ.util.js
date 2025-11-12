@@ -1,58 +1,56 @@
 import { Queue, Worker } from "bullmq";
-import stripeServices, { getStripeEvent } from "../services/stripe.service.js";
-import paymentServices from "../services/payment.service.js";
+import stripeServices from "../services/stripe.service.js";
 import orderService from "../services/order.services.js";
-import orderItemServices from "../services/itemOrder.services.js";
 import { sequelize } from "../database/connection.js";
 import { errorLogger, infoLogger } from "./loggers.js";
 import redis from "../configs/redis.js";
-
 import { NODE_ENV } from "../configs/serverConfig.js";
+import { writeFile } from "node:fs/promises";
 export async function stripeProcessor(job) {
   const event = job.data.event;
   const eventId = event.id;
   const stripeEvent = await stripeServices.getStripeEvent(eventId);
   if (stripeEvent?.status === "processed") return;
   const metadata = event.data.object?.metadata;
-  let items = [];
-  try {
-    items = JSON.parse(metadata.items || "[]");
-  } catch (err) {
-    throw new Error("Invalid metadata.items JSON");
-  }
   const t = await sequelize.transaction();
+
   try {
     switch (event.type) {
+      case "payment_intent.created": {
+        await stripeServices.createStripeEvent(event, "pending");
+        infoLogger(`im creating the stripe event ${event.id}`);
+        break;
+      }
       case "payment_intent.succeeded": {
         const pi = event.data.object;
-        await paymentServices.updatePayment("succeeded", pi.id, t);
-        await orderService.updateOrder(
-          "paid",
-          pi.amount,
-          pi.metadata.orderId,
-          t
-        );
-        await orderItemServices.updateManyOrderItems(items, t);
+        const orderData = {
+          amount: pi.amount,
+          status: "paid",
+          user_id: metadata.userId,
+          service_id: metadata.serviceId,
+          timeline_id: metadata.timelineId,
+          stripe_payment_intent_id: pi.id,
+          currency: "usd",
+        };
+        await orderService.createOrder(orderData, t);
         break;
       }
       case "payment_intent.payment_failed": {
-        const pi = event.data.object;
-        await paymentServices.updatePayment("failed", pi.id, t);
-        await orderService.updateOrder(
-          "canceled",
-          pi.amount,
-          pi.metadata.orderId,
-          t
-        );
+        infoLogger("❌ Payment Failed");
         break;
       }
       default:
-        infoLogger(`Unhandled Stripe event type: ${event.type}`);
+        infoLogger(
+          `Unhandled Stripe event type: ${event.type} with the id of ${event.id}`
+        );
     }
     await stripeServices.updateStripeEvent(event.id, "processed", t);
+    infoLogger(`im updating as the stripe event  processed ${event.id}`);
     await t.commit();
   } catch (err) {
+    console.log(err);
     await t.rollback();
+    errorLogger(err);
     throw err;
   }
 }
@@ -68,16 +66,18 @@ if (NODE_ENV !== "test") {
 
   const stripeWorker = new Worker("stripe-events", stripeProcessor, {
     connection: redis,
-    concurrency: 5,
   });
 
   const dlqWorker = new Worker(
     "dead-letter",
     async (job) => {
       infoLogger(`📥 Handling DLQ job ${job.id}`);
+      const filePath = path.join(process.cwd(), "emergencyDLQ.txt");
+      await writeFile(filePath, JSON.stringify(job), { flag: "a" });
     },
     { connection: redis }
   );
+
   stripeWorker.on("completed", (job) => {
     infoLogger(`✅ Job ${job.id} is completed`);
   });

@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
@@ -45,7 +46,7 @@ export const getUserById = async (id) => {
 };
 export const userExists = async (id) => {
   try {
-    let x = await getUserById(id);
+    let x = await userServices.getUserById(id);
     return true;
   } catch (error) {
     return false;
@@ -99,20 +100,28 @@ export const getUserProfile = async (id) => {
     include: [
       { model: db.UserRole },
       {
-        model: db.Service,
-        as: "userCart",
-        through: {
-          attributes: ["id", "type"],
-        },
+        model: db.Favorite,
+        required: false,
         attributes: ["id"],
+        include: [
+          {
+            model: db.Service,
+            attributes: ["id", "image", "title", "description"],
+          },
+        ],
       },
       {
-        model: db.Service,
-        as: "userFavorite",
-        through: {
-          attributes: ["id", "type"],
-        },
+        model: db.Order,
+        required: false,
         attributes: ["id"],
+        where: { status: { [Op.not]: ["refunded"] } },
+        include: [
+          { model: db.Timeline, attributes: ["id", "label"] },
+          {
+            model: db.Service,
+            attributes: ["id"],
+          },
+        ],
       },
     ],
   });

@@ -19,6 +19,13 @@ export const passwordValidator = [
 ];
 
 // Validation for ID-based routes
+export const idUUIDparamValidator = [
+  param("id")
+    .notEmpty()
+    .withMessage("ID must be a valid")
+    .isUUID()
+    .withMessage("not valid id"),
+];
 export const idHashedParamValidator = [
   param("id")
     .notEmpty()

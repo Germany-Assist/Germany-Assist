@@ -5,13 +5,18 @@ class Review extends Model {}
 
 Review.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     body: {
       type: DataTypes.TEXT,
       allowNull: true,
       validate: {
         len: {
-          args: [0, 2000],
-          msg: "Review body cannot exceed 2000 characters",
+          args: [0, 500],
+          msg: "Review body cannot exceed 500 characters",
         },
       },
     },

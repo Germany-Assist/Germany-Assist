@@ -1,20 +1,14 @@
-import { describe, before, after, it, beforeEach, afterEach } from "node:test";
+import { describe, it, beforeEach } from "node:test";
 import { app } from "../../app.js";
 import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
-import db from "../../database/dbIndex.js";
 import assert from "node:assert";
-import jwt from "../../middlewares/jwt.middleware.js";
+import jwtUtils from "../../middlewares/jwt.middleware.js";
+import { initDatabase } from "../../database/migrateAndSeed.js";
 import {
   userFactory,
   userWithTokenFactory,
 } from "../factories/user.factory.js";
-import userController from "../../controllers/user.controller.js";
-import { serviceFactory } from "../factories/service.factory.js";
-import { getUserProfile } from "../../services/user.services.js";
-import { serviceProviderFullFactory } from "../factories/serviceProvider.factory.js";
-import { sequelize } from "../../database/connection.js";
-
 const testUser = {
   firstName: "yousif",
   lastName: "yousif",
@@ -24,163 +18,286 @@ const testUser = {
   image: "www.image/url.png",
 };
 Object.freeze(testUser);
-before(async () => {
+beforeEach(async () => {
   try {
-    await db.User.destroy({ where: {}, force: true });
-    await db.UserPermission.destroy({ where: {}, force: true });
-  } catch (error) {
-    errorLogger(error);
-  }
-});
-afterEach(async () => {
-  try {
-    await db.User.destroy({ where: {}, force: true });
-    await db.UserPermission.destroy({ where: {}, force: true });
+    await initDatabase(false);
   } catch (error) {
     errorLogger(error);
   }
 });
 
-describe("POST /user - User Registration", () => {
-  it("should create a new client with valid data", async () => {
-    const response = await request(app).post("/api/user/").send(testUser);
-    assert.strictEqual(response.status, 201);
-    assert.ok(response.body.accessToken);
-    assert.strictEqual(typeof response.body.accessToken, "string");
-    assert.strictEqual(response.body.user.firstName, testUser.firstName);
-    assert.strictEqual(response.body.user.lastName, testUser.lastName);
-    assert.strictEqual(response.body.user.role, "client");
-    assert.strictEqual(response.body.user.isVerified, false);
-    assert.strictEqual(response.body.user.image, testUser.image);
-    assert.strictEqual(
-      response.body.user.dob,
-      `${new Date(testUser.dob).toISOString()}`
-    );
-  });
-  it("should reject invalid email format", async () => {
-    const response = await request(app).post("/api/user").send({
-      firstName: "New",
-      lastName: "User",
-      email: "invalid-email",
-      password: "StrongPassword123!",
-      DOB: "1995-05-15",
-    });
-    assert.strictEqual(response.status, 422);
-    assert.strictEqual(
-      response.body.message.errors[0].msg,
-      "Invalid email format"
-    );
-  });
-  it("should reject weak passwords", async () => {
-    const response = await request(app).post("/api/user").send({
-      firstName: "New",
-      lastName: "User",
-      email: "new@example.com",
-      password: "weak",
-      DOB: "1995-05-15",
-    });
-    assert.strictEqual(response.status, 422);
-    assert(
-      response.body.message.errors.some((e) =>
-        e.msg.includes("Password must be at least 8 characters")
-      )
-    );
-  });
-  it("should create a new admin account", async () => {
-    const user = await userFactory({
-      is_verified: true,
-      UserRole: {
-        role: "super_admin",
-        related_type: "super_admin",
+describe("userRouter.post/ create new client", () => {
+  it("should create new client correctly and retrieve the correct data", async () => {
+    const resp = await request(app).post("/api/user/").send(testUser);
+    const cookies = resp.headers["set-cookie"];
+    assert.equal(resp.status, 201);
+    assert.partialDeepStrictEqual(resp.body, {
+      user: {
+        firstName: testUser.firstName,
+        lastName: testUser.lastName,
+        dob: "1990-07-13T00:00:00.000Z",
+        email: testUser.email,
+        image: testUser.image,
+        isVerified: false,
+        role: "client",
+        related_type: "client",
+        related_id: null,
       },
     });
-    const sanitizedUser = userController.sanitizeUser(user);
-    const accessToken = jwt.generateAccessToken(user);
+    assert.ok(cookies);
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      { role: "client", related_type: "client", related_id: null }
+    );
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyAccessToken(resp.body.accessToken),
+      { role: "client", related_type: "client", related_id: null }
+    );
+  });
+  it("should fail for validation", async () => {
+    const resp = await request(app).post("/api/user/").send({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "Aa@",
+      dob: "",
+      image: "",
+    });
+    assert.equal(resp.status, 422);
+    assert.deepStrictEqual(resp.body.message.errors, [
+      {
+        type: "field",
+        value: "",
+        msg: "First name is required",
+        path: "firstName",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "First name must be between 2 and 50 characters",
+        path: "firstName",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "First name can only contain letters, spaces, hyphens, and apostrophes",
+        path: "firstName",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Last name is required",
+        path: "lastName",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Last name must be between 2 and 50 characters",
+        path: "lastName",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Last name can only contain letters, spaces, hyphens, and apostrophes",
+        path: "lastName",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Email is required",
+        path: "email",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Invalid email format",
+        path: "email",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "Aa@",
+        msg: "Password must be at least 8 characters long",
+        path: "password",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "Aa@",
+        msg: "Password must contain at least one number",
+        path: "password",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Image must be a valid URL",
+        path: "image",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Image URL must end with .jpg, .jpeg, .png, or .gif",
+        path: "image",
+        location: "body",
+      },
+    ]);
+  });
+  it("should fail for existing email", async () => {
+    const user = await userFactory();
     const resp = await request(app)
-      .post("/api/user/admin")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send(testUser);
-    assert.strictEqual(resp.status, 201);
-    assert.strictEqual(resp.body.user.role, "admin");
+      .post("/api/user/")
+      .send({ ...testUser, email: user.email });
+    assert.equal(resp.status, 422);
+    assert.deepEqual(resp.body, {
+      success: false,
+      message: "already exists in the database",
+    });
   });
 });
-
-describe("POST /api/user/login - User Login", () => {
-  it("should login with valid credentials", async () => {
-    await userFactory(testUser);
-    const response = await request(app).post("/api/user/login").send({
-      email: testUser.email,
-      password: testUser.password,
-    });
-    assert.strictEqual(response.status, 200);
-    assert.strictEqual(typeof response.body.accessToken, "string");
-    assert.strictEqual(response.body.user.email, testUser.email);
-    const cookies = response.headers["set-cookie"];
-    assert(cookies.some((cookie) => cookie.includes("refreshToken")));
-  });
-
-  it("should reject invalid credentials", async () => {
-    const response = await request(app).post("/api/user/login").send({
-      email: testUser.email,
-      password: "WrongPassword123!",
-    });
-    assert.strictEqual(response.status, 401);
-  });
-  it("should require email and password", async () => {
-    const response = await request(app).post("/api/user/login").send({});
-    assert.strictEqual(response.status, 422);
-    assert(
-      response.body.message.errors.some((e) => e.msg === "Email is required")
-    );
-    assert(
-      response.body.message.errors.some((e) => e.msg === "Password is required")
-    );
-  });
-});
-describe("GET /api/user/logout", () => {
-  it("should clear the refresh token cookie", async () => {
-    const response = await request(app).get("/api/user/logout").expect(200);
-    const cookies = response.headers["set-cookie"];
-    assert(cookies.some((cookie) => cookie.includes("refreshToken=;")));
-  });
-});
-
-describe("POST /api/user/refresh-token", () => {
-  it("should issue a new access token with valid refresh token", async () => {
-    await userFactory(testUser);
-    const loginResponse = await request(app).post("/api/user/login").send({
-      email: testUser.email,
-      password: testUser.password,
-    });
-    const cookies = loginResponse.headers["set-cookie"] || [];
-    const refreshTokenCookie = cookies.find((c) => c.includes("refreshToken="));
-    const response = await request(app)
-      .post("/api/user/refresh-token")
-      .set("Cookie", refreshTokenCookie)
-      .expect(200);
-
-    assert.strictEqual(typeof response.body.accessToken, "string");
-  });
-  it("should reject request without refresh token", async () => {
-    await request(app).post("/api/user/refresh-token").expect(401);
-  });
-});
-
-describe("GET /api/user/login - Get Current User", () => {
-  it("should return user profile with valid access token", async () => {
-    await userFactory(testUser);
-    const loginResponse = await request(app).post("/api/user/login").send({
-      email: testUser.email,
-      password: testUser.password,
-    });
-    const accessToken = loginResponse.body.accessToken;
-    const response = await request(app)
+describe("userRouter.get/login login with token", async () => {
+  it("should login with token", async () => {
+    const user = await userWithTokenFactory();
+    const resp = await request(app)
       .get("/api/user/login")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .expect(200);
-    assert.strictEqual(response.body.email, testUser.email);
+      .set("Authorization", `Bearer ${user.accessToken}`);
+    assert.equal(resp.statusCode, 200);
   });
-  it("should reject request without valid access token", async () => {
-    await request(app).get("/api/user/login").expect(401);
+});
+describe("userRouter.post/login login with username and password", () => {
+  it("should login with username and password", async () => {
+    const user = await userFactory();
+    const res = await request(app).post("/api/user/login").send({
+      email: user.email,
+      password: user.plainPassword,
+    });
+    const cookies = res.headers["set-cookie"];
+    assert.equal(res.status, 200);
+    assert.equal(res.body.user.firstName, user.first_name);
+    assert.equal(res.body.user.lastName, user.last_name);
+    assert.equal(res.body.user.email, user.email);
+    assert.equal(res.body.user.image, user.image);
+    assert.equal(res.body.user.role, user.UserRole.role);
+    assert.ok(cookies);
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      {
+        role: user.UserRole.role,
+        related_type: user.UserRole.related_type,
+        related_id: null,
+      }
+    );
+    assert.partialDeepStrictEqual(
+      jwtUtils.verifyAccessToken(res.body.accessToken),
+      {
+        role: user.UserRole.role,
+        related_type: user.UserRole.related_type,
+        related_id: null,
+      }
+    );
+  });
+  it("should fail for validation wrong password", async () => {
+    const user = await userFactory();
+    const res = await request(app).post("/api/user/login").send({
+      email: user.email,
+      password: "test",
+    });
+    assert.equal(res.status, 401);
+    assert.equal(res.body.message, "invalid credentials");
+  });
+  it("should fail for non existing user", async () => {
+    const res = await request(app).post("/api/user/login").send({
+      email: "user.email@gmail.com",
+      password: "test",
+    });
+    assert.equal(res.status, 401);
+    assert.equal(res.body.message, "invalid credentials");
+  });
+  it("should fail for validation", async () => {
+    const res = await request(app).post("/api/user/login").send({
+      email: "",
+      password: "",
+    });
+    assert.equal(res.status, 422);
+    assert.deepEqual(res.body.message.errors, [
+      {
+        type: "field",
+        value: "",
+        msg: "Email is required",
+        path: "email",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Invalid email format",
+        path: "email",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Password is required",
+        path: "password",
+        location: "body",
+      },
+      {
+        type: "field",
+        value: "",
+        msg: "Password must not be empty",
+        path: "password",
+        location: "body",
+      },
+    ]);
+  });
+});
+describe("userRouter.post/refresh-token refresh access token", () => {
+  it("should send refresh cookie to get a token", async () => {
+    const user = await userFactory();
+    const login = await request(app).post("/api/user/login").send({
+      email: user.email,
+      password: user.plainPassword,
+    });
+    const cookies = login.headers["set-cookie"];
+    const res = await request(app)
+      .post("/api/user/refresh-token")
+      .set("Cookie", cookies)
+      .send();
+    assert.equal(res.status, 200);
+    assert.ok(res.body);
+  });
+  it("should fail for no cookie", async () => {
+    const res = await request(app).post("/api/user/refresh-token").send();
+    assert.equal(res.status, 401);
+  });
+});
+describe("userRouter.get/logout logout user", () => {
+  it("it should clear the cookie", async () => {
+    const res = await request(app).get("/api/user/logout").send();
+    const cookies = res.headers["set-cookie"];
+    assert.equal(res.status, 200);
+    assert.equal(
+      cookies[0],
+      "refreshToken=; Path=/api/user/refresh-token; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict"
+    );
+  });
+});
+//flag further testing on profile will be
+describe("userRouter.get/profile get user profile", () => {
+  it("should get user profile", async () => {
+    const user = await userWithTokenFactory();
+    const resp = await request(app)
+      .get("/api/user/profile")
+      .set("Authorization", `Bearer ${user.accessToken}`);
+    assert.equal(resp.statusCode, 200);
+    assert.ok(resp.body);
   });
 });

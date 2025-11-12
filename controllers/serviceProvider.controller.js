@@ -3,6 +3,7 @@ import { AppError } from "../utils/error.class.js";
 import { sequelize } from "../database/connection.js";
 import authUtils from "../utils/authorize.util.js";
 import userController, { cookieOptions } from "./user.controller.js";
+import hashIdUtil from "../utils/hashId.util.js";
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -43,7 +44,19 @@ export async function getServiceProviderById(req, res, next) {
     const profile = await serviceProviderServices.getServiceProviderById(
       req.params.id
     );
-    res.status(200).json(profile);
+    const sanitizedSPProfile = {
+      ...profile,
+      services: profile.Services.map((i) => {
+        return {
+          title: i.title,
+          rating: i.rating,
+          image: i.image,
+          id: hashIdUtil.hashIdEncode(i.id),
+        };
+      }),
+    };
+    delete sanitizedSPProfile.Services;
+    res.status(200).json(sanitizedSPProfile);
   } catch (error) {
     next(error);
   }
@@ -57,8 +70,9 @@ export async function updateServiceProvider(req, res, next) {
       "serviceProvider",
       "update"
     );
+
     const isOwner = await authUtils.checkOwnership(
-      req.body.id,
+      req.auth.related_id,
       req.auth.related_id,
       "ServiceProvider"
     );
@@ -70,13 +84,14 @@ export async function updateServiceProvider(req, res, next) {
       "description",
       "phone_number",
       "image",
+      "email",
     ];
     const updateFields = {};
     allowedFields.forEach((field) => {
       if (req.body[field]) updateFields[field] = req.body[field];
     });
     const profile = await serviceProviderServices.updateServiceProvider(
-      req.body.id,
+      req.auth.related_id,
       updateFields
     );
     res.status(200).json(profile);
@@ -88,19 +103,12 @@ export async function deleteServiceProvider(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
       req.auth,
-      ["service_provider_root", "super_admin", "admin"],
+      ["superAdmin", "admin"],
       true,
       "serviceProvider",
       "delete"
     );
-    const isOwner = await authUtils.checkOwnership(
-      req.body.id,
-      req.auth.related_id,
-      "ServiceProvider"
-    );
-    if (!hasPermission || !isOwner)
-      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
-    await serviceProviderServices.deleteServiceProvider(req.body.id);
+    await serviceProviderServices.deleteServiceProvider(req.params.id);
     res.status(200).json({ message: "success" });
   } catch (error) {
     next(error);
@@ -109,17 +117,14 @@ export async function deleteServiceProvider(req, res, next) {
 export async function restoreServiceProvider(req, res, next) {
   try {
     const hasPermission = await authUtils.checkRoleAndPermission(
-      req.auth.id,
-      req.auth.related_id,
+      req.auth,
       ["superAdmin", "admin"],
       true,
       "serviceProvider",
       "delete"
     );
-    if (!hasPermission)
-      throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
     const profile = await serviceProviderServices.restoreServiceProvider(
-      req.body.id
+      req.params.id
     );
     res.status(200).json(profile);
   } catch (error) {

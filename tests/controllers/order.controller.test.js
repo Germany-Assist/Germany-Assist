@@ -1,185 +1,243 @@
-import test from "node:test";
+import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-
-import orderController, {
-  generateOrderItems,
-  extractItems,
-  sanitizeOrder,
-} from "../../controllers/order.controller.js";
-
-import { sequelize } from "../../database/connection.js";
-import orderService from "../../services/order.services.js";
-import serviceServices from "../../services/service.services.js";
+import orderController from "../../controllers/order.controller.js";
+import authUtil from "../../utils/authorize.util.js";
 import hashIdUtil from "../../utils/hashId.util.js";
-import stripeUtils, { createPaymentIntent } from "../../utils/stripe.util.js";
-import paymentServices from "../../services/payment.service.js";
+import orderService from "../../services/order.services.js";
+import userServices from "../../services/user.services.js";
+import stripeUtils from "../../utils/stripe.util.js";
 import { AppError } from "../../utils/error.class.js";
+import { v4 as uuidv4 } from "uuid";
 
-// ---------------- Setup ----------------
+// ✅ Mock req, res, next
+function mockReqRes(
+  auth = { id: 1, related_id: 10, role: "client" },
+  body = {},
+  params = {},
+  query = {}
+) {
+  return {
+    req: { auth, body, params, query },
+    res: { send: sinon.stub() },
+    next: sinon.stub(),
+  };
+}
+
 let sandbox;
-test.beforeEach(() => {
+
+beforeEach(() => {
   sandbox = sinon.createSandbox();
 });
-test.afterEach(() => {
+
+afterEach(() => {
   sandbox.restore();
 });
 
-// ---------------- Helper Functions ----------------
-test("generateOrderItems should map services correctly", () => {
-  const fakeServices = [
-    { get: () => ({ id: 1, title: "Service 1" }) },
-    { get: () => ({ id: 2, title: "Service 2" }) },
-  ];
-  const result = generateOrderItems(10, fakeServices);
-  assert.deepEqual(result, [
-    { order_id: 10, service_id: 1, title: "Service 1" },
-    { order_id: 10, service_id: 2, title: "Service 2" },
-  ]);
-});
+describe("testing order controllers", () => {
+  test("checkoutController → should send correct user and service info", async () => {
+    const { req, res, next } = mockReqRes({}, {}, { id: "abc" });
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(userServices, "getUserById").resolves({ first_name: "John" });
+    sandbox
+      .stub(orderService, "getServiceForPaymentPrivate")
+      .resolves({ title: "Gold Plan", price: 15 });
 
-test("extractItems should return formatted items", () => {
-  const order = {
-    OrderItems: [
-      { id: 1, Service: { id: 100, price: 50 } },
-      { id: 2, Service: { id: 200, price: 75 } },
-    ],
-  };
-  const result = extractItems(order);
-  assert.deepEqual(result, [
-    { item_id: 1, item_price: 50, service_id: 100 },
-    { item_id: 2, item_price: 75, service_id: 200 },
-  ]);
-});
+    await orderController.checkoutController(req, res, next);
 
-// ---------------- Controllers ----------------
-test("checkoutController should create an order and return sanitized order", async () => {
-  // Arrange
-  const req = {
-    body: { items: ["hashed1", "hashed2"] },
-    auth: { id: 42 },
-  };
-  const res = { send: sinon.spy() };
-  const next = sinon.spy();
-
-  const fakeTransaction = {
-    commit: sinon.spy(),
-    rollback: sinon.spy(),
-  };
-  sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-  sandbox
-    .stub(hashIdUtil, "hashIdDecode")
-    .onFirstCall()
-    .returns(1)
-    .onSecondCall()
-    .returns(2);
-
-  const fakeCartItems = [{ id: 1 }, { id: 2 }];
-  sandbox.stub(orderService, "getUserCartByIds").resolves(fakeCartItems);
-
-  const fakeOrder = {
-    id: 99,
-    OrderItems: [{ id: 1, service_id: 1, Service: { price: 100 } }],
-  };
-  sandbox.stub(orderService, "createOrder").resolves(fakeOrder);
-  sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((x) => `encoded-${x}`);
-
-  // Act
-  await orderController.checkoutController(req, res, next);
-
-  // Assert
-  assert.equal(res.send.calledOnce, true);
-  const responseArg = res.send.firstCall.args[0];
-  assert.deepEqual(responseArg, {
-    orderId: "encoded-99",
-    items: [
-      {
-        item_id: "encoded-1",
-        service_id: "encoded-1",
-      },
-    ],
+    assert.ok(res.send.calledOnce);
+    assert.match(res.send.firstCall.args[0], /John/);
+    assert.match(res.send.firstCall.args[0], /Gold Plan/);
   });
-  assert.equal(fakeTransaction.commit.calledOnce, true);
-  assert.equal(next.called, false);
-});
 
-test("checkoutController should handle errors and rollback", async () => {
-  const req = { body: { items: ["bad"] }, auth: { id: 42 } };
-  const res = { send: sinon.spy() };
-  const next = sinon.spy();
+  test("checkoutController → should call next on missing user/service", async () => {
+    const { req, res, next } = mockReqRes({}, {}, { id: "abc" });
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(userServices, "getUserById").resolves(null);
+    sandbox.stub(orderService, "getServiceForPaymentPrivate").resolves({});
 
-  const fakeTransaction = { commit: sinon.spy(), rollback: sinon.spy() };
-  sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-  sandbox.stub(hashIdUtil, "hashIdDecode").throws(new Error("decode error"));
+    await orderController.checkoutController(req, res, next);
 
-  await orderController.checkoutController(req, res, next);
-
-  assert.equal(fakeTransaction.rollback.calledOnce, true);
-  assert.equal(next.calledOnce, true);
-});
-
-// ---------------- payController ----------------
-test("payController should create payment intent and return response", async () => {
-  const req = { body: { id: "hashed99" } };
-  const res = { json: sinon.spy() };
-  const next = sinon.spy();
-
-  const fakeTransaction = { commit: sinon.spy(), rollback: sinon.spy() };
-  sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-  sandbox.stub(hashIdUtil, "hashIdDecode").returns(99);
-
-  const fakeOrder = {
-    id: 99,
-    status: "pending",
-    OrderItems: [
-      { id: 1, Service: { id: 100, price: 50 }, service_id: 100 },
-      { id: 2, Service: { id: 200, price: 75 }, service_id: 200 },
-    ],
-  };
-  sandbox.stub(orderService, "getOrderById").resolves(fakeOrder);
-
-  const fakeIntent = { id: "pi_123", client_secret: "secret_123" };
-  sandbox.stub(stripeUtils, "createPaymentIntent").resolves(fakeIntent);
-  const fakePayment = { id: 1234 };
-  sandbox.stub(paymentServices, "createPayment").resolves(fakePayment);
-  sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((x) => `encoded-${x}`);
-
-  await orderController.payController(req, res, next);
-
-  assert.equal(res.json.calledOnce, true);
-  const response = res.json.firstCall.args[0];
-  assert.deepEqual(response, {
-    clientSecret: "secret_123",
-    order: {
-      orderId: "encoded-99",
-      totalAmount: 125,
-      items: [
-        { item_id: "encoded-1", service_id: "encoded-100", price: 50 },
-        { item_id: "encoded-2", service_id: "encoded-200", price: 75 },
-      ],
-    },
-    paymentId: "encoded-1234",
+    assert.ok(next.calledOnce);
+    assert.ok(next.firstCall.args[0] instanceof AppError);
   });
-  assert.equal(fakeTransaction.commit.calledOnce, true);
-  assert.equal(next.called, false);
-});
 
-test("payController should throw if order not payable", async () => {
-  const req = { body: { id: "hashed99" } };
-  const res = { json: sinon.spy() };
-  const next = sinon.spy();
+  //
+  // 💳 payOrder
+  //
+  test("payOrder → should create free order when price = 0", async () => {
+    const { req, res, next } = mockReqRes({}, {}, { id: "xyz" });
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(orderService, "getServiceForPaymentPrivate").resolves({
+      price: 0,
+      "Timelines.id": 9,
+    });
+    const createStub = sandbox.stub(orderService, "createOrder").resolves();
+    await orderController.payOrder(req, res, next);
+    assert.ok(createStub.calledOnce);
+    assert.ok(res.send.calledWithMatch({ success: true }));
+    assert.strictEqual(next.called, false);
+  });
 
-  const fakeTransaction = { commit: sinon.spy(), rollback: sinon.spy() };
-  sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
-  sandbox.stub(hashIdUtil, "hashIdDecode").returns(99);
+  test("payOrder → should create payment intent for paid service", async () => {
+    const { req, res, next } = mockReqRes({}, {}, { id: "xyz" });
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(orderService, "getServiceForPaymentPrivate").resolves({
+      price: 50,
+      "Timelines.id": 10,
+    });
+    const stripeStub = sandbox
+      .stub(stripeUtils, "createPaymentIntent")
+      .resolves({ client_secret: "secret-123" });
 
-  sandbox
-    .stub(orderService, "getOrderById")
-    .resolves({ id: 99, status: "completed", OrderItems: [] });
+    await orderController.payOrder(req, res, next);
 
-  await orderController.payController(req, res, next);
+    assert.ok(stripeStub.calledOnce);
+    assert.ok(
+      res.send.calledOnceWithMatch({
+        success: true,
+        message: { clientSecret: "secret-123" },
+      })
+    );
+  });
 
-  assert.equal(fakeTransaction.rollback.calledOnce, true);
-  assert.equal(next.calledOnce, true);
-  assert.equal(res.json.called, false);
+  //
+  // 🧾 getOrderAdmin
+  //
+  test("getOrderAdmin → should send encoded order", async () => {
+    const { req, res, next } = mockReqRes({ role: "admin" }, {}, { id: "123" });
+    const order = { id: 1, user_id: 2, timeline_id: 3, service_id: 4 };
+
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
+    sandbox.stub(orderService, "getOrder").resolves(order);
+    sandbox.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+
+    await orderController.getOrderAdmin(req, res, next);
+
+    assert.ok(res.send.calledOnce);
+    assert.deepEqual(res.send.firstCall.args[0], {
+      ...order,
+      id: "encoded",
+      user_id: "encoded",
+      timeline_id: "encoded",
+      service_id: "encoded",
+    });
+  });
+
+  //
+  // 🧾 getOrderSP
+  //
+  test("getOrderSP → should fetch and send encoded order for service provider", async () => {
+    const { req, res, next } = mockReqRes(
+      { role: "service_provider_root", related_id: 9 },
+      {},
+      { id: "456" }
+    );
+    const order = { id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 };
+
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
+    sandbox.stub(orderService, "getOrderByIdAndSPID").resolves(order);
+    sandbox.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+
+    await orderController.getOrderSP(req, res, next);
+
+    assert.ok(res.send.calledOnce);
+    assert.deepEqual(res.send.firstCall.args[0], {
+      ...order,
+      id: "encoded",
+      user_id: "encoded",
+      timeline_id: "encoded",
+      service_id: "encoded",
+    });
+  });
+
+  //
+  // 👤 getOrderCL
+  //
+  test("getOrderCL → should fetch and send encoded order for client", async () => {
+    const { req, res, next } = mockReqRes(
+      { id: 7, role: "client" },
+      {},
+      { id: "789" }
+    );
+    const order = { id: 1, user_id: 7, timeline_id: 3, user_iservice_id: 4 };
+
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
+    sandbox.stub(orderService, "getOrder").resolves(order);
+    sandbox.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+
+    await orderController.getOrderCL(req, res, next);
+
+    assert.ok(res.send.calledOnce);
+    assert.deepEqual(res.send.firstCall.args[0], {
+      ...order,
+      id: "encoded",
+      user_id: "encoded",
+      timeline_id: "encoded",
+      service_id: "encoded",
+    });
+  });
+
+  //
+  // 📋 getOrdersAdmin
+  //
+  test("getOrdersAdmin → should encode and send all admin orders", async () => {
+    const { req, res, next } = mockReqRes({ role: "admin" });
+    const orders = [{ id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 }];
+
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(orderService, "getOrders").resolves(orders);
+    sandbox.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+
+    await orderController.getOrdersAdmin(req, res, next);
+
+    assert.ok(res.send.calledOnce);
+    assert.ok(res.send.firstCall.args[0][0].id === "encoded");
+  });
+
+  //
+  // 🧾 getOrdersSP
+  //
+  test("getOrdersSP → should encode and send SP orders", async () => {
+    const { req, res, next } = mockReqRes(
+      { role: "service_provider_rep", related_id: 22 },
+      {},
+      {},
+      { filter: "test" }
+    );
+    const orders = [{ id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 }];
+
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(orderService, "getOrders").resolves(orders);
+    sandbox.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+
+    await orderController.getOrdersSP(req, res, next);
+
+    assert.ok(res.send.calledOnce);
+    assert.ok(res.send.firstCall.args[0][0].id === "encoded");
+  });
+
+  //
+  // 👥 getOrdersCL
+  //
+  test("getOrdersCL → should encode and send client orders", async () => {
+    const { req, res, next } = mockReqRes({ id: 5, role: "client" });
+    const orders = [{ id: 1, user_id: 5, timeline_id: 3, user_iservice_id: 4 }];
+
+    sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
+    sandbox.stub(orderService, "getOrders").resolves(orders);
+    sandbox.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+
+    await orderController.getOrdersCL(req, res, next);
+
+    assert.ok(res.send.calledOnce);
+    assert.ok(res.send.firstCall.args[0][0].id === "encoded");
+  });
 });

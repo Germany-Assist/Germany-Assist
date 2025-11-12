@@ -1,33 +1,121 @@
 import * as assetServices from "./../services/asset.services.js";
 import { v4 as uuid } from "uuid";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import path from "path";
-import { s3, S3_BUCKET_NAME, S3_ENDPOINT } from "../configs/s3Configs.js";
-import sharp from "sharp";
+import {
+  s3,
+  S3_BUCKET_NAME,
+  S3_ENDPOINT,
+  UploadConstrains,
+  uploadImagesToS3,
+} from "../configs/s3Configs.js";
 import userServices from "../services/user.services.js";
+import { imageResizeS3 } from "../utils/sharp.util.js";
+import db from "../database/dbIndex.js";
+import { AppError } from "../utils/error.class.js";
+import authUtil from "../utils/authorize.util.js";
 
-const imageResizeS3 = async (image, id, keyPrefix, x, y) => {
-  const fileName = `${id}.webp`;
-  const key = `images/${keyPrefix}/${fileName}`;
-  const resizedImageBuffer = await sharp(image.buffer)
-    .resize(x, y)
-    .webp({ quality: 80 })
-    .toBuffer();
-  return {
-    resizedImageBuffer,
-    key,
-    id,
-    type: keyPrefix,
-  };
+const countAssetsInDatabase = async (filters) => {
+  return await db.Asset.findAndCountAll({
+    where: { ...filters, thumb: false },
+    raw: true,
+  });
 };
-export async function createAsset(req, res, next) {
-  try {
-    const body = req.body;
-    const resp = await assetServices.createAsset(body);
-    res.sendStatus(201);
-  } catch (error) {
-    next(error);
+const formatUrls = (images) => {
+  return images.map((i) => {
+    return {
+      type: i.type,
+      url: `${S3_ENDPOINT}/${S3_BUCKET_NAME}/${i.key}`,
+      thumb: i.thumb,
+      id: i.id,
+      size: i.size,
+    };
+  });
+};
+const formatImagesForAssets = (urls, auth) => {
+  return urls.map((i) => {
+    return {
+      name: i.id,
+      size: i.size,
+      media_type: "image",
+      service_provider_id: auth.related_id,
+      owner_type: "user",
+      user_id: auth.id,
+      type: i.type,
+      thumb: i.thumb,
+      url: i.url,
+      confirmed: true,
+    };
+  });
+};
+async function validateAndSizeCount({
+  type,
+  totalFiles,
+  size,
+  ownerType,
+  ownerId,
+}) {
+  const limit = UploadConstrains[type]?.limit;
+  const allowedSize = UploadConstrains[type]?.size;
+  if (!limit || !type) throw new AppError(500, "Bad type for asset", false);
+  const searchFilters = { type, [ownerType]: ownerId };
+  const currentFilesCount = (await countAssetsInDatabase(searchFilters)).count;
+  if (
+    currentFilesCount === limit ||
+    currentFilesCount > limit ||
+    currentFilesCount + totalFiles > limit
+  )
+    throw new AppError(
+      409,
+      "reaching the upload limit",
+      false,
+      `You have reached or trying to upload above upload limit which is ${limit} for ${type} filed please consider removing existing asset`
+    );
+  if (size > allowedSize)
+    throw new AppError(
+      409,
+      "Exceeding the file allowed size",
+      false,
+      `You have exceeded the upload file limit size which is ${allowedSize} for ${type} filed please consider removing reducing the file`
+    );
+  return true;
+}
+async function formatImagesToS3(files, type, basekey, thumb) {
+  const images = [];
+  for (const file of files) {
+    const id = uuid();
+    const imageKey = `${basekey}/${id}.webp`;
+    const imageBuffer = await imageResizeS3(file, 400, 400);
+    if (thumb) {
+      const thumbKey = `${basekey}/thumb/${id}.webp`;
+      const thumbBuffer = await imageResizeS3(file, 200, 200);
+      images.push(
+        {
+          key: imageKey,
+          buffer: imageBuffer,
+          type: type,
+          thumb: false,
+          id: id,
+          size: imageBuffer.length,
+        },
+        {
+          key: thumbKey,
+          buffer: thumbBuffer,
+          thumb: true,
+          type: type,
+          id: id,
+          size: thumbBuffer.length,
+        }
+      );
+    } else {
+      images.push({
+        key: imageKey,
+        buffer: imageBuffer,
+        type: "serviceProviderProfileImage",
+        thumb: false,
+      });
+    }
   }
+  return images;
 }
 export async function getAllAssets(req, res, next) {
   try {
@@ -190,3 +278,58 @@ export async function uploadDocument(req, res, next) {
     next(error);
   }
 }
+export async function serviceProviderProfileImage(req, res, next) {
+  const type = "serviceProviderProfileImage";
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    //i think i will discusses with amr what permissions should be added
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_root", "service_provider_rep"],
+      true,
+      "asset",
+      "update"
+    );
+
+    const constrains = UploadConstrains[type];
+    // i need to convert all to an array in order to let all the helpers work correctly
+    let files = [];
+    if (req.file) {
+      files.push(req.file);
+    } else {
+      files = req.files;
+    }
+    // validation for all the files
+    //this should exist for all of them for filtering existing assets
+    //just replace the ownerId and ownerType depending on the requirement
+    for (const file of files) {
+      const filters = {
+        type,
+        ownerType: "service_provider_id",
+        ownerId: req.auth.related_id,
+        size: file.size,
+        totalFiles: files.length,
+      };
+      // this will count and throw an error if exceeding the limit; the limit is extracted from the constrains
+      await validateAndSizeCount(filters);
+    }
+    // this will prepare the files to upload the first parameter should be an array
+    const images = await formatImagesToS3(
+      files,
+      type,
+      constrains.basekey,
+      constrains.thumb
+    );
+    //upload the images
+    const uploads = await uploadImagesToS3(images);
+
+    const urls = formatUrls(images);
+    const assets = formatImagesForAssets(urls, req.auth);
+    await assetServices.createAssets(assets);
+    res.json({ message: "File uploaded successfully", urls });
+  } catch (error) {
+    next(error);
+  }
+}
+const uploadController = { serviceProviderProfileImage };
+export default uploadController;

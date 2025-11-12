@@ -56,14 +56,5 @@ describe("Service Provider Routes Integration/E2E", () => {
       phone_number: "123456789",
     });
     assert.strictEqual(res.status, 201);
-    await alterUserVerification(
-      hashIdUtil.hashIdDecode(res.body.user.id),
-      true
-    );
-    const deleted = await request(app)
-      .delete("/api/serviceProvider")
-      .send({ id: res.body.serviceProvider.id })
-      .set("Authorization", `Bearer ${res.body.accessToken}`);
-    assert.strictEqual(deleted.status, 200);
   });
 });

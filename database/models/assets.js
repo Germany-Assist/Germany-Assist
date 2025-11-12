@@ -5,12 +5,16 @@ class Asset extends Model {}
 
 Asset.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     name: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.UUID,
       allowNull: false,
       validate: {
         notEmpty: { msg: "Name cannot be empty" },
-        len: { args: [3, 50], msg: "Name must be between 3 and 50 characters" },
       },
     },
     media_type: {
@@ -57,16 +61,35 @@ Asset.init(
     },
     type: {
       type: DataTypes.ENUM(
-        "profile",
-        "thumb",
-        "service",
-        "gallery",
-        "employer"
+        "userImage",
+        "serviceProviderProfileImage",
+        "serviceProviderProfileGalleryImage",
+        "serviceProviderProfileGalleryVideo",
+        "serviceProviderProfileDocument",
+        "serviceProfileImage",
+        "serviceProfileGalleryImage",
+        "serviceProfileGalleryVideo",
+        "postAttachmentsFile",
+        "postAttachmentsVideo",
+        "postAttachmentsDocuments",
+        "postAttachmentsImage",
+        "assetImage",
+        "assetVideo",
+        "assetDocument"
       ),
       allowNull: false,
     },
     owner_type: {
       type: DataTypes.ENUM("user", "service_provider", "employer"),
+      allowNull: false,
+    },
+    confirmed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    size: {
+      type: DataTypes.BIGINT,
       allowNull: false,
     },
     url: {
@@ -84,6 +107,10 @@ Asset.init(
         isInt: { msg: "views must be an integer" },
         min: { args: [0], msg: "views cannot be negative" },
       },
+    },
+    thumb: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     },
     owner: {
       type: DataTypes.VIRTUAL,

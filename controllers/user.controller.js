@@ -17,24 +17,26 @@ export const cookieOptions = {
   path: "/api/user/refresh-token",
 };
 const sanitizeUser = (user) => {
-  let favorite = [];
-  let cart = [];
-  if (user.userCart && user.userCart.length > 0)
-    cart = user.userCart.map((i) => {
+  let favorites, orders;
+  if (user.favorites && user.favorites.length > 0) {
+    favorites = user.favorites.map((i) => {
       return {
-        id: hashIdUtil.hashIdEncode(i.user_service.id),
-        serviceId: hashIdUtil.hashIdEncode(i.id),
-        thumbnail: "not yet",
+        ...i,
+        id: hashIdUtil.hashIdEncode(i.id),
+        service: { ...i.Service, id: hashIdUtil.hashIdEncode(i.Service.id) },
       };
     });
-  if (user.userFavorite && user.userFavorite.length > 0)
-    favorite = user.userFavorite.map((i) => {
+  }
+  if (user.Orders && user.Orders.length > 0) {
+    orders = user.Orders.map((i) => {
       return {
-        id: hashIdUtil.hashIdEncode(i.user_service.id),
-        serviceId: hashIdUtil.hashIdEncode(i.id),
-        thumbnail: "not yet",
+        serviceId: hashIdUtil.hashIdEncode(i.Service.id),
+        orderId: hashIdUtil.hashIdEncode(i.id),
+        timelineId: hashIdUtil.hashIdEncode(i.Timeline.id),
+        timelineLabel: i.Timeline.label,
       };
     });
+  }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
@@ -46,8 +48,8 @@ const sanitizeUser = (user) => {
     role: user.UserRole.role,
     related_type: user.UserRole.related_type,
     related_id: user.UserRole.related_id,
-    favorite,
-    cart,
+    favorites,
+    orders,
   };
 };
 function setRoleAndType(type) {
@@ -172,7 +174,7 @@ export async function createAdminController(req, res, next) {
     req.auth,
     ["super_admin"],
     true,
-    "user",
+    "admin",
     "create"
   );
   try {
@@ -267,7 +269,6 @@ export async function refreshUserToken(req, res, next) {
     const { id } = jwt.verifyToken(refreshToken);
     const user = await userServices.getUserById(id);
     const accessToken = jwt.generateAccessToken(user);
-    res.cookie("refreshToken", refreshToken, cookieOptions);
     res.send({ accessToken });
   } catch (error) {
     next(error);
@@ -285,7 +286,7 @@ export async function loginUserTokenController(req, res, next) {
 export async function getUserProfile(req, res, next) {
   try {
     const user = await userServices.getUserProfile(req.auth.id);
-    const sanitizedUser = userController.sanitizeUser(user);
+    const sanitizedUser = userController.sanitizeUser(await user.toJSON());
     res.send(sanitizedUser);
   } catch (error) {
     next(error);

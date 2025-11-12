@@ -1,27 +1,47 @@
-import { ValidationError } from "sequelize";
+import {
+  ValidationError,
+  UniqueConstraintError,
+  ForeignKeyConstraintError,
+} from "sequelize";
 import { AppError } from "../utils/error.class.js";
 import { errorLogger } from "../utils/loggers.js";
 
 export function errorMiddleware(err, req, res, next) {
   if (err instanceof AppError) {
-    err.appendTrace(req.requestId);
+    err.appendTrace?.(req.requestId);
+    err.trace = req.requestId;
   } else {
     err.trace = req.requestId;
   }
-  if (err.isOperational) {
-    res.status(err.httpCode).json({
+  if (err instanceof AppError) {
+    return res.status(err.httpCode).json({
+      success: false,
       message: err.publicMessage,
     });
-  } else if (err instanceof ValidationError) {
-    const messages = err.errors.map((e) => e.message);
-    res.status(422).json({
+  }
+  if (err instanceof UniqueConstraintError)
+    return res
+      .status(422)
+      .json({ success: false, message: "already exists in the database" });
+  if (
+    err instanceof ValidationError ||
+    err instanceof ForeignKeyConstraintError
+  ) {
+    const messages = (err.errors || []).map((e) => {
+      if (err instanceof ForeignKeyConstraintError) {
+        return e.message || `Invalid reference for ${e.index}`;
+      }
+      return e.message;
+    });
+
+    return res.status(422).json({
       message: messages.join(", "),
       errors: messages,
     });
-  } else if (err.name === "UnauthorizedError") {
-    res.status(401).send({ message: err.message });
-  } else {
-    res.status(500).json({ message: "opps something went wrong" });
   }
+  if (err.name === "UnauthorizedError") {
+    return res.status(401).json({ message: err.message });
+  }
+  res.status(500).json({ message: "Oops, something went wrong" });
   errorLogger(err);
 }

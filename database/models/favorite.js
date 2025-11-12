@@ -1,9 +1,8 @@
 import { sequelize } from "../connection.js";
 import { DataTypes, Model } from "sequelize";
 
-export default class UserService extends Model {}
-
-UserService.init(
+export default class Favorite extends Model {}
+Favorite.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -32,18 +31,14 @@ UserService.init(
         return this.user_id;
       },
     },
-    type: {
-      type: DataTypes.ENUM("favorite", "cart"),
-      allowNull: false,
-    },
   },
   {
     sequelize,
-    modelName: "user_service",
+    modelName: "favorite",
     indexes: [
       {
         unique: true,
-        fields: ["user_id", "service_id", "type"],
+        fields: ["user_id", "service_id"],
       },
     ],
   }

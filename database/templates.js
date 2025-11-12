@@ -57,7 +57,6 @@ export const roleTemplates = {
     // Users rep (their own account only, enforced by middleware)
     { action: "update", resource: "user" },
   ],
-
   // serviceProvider owner
   service_provider_root: [
     // Assets
@@ -86,6 +85,12 @@ export const roleTemplates = {
     { action: "revoke", resource: "permission" },
     { action: "list", resource: "permission" },
 
+    // offer
+    { action: "create", resource: "offer" },
+    { action: "withdraw", resource: "offer" },
+    // order
+    { action: "create", resource: "order" },
+
     // serviceProvider
     { action: "update", resource: "serviceProvider" },
     { action: "delete", resource: "serviceProvider" },
@@ -111,6 +116,12 @@ export const roleTemplates = {
     { action: "create", resource: "post" },
     { action: "update", resource: "post" },
     { action: "statistical", resource: "post" },
+
+    // offer
+    { action: "create", resource: "offer" },
+    { action: "withdraw", resource: "offer" },
+    // order
+    { action: "create", resource: "order" },
 
     // Users rep (their own account only, enforced by middleware)
     { action: "update", resource: "user" },
@@ -157,7 +168,8 @@ export const roleTemplates = {
     { action: "delete", resource: "user" },
     { action: "restore", resource: "user" },
     { action: "verify", resource: "user" },
-
+    { action: "create", resource: "category" }, //ownership:root //super:admin,superAdmin
+    { action: "update", resource: "contract" }, //ownership:root //super:admin,superAdmin
     // Analytics
     { action: "view", resource: "analytics" },
   ],

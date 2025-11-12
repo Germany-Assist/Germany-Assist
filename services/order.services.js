@@ -1,76 +1,74 @@
-import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
-export async function createOrder(user_id, serviceIds, t) {
-  return await db.Order.create(
-    {
-      user_id,
-      status: "pending",
-      OrderItems: serviceIds,
-    },
-
-    {
-      raw: true,
-      transaction: t,
-      include: {
-        model: db.OrderItems,
-      },
-    }
-  );
-}
-export async function getUserCartByIds(userId, cartIds) {
-  const cartItems = await db.User.findByPk(userId, {
-    attributes: ["id"],
-    include: [
-      {
-        model: db.Service,
-        as: "userCart",
-        attributes: ["id", "price"],
-        through: { attributes: [], where: { id: cartIds } },
-      },
-    ],
-  });
-  if (!cartItems || !cartItems.userCart || cartItems.userCart.length < 1)
-    throw new AppError(400, "failed to process cart items");
-  return cartItems.userCart;
-}
-export async function createOrderItems(orderItems, t) {
-  return await db.OrderItems.bulkCreate(orderItems, {
+export async function createOrder(data, t) {
+  return await db.Order.create(data, {
+    raw: true,
     transaction: t,
   });
 }
-export async function getOrderById(orderId) {
-  const order = await db.Order.findByPk(orderId, {
+export async function getServiceForPaymentPrivate(id) {
+  return await db.Service.findOne({
+    raw: true,
+    where: { id, published: true, approved: true, rejected: false },
+    include: [
+      { model: db.Timeline, where: { is_archived: false }, attributes: ["id"] },
+    ],
+  });
+}
+
+export async function getOrder(filters) {
+  const order = await db.Order.findOne({
+    where: filters,
+    raw: true,
+  });
+  if (!order)
+    throw new AppError(404, "Order not found", true, "Order not found");
+  return order;
+}
+export async function getOrderByIdAndSPID(filters, SPID) {
+  const order = await db.Order.findOne({
+    where: filters,
+    raw: false,
     include: [
       {
-        model: db.OrderItems,
-        include: { model: db.Service, attributes: ["id", "price"] },
+        model: db.Service,
+        where: { service_provider_id: SPID },
+        attributes: [],
+        required: true,
       },
     ],
+  });
+  if (!order)
+    throw new AppError(404, "Order not found", true, "Order not found");
+  return order.toJSON();
+}
+export async function getOrders(filters = {}) {
+  const { service_provider_id } = filters;
+  const include = [];
+  delete filters.service_provider_id;
+  if (service_provider_id) {
+    include.push({
+      model: db.Service,
+      attributes: [],
+      required: true,
+      where: { service_provider_id },
+    });
+  }
+  const order = await db.Order.findAll({
+    where: filters,
+    raw: true,
+    include,
   });
   if (!order) throw new AppError(404, "Order not found");
   return order;
 }
 
-export async function updateOrder(status, amount, id, t) {
-  return await db.Order.update(
-    { status, amount: amount / 100 },
-    {
-      where: {
-        id,
-        status: { [Op.ne]: status },
-      },
-      transaction: t,
-    }
-  );
-}
-
 export const orderService = {
   createOrder,
-  getUserCartByIds,
-  createOrderItems,
-  getOrderById,
-  updateOrder,
+  getOrder,
+  getOrders,
+  getOrderByIdAndSPID,
+  getServiceForPaymentPrivate,
 };
 export default orderService;
