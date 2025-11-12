@@ -31,7 +31,7 @@ export const loginUser = async (userData) => {
   const compare = bcryptUtil.hashCompare(password, user.password);
   if (!compare)
     throw new AppError(401, "wrong password", true, "invalid credentials");
-  return user.toJSON();
+  return user;
 };
 
 export const getUserById = async (id) => {
