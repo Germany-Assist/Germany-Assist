@@ -12,6 +12,18 @@ export const createAsset = async (data) => {
     url,
   });
 };
+export const extractConstrains = async (type) => {
+  const con = await db.AssetTypes.findOne({ where: { key: type }, raw: true });
+  if (!con) throw new AppError(500, "invalid constrain key type", false);
+  return con;
+};
+export const countAssetsInDatabase = async (filters) => {
+  const result = await db.Asset.findAndCountAll({
+    where: { ...filters, thumb: false },
+    raw: true,
+  });
+  return result.count;
+};
 export const createAssets = async (data) => {
   return await db.Asset.bulkCreate(data);
 };

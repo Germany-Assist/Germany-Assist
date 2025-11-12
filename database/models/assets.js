@@ -79,10 +79,6 @@ Asset.init(
       ),
       allowNull: false,
     },
-    owner_type: {
-      type: DataTypes.ENUM("user", "service_provider", "employer"),
-      allowNull: false,
-    },
     confirmed: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -111,18 +107,6 @@ Asset.init(
     thumb: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-    },
-    owner: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        if (this.owner_type === "user") {
-          return this.user_id;
-        } else if (this.owner_type === "service_provider") {
-          return this.service_provider_id;
-        } else if (this.owner_type === "employer") {
-          return this.employer_id;
-        }
-      },
     },
   },
   {

@@ -16,12 +16,16 @@ import Favorite from "./models/favorite.js";
 import Timeline from "./models/timeline.js";
 import Post from "./models/post.js";
 import Comment from "./models/comment.js";
+import AssetTypes from "./models/assetTypes.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 export const defineConstrains = () => {
+  //assetTypes
+  Asset.belongsTo(AssetTypes, { foreignKey: "asset_types_id" });
+  AssetTypes.hasMany(Asset, { foreignKey: "asset_types_id" });
   //comment
   Comment.belongsTo(Post, {
     foreignKey: "post_id",
-    constraints: false,
+    constraints: true,
   });
   Comment.belongsTo(Comment, {
     as: "parent",
@@ -145,6 +149,7 @@ if (NODE_ENV !== "test") {
 }
 const db = {
   User,
+  AssetTypes,
   ServiceProvider,
   Service,
   Asset,
