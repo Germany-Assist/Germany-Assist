@@ -20,8 +20,8 @@ import AssetTypes from "./models/assetTypes.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 export const defineConstrains = () => {
   //assetTypes
-  Asset.belongsTo(AssetTypes, { foreignKey: "asset_types_id" });
-  AssetTypes.hasMany(Asset, { foreignKey: "asset_types_id" });
+  Asset.belongsTo(AssetTypes, { foreignKey: "key", targetKey: "key" });
+  AssetTypes.hasMany(Asset, { foreignKey: "key", targetKey: "key" });
   //comment
   Comment.belongsTo(Post, {
     foreignKey: "post_id",
@@ -56,7 +56,11 @@ export const defineConstrains = () => {
   User.hasMany(Post, { foreignKey: "user_id" });
   User.hasMany(Order, { foreignKey: "user_id" });
   User.hasMany(Service, { foreignKey: "user_id" });
-  User.hasMany(Asset, { foreignKey: "user_id" });
+  User.hasMany(Asset, {
+    foreignKey: "user_id",
+    as: "profilePicture",
+    scope: { key: "userImage", thumb: false },
+  });
   User.hasMany(Review, { foreignKey: "user_id" });
   User.hasOne(UserRole, { foreignKey: "user_id" });
   User.hasMany(Favorite, { foreignKey: "user_id" });
@@ -91,7 +95,11 @@ export const defineConstrains = () => {
   Service.belongsTo(ServiceProvider);
   //assets
   Asset.belongsTo(Service, { foreignKey: "service_id" });
-  Asset.belongsTo(User, { foreignKey: "user_id" });
+  Asset.belongsTo(User, {
+    foreignKey: "user_id",
+    as: "profilePicture",
+    scope: { key: "userImage" },
+  });
 
   //review
   Review.belongsTo(Service, { foreignKey: "service_id" });

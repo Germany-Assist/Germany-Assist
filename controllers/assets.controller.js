@@ -15,17 +15,23 @@ import path from "node:path";
 import hashIdUtil from "../utils/hashId.util.js";
 
 function formatSearchFilters(type, auth, params, constrains) {
-  const searchFilters = { type };
+  const searchFilters = { key: type };
   const ownerType = constrains.ownerType;
   switch (ownerType) {
     case "serviceProvider":
+      if (!auth.related_id)
+        throw new AppError(500, "invalid upload attempt", false);
       searchFilters.service_provider_id = auth.related_id;
       break;
     case "service":
+      if (!auth.related_id)
+        throw new AppError(500, "invalid upload attempt", false);
       searchFilters.service_id = hashIdUtil.hashIdDecode(params.id);
       searchFilters.service_provider_id = auth.related_id;
       break;
     case "post":
+      if (!auth.related_id)
+        throw new AppError(500, "invalid upload attempt", false);
       searchFilters.post_id = hashIdUtil.hashIdDecode(params.id);
       searchFilters.service_provider_id = auth.related_id;
       break;
@@ -59,7 +65,7 @@ const formatForAssets = ({ urls, auth, mediaType, postId, serviceId }) => {
       service_id: serviceId ?? null,
       postId: postId ?? null,
       user_id: auth.id,
-      type: i.type,
+      key: i.type,
       thumb: i.thumb,
       url: i.url,
       confirmed: true,
@@ -191,7 +197,13 @@ export function uploadFiles(type) {
       // basic authorization
       await authUtil.checkRoleAndPermission(
         req.auth,
-        ["service_provider_root", "service_provider_rep"],
+        [
+          "service_provider_root",
+          "service_provider_rep",
+          "client",
+          "admin",
+          "super_admin",
+        ],
         true,
         "asset",
         "update"
@@ -208,7 +220,6 @@ export function uploadFiles(type) {
         req.params,
         constrains
       );
-
       // validate the size lieut and count
       await validateAndSizeCount(type, files, searchFilters, constrains);
       let filesToUpload;

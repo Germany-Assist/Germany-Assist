@@ -59,24 +59,8 @@ Asset.init(
         min: { args: [1], msg: "PostId must be greater than 0" },
       },
     },
-    type: {
-      type: DataTypes.ENUM(
-        "userImage",
-        "serviceProviderProfileImage",
-        "serviceProviderProfileGalleryImage",
-        "serviceProviderProfileGalleryVideo",
-        "serviceProviderProfileDocument",
-        "serviceProfileImage",
-        "serviceProfileGalleryImage",
-        "serviceProfileGalleryVideo",
-        "postAttachmentsFile",
-        "postAttachmentsVideo",
-        "postAttachmentsDocuments",
-        "postAttachmentsImage",
-        "assetImage",
-        "assetVideo",
-        "assetDocument"
-      ),
+    key: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     confirmed: {
