@@ -7,6 +7,8 @@ const assetRouter = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 assetRouter.get("/", assetController.getAllAssets);
+assetRouter.get("/", assetController.getAllExistingAssets);
+
 assetRouter.delete("/:id", assetController.deleteAsset);
 
 // SP Profile

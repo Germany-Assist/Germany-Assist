@@ -63,7 +63,7 @@ const formatForAssets = ({ urls, auth, mediaType, postId, serviceId }) => {
       media_type: mediaType,
       service_provider_id: auth.related_id ?? null,
       service_id: serviceId ?? null,
-      postId: postId ?? null,
+      post_id: postId ?? null,
       user_id: auth.id,
       key: i.type,
       thumb: i.thumb,
@@ -176,7 +176,14 @@ export async function getAllAssets(req, res, next) {
     next(error);
   }
 }
-
+export async function getAllExistingAssets(req, res, next) {
+  try {
+    const resp = await assetServices.getAllAssets();
+    res.send(resp);
+  } catch (error) {
+    next(error);
+  }
+}
 export async function deleteAsset(req, res, next) {
   try {
     const { id } = req.params;
@@ -211,7 +218,6 @@ export function uploadFiles(type) {
       // extracting Constrains
       const constrains = await assetServices.extractConstrains(type);
       // extracting the files always as an array
-
       const files = req.files || (req.file ? [req.file] : []);
       // setting the search filters to check the limits and extract params for service and posts
       const searchFilters = formatSearchFilters(
@@ -220,6 +226,7 @@ export function uploadFiles(type) {
         req.params,
         constrains
       );
+
       // validate the size lieut and count
       await validateAndSizeCount(type, files, searchFilters, constrains);
       let filesToUpload;
@@ -252,6 +259,7 @@ export function uploadFiles(type) {
         postId: searchFilters.post_id,
         serviceId: searchFilters.service_id,
       });
+
       await assetServices.createAssets(assets);
       const publicUrls = [];
       for (const url of urls) {

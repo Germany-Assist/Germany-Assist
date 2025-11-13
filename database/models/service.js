@@ -101,13 +101,6 @@ Service.init(
         min: { args: [0], msg: "Price cannot be negative" },
       },
     },
-    image: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      validate: {
-        isUrl: { msg: "Image must be a valid URL" },
-      },
-    },
     approved: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

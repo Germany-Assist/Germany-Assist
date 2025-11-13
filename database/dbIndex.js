@@ -88,19 +88,29 @@ export const defineConstrains = () => {
   Service.hasMany(Order, { foreignKey: "service_id" });
   Service.belongsTo(User, { foreignKey: "user_id" });
   Service.hasMany(Asset, { foreignKey: "service_id" });
+  Service.hasMany(Asset, {
+    foreignKey: "service_id",
+    as: "profileImages",
+    scope: { thumb: true, key: "serviceProfileImage" },
+  });
   Service.hasMany(Review, { foreignKey: "service_id" });
   Service.hasMany(Favorite, { foreignKey: "service_id" });
   Service.hasMany(Timeline, { foreignKey: "service_id" });
   Service.belongsTo(Category, { foreignKey: "category_id" });
   Service.belongsTo(ServiceProvider);
   //assets
-  Asset.belongsTo(Service, { foreignKey: "service_id" });
+  Asset.belongsTo(Service, { foreignKey: "service_id", as: "allAssets" });
+  Asset.belongsTo(Service, {
+    foreignKey: "service_id",
+    as: "profileImages",
+    scope: { thumb: true, key: "serviceProfileImage" },
+  });
+
   Asset.belongsTo(User, {
     foreignKey: "user_id",
     as: "profilePicture",
     scope: { key: "userImage" },
   });
-
   //review
   Review.belongsTo(Service, { foreignKey: "service_id" });
   Review.belongsTo(User, { foreignKey: "user_id" });

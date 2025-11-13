@@ -3,21 +3,39 @@ import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.util.js";
 import { sequelize } from "../database/connection.js";
 import { AppError } from "../utils/error.class.js";
-const sanitizeServices = (services) => {
-  const sanitizeData = services.map((i) => {
-    let temp = {
-      ...i,
-      id: hashIdUtil.hashIdEncode(i.id),
-      category: i["Category.title"],
-      serviceProvider: i["ServiceProvider.name"],
-    };
-    delete temp["Category.title"];
-    delete temp["ServiceProvider.name"];
-    return temp;
-  });
-  return sanitizeData;
+import { generateDownloadUrl } from "../configs/s3Configs.js";
+const sanitizeServices = async (services) => {
+  const sanitized = await Promise.all(
+    services.map(async (i) => {
+      const {
+        id,
+        "Category.title": categoryTitle,
+        "ServiceProvider.name": providerName,
+        "profileImages.url": imageUrl,
+        category_id,
+        ...rest
+      } = i;
+
+      const image = imageUrl ? await generateDownloadUrl(imageUrl) : undefined;
+      return {
+        ...rest,
+        id: hashIdUtil.hashIdEncode(id),
+        category: categoryTitle,
+        serviceProvider: providerName,
+        image,
+      };
+    })
+  );
+
+  return sanitized;
 };
-const sanitizeServiceProfile = (service) => {
+
+const sanitizeServiceProfile = async (service) => {
+  let assets = await Promise.all(
+    service.Assets?.map(async (i) => {
+      return { ...i, url: await generateDownloadUrl(i.url) };
+    })
+  );
   let temp = {
     ...service,
     id: hashIdUtil.hashIdEncode(service.id),
@@ -35,10 +53,12 @@ const sanitizeServiceProfile = (service) => {
         },
       };
     }),
+    assets,
   };
   delete temp.Timelines;
   delete temp.Reviews;
   delete temp.Category;
+  delete temp.Assets;
   return temp;
 };
 const formatTimelines = (timelines) => {
@@ -105,7 +125,9 @@ export async function createService(req, res, next) {
 export async function getAllServices(req, res, next) {
   try {
     const services = await serviceServices.getAllServices(req.query);
-    const sanitizedServices = serviceController.sanitizeServices(services.data);
+    const sanitizedServices = await serviceController.sanitizeServices(
+      services.data
+    );
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
@@ -116,7 +138,7 @@ export async function getServiceProfile(req, res, next) {
     const service = await serviceServices.getServiceByIdPublic(
       hashIdUtil.hashIdDecode(req.params.id)
     );
-    const sanitizedServices = sanitizeServiceProfile(service);
+    const sanitizedServices = await sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
   } catch (error) {
     next(error);
@@ -134,7 +156,7 @@ export async function getServiceProfileForAdminAndSP(req, res, next) {
       hashIdUtil.hashIdDecode(req.params.id),
       req.auth.related_id
     );
-    const sanitizedServices = sanitizeServiceProfile(service);
+    const sanitizedServices = await sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
   } catch (error) {
     next(error);
@@ -144,7 +166,7 @@ export async function getAllServicesAdmin(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(req.auth, ["admin", "super_admin"]);
     const services = await serviceServices.getAllServices(req.query, "admin");
-    const sanitizedServices = sanitizeServices(services.data);
+    const sanitizedServices = await sanitizeServices(services.data);
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
@@ -161,7 +183,7 @@ export async function getAllServicesSP(req, res, next) {
       filters,
       "serviceProvider"
     );
-    const sanitizedServices = sanitizeServices(services.data);
+    const sanitizedServices = await sanitizeServices(services.data);
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
