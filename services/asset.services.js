@@ -28,8 +28,6 @@ export const countAssetsInDatabase = async (filters) => {
 export const createAssets = async (data) => {
   return await db.Asset.bulkCreate(data);
 };
-// Get all assets
-/// by the way i created get all assets to receive filters
 export const getAllAssets = async (filters = {}) => {
   const page = parseInt(filters.page) || 1;
   const limit = parseInt(filters.limit) || 10;
@@ -43,7 +41,6 @@ export const getAllAssets = async (filters = {}) => {
     offset,
     order: [[sortField, sortOrder]],
   });
-  console.log(asset);
   return {
     page,
     limit,

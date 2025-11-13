@@ -31,11 +31,13 @@ const sanitizeServices = async (services) => {
 };
 
 const sanitizeServiceProfile = async (service) => {
-  let assets = await Promise.all(
-    service.Assets?.map(async (i) => {
-      return { ...i, url: await generateDownloadUrl(i.url) };
-    })
-  );
+  let assets = [];
+  if (service.Assets && service.Assets.length > 0)
+    assets = await Promise.all(
+      service.Assets?.map(async (i) => {
+        return { ...i, url: await generateDownloadUrl(i.url) };
+      })
+    );
   let temp = {
     ...service,
     id: hashIdUtil.hashIdEncode(service.id),
@@ -141,6 +143,7 @@ export async function getServiceProfile(req, res, next) {
     const sanitizedServices = await sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 }
