@@ -92,6 +92,16 @@ Asset.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
+    owner: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        if (this.post_id || this.service_id || this.service_provider_id) {
+          return this.service_provider_id;
+        } else {
+          return this.user_id;
+        }
+      },
+    },
   },
   {
     sequelize,

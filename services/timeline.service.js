@@ -58,10 +58,47 @@ async function getTimelineFull(userId, timelineId) {
     );
   return timeline.toJSON();
 }
+
+async function getTimelineSP(serviceProviderId, timelineId) {
+  const timeline = await db.Timeline.findOne({
+    where: { id: timelineId },
+    attributes: ["id"],
+    include: [
+      {
+        model: db.Post,
+        attributes: ["id", "description", "attachments"],
+        include: [
+          {
+            model: db.Comment,
+            attributes: ["id", "body", "parent_id"],
+          },
+        ],
+      },
+      {
+        model: db.Service,
+        attributes: [],
+        required: true,
+        where: {
+          service_provider_id: serviceProviderId,
+        },
+      },
+    ],
+  });
+  if (!timeline)
+    throw new AppError(
+      404,
+      "failed to find the timeline in your orders",
+      true,
+      "failed to find the timeline in your orders"
+    );
+  return timeline.toJSON();
+}
+
 const timelineServices = {
   archiveTimeline,
   createTimeline,
   activeTimeline,
   getTimelineFull,
+  getTimelineSP,
 };
 export default timelineServices;

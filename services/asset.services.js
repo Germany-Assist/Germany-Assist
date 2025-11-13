@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
@@ -30,9 +31,26 @@ export const createAssets = async (data) => {
 // Get all assets
 /// by the way i created get all assets to receive filters
 export const getAllAssets = async (filters = {}) => {
-  return await db.Asset.findAll({
-    where: filters,
+  const page = parseInt(filters.page) || 1;
+  const limit = parseInt(filters.limit) || 10;
+  const offset = (page - 1) * limit;
+  const where = { ...filters };
+  const sortField = filters.sort || "createdAt";
+  const sortOrder = filters.order === "asc" ? "ASC" : "DESC";
+  const { rows: asset, count } = await db.Asset.findAndCountAll({
+    where,
+    limit,
+    offset,
+    order: [[sortField, sortOrder]],
   });
+  console.log(asset);
+  return {
+    page,
+    limit,
+    total: count,
+    totalPages: Math.ceil(count / limit),
+    data: asset,
+  };
 };
 
 // Get a single asset by ID
@@ -53,11 +71,11 @@ export const updateAsset = async (id, updateData) => {
 };
 
 // Delete an asset
-export const deleteAsset = async (id) => {
-  const asset = await db.Asset.findByPk(id);
-  if (!asset) throw new AppError(404, "no asset found", true, "no asset found");
-  await asset.destroy();
-  return { message: "Asset deleted successfully" };
+export const deleteAsset = async (filters) => {
+  const asset = await db.Asset.destroy({ where: filters, returning: true });
+  if (!asset.length)
+    throw new AppError(404, "no asset found", true, "no asset found");
+  return true;
 };
 
 // Restore a soft-deleted asset

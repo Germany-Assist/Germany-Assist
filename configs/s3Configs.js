@@ -1,6 +1,7 @@
 import {
   GetObjectCommand,
   PutObjectCommand,
+  ListObjectsV2Command,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -68,3 +69,26 @@ export async function uploadDocumentsToS3(documents) {
   });
   await Promise.all(uploads);
 }
+
+export const listS3Assets = async (prefix = "") => {
+  try {
+    const command = new ListObjectsV2Command({
+      Bucket: S3_BUCKET_NAME,
+      Prefix: prefix, // optional — e.g. "images/users/"
+    });
+
+    const response = await s3.send(command);
+
+    // Each object is under Contents[]
+    const files = response.Contents?.map((obj) => ({
+      key: obj.Key,
+      size: obj.Size,
+      lastModified: obj.LastModified,
+    }));
+
+    return files || [];
+  } catch (err) {
+    console.error("Error listing S3 assets:", err);
+    throw err;
+  }
+};

@@ -109,7 +109,7 @@ export const getUserProfile = async (id) => {
         include: [
           {
             model: db.Service,
-            attributes: ["id", "image", "title", "description"],
+            attributes: ["id", "title", "description"],
           },
         ],
       },

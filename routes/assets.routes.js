@@ -6,10 +6,28 @@ const assetRouter = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-assetRouter.get("/", assetController.getAllAssets);
-assetRouter.get("/", assetController.getAllExistingAssets);
+assetRouter.get("/", jwtUtils.authenticateJwt, assetController.getAllAssets);
+assetRouter.get(
+  "/existing",
+  jwtUtils.authenticateJwt,
+  assetController.getAllExistingAssets
+);
 
-assetRouter.delete("/:id", assetController.deleteAsset);
+assetRouter.delete(
+  "/serviceProvider/:name",
+  jwtUtils.authenticateJwt,
+  assetController.deleteAssetsOfSp
+);
+assetRouter.delete(
+  "/client/:name",
+  jwtUtils.authenticateJwt,
+  assetController.deleteAssetClient
+);
+assetRouter.delete(
+  "/admin/:name",
+  jwtUtils.authenticateJwt,
+  assetController.deleteAsset
+);
 
 // SP Profile
 assetRouter.post(

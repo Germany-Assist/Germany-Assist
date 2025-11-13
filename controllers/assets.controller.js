@@ -2,6 +2,7 @@ import * as assetServices from "./../services/asset.services.js";
 import { v4 as uuid } from "uuid";
 import {
   generateDownloadUrl,
+  listS3Assets,
   S3_BUCKET_NAME,
   S3_ENDPOINT,
   uploadDocumentsToS3,
@@ -170,7 +171,8 @@ async function formatImagesToS3(files, type, constrains) {
 }
 export async function getAllAssets(req, res, next) {
   try {
-    const resp = await assetServices.getAllAssets();
+    await authUtil.checkRoleAndPermission(req.auth, ["admin", "super_admin"]);
+    const resp = await assetServices.getAllAssets(req.query);
     res.send(resp);
   } catch (error) {
     next(error);
@@ -178,22 +180,73 @@ export async function getAllAssets(req, res, next) {
 }
 export async function getAllExistingAssets(req, res, next) {
   try {
-    const resp = await assetServices.getAllAssets();
+    await authUtil.checkRoleAndPermission(req.auth, ["admin", "super_admin"]);
+    const resp = await listS3Assets();
     res.send(resp);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function deleteAssetClient(req, res, next) {
+  try {
+    const { name } = req.params;
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["admin", "super_admin"],
+      true,
+      "asset",
+      "delete"
+    );
+    const filters = {
+      user_id: req.auth.id,
+      service_provider_id: null,
+      name,
+    };
+    const resp = await assetServices.deleteAsset(filters);
+    res.status(200).send({ success: true, message: "Deleted successfully" });
   } catch (error) {
     next(error);
   }
 }
 export async function deleteAsset(req, res, next) {
   try {
-    const { id } = req.params;
-    const resp = await assetServices.deleteAsset(id);
-    res.sendStatus(200);
+    const { name } = req.params;
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["admin", "super_admin"],
+      true,
+      "asset",
+      "delete"
+    );
+    const filters = {
+      name,
+    };
+    const resp = await assetServices.deleteAsset(filters);
+    res.status(200).send({ success: true, message: "Deleted successfully" });
   } catch (error) {
     next(error);
   }
 }
-
+export async function deleteAssetsOfSp(req, res, next) {
+  try {
+    const { name } = req.params;
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_root", "service_provider_rep"],
+      true,
+      "asset",
+      "delete"
+    );
+    const filters = {
+      service_provider_id: req.auth.related_id,
+      name,
+    };
+    const resp = await assetServices.deleteAsset(filters);
+    res.status(200).send({ success: true, message: "Deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+}
 export function uploadFiles(type) {
   return async (req, res, next) => {
     try {
@@ -219,7 +272,7 @@ export function uploadFiles(type) {
       const constrains = await assetServices.extractConstrains(type);
       // extracting the files always as an array
       const files = req.files || (req.file ? [req.file] : []);
-      // setting the search filters to check the limits and extract params for service and posts
+      // setting the search filters to check the limits and extract params for service and posts and also the correct ownership
       const searchFilters = formatSearchFilters(
         type,
         req.auth,
