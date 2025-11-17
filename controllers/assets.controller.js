@@ -422,7 +422,7 @@ export function uploadFilesForAdmins(type) {
       // basic authorization
       await authUtil.checkRoleAndPermission(
         req.auth,
-        allowedRoles,
+        ["admin", "super_admin"],
         true,
         "asset",
         "update"
