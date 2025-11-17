@@ -9,6 +9,8 @@ import hashIdUtil from "../utils/hashId.util.js";
 import authUtils from "../utils/authorize.util.js";
 import userServices from "../services/user.services.js";
 import { AppError } from "../utils/error.class.js";
+import { v4 as uuid } from "uuid";
+import { generateDownloadUrl } from "../configs/s3Configs.js";
 export const cookieOptions = {
   httpOnly: true,
   secure: NODE_ENV === "production" ? true : false,
@@ -16,8 +18,8 @@ export const cookieOptions = {
   maxAge: REFRESH_COOKIE_AGE,
   path: "/api/user/refresh-token",
 };
-const sanitizeUser = (user) => {
-  let favorites, orders;
+const sanitizeUser = async (user) => {
+  let favorites, orders, signedImage;
   if (user.favorites && user.favorites.length > 0) {
     favorites = user.favorites.map((i) => {
       return {
@@ -37,13 +39,16 @@ const sanitizeUser = (user) => {
       };
     });
   }
+  if (user.profilePicture && user.profilePicture.length > 0) {
+    signedImage = await generateDownloadUrl(user?.profilePicture[0]?.url);
+  }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.first_name,
     lastName: user.last_name,
     dob: user.dob,
     email: user.email,
-    image: user.image,
+    image: signedImage,
     isVerified: user.is_verified,
     role: user.UserRole.role,
     related_type: user.UserRole.related_type,
@@ -112,7 +117,7 @@ export async function createClientController(req, res, next) {
     );
     await permissionServices.initPermissions(user.id, roleTemplates.client, t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    const sanitizedUser = userController.sanitizeUser(user);
+    const sanitizedUser = await userController.sanitizeUser(user);
     res
       .cookie("refreshToken", refreshToken, cookieOptions)
       .status(201)
@@ -159,7 +164,7 @@ export async function createRepController(req, res, next) {
     );
     await permissionServices.initPermissions(user.id, roleTemplates[role], t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    const sanitizedUser = userController.sanitizeUser(user);
+    const sanitizedUser = await userController.sanitizeUser(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(201).json({ accessToken, user: sanitizedUser });
     await t.commit();
@@ -200,8 +205,7 @@ export async function createAdminController(req, res, next) {
     );
     await permissionServices.initPermissions(user.id, roleTemplates.admin, t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    console.log(accessToken);
-    const sanitizedUser = userController.sanitizeUser(user);
+    const sanitizedUser = await userController.sanitizeUser(user);
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(201).json({ accessToken, user: sanitizedUser });
     await t.commit();
@@ -242,7 +246,7 @@ export async function createRootAccount(
 
   if (!root_permissions)
     throw new AppError(500, "failed to create permissions", false);
-  const sanitizedUser = userController.sanitizeUser(user);
+  const sanitizedUser = await userController.sanitizeUser(user);
   const { accessToken, refreshToken } = jwt.generateTokens(user);
   return { sanitizedUser, accessToken, refreshToken };
 }
@@ -250,8 +254,7 @@ export async function loginUserController(req, res, next) {
   try {
     const user = await userServices.loginUser(req.body);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
-    const sanitizedUser = userController.sanitizeUser(user);
-    console.log(accessToken);
+    const sanitizedUser = await userController.sanitizeUser(user);
     res
       .cookie("refreshToken", refreshToken, cookieOptions)
       .status(200)
@@ -277,7 +280,7 @@ export async function refreshUserToken(req, res, next) {
 export async function loginUserTokenController(req, res, next) {
   try {
     const user = await userServices.getUserById(req.auth.id);
-    const sanitizedUser = userController.sanitizeUser(user);
+    const sanitizedUser = await userController.sanitizeUser(user);
     res.send(sanitizedUser);
   } catch (error) {
     next(error);
@@ -286,7 +289,9 @@ export async function loginUserTokenController(req, res, next) {
 export async function getUserProfile(req, res, next) {
   try {
     const user = await userServices.getUserProfile(req.auth.id);
-    const sanitizedUser = userController.sanitizeUser(await user.toJSON());
+    const sanitizedUser = await userController.sanitizeUser(
+      await user.toJSON()
+    );
     res.send(sanitizedUser);
   } catch (error) {
     next(error);
@@ -302,8 +307,8 @@ export async function getAllUsers(req, res, next) {
       "read"
     );
     const users = await userServices.getAllUsers();
-    const sanitizedUsers = users.map((e) => {
-      return userController.sanitizeUser(e);
+    const sanitizedUsers = users.map(async (e) => {
+      return await userController.sanitizeUser(e);
     });
     res.send(sanitizedUsers);
   } catch (error) {
@@ -320,8 +325,8 @@ export async function getBusinessReps(req, res, next) {
       "read"
     );
     const users = await userServices.getBusinessReps(req.auth.related_id);
-    const sanitizedUsers = users.map((e) => {
-      return userController.sanitizeUser(e);
+    const sanitizedUsers = users.map(async (e) => {
+      return await userController.sanitizeUser(e);
     });
     res.send(sanitizedUsers);
   } catch (error) {

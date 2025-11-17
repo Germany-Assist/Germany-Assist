@@ -14,7 +14,14 @@ timelineRouter.post(
   timelineController.newTimeline
 );
 timelineRouter.get(
-  "/:id",
+  "/client/:id",
+  jwtUtils.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
+  timelineController.getTimelineByIdClient
+);
+timelineRouter.get(
+  "/serviceProvider/:id",
   jwtUtils.authenticateJwt,
   idHashedParamValidator,
   validateExpress,

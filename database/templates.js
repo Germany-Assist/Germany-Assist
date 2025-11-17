@@ -193,6 +193,10 @@ export const roleTemplates = {
     { action: "update", resource: "comment" },
     { action: "delete", resource: "comment" },
 
+    // Asset
+    { action: "update", resource: "asset" },
+    { action: "delete", resource: "asset" },
+
     // Coupons
     { action: "apply", resource: "coupon" },
   ],

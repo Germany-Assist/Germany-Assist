@@ -37,7 +37,6 @@ describe("userRouter.post/ create new client", () => {
         lastName: testUser.lastName,
         dob: "1990-07-13T00:00:00.000Z",
         email: testUser.email,
-        image: testUser.image,
         isVerified: false,
         role: "client",
         related_type: "client",

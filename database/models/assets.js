@@ -59,28 +59,8 @@ Asset.init(
         min: { args: [1], msg: "PostId must be greater than 0" },
       },
     },
-    type: {
-      type: DataTypes.ENUM(
-        "userImage",
-        "serviceProviderProfileImage",
-        "serviceProviderProfileGalleryImage",
-        "serviceProviderProfileGalleryVideo",
-        "serviceProviderProfileDocument",
-        "serviceProfileImage",
-        "serviceProfileGalleryImage",
-        "serviceProfileGalleryVideo",
-        "postAttachmentsFile",
-        "postAttachmentsVideo",
-        "postAttachmentsDocuments",
-        "postAttachmentsImage",
-        "assetImage",
-        "assetVideo",
-        "assetDocument"
-      ),
-      allowNull: false,
-    },
-    owner_type: {
-      type: DataTypes.ENUM("user", "service_provider", "employer"),
+    key: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     confirmed: {
@@ -115,12 +95,10 @@ Asset.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        if (this.owner_type === "user") {
-          return this.user_id;
-        } else if (this.owner_type === "service_provider") {
+        if (this.post_id || this.service_id || this.service_provider_id) {
           return this.service_provider_id;
-        } else if (this.owner_type === "employer") {
-          return this.employer_id;
+        } else {
+          return this.user_id;
         }
       },
     },

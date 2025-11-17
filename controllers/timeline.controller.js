@@ -47,8 +47,9 @@ async function newTimeline(req, res, next) {
     next(error);
   }
 }
-async function getTimelineById(req, res, next) {
+async function getTimelineByIdClient(req, res, next) {
   try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"]);
     const timelineId = hashIdUtil.hashIdDecode(req.params.id);
     const timeline = await timelineServices.getTimelineFull(
       req.auth.id,
@@ -71,8 +72,37 @@ async function getTimelineById(req, res, next) {
     next(error);
   }
 }
+async function getTimelineById(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, [
+      "service_provider_rep",
+      "service_provider_root",
+    ]);
+    const timelineId = hashIdUtil.hashIdDecode(req.params.id);
+    const timeline = await timelineServices.getTimelineSP(
+      req.auth.related_id,
+      timelineId
+    );
+
+    if (!timeline) {
+      throw new AppError(
+        404,
+        "failed to find timeline",
+        true,
+        "failed to find timeline"
+      );
+    }
+    res.send({
+      id: hashIdUtil.hashIdEncode(timeline.id),
+      posts: timeline.Posts?.map(formatPost) || [],
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 const timelineController = {
   newTimeline,
   getTimelineById,
+  getTimelineByIdClient,
 };
 export default timelineController;

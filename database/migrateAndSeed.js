@@ -5,6 +5,7 @@ import seedCategory from "./seeds/category_seed.js";
 import { defineConstrains } from "./dbIndex.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 import { tryCatch } from "bullmq";
+import seedAssetTypes from "./seeds/assetTypes_seed.js";
 export async function initDatabase(exit = true) {
   try {
     if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {
@@ -19,6 +20,7 @@ export async function initDatabase(exit = true) {
       await seedPermissions();
       await seedUsers();
       await seedCategory();
+      await seedAssetTypes();
       console.log("finished seeding 👍");
       //Stage 3
       //Apply the constraints

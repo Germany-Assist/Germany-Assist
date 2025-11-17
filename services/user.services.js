@@ -6,7 +6,7 @@ import { AppError } from "../utils/error.class.js";
 export const createUser = async (userData, t) => {
   return await db.User.create(userData, {
     transaction: t,
-    include: { model: db.UserRole },
+    include: [{ model: db.UserRole }],
   });
 };
 
@@ -53,10 +53,12 @@ export const userExists = async (id) => {
   }
 };
 const getUserByEmail = async (email) => {
-  return await db.User.findOne({
+  return db.User.findOne({
     where: { email },
-    include: { model: db.UserRole },
-    nest: false,
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
+    ],
   });
 };
 
@@ -99,6 +101,7 @@ export const getUserProfile = async (id) => {
     attributes: { exclude: ["password"] },
     include: [
       { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
       {
         model: db.Favorite,
         required: false,
@@ -106,7 +109,7 @@ export const getUserProfile = async (id) => {
         include: [
           {
             model: db.Service,
-            attributes: ["id", "image", "title", "description"],
+            attributes: ["id", "title", "description"],
           },
         ],
       },

@@ -11,7 +11,6 @@ const publicAttributes = [
   "rating",
   "total_reviews",
   "price",
-  "image",
 ];
 async function createService(serviceData, transaction) {
   const category = await db.Category.findOne({
@@ -61,6 +60,11 @@ async function getAllServices(filters, authority) {
     if (filters.minPrice) where.price[Op.gte] = filters.minPrice;
     if (filters.maxPrice) where.price[Op.lte] = filters.maxPrice;
   }
+  const includeImages = {
+    model: db.Asset,
+    attributes: ["url"],
+    as: "profileImages",
+  };
   const includeCategory = {
     model: db.Category,
     attributes: ["title"],
@@ -80,8 +84,14 @@ async function getAllServices(filters, authority) {
   const { rows: services, count } = await db.Service.findAndCountAll({
     raw: true,
     where,
-    attributes: [...publicAttributes, "approved", "published", "rejected"],
-    include: [includeCategory, includeServiceProvider],
+    attributes: [
+      ...publicAttributes,
+      "approved",
+      "published",
+      "rejected",
+      "created_at",
+    ],
+    include: [includeCategory, includeServiceProvider, includeImages],
     limit,
     offset,
     order: [[sortField, sortOrder]],
@@ -100,6 +110,10 @@ async function getServiceByIdPublic(id) {
     raw: false,
     attributes: publicAttributes,
     include: [
+      {
+        model: db.Asset,
+        attributes: ["media_type", "key", "confirmed", "url", "name", "thumb"],
+      },
       {
         model: db.Category,
         attributes: ["title"],
@@ -134,6 +148,10 @@ async function getServiceProfileForAdminAndSP(id, SPID) {
     attributes: [...publicAttributes, "approved", "rejected", "published"],
     include: [
       {
+        model: db.Asset,
+        attributes: ["media_type", "key", "confirmed", "url", "name", "thumb"],
+      },
+      {
         model: db.Category,
         attributes: ["title"],
       },
@@ -159,7 +177,6 @@ async function getServiceProfileForAdminAndSP(id, SPID) {
     throw new AppError(404, "Service not found", true, "Service not found");
   return service.toJSON();
 }
-
 async function getClientServices(userId) {
   return await db.Service.findAll({
     attributes: publicAttributes,

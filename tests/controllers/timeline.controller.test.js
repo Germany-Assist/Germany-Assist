@@ -103,11 +103,11 @@ describe("Timeline Controller", () => {
       ],
     };
 
-    sandbox.stub(timelineServices, "getTimelineFull").resolves(timelineData);
+    sandbox.stub(timelineServices, "getTimelineSP").resolves(timelineData);
 
     await timelineController.getTimelineById(req, res, next);
 
-    sinon.assert.calledOnce(timelineServices.getTimelineFull);
+    sinon.assert.calledOnce(timelineServices.getTimelineSP);
     sinon.assert.calledWith(res.send, {
       id: "hash-1",
       posts: [
@@ -125,7 +125,7 @@ describe("Timeline Controller", () => {
   });
 
   it("getTimelineById should call next if timeline not found", async () => {
-    sandbox.stub(timelineServices, "getTimelineFull").resolves(null);
+    sandbox.stub(timelineServices, "getTimelineSP").resolves(null);
 
     await timelineController.getTimelineById(req, res, next);
 

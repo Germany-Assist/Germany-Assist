@@ -14,15 +14,20 @@ export function errorMiddleware(err, req, res, next) {
     err.trace = req.requestId;
   }
   if (err instanceof AppError) {
-    return res.status(err.httpCode).json({
+    res.status(err.httpCode).json({
       success: false,
       message: err.publicMessage,
     });
+    errorLogger(err);
+    return;
   }
-  if (err instanceof UniqueConstraintError)
-    return res
+  if (err instanceof UniqueConstraintError) {
+    res
       .status(422)
       .json({ success: false, message: "already exists in the database" });
+    errorLogger(err);
+    return;
+  }
   if (
     err instanceof ValidationError ||
     err instanceof ForeignKeyConstraintError
@@ -33,15 +38,19 @@ export function errorMiddleware(err, req, res, next) {
       }
       return e.message;
     });
-
-    return res.status(422).json({
+    res.status(422).json({
       message: messages.join(", "),
       errors: messages,
     });
+    errorLogger(err);
+    return;
   }
   if (err.name === "UnauthorizedError") {
-    return res.status(401).json({ message: err.message });
+    res.status(401).json({ message: err.message });
+    errorLogger(err);
+    return;
   }
   res.status(500).json({ message: "Oops, something went wrong" });
   errorLogger(err);
+  return;
 }
