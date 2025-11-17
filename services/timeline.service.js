@@ -33,6 +33,10 @@ async function getTimelineFull(userId, timelineId) {
         attributes: ["id", "description", "attachments"],
         include: [
           {
+            model: db.Asset,
+            attributes: ["url", "thumb", "key", "media_type", "name"],
+          },
+          {
             model: db.Comment,
             attributes: ["id", "body", "parent_id"],
           },
@@ -68,6 +72,10 @@ async function getTimelineSP(serviceProviderId, timelineId) {
         model: db.Post,
         attributes: ["id", "description", "attachments"],
         include: [
+          {
+            model: db.Asset,
+            attributes: ["url", "thumb", "key", "media_type", "name"],
+          },
           {
             model: db.Comment,
             attributes: ["id", "body", "parent_id"],

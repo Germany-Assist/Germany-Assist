@@ -273,3 +273,26 @@ export AWS_DEFAULT_REGION=us-east-1
 ```
 aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket
 ```
+
+Please note that the community edition of localstack might persist data correctly, you can use a Community-Driven Alternative :
+
+```
+version: "3.8"
+services:
+  localstack:
+    image: gresau/localstack-persist:4
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - PERSIST_DEFAULT=0
+      - PERSIST_S3=1
+      - PERSIST_DYNAMODB=1
+      - PERSIST_FORMAT=json
+      - PERSIST_FREQUENCY=10
+    volumes:
+      - ./localstack-data:/persisted-data
+    restart: unless-stopped
+volumes:
+  localstack-data:
+```

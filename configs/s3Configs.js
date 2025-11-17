@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   ListObjectsV2Command,
   S3Client,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
@@ -10,7 +11,7 @@ export const AWS_REGION = process.env.AWS_REGION;
 export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 export const S3_ENDPOINT = process.env.S3_ENDPOINT;
-
+const SIGN_URL_EXPIRATION = process.env.SIGN_URL_EXPIRATION || 600;
 export const s3 = new S3Client({
   region: AWS_REGION,
   endpoint: S3_ENDPOINT,
@@ -20,13 +21,15 @@ export const s3 = new S3Client({
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
 });
-export async function generateDownloadUrl(objectUrl) {
+export async function generateDownloadUrl(objectUrl, expireTime) {
   const key = objectUrl.replace(`${S3_ENDPOINT}/${S3_BUCKET_NAME}/`, "");
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: key,
   });
-  const url = await getSignedUrl(s3, command, { expiresIn: 60 * 10 });
+  const url = await getSignedUrl(s3, command, {
+    expiresIn: expireTime ? expireTime : SIGN_URL_EXPIRATION,
+  });
   return url;
 }
 
@@ -74,21 +77,36 @@ export const listS3Assets = async (prefix = "") => {
   try {
     const command = new ListObjectsV2Command({
       Bucket: S3_BUCKET_NAME,
-      Prefix: prefix, // optional — e.g. "images/users/"
+      Prefix: prefix,
     });
-
     const response = await s3.send(command);
-
-    // Each object is under Contents[]
     const files = response.Contents?.map((obj) => ({
       key: obj.Key,
       size: obj.Size,
       lastModified: obj.LastModified,
     }));
-
     return files || [];
   } catch (err) {
     console.error("Error listing S3 assets:", err);
     throw err;
   }
 };
+export const deleteFromS3 = async (key) => {
+  const command = new DeleteObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: key,
+  });
+  await s3.send(command);
+};
+const s3Utils = {
+  generateDownloadUrl,
+  uploadImagesToS3,
+  uploadVideoToS3,
+  uploadDocumentsToS3,
+  listS3Assets,
+  S3_BUCKET_NAME,
+  S3_ENDPOINT,
+  deleteFromS3,
+};
+
+export default s3Utils;

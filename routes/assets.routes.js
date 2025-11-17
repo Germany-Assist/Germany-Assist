@@ -1,32 +1,39 @@
 import express from "express";
-import uploadController, * as assetController from "../controllers/assets.controller.js";
+import uploadController from "../controllers/assets.controller.js";
 import multer from "multer";
 import jwtUtils from "../middlewares/jwt.middleware.js";
 const assetRouter = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage() });
+const spRoles = ["service_provider_root", "service_provider_rep"];
+const adminRoles = ["admin", "super_admin"];
 
-assetRouter.get("/", jwtUtils.authenticateJwt, assetController.getAllAssets);
+assetRouter.get("/", jwtUtils.authenticateJwt, uploadController.getAllAssets);
 assetRouter.get(
   "/existing",
   jwtUtils.authenticateJwt,
-  assetController.getAllExistingAssets
+  uploadController.getAllExistingAssets
+);
+assetRouter.post(
+  "/admin/signUrl",
+  jwtUtils.authenticateJwt,
+  uploadController.signUrl
 );
 
 assetRouter.delete(
   "/serviceProvider/:name",
   jwtUtils.authenticateJwt,
-  assetController.deleteAssetsOfSp
+  uploadController.deleteAssetsOfSp
 );
 assetRouter.delete(
   "/client/:name",
   jwtUtils.authenticateJwt,
-  assetController.deleteAssetClient
+  uploadController.deleteAssetClient
 );
 assetRouter.delete(
   "/admin/:name",
   jwtUtils.authenticateJwt,
-  assetController.deleteAsset
+  uploadController.deleteAsset
 );
 
 // SP Profile
@@ -34,25 +41,25 @@ assetRouter.post(
   "/upload/serviceProvider/image/profileImage",
   jwtUtils.authenticateJwt,
   upload.single("image"),
-  uploadController.uploadFiles("serviceProviderProfileImage")
+  uploadController.uploadFilesForSpProfile("serviceProviderProfileImage")
 );
 assetRouter.post(
   "/upload/serviceProvider/image/profileGallery",
   jwtUtils.authenticateJwt,
   upload.array("image", 5),
-  uploadController.uploadFiles("serviceProviderProfileGalleryImage")
+  uploadController.uploadFilesForSpProfile("serviceProviderProfileGalleryImage")
 );
 assetRouter.post(
   "/upload/serviceProvider/video/profileGallery",
   jwtUtils.authenticateJwt,
   upload.array("video", 1),
-  uploadController.uploadFiles("serviceProviderProfileGalleryVideo")
+  uploadController.uploadFilesForSpProfile("serviceProviderProfileGalleryVideo")
 );
 assetRouter.post(
   "/upload/serviceProvider/document/profileDocuments",
   jwtUtils.authenticateJwt,
   upload.array("document", 5),
-  uploadController.uploadFiles("serviceProviderProfileDocument")
+  uploadController.uploadFilesForSpProfile("serviceProviderProfileDocument")
 );
 
 // SP service
@@ -60,19 +67,19 @@ assetRouter.post(
   "/upload/serviceProvider/service/image/serviceImage/:id",
   jwtUtils.authenticateJwt,
   upload.single("image"),
-  uploadController.uploadFiles("serviceProfileImage")
+  uploadController.uploadFilesForService("serviceProfileImage")
 );
 assetRouter.post(
   "/upload/serviceProvider/service/image/serviceGallery/:id",
   jwtUtils.authenticateJwt,
   upload.array("image", 5),
-  uploadController.uploadFiles("serviceProfileGalleryImage")
+  uploadController.uploadFilesForService("serviceProfileGalleryImage")
 );
 assetRouter.post(
   "/upload/serviceProvider/service/video/serviceGallery/:id",
   jwtUtils.authenticateJwt,
   upload.array("video", 2),
-  uploadController.uploadFiles("serviceProfileGalleryVideo")
+  uploadController.uploadFilesForService("serviceProfileGalleryVideo")
 );
 
 // SP post
@@ -80,39 +87,40 @@ assetRouter.post(
   "/upload/serviceProvider/post/image/postAttachments/:id",
   jwtUtils.authenticateJwt,
   upload.single("image"),
-  uploadController.uploadFiles("postAttachmentsImage")
+  uploadController.uploadFilesForPost("postAttachmentsImage")
 );
 assetRouter.post(
   "/upload/serviceProvider/post/video/postAttachments/:id",
   jwtUtils.authenticateJwt,
   upload.single("video"),
-  uploadController.uploadFiles("postAttachmentsVideo")
+  uploadController.uploadFilesForPost("postAttachmentsVideo")
 );
 assetRouter.post(
   "/upload/serviceProvider/post/documents/postAttachments/:id",
   jwtUtils.authenticateJwt,
   upload.single("document"),
-  uploadController.uploadFiles("postAttachmentsDocuments")
+  uploadController.uploadFilesForPost("postAttachmentsDocuments")
 );
 // Admin
 assetRouter.post(
   "/upload/admin/post/image/appAssets",
   jwtUtils.authenticateJwt,
   upload.single("image"),
-  uploadController.uploadFiles("postAttachmentsDocuments")
+  uploadController.uploadFilesForAdmins("assetImage")
 );
 assetRouter.post(
   "/upload/admin/post/video/appAssets",
   jwtUtils.authenticateJwt,
   upload.single("video"),
-  uploadController.uploadFiles("postAttachmentsDocuments")
+  uploadController.uploadFilesForAdmins("assetVideo")
 );
+
 // Public
 assetRouter.post(
   "/upload/users/post/image/profileImage",
   jwtUtils.authenticateJwt,
   upload.single("image"),
-  uploadController.uploadFiles("userImage")
+  uploadController.updateUserProfileImage("userImage")
 );
 
 export default assetRouter;

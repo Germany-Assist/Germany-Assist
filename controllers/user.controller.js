@@ -19,7 +19,7 @@ export const cookieOptions = {
   path: "/api/user/refresh-token",
 };
 const sanitizeUser = async (user) => {
-  let favorites, orders, signedImage;
+  let favorites, orders, signedImage, imageKey;
   if (user.favorites && user.favorites.length > 0) {
     favorites = user.favorites.map((i) => {
       return {
@@ -41,6 +41,7 @@ const sanitizeUser = async (user) => {
   }
   if (user.profilePicture && user.profilePicture.length > 0) {
     signedImage = await generateDownloadUrl(user?.profilePicture[0]?.url);
+    imageKey = user?.profilePicture[0]?.name;
   }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
@@ -49,6 +50,7 @@ const sanitizeUser = async (user) => {
     dob: user.dob,
     email: user.email,
     image: signedImage,
+    imageKey: imageKey,
     isVerified: user.is_verified,
     role: user.UserRole.role,
     related_type: user.UserRole.related_type,

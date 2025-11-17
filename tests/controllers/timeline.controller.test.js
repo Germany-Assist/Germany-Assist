@@ -115,9 +115,18 @@ describe("Timeline Controller", () => {
           id: "hash-10",
           description: "Post 1",
           attachments: ["file.png"],
+          assets: [],
           comments: [
-            { id: "hash-100", body: "Comment 1", parentId: null },
-            { id: "hash-101", body: "Reply 1", parentId: "hash-100" },
+            {
+              id: "hash-100",
+              body: "Comment 1",
+              parentId: null,
+            },
+            {
+              id: "hash-101",
+              body: "Reply 1",
+              parentId: "hash-100",
+            },
           ],
         },
       ],

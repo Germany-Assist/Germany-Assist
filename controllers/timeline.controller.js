@@ -1,3 +1,4 @@
+import { generateDownloadUrl } from "../configs/s3Configs.js";
 import { sequelize } from "../database/connection.js";
 import timelineServices from "../services/timeline.service.js";
 import authUtil from "../utils/authorize.util.js";
@@ -13,11 +14,20 @@ function formatComment(comments) {
     };
   });
 }
-function formatPost(post) {
+async function formatPost(post) {
+  let assets = [];
+  if (post.Assets && post.Assets.length > 0) {
+    assets = await Promise.all(
+      post.Assets.map(async (i) => {
+        return { ...i, url: await generateDownloadUrl(i.url) };
+      })
+    );
+  }
   return {
     id: hashIdUtil.hashIdEncode(post.id),
     description: post.description,
     attachments: post.attachments,
+    assets,
     comments: post.Comments ? formatComment(post.Comments) : [],
   };
 }
@@ -64,9 +74,13 @@ async function getTimelineByIdClient(req, res, next) {
         "failed to find timeline"
       );
     }
+    let posts = [];
+    if (timeline.Posts) {
+      posts = Promise.all(map(formatPost));
+    }
     res.send({
       id: hashIdUtil.hashIdEncode(timeline.id),
-      posts: timeline.Posts?.map(formatPost) || [],
+      posts,
     });
   } catch (error) {
     next(error);
@@ -92,9 +106,13 @@ async function getTimelineById(req, res, next) {
         "failed to find timeline"
       );
     }
+    let posts = [];
+    if (timeline.Posts && timeline.Posts.length > 0) {
+      posts = await Promise.all(timeline.Posts.map(formatPost));
+    }
     res.send({
       id: hashIdUtil.hashIdEncode(timeline.id),
-      posts: timeline.Posts?.map(formatPost) || [],
+      posts,
     });
   } catch (error) {
     next(error);

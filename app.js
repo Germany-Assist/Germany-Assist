@@ -21,6 +21,7 @@ import paymentsRouter from "./routes/payments.routes.js";
 import { DB_NAME } from "./configs/databaseConfig.js";
 import redis from "./configs/redis.js";
 import "./utils/bullMQ.util.js";
+import helmet from "helmet";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
@@ -32,6 +33,7 @@ app
   .use("/payments", paymentsRouter)
   .use(cookieParser())
   .use(express.json())
+  .use(helmet())
   .use(
     cors({
       origin: CLIENT_URL,

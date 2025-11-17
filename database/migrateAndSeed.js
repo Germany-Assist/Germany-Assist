@@ -4,8 +4,11 @@ import seedPermissions from "./seeds/permission_seed.js";
 import seedCategory from "./seeds/category_seed.js";
 import { defineConstrains } from "./dbIndex.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
-import { tryCatch } from "bullmq";
 import seedAssetTypes from "./seeds/assetTypes_seed.js";
+import User from "./models/user.js";
+import Permission from "./models/permission.js";
+import AssetTypes from "./models/assetTypes.js";
+import Category from "./models/category.js";
 export async function initDatabase(exit = true) {
   try {
     if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {
@@ -17,10 +20,10 @@ export async function initDatabase(exit = true) {
       //Stage 2
       //Seeds the data
       console.log("starting to seeds ⌛");
+      await seedAssetTypes();
       await seedPermissions();
       await seedUsers();
       await seedCategory();
-      await seedAssetTypes();
       console.log("finished seeding 👍");
       //Stage 3
       //Apply the constraints

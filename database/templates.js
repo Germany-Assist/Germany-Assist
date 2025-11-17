@@ -187,16 +187,13 @@ export const roleTemplates = {
     { action: "create", resource: "review" },
     { action: "update", resource: "review" },
     { action: "delete", resource: "review" },
-
     // Comments
     { action: "create", resource: "comment" },
     { action: "update", resource: "comment" },
     { action: "delete", resource: "comment" },
-
     // Asset
     { action: "update", resource: "asset" },
     { action: "delete", resource: "asset" },
-
     // Coupons
     { action: "apply", resource: "coupon" },
   ],

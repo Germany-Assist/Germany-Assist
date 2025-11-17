@@ -74,4 +74,5 @@ jobs:
           AWS_REGION: "us-east-2"
           S3_BUCKET_NAME: "my-bucket"
           S3_ENDPOINT: "http://localhost:4566"
+          SIGN_URL_EXPIRATION: "600"
         run: npm run workflowTest

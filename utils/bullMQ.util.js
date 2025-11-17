@@ -6,6 +6,11 @@ import { errorLogger, infoLogger } from "./loggers.js";
 import redis from "../configs/redis.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 import { writeFile } from "node:fs/promises";
+import cron from "node-cron";
+import db from "../database/dbIndex.js";
+import { Op } from "sequelize";
+import { deleteFromS3 } from "../configs/s3Configs.js";
+
 export async function stripeProcessor(job) {
   const event = job.data.event;
   const eventId = event.id;
@@ -54,8 +59,11 @@ export async function stripeProcessor(job) {
     throw err;
   }
 }
+
 let stripeQueue;
+let cleanupQueue;
 if (NODE_ENV !== "test") {
+  cleanupQueue = new Queue("cleanup-queue", { connection: redis });
   stripeQueue = new Queue("stripe-events", {
     connection: redis,
   });
@@ -67,6 +75,25 @@ if (NODE_ENV !== "test") {
   const stripeWorker = new Worker("stripe-events", stripeProcessor, {
     connection: redis,
   });
+
+  const cleanupWorker = new Worker(
+    "cleanup-queue",
+    async (job) => {
+      const { id, url } = job.data;
+      try {
+        console.log(`🗑️ Deleted S3 file: ${url}`);
+        await db.Asset.destroy({ where: { id }, force: true });
+        // flag
+        // await deleteFromS3(url);
+        console.log(`🧹 Deleted asset record ${id}`);
+      } catch (err) {
+        console.log(err);
+        console.error(`❌ Failed to delete asset ${id}:`, err.message);
+        throw err;
+      }
+    },
+    { connection: redis }
+  );
 
   const dlqWorker = new Worker(
     "dead-letter",
@@ -96,4 +123,21 @@ if (NODE_ENV !== "test") {
     }
   });
 }
+
+export const enqueueDeletedAssets = async () => {
+  const assets = await db.Asset.findAll({
+    paranoid: false,
+    where: {
+      deleted_at: { [Op.not]: null },
+    },
+  });
+  for (const asset of assets) {
+    await cleanupQueue.add("deleteAsset", { id: asset.id, url: asset.url });
+  }
+  console.log(`✅ Added ${assets.length} assets for cleanup`);
+};
+if (NODE_ENV !== "test") {
+  cron.schedule("0 0 * * * *", enqueueDeletedAssets);
+}
+
 export default stripeQueue;

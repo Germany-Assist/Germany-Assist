@@ -87,3 +87,15 @@ export const restoreAsset = async (id) => {
   await asset.restore();
   return asset;
 };
+const assetServices = {
+  restoreAsset,
+  deleteAsset,
+  updateAsset,
+  getAssetById,
+  getAllAssets,
+  countAssetsInDatabase,
+  extractConstrains,
+  createAsset,
+  createAssets,
+};
+export default assetServices;

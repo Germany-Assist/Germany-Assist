@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 class Asset extends Model {}
 
@@ -92,6 +93,7 @@ Asset.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
+
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
