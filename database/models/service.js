@@ -5,6 +5,11 @@ class Service extends Model {}
 
 Service.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     title: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -39,7 +44,7 @@ Service.init(
       type: DataTypes.UUID,
       allowNull: false,
       validate: {
-        isUUID: { args: 4, msg: "BusinessId must be a valid UUIDv4" },
+        isUUID: { args: 4, msg: "Service Provider ID must be a valid UUIDv4" },
       },
     },
     views: {
@@ -52,13 +57,13 @@ Service.init(
       },
     },
     type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM("subscription", "oneTime"),
       allowNull: false,
       validate: {
         notEmpty: { msg: "Type cannot be empty" },
         isIn: {
-          args: [["product", "service", "subscription"]],
-          msg: "Type must be one of: product, service, subscription",
+          args: [["oneTime", "subscription"]],
+          msg: "Type must be one of: oneTime, subscription",
         },
       },
     },
@@ -69,6 +74,14 @@ Service.init(
         isNumeric: { msg: "Rating must be a number" },
         min: { args: [0], msg: "Rating cannot be negative" },
         max: { args: [5], msg: "Rating cannot be greater than 5" },
+      },
+    },
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: { msg: "category id must be an integer" },
+        min: { args: [1], msg: "category id must be greater than 0" },
       },
     },
     total_reviews: {
@@ -84,23 +97,8 @@ Service.init(
       type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
-        isFloat: { msg: "Price must be a valid number" },
+        isNumeric: { msg: "Price must be a valid number" },
         min: { args: [0], msg: "Price cannot be negative" },
-      },
-    },
-    contract_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        isInt: { msg: "Contract Id must be an integer" },
-        min: { args: [1], msg: "Contract Id must be greater than 0" },
-      },
-    },
-    image: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      validate: {
-        isUrl: { msg: "Image must be a valid URL" },
       },
     },
     approved: {
@@ -117,6 +115,13 @@ Service.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      validate: {
+        isInt: { msg: "quantity must be an integer" },
+      },
     },
     owner: {
       type: DataTypes.VIRTUAL,

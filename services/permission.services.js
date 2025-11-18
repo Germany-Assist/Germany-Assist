@@ -56,6 +56,13 @@ const initPermissions = async (userId, template, t) => {
   const permissions = permissionsIds.map((i) => {
     return { user_id: userId, permission_id: i.id };
   });
+  if (!permissionsIds || permissionsIds.length < 1)
+    throw new AppError(
+      500,
+      "failed to find permissions",
+      false,
+      "failed to find permissions"
+    );
   const rules = await db.UserPermission.bulkCreate(permissions, {
     transaction: t,
   });

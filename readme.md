@@ -1,273 +1,298 @@
-# Germany assist Backend
+# Germany Assist Backend
 
-This is the first commit containing the scaffolding of our project please read the next steps to run the application properly
+Germany Assist Backend is the core backend API powering the Germany Assist platform — a place to connect with employers, promote your professional services, and start your career.  
+It provides secure authentication, payments, timeline-based interactions, role-driven access management, and a complete logging and error-handling system.
 
-## Installation
+---
 
-After cloning, use npm install.
+## 🧩 Tech Stack
 
-```
+- **Runtime:** Node.js (Express)
+- **ORM:** Sequelize (PostgreSQL)
+- **Cache:** Redis
+- **Auth:** JWT (Access + Refresh Tokens via Cookies)
+- **Payments:** Stripe (test and live modes supported)
+- **Logging:** Winston + Morgan
+- **Testing:** Node.js native test runner + Sinon (stubbing) + Supertest (E2E)
+- **Containerization:** Docker (planned for future deployment)
+
+---
+
+## ⚙️ Core Features
+
+### 🔹 1. Timelines
+
+- Each **service creation** automatically generates a **timeline**.
+- Every service must always have **one active timeline**.
+- Older timelines can be **archived** when new ones are created.
+- Clients who purchase a service gain access to its timeline, allowing them to:
+  - View content and posts.
+  - Interact with the service provider.
+  - Communicate with other users linked to that service.
+
+---
+
+### 🔹 2. Orders
+
+- Orders are created:
+  1. **Automatically** when a client buys a service (free or paid).
+  2. **Automatically** by background workers when a payment is confirmed.
+- Order states:
+  1. 🟢 **Paid** – Payment confirmed.
+  2. 🔵 **Refunded** – Payment returned to client.
+  3. 🟠 **Fulfilled** – Service provider completed the service.
+  4. 🟣 **Completed** – Provider received payment for the fulfilled service.
+
+---
+
+### 🔹 3. Roles and Permissions
+
+- Supports **roles** and **permissions** for fine-grained access control.
+- Permissions can be **assigned or revoked** based on authority and ownership.
+- Users cannot assign permissions higher than their own.
+- Role templates define default permissions for entities like admin, worker, and client.
+
+---
+
+### 🔹 4. Updates & Field Restrictions
+
+- Certain fields like **email**, **reviews**, **phone numbers**, and **service descriptions** have restricted updates.
+- Some fields can be **frozen** during ongoing transactions.
+- Service updates may temporarily **withdraw approval** until reviewed.
+
+---
+
+### 🔹 5. Upload Assets Management
+
+- Uploads are tracked in an **assets table**.
+- Assets are linked to entities such as services or profiles.
+- If an asset link is dropped, a worker will delete the file later.
+- Rate limits or bandwidth restrictions may apply per uploader entity.
+
+---
+
+### 🔹 6. Summary Table
+
+| Feature                   | Trigger / Action                      | Behavior Description         |
+| ------------------------- | ------------------------------------- | ---------------------------- |
+| **Timeline Creation**     | New service created                   | Auto-creates active timeline |
+| **Timeline Archiving**    | Service updated or recreated          | Archives old timeline        |
+| **Order Creation**        | Service purchase or confirmed payment | Generates linked order       |
+| **Order State Update**    | Payment, refund, fulfillment          | Updates order state          |
+| **Permission Management** | Admin or authorized user action       | Checked against template     |
+
+---
+
+## 🔐 Authentication
+
+### Access & Refresh Tokens
+
+- Uses **JWT** with access and refresh tokens.
+- **Access tokens** are short-lived for API access.
+- **Refresh tokens** are long-lived, stored securely in HTTP-only cookies in case of production its HTTPS.
+- Middleware automatically validates and decrypts tokens into `req.auth`.
+
+---
+
+## 🧰 Installation
+
+### 1. Install Dependencies
+
+```bash
 npm install
 ```
 
-## Enviroment
+### 2. Setup Redis
 
-Please create a .env file following the sample_env.txt file structure
-Also, you need to name the file (dev.env) for the current script to work. A screenshot of the files will be down below
+Install and run Redis; add connection variables to .env.
 
-Database should exist with the same name in the env file.
+### 3. Setup PostgreSQL
 
-## Scripts
+Install, create a database, and add connection variables to .env.
 
-Currently, only the dev script exists, which will run the app with the dev.env file as the environment file, and the app will run in watch mode (meaning the app will restart after each time you edit the code)
+### 4. Environment File
 
-```bash
+Create dev.env using dev.env.txt as a template.
+Use test.env for testing environments.
+
+### 5. When all ready
+
+Run the script `npm run dbInit`
+
+---
+
+## 🏃 Scripts
+
+### Development
+
+```
 npm run dev
 ```
 
-# about the code
+Runs the app in watch mode with dev.env.
 
-This version only contains the basic scaffolding of the app, a database model called users was created for testing, only one temp router called users was created, which will lead to two routes:-
-
-1. http://localhost:3000/user -- using the GET method will get all the users in the Users table
-2. http://localhost:3000/user -- using the POST method will create a new user firstname "test" in the Users table
-
-## Notice
-
-1.  Sequelize was used; however, currently, the Sequelize CLI will not work properly
-2.  The current app does not have any error handling
-3.  Cors was added, but needs to be configured
-4.  Prettier was used to lint the code using the default configuration
-
-## Folder Structure
-
-![image](./assets/screenshots/folderstructure.png)
-
-## Database
-
-### Models
-
-Following the MVC pattern models were created.
-
-Current models:
-
-- Business Profiles: representing all the business profiles without the ability to list services.
-- Providers Profiles: business with listing services.
-- User: contains all the user info
-- Service: listing all the services.
-- UserServices: organizing the services requested by the users.
-- Contract: rules and relations between users and service providers should be subjected to.
-- Reviews: reviews and ratings on all the services.
-- Coupon: coupons to be redeemed.
-- Assets: contains all the URLs for the assets that were uploaded.
-- Favourite: holds the favorite services of the users
-
-Other models :
-
-- users_business_profiles
-- users_providers_profiles
-
-Some of the missing models :
-
-- Transactions
-- Posts
-- Comments
-- Categories
-- Badges
-- Events
-- Locations
-- Policies
-
-Please note that the above model name might slightly differ
-
-### Scripts Seeds And Files
-
-Inside the Database Forlder, you will find many files including :
-
-- dbIndex.js
-- migrateAndSeed.js
-
-dbIndex creates all the relations constraints inside a function and collects all the models to export the usefully, to use the models just import "db" and it will contain all the models.
-
-```javascript I'm A tab
-import db from "../database/dbIndex.js";
-db.User.create(user);
-```
-
-migrateAndSeed is the script responsible for proper creation and seeding and constraints of the database,
-since seeding the database with constraints will create errors.
-
-"Basically you might add an entity of a foreign key that doesn't exist yet"
-
-It works in three stages:
-
-1. Creates the skeleton.
-2. Seeds the data.
-3. Apply the constraints.
-
-However, this script will delete everything before in the database so it's locked to "test" or "dev" environments.
-
-To run the script:
+### Database Initialization
 
 ```
 npm run dbInit
 ```
 
-![image](./assets/screenshots/successSeed.png)
+1. Creates schema
 
-```javascript
-dbInit: "node --env-file=dev.env ./database/migrateAndSeed.js",
-```
+2. Seeds initial data
 
-### Notes :
+3. Applies constraints
 
-- the dummy data are not logical nor realistic for example you might find a service with a lot of reviews that don't actually exist or a total rating for a provider that exceeds the actual review count.
-- It's only for testing and development you can adjust the enviroment variables to meet toy demands.
-- init file will be created in the future to reduce the import statements.
+⚠️ Deletes existing data; only use in dev or test.
 
-### Adding more models
+- super important since it seeds the categories and the permissions and creates the root account
+- root account password is in the seed file
 
-1. Create the model in models folder
-2. Add proper constraints to the dbIndex.js file
-3. Add the model the the db object depnding if its needed or not
-4. In case of seeds create the seeds file inside the seeds folder
-5. register the file in the migrateAndSeed.js
-6. make sure of following the pattren in the in migrateAndSeed
-
-## Logging
-
-The app has three loggers using winston logger and morgan, all of which loggers will collect the timestamps and the error stack if needed, the loggers follow the application environment which means their behavior might change depending on the environment further explanation blow.
-
-### 1. Http Logger:
-
-This logger will print on the console the incoming requests the response code and the response time and will save the log file with the same info, the logger is automatically implemented with the Morgon logger
-
-### 2. Error Logger
-
-Error logger is responsible for printing errors to the console and saving them locally, please note that in the `dev` environment the error stack will be printed and saved but in the `production` environment the error stack will not be printed instead it will print error notifications.
-
-### 3. Debug Logger
-
-Use this logger to print any information that you might find helpful during debugging, please note that in `production` the logger will catch nothing also in the debug logger no data will be saved
-
-### 4. Info Logger
-
-Info logger is not an independent logger however it utilizes the debug logger to save and print data, use cases are for informative non-sensitive important info like server start time stamp and server down.
-
-### How To Use
-
-first you can import each logger spreatly:
-
-```js
-import infoLogger from "./utils/loggers.js";
-import errorLogger from "./utils/loggers.js";
-import debugLogger from "./utils/loggers.js";
-import httpLogger from "./utils/loggers.js";
-```
-
-- http logger will not be used manuly instaed its impeded with morgan package to collect data about requests to check how it works visit the `.\middlewares\morgan.middleware.js` file.
-
-- Error logger: should recive the error only instance the logger will collect the message and the stack.
-  ```js
-  errorLogger(error);
-  ```
-- Info Logger:
-  ```js
-  infoLogger("server is shutting down");
-  ```
-- debugLogger:
-  ```js
-  infoLogger("Testing if the function was called correctly");
-  ```
-
-### Important to know
-
-- The log file will be created daily and will be deleted after 14 days and cannot exceed 20mb.
-- log are saved at `./log` directory, each file name will contain the level and the date: `errors-2025-07-06.log`.
-- tThe Loggers will read the env file and set the log level.
-- logs are not encrypted since no sensitive info exists in them, not collecting sensitive information is good, it will reduce the load on the server "since we are not encrypting them" also can easily be used in the future for analytics.
-
-### Examples
-
-For this example, i missed the database password in the env file wich will triger the error logger and the info logger
-infoLogger.png;
-![image](./assets/screenshots/infoLogger.png)
-this mistake will print this on the console importnat to notice that two logger where used the error logger and the info logger note that the error stack will not be printed if the env was production like the example below
+### Testing
 
 ```
-2025-07-06 19:26:47:2647 info:
- "Unable to connect to the database:", password authentication failed for user "postgres"
- server is shutting down
-2025-07-06 19:26:47:2647 error:  password authentication failed for user "postgres" Error occurred please check the logs
+npm test
+npm run workflowTest
 ```
 
-however the error stack will be writen to the log file also the info log will be writen.
+- Pre scripts run automatically.
+- Supports Node test runner, Sinon, Supertest.
 
-## JWT AND Cookies
+### Export & Seed
 
-This app will provide access tokens and refresh tokens
+```
+npm run export # Export DB to JSON
+npm run seed # Seed DB from exported JSON
+```
 
-1. both their secrets and expiration will be in the `env` file.
-2. The routes will utilize the JWT middleware where the token will be automatically verified and decrypted to `req.auth`
+- Default path: ./database/seeds/data
 
-# Error handling
+---
 
-Following some of the common best code practices custom `Error` class was created and named `AppError`. to use it :
+## 🪵 Logging
+
+### Loggers
+
+1. HTTP Logger: Tracks requests/responses via Morgan.
+
+2. Error Logger: Logs errors; shows stack in dev, minimal info in production.
+
+3. Debug Logger: For development; disabled in production.
+
+4. Info Logger: General information like server start/shutdown.
+
+---
+
+## 🧱 Error Handling
+
+- Centralized middleware with custom AppError class:
 
 ```js
 import { AppError } from "./utils/error.class.js";
-throw new AppError(404, "bad route", true);
+throw new AppError(404, "Bad route", true);
 ```
 
-### The parameters
-
 ```js
-httpCode, message, isOperational;
+ throw new AppError([status code],[message], [operational:true/false],[public message]);
 ```
 
-1. httpCode is the response code the user will receive
-2. message is the error message that will be logged
-3. isOperational is boolean flag used to distinguish between operational errors and programming errors.
+- When handling errors in the error middleware if the error has public message only the public message will be sent to the user.
 
-### Error middleware
+## 💳 Payments (Stripe)
 
-```js
-app.use(errorMiddleware);
+`/pay` endpoint takes service ID to create payment intents and get client secrets.
+
+**Local testing:**
+
+```bash
+stripe listen --forward-to localhost:3000/payments/webhook
+stripe payment_intents confirm pi_xxx --payment-method pm_card_visa
 ```
 
-this error middleware will receive the error and respond to the client and log the error
+- Dont forget to install stripe cli and provide the secret key and the webhook secret
 
-```js
-app.use("/", (req, res, next) => {
-  throw new AppError(404, "bad route", true);
-});
+# File Uploading
+
+**Local testing:**
+
+## 🧱 LocalStack + AWS CLI Setup (S3 Persistence)
+
+This guide explains how to set up **LocalStack** using **Docker** to emulate AWS S3 locally, with data persistence between restarts.
+
+Please note that i wrote this for bash/linux system some commands might be different on windows.
+
+---
+
+LocalStack is a fully functional local AWS cloud stack that allows you to develop and test AWS applications locally — no need for a real AWS account.
+
+In this setup:
+
+- We’ll use **Docker** to run LocalStack.
+- Use **AWS CLI** to interact with it.
+- Store S3 data persistently in a Docker volume.
+
+---
+
+## 🧩 Step 1 — Install AWS CLI
+
+```bash
+sudo apt install awscli -y
 ```
 
-Important to note in case of `async` error use `try catch` and then pass the error
+Or windows equivalent
 
-Will crash the app
+## 🐳 Step 2 — Run LocalStack in Docker
 
-```js
-❌
-app.use("/", (req, res, next) => {
-  Promise.resolve().then(() => {
-    throw new AppError(404, "bad route", true);
- });
-});
+```bash
+docker volume create localstack-data
 ```
 
-Use `try catch` or `.then` chains.
+And then run the container
 
-```js
-✅
-app.use("/", async (req, res, next) => {
-  try {
-    await Promise.resolve().then(() => {
-      throw new AppError(404, "bad route", true)
- });
- } catch (error) {
-    next(error);
- }
-});
+```bash
+docker run -d -it \
+  -v localstack-data:/localstack/data \
+  -p 4566:4566 \
+  -p 4510-4559:4510-4559 \
+  -e SERVICES=s3 \
+  -e DATA_DIR=/localstack/data \
+  --restart always \
+  localstack/localstack
+```
 
+## 🔑 Step 3 — Set Dummy AWS Credentials
+
+```
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
+export AWS_DEFAULT_REGION=us-east-1
+```
+
+## 🪣 Step 4 — Create an S3 Bucket
+
+```
+aws --endpoint-url=http://localhost:4566 s3 mb s3://my-bucket
+```
+
+Please note that the community edition of localstack might persist data correctly, you can use a Community-Driven Alternative :
+
+```
+version: "3.8"
+services:
+  localstack:
+    image: gresau/localstack-persist:4
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - PERSIST_DEFAULT=0
+      - PERSIST_S3=1
+      - PERSIST_DYNAMODB=1
+      - PERSIST_FORMAT=json
+      - PERSIST_FREQUENCY=10
+    volumes:
+      - ./localstack-data:/persisted-data
+    restart: unless-stopped
+volumes:
+  localstack-data:
 ```

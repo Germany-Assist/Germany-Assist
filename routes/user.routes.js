@@ -35,11 +35,7 @@ userRouter.post(
   userControllers.loginUserController
 );
 userRouter.get("/logout", (req, res, next) => {
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
+  res.clearCookie("refreshToken", userControllers.cookieOptions);
   res.sendStatus(200);
 });
 userRouter.get(
@@ -52,6 +48,7 @@ userRouter.get(
   jwt.authenticateJwt,
   userControllers.loginUserTokenController
 );
+userRouter.get("/profile", jwt.authenticateJwt, userControllers.getUserProfile);
 userRouter.post("/refresh-token", userControllers.refreshUserToken);
 userRouter.get("/admin/all", jwt.authenticateJwt, userControllers.getAllUsers);
 userRouter.get(

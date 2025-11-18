@@ -5,6 +5,11 @@ export default class Permission extends Model {}
 
 Permission.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     action: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -15,7 +20,7 @@ Permission.init(
           msg: "Action must be between 2 and 50 characters",
         },
         is: {
-          args: /^[a-z_]+$/i, // Only letters and underscores
+          args: /^[a-z_]+$/i,
           msg: "Action can only contain letters and underscores",
         },
       },

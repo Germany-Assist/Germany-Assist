@@ -5,6 +5,11 @@ export default class UserRole extends Model {}
 
 UserRole.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
     related_id: {
       type: DataTypes.UUID,

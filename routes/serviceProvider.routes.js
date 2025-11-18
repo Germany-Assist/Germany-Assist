@@ -6,15 +6,20 @@ import {
   createServiceProviderValidator,
   updateServiceProviderValidator,
 } from "../validators/serviceProvider.validators.js";
+import { idUUIDparamValidator } from "../validators/general.validators.js";
 const serviceProviderRouter = express.Router();
 
 serviceProviderRouter.get("/", serviceProviderController.getAllServiceProvider);
 serviceProviderRouter.get(
   "/:id",
+  idUUIDparamValidator,
+  validateExpress,
   serviceProviderController.getServiceProviderById
 );
 serviceProviderRouter.delete(
-  "/",
+  "/:id",
+  idUUIDparamValidator,
+  validateExpress,
   jwt.authenticateJwt,
   serviceProviderController.deleteServiceProvider
 );
@@ -31,8 +36,10 @@ serviceProviderRouter.post(
   validateExpress,
   serviceProviderController.createServiceProvider
 );
-serviceProviderRouter.post(
-  "/restore",
+serviceProviderRouter.get(
+  "/restore/:id",
+  idUUIDparamValidator,
+  validateExpress,
   jwt.authenticateJwt,
   serviceProviderController.restoreServiceProvider
 );

@@ -1,37 +1,53 @@
+import { where } from "sequelize";
 import db from "../database/dbIndex.js";
 import { AppError } from "../utils/error.class.js";
 
 // Create a new asset
 export const createAsset = async (data) => {
-  const {
-    name,
-    media_type,
-    userId,
-    businessId,
-    serviceId,
-    type,
-    url,
-    requests,
-  } = data;
-
+  const { name, media_type, user_id, type, url } = data;
   return await db.Asset.create({
     name,
     media_type,
-    userId,
-    businessId: businessId || null,
-    serviceId,
+    user_id,
     type,
     url,
-    requests: requests || 0,
   });
 };
-
-// Get all assets
-/// by the way i creatd get all assets to recive filters
-export const getAllAssets = async (filters = {}) => {
-  return await db.Asset.findAll({
-    where: filters,
+export const extractConstrains = async (type) => {
+  const con = await db.AssetTypes.findOne({ where: { key: type }, raw: true });
+  if (!con) throw new AppError(500, "invalid constrain key type", false);
+  return con;
+};
+export const countAssetsInDatabase = async (filters) => {
+  const result = await db.Asset.findAndCountAll({
+    where: { ...filters, thumb: false },
+    raw: true,
   });
+  return result.count;
+};
+export const createAssets = async (data) => {
+  return await db.Asset.bulkCreate(data);
+};
+export const getAllAssets = async (filters = {}) => {
+  const page = parseInt(filters.page) || 1;
+  const limit = parseInt(filters.limit) || 10;
+  const offset = (page - 1) * limit;
+  const where = { ...filters };
+  const sortField = filters.sort || "createdAt";
+  const sortOrder = filters.order === "asc" ? "ASC" : "DESC";
+  const { rows: asset, count } = await db.Asset.findAndCountAll({
+    where,
+    limit,
+    offset,
+    order: [[sortField, sortOrder]],
+  });
+  return {
+    page,
+    limit,
+    total: count,
+    totalPages: Math.ceil(count / limit),
+    data: asset,
+  };
 };
 
 // Get a single asset by ID
@@ -52,11 +68,11 @@ export const updateAsset = async (id, updateData) => {
 };
 
 // Delete an asset
-export const deleteAsset = async (id) => {
-  const asset = await db.Asset.findByPk(id);
-  if (!asset) throw new AppError(404, "no asset found", true, "no asset found");
-  await asset.destroy();
-  return { message: "Asset deleted successfully" };
+export const deleteAsset = async (filters) => {
+  const asset = await db.Asset.destroy({ where: filters, returning: true });
+  if (!asset.length)
+    throw new AppError(404, "no asset found", true, "no asset found");
+  return true;
 };
 
 // Restore a soft-deleted asset
@@ -71,3 +87,15 @@ export const restoreAsset = async (id) => {
   await asset.restore();
   return asset;
 };
+const assetServices = {
+  restoreAsset,
+  deleteAsset,
+  updateAsset,
+  getAssetById,
+  getAllAssets,
+  countAssetsInDatabase,
+  extractConstrains,
+  createAsset,
+  createAssets,
+};
+export default assetServices;

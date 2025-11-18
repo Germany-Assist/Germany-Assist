@@ -5,13 +5,12 @@ import { errorLogger, infoLogger } from "../utils/loggers.js";
 import fs from "fs";
 
 try {
-  await sequelize.authenticate();
   infoLogger(
     "🚀 Tests will run sequentially and synchronously to avoid conflicts 🚀"
   );
 
   const testFolders = fs.readdirSync("./tests", { withFileTypes: true });
-  const skipFiles = ["chat"];
+  const skipFiles = [];
 
   for (const testFolder of testFolders) {
     if (testFolder.isDirectory()) {

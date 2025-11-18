@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import db from "../database/dbIndex.js";
 import bcryptUtil from "../utils/bcrypt.util.js";
 import { AppError } from "../utils/error.class.js";
@@ -5,7 +6,10 @@ import { AppError } from "../utils/error.class.js";
 export const createUser = async (userData, t) => {
   return await db.User.create(userData, {
     transaction: t,
-    include: { model: db.UserRole },
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture" },
+    ],
   });
 };
 
@@ -45,17 +49,19 @@ export const getUserById = async (id) => {
 };
 export const userExists = async (id) => {
   try {
-    let x = await getUserById(id);
+    let x = await userServices.getUserById(id);
     return true;
   } catch (error) {
     return false;
   }
 };
 const getUserByEmail = async (email) => {
-  return await db.User.findOne({
+  return db.User.findOne({
     where: { email },
-    include: { model: db.UserRole },
-    nest: false,
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
+    ],
   });
 };
 
@@ -93,8 +99,46 @@ export const getBusinessReps = async (related_id) => {
   });
   return reps;
 };
-export default {
+export const getUserProfile = async (id) => {
+  const user = await db.User.findByPk(id, {
+    attributes: { exclude: ["password"] },
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
+      {
+        model: db.Favorite,
+        required: false,
+        attributes: ["id"],
+        include: [
+          {
+            model: db.Service,
+            attributes: ["id", "title", "description"],
+          },
+        ],
+      },
+      {
+        model: db.Order,
+        required: false,
+        attributes: ["id"],
+        where: { status: { [Op.not]: ["refunded"] } },
+        include: [
+          { model: db.Timeline, attributes: ["id", "label"] },
+          {
+            model: db.Service,
+            attributes: ["id"],
+          },
+        ],
+      },
+    ],
+  });
+  return user;
+};
+
+//
+const userServices = {
+  getUserProfile,
   createUser,
+  getUserByEmail,
   createUserRole,
   loginUser,
   getUserById,
@@ -105,3 +149,4 @@ export default {
   getAllUsers,
   getBusinessReps,
 };
+export default userServices;

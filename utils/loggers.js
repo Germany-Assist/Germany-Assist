@@ -2,7 +2,7 @@ import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { v4 as uuidv4 } from "uuid";
 import { LOG_LEVEL, NODE_ENV } from "../configs/serverConfig.js";
-
+import util from "node:util";
 const levels = {
   error: 0,
   warn: 1,
@@ -18,17 +18,32 @@ winston.loggers.add("errorLogger", {
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
     winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
       let logString = `${timestamp} ${level}: ${message}`;
-      const { ...restMeta } = metadata;
-      if (Object.keys(restMeta).length > 0) {
-        logString += ` | metadata: ${JSON.stringify(restMeta)}`;
+      const meta = metadata?.error || metadata;
+      if (meta && Object.keys(meta).length > 0) {
+        if (meta && typeof meta === "object") {
+          const { statusCode, headers, requestId } = meta;
+          let safeResponse;
+          try {
+            safeResponse = JSON.stringify({
+              statusCode,
+              headers: headers ? Object.keys(headers).slice(0, 5) : undefined,
+              requestId,
+            });
+          } catch {
+            safeResponse = util.inspect(meta, { depth: 2 });
+          }
+
+          logString += ` | response: ${safeResponse}`;
+        } else {
+          console.log(typeof meta);
+          logString += ` | metadata: ${util.inspect(meta, { depth: 3 })}`;
+        }
       }
-      if (stack) {
-        logString += `\n${stack}`;
-      }
+
+      if (stack) logString += `\n${stack}`;
       return logString;
     })
   ),
-  //     ()
   transports: [
     NODE_ENV === "dev"
       ? new winston.transports.Console()

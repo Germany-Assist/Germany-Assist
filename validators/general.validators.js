@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import hashIdUtil from "../utils/hashId.util.js";
 export const passwordValidator = [
   body("password")
     .trim()
@@ -18,9 +19,30 @@ export const passwordValidator = [
 ];
 
 // Validation for ID-based routes
+export const idUUIDparamValidator = [
+  param("id")
+    .notEmpty()
+    .withMessage("ID must be a valid")
+    .isUUID()
+    .withMessage("not valid id"),
+];
 export const idHashedParamValidator = [
-  param("id").notEmpty().withMessage("ID must be a valid"),
+  param("id")
+    .notEmpty()
+    .withMessage("ID must be a valid")
+    .custom((i) => {
+      const unHashed = hashIdUtil.hashIdDecode(i);
+      if (!unHashed) throw new Error("invalid id");
+      return true;
+    }),
 ];
 export const idHashedBodyValidator = [
-  body("id").notEmpty().withMessage("ID must be a valid"),
+  body("id")
+    .notEmpty()
+    .withMessage("ID must be a valid")
+    .custom((i) => {
+      const unHashed = hashIdUtil.hashIdDecode(i);
+      if (!unHashed) throw new Error("invalid id");
+      return true;
+    }),
 ];

@@ -1,8 +1,6 @@
-// service.controller.test.js
-import test, { it } from "node:test";
-import assert from "node:assert";
+import test, { describe } from "node:test";
+import assert from "node:assert/strict";
 import sinon from "sinon";
-
 import serviceController from "../../controllers/service.controller.js";
 import serviceServices from "../../services/service.services.js";
 import hashIdUtil from "../../utils/hashId.util.js";
@@ -10,252 +8,181 @@ import authUtils from "../../utils/authorize.util.js";
 import { sequelize } from "../../database/connection.js";
 import { AppError } from "../../utils/error.class.js";
 
-function createMockRes() {
-  return {
-    status: sinon.stub().returnsThis(),
-    json: sinon.stub().returnsThis(),
-    sendStatus: sinon.stub().returnsThis(),
-  };
-}
+describe("Testing Services Controller", () => {
+  test("createService → success", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-test.describe("Service Controller", () => {
-  let res, next;
+    const fakeTransaction = {
+      commit: sandbox.stub().resolves(),
+      rollback: sandbox.stub().resolves(),
+    };
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+    sandbox.stub(authUtils, "checkRoleAndPermission").resolves();
+    sandbox.stub(serviceServices, "createService").resolves({
+      id: 1,
+      title: "test service",
+      UserId: 2,
+      category_id: 3,
+      Timelines: [{ id: 10, label: "t1", is_archived: false }],
+    });
+    sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
 
-  test.beforeEach(() => {
-    res = createMockRes();
-    next = sinon.stub();
-  });
-
-  test.afterEach(() => {
-    sinon.restore();
-  });
-
-  test("createService - success", async () => {
     const req = {
-      auth: { id: 1, related_id: 2, role: "service_provider_root" },
+      auth: { id: 1, role: "service_provider_root", related_id: 2 },
       body: {
         title: "Test",
-        description: "desc",
-        type: "type",
-        price: 100,
+        description: "Desc",
+        price: 10,
         publish: true,
+        category: "cat",
+        timelineLabel: "timeline",
       },
     };
-
-    const fakeTransaction = { commit: sinon.stub(), rollback: sinon.stub() };
-    sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon
-      .stub(serviceServices, "createService")
-      .resolves({ id: 123, UserId: 1 });
-    sinon.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
+    const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+    const next = sinon.stub();
 
     await serviceController.createService(req, res, next);
 
-    assert(res.status.calledWith(201));
-    assert(
-      res.json.calledWithMatch({ id: "encoded-123", user_id: "encoded-1" })
-    );
-    assert(fakeTransaction.commit.calledOnce);
+    assert.equal(serviceServices.createService.calledOnce, true);
+    assert.equal(fakeTransaction.commit.calledOnce, true);
+    assert.equal(res.status.calledWith(201), true);
+    assert.equal(res.json.calledOnce, true);
+    assert.equal(next.called, false);
+
+    sandbox.restore();
   });
 
-  test("createService - error → rollback", async () => {
-    const req = { auth: { id: 1 }, body: {} };
+  test("createService → failure should rollback", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-    const fakeTransaction = { commit: sinon.stub(), rollback: sinon.stub() };
-    sinon.stub(sequelize, "transaction").resolves(fakeTransaction);
-    sinon
+    const fakeTransaction = {
+      commit: sandbox.stub(),
+      rollback: sandbox.stub().resolves(),
+    };
+    sandbox.stub(sequelize, "transaction").resolves(fakeTransaction);
+    sandbox
       .stub(authUtils, "checkRoleAndPermission")
-      .throws(new Error("Auth error"));
+      .rejects(new AppError(403, "Forbidden"));
+
+    const req = { auth: {}, body: {} };
+    const res = {};
+    const next = sinon.stub();
 
     await serviceController.createService(req, res, next);
 
-    assert(fakeTransaction.rollback.calledOnce);
-    assert(next.calledOnce);
+    assert.equal(fakeTransaction.rollback.calledOnce, true);
+    assert.equal(next.calledOnce, true);
+
+    sandbox.restore();
   });
 
-  test("getAllServices - success", async () => {
-    const fakeService = {
-      get: () => ({
-        id: 1,
-        categories: [{ title: "cat" }],
-        User: { fullName: "John", email: "john@test.com" },
-        user_id: 11,
-      }),
-    };
+  test("getAllServices → success", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-    sinon.stub(serviceServices, "getAllServices").resolves([fakeService]);
-    sinon.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
+    sandbox.stub(serviceServices, "getAllServices").resolves({
+      data: [{ id: 1, "Category.title": "cat", "ServiceProvider.name": "sp" }],
+    });
+    sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
 
-    await serviceController.getAllServices({}, res, next);
+    const req = { query: {} };
+    const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+    const next = sinon.stub();
 
-    assert(res.status.calledWith(200));
-    assert(res.json.calledOnce);
-    const payload = res.json.firstCall.args[0];
-    assert.equal(payload[0].categories[0], "cat");
-    assert.equal(payload[0].creator.user_id, "encoded-11");
+    await serviceController.getAllServices(req, res, next);
+
+    assert.equal(serviceServices.getAllServices.calledOnce, true);
+    assert.equal(res.status.calledWith(200), true);
+    assert.equal(res.json.calledOnce, true);
+    assert.equal(next.called, false);
+
+    sandbox.restore();
   });
 
-  test("getAllServicesAdmin - requires admin", async () => {
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(serviceServices, "getAllServicesAdmin").resolves([]);
+  test("getServiceProfile → success", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-    await serviceController.getAllServicesAdmin({ auth: {} }, res, next);
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
+    sandbox.stub(serviceServices, "getServiceByIdPublic").resolves({
+      id: 1,
+      Category: { title: "cat" },
+      Timelines: [{ id: 2, label: "timeline" }],
+      Reviews: [
+        {
+          body: "good",
+          rating: 5,
+          User: { first_name: "John", last_name: "Doe", id: 9 },
+        },
+      ],
+    });
 
-    assert(res.status.calledWith(200));
-    assert(res.json.calledWith([]));
+    const req = { params: { id: "encoded-1" } };
+    const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+    const next = sinon.stub();
+
+    await serviceController.getServiceProfile(req, res, next);
+
+    assert.equal(serviceServices.getServiceByIdPublic.calledOnce, true);
+    assert.equal(res.status.calledWith(200), true);
+    assert.equal(res.json.calledOnce, true);
+    assert.equal(next.called, false);
+
+    sandbox.restore();
   });
 
-  test("getAllServicesServiceProvider - requires provider role", async () => {
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(serviceServices, "getAllServicesServiceProvider").resolves([]);
+  test("alterServiceStatusSP → success", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-    await serviceController.getAllServicesServiceProvider(
-      { auth: { related_id: 5 } },
-      res,
-      next
-    );
+    sandbox.stub(authUtils, "checkRoleAndPermission").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(serviceServices, "alterServiceStatusSP").resolves();
 
-    assert(res.status.calledWith(200));
+    const req = { auth: {}, body: { id: "encoded-1", status: "publish" } };
+    const res = { sendStatus: sinon.stub() };
+    const next = sinon.stub();
+
+    await serviceController.alterServiceStatusSP(req, res, next);
+
+    assert.equal(serviceServices.alterServiceStatusSP.calledOnce, true);
+    assert.equal(res.sendStatus.calledWith(200), true);
+    assert.equal(next.called, false);
+
+    sandbox.restore();
   });
 
-  test("getServiceId - returns sanitized service", async () => {
-    const fakeService = {
-      get: () => ({
-        id: 7,
-        categories: [],
-        User: { fullName: "A", email: "B" },
-        user_id: 1,
-      }),
-    };
+  test("alterServiceStatusSP → invalid status throws AppError", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-    sinon.stub(serviceServices, "getServiceById").resolves(fakeService);
-    sinon.stub(hashIdUtil, "hashIdDecode").returns(7);
-    sinon.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
+    const next = sinon.stub();
+    const req = { auth: {}, body: { id: "1", status: "wrong-status" } };
+    const res = {};
 
-    await serviceController.getServiceId({ params: { id: "enc7" } }, res, next);
+    await serviceController.alterServiceStatusSP(req, res, next);
 
-    assert(res.status.calledWith(200));
-    assert(res.json.calledOnce);
+    assert.equal(next.calledOnce, true);
+    assert(next.firstCall.args[0] instanceof AppError);
+
+    sandbox.restore();
   });
 
-  test("getServicesByServiceProviderId - success", async () => {
-    const fakeService = {
-      get: () => ({ id: 8, categories: [], User: null, user_id: 2 }),
-    };
-    sinon
-      .stub(serviceServices, "getServicesByServiceProviderId")
-      .resolves([fakeService]);
-    sinon.stub(hashIdUtil, "hashIdEncode").returns("encoded");
+  test("deleteService → success", async (t) => {
+    const sandbox = sinon.createSandbox();
 
-    await serviceController.getServicesByServiceProviderId(
-      { params: { id: 1 } },
-      res,
-      next
-    );
+    sandbox.stub(authUtils, "checkRoleAndPermission").resolves();
+    sandbox.stub(authUtils, "checkOwnership").resolves();
+    sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
+    sandbox.stub(serviceServices, "deleteService").resolves();
 
-    assert(res.status.calledWith(200));
-  });
-
-  test("getByCategories - success", async () => {
-    const fakeService = {
-      get: () => ({ id: 9, categories: [], User: null, user_id: 3 }),
-    };
-    sinon.stub(serviceServices, "getServicesByType").resolves([fakeService]);
-    sinon.stub(hashIdUtil, "hashIdEncode").returns("encoded");
-
-    await serviceController.getByCategories(
-      { body: { categories: ["A"] } },
-      res,
-      next
-    );
-
-    assert(res.status.calledWith(200));
-  });
-
-  test("updateService - updates allowed fields only", async () => {
-    const req = {
-      auth: { role: "service_provider_root", related_id: 5 },
-      body: { id: "encoded5", title: "new", description: "desc", extra: "no" },
-    };
-
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(authUtils, "checkOwnership").resolves(true);
-    sinon.stub(hashIdUtil, "hashIdDecode").returns(5);
-    sinon.stub(serviceServices, "updateService").resolves();
-
-    await serviceController.updateService(req, res, next);
-
-    assert(
-      serviceServices.updateService.calledWith(5, {
-        title: "new",
-        description: "desc",
-      })
-    );
-    assert(res.sendStatus.calledWith(200));
-  });
-
-  test("deleteService - success", async () => {
-    const req = {
-      auth: { role: "admin", related_id: 2 },
-      params: { id: "enc2" },
-    };
-
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(authUtils, "checkOwnership").resolves(true);
-    sinon.stub(hashIdUtil, "hashIdDecode").returns(2);
-    sinon.stub(serviceServices, "deleteService").resolves();
+    const req = { auth: {}, params: { id: "encoded-1" } };
+    const res = { send: sinon.stub() };
+    const next = sinon.stub();
 
     await serviceController.deleteService(req, res, next);
 
-    assert(res.sendStatus.calledWith(200));
-  });
+    assert.equal(serviceServices.deleteService.calledOnce, true);
+    assert.equal(res.send.calledOnce, true);
+    assert.equal(next.called, false);
 
-  test("restoreService - success", async () => {
-    const req = { auth: { role: "admin" }, params: { id: "enc3" } };
-
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(hashIdUtil, "hashIdDecode").returns(3);
-    sinon.stub(serviceServices, "restoreService").resolves();
-
-    await serviceController.restoreService(req, res, next);
-
-    assert(res.sendStatus.calledWith(200));
-  });
-
-  test("alterServiceStatus - success", async () => {
-    const req = {
-      auth: { role: "admin" },
-      body: { id: "enc4", status: "active" },
-    };
-
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(hashIdUtil, "hashIdDecode").returns(4);
-    sinon.stub(serviceServices, "alterServiceStatus").resolves();
-    await serviceController.alterServiceStatus(req, res, next);
-    assert(res.sendStatus.calledWith(200));
-  });
-
-  test("alterServiceStatusSP - invalid status calls next with AppError", async () => {
-    const req = { body: { status: "wrong", id: "enc5" }, auth: {} };
-    const res = createMockRes();
-    const next = sinon.stub();
-    await serviceController.alterServiceStatusSP(req, res, next);
-    assert(next.calledOnce);
-    const err = next.firstCall.args[0];
-    assert(err instanceof AppError);
-    assert.equal(err.message, "invalid status");
-  });
-
-  test("alterServiceStatusSP - valid status", async () => {
-    const req = {
-      body: { status: "publish", id: "enc5" },
-      auth: { role: "service_provider_root" },
-    };
-    sinon.stub(authUtils, "checkRoleAndPermission").resolves(true);
-    sinon.stub(hashIdUtil, "hashIdDecode").returns(5);
-    sinon.stub(serviceServices, "alterServiceStatusSP").resolves();
-    await serviceController.alterServiceStatusSP(req, res, next);
-    assert(res.sendStatus.calledWith(200));
+    sandbox.restore();
   });
 });

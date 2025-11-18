@@ -1,16 +1,21 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connection.js";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 class Asset extends Model {}
 
 Asset.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     name: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.UUID,
       allowNull: false,
       validate: {
         notEmpty: { msg: "Name cannot be empty" },
-        len: { args: [3, 50], msg: "Name must be between 3 and 50 characters" },
       },
     },
     media_type: {
@@ -55,20 +60,24 @@ Asset.init(
         min: { args: [1], msg: "PostId must be greater than 0" },
       },
     },
-    type: {
-      type: DataTypes.STRING(50),
+    key: {
+      type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        notEmpty: { msg: "Type cannot be empty" },
-        len: { args: [3, 50], msg: "Type must be between 3 and 50 characters" },
-      },
+    },
+    confirmed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    size: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
     },
     url: {
       type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: { msg: "URL cannot be empty" },
-        isUrl: { msg: "URL must be a valid URL" },
       },
     },
     views: {
@@ -80,13 +89,18 @@ Asset.init(
         min: { args: [0], msg: "views cannot be negative" },
       },
     },
+    thumb: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        if (this.type === "user") {
-          return this.user_id;
+        if (this.post_id || this.service_id || this.service_provider_id) {
+          return this.service_provider_id;
         } else {
-          return this.BusinessId;
+          return this.user_id;
         }
       },
     },

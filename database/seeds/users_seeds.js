@@ -15,7 +15,10 @@ export default async function seedUsers() {
   const t = await sequelize.transaction();
   const user = await User.create(data, { transaction: t });
   await UserRole.create(
-    { user_id: user.id, role: "super_admin" },
+    {
+      user_id: user.id,
+      role: "super_admin",
+    },
     { transaction: t }
   );
   await t.commit();

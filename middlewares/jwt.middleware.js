@@ -7,6 +7,7 @@ import {
 } from "../configs/serverConfig.js";
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/error.class.js";
+
 const authenticateJwt = expressjwt({
   secret: ACCESS_TOKEN_SECRET,
   algorithms: ["HS256"],
@@ -62,7 +63,7 @@ function generateTokens(user) {
   const refreshToken = generateRefreshToken(user);
   return { accessToken, refreshToken };
 }
-export default {
+const jwtUtils = {
   generateTokens,
   generateRefreshToken,
   generateAccessToken,
@@ -70,3 +71,5 @@ export default {
   verifyToken,
   authenticateJwt,
 };
+
+export default jwtUtils;

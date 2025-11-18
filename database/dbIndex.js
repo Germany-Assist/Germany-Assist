@@ -2,54 +2,140 @@ import User from "./models/user.js";
 import ServiceProvider from "./models/service_provider.js";
 import Service from "./models/service.js";
 import Asset from "./models/assets.js";
-import Contract from "./models/contract.js";
 import Review from "./models/review.js";
 import Coupon from "./models/coupon.js";
 import Chat from "./models/chat.js";
-import UserService from "./models/user_service.js";
 import Permission from "./models/permission.js";
 import UserPermission from "./models/user_permission.js";
 import UserRole from "./models/user_role.js";
 import Employer from "./models/employer.js";
 import Category from "./models/category.js";
-import ServiceCategory from "./models/service_category.js";
+import Order from "./models/order.js";
+import StripeEvent from "./models/stripe_event.js";
+import Favorite from "./models/favorite.js";
+import Timeline from "./models/timeline.js";
+import Post from "./models/post.js";
+import Comment from "./models/comment.js";
+import AssetTypes from "./models/assetTypes.js";
+import { NODE_ENV } from "../configs/serverConfig.js";
 export const defineConstrains = () => {
+  //comment
+  Comment.belongsTo(Post, {
+    foreignKey: "post_id",
+    constraints: true,
+  });
+  Comment.belongsTo(Comment, {
+    as: "parent",
+    foreignKey: "parent_id",
+    constraints: true,
+  });
+  Comment.hasMany(Comment, {
+    as: "replies",
+    foreignKey: "parent_id",
+    constraints: true,
+  });
+  //post
+  Post.belongsTo(Timeline, { foreignKey: "timeline_id" });
+  Post.belongsTo(User, { foreignKey: "user_id" });
+  Post.hasMany(Comment, {
+    foreignKey: "post_id",
+    constraints: false,
+  });
+  Post.hasMany(Asset, {
+    foreignKey: "post_id",
+  });
+  //timeline
+  Timeline.hasMany(Order, { foreignKey: "timeline_id" });
+  Timeline.belongsTo(Service, { foreignKey: "service_id" });
+  Timeline.hasMany(Post, { foreignKey: "timeline_id" });
+  //order
+  Order.belongsTo(User, { foreignKey: "user_id" });
+  Order.belongsTo(Service, { foreignKey: "service_id" });
+  Order.belongsTo(Timeline, { foreignKey: "timeline_id" });
+  //user
+  User.hasMany(Post, { foreignKey: "user_id" });
+  User.hasMany(Order, { foreignKey: "user_id" });
   User.hasMany(Service, { foreignKey: "user_id" });
+  User.hasMany(Asset, {
+    foreignKey: "user_id",
+    as: "profilePicture",
+    scope: { key: "userImage", thumb: false },
+  });
+  User.hasMany(Review, { foreignKey: "user_id" });
+  User.hasOne(UserRole, { foreignKey: "user_id" });
+  User.hasMany(Favorite, { foreignKey: "user_id" });
+  User.belongsToMany(Permission, {
+    through: UserPermission,
+    as: "userToPermission",
+    foreignKey: "user_id",
+    otherKey: "permission_id",
+    onDelete: "cascade",
+    unique: true,
+  });
+  //user Role
+  UserRole.belongsTo(User, { foreignKey: "user_id" });
+  UserRole.belongsTo(Employer, {
+    foreignKey: "related_id",
+    constraints: false,
+    as: "employer",
+  });
+  UserRole.belongsTo(ServiceProvider, {
+    foreignKey: "related_id",
+    constraints: false,
+    as: "serviceProvider",
+  });
+  //service
+  Service.hasMany(Order, { foreignKey: "service_id" });
   Service.belongsTo(User, { foreignKey: "user_id" });
-  Service.belongsTo(Contract, { foreignKey: "contract_id" });
-
   Service.hasMany(Asset, { foreignKey: "service_id" });
-  Asset.belongsTo(Service, { foreignKey: "service_id" });
-
+  Service.hasMany(Asset, {
+    foreignKey: "service_id",
+    as: "profileImages",
+    scope: { thumb: true, key: "serviceProfileImage" },
+  });
   Service.hasMany(Review, { foreignKey: "service_id" });
+  Service.hasMany(Favorite, { foreignKey: "service_id" });
+  Service.hasMany(Timeline, { foreignKey: "service_id" });
+  Service.belongsTo(Category, { foreignKey: "category_id" });
+  Service.belongsTo(ServiceProvider);
+  //assets
+  Asset.belongsTo(AssetTypes, { foreignKey: "key", targetKey: "key" });
+  Asset.belongsTo(Service, { foreignKey: "service_id", as: "allAssets" });
+  Asset.belongsTo(Service, {
+    foreignKey: "service_id",
+    as: "profileImages",
+    scope: { thumb: true, key: "serviceProfileImage" },
+  });
+  Asset.belongsTo(User, {
+    foreignKey: "user_id",
+    as: "profilePicture",
+    scope: { key: "userImage" },
+  });
+  Asset.belongsTo(Post, { foreignKey: "post_id" });
+  //assetTypes
+  AssetTypes.hasMany(Asset, { foreignKey: "key", targetKey: "key" });
+  //review
   Review.belongsTo(Service, { foreignKey: "service_id" });
+  Review.belongsTo(User, { foreignKey: "user_id" });
 
+  // service provider
   ServiceProvider.hasMany(Service);
   ServiceProvider.hasMany(Coupon);
   ServiceProvider.hasMany(Asset);
-
-  User.hasMany(Asset, { foreignKey: "user_id" });
-  Asset.belongsTo(User, { foreignKey: "user_id" });
-
-  User.hasMany(Review, { foreignKey: "user_id" });
-  Review.belongsTo(User, { foreignKey: "user_id" });
-
-  User.hasOne(UserRole, { foreignKey: "user_id" });
-  UserRole.belongsTo(User, { foreignKey: "user_id" });
-  //service category
-  Category.belongsToMany(Service, {
-    through: ServiceCategory,
-    as: "services",
+  ServiceProvider.hasMany(UserRole, {
+    foreignKey: "related_id",
+    constraints: false,
+    scope: {
+      related_type: "ServiceProvider",
+    },
+    as: "roles",
+  });
+  //category
+  Category.hasMany(Service, {
     foreignKey: "category_id",
-    otherKey: "service_id",
   });
-  Service.belongsToMany(Category, {
-    through: ServiceCategory,
-    as: "categories",
-    foreignKey: "service_id",
-    otherKey: "category_id",
-  });
-  // Employer -> UserRole
+
+  // Employer
   Employer.hasMany(UserRole, {
     foreignKey: "related_id",
     constraints: false,
@@ -59,51 +145,15 @@ export const defineConstrains = () => {
     as: "roles",
   });
 
-  UserRole.belongsTo(Employer, {
-    foreignKey: "related_id",
-    constraints: false,
-    as: "employer",
-  });
-
-  // ServiceProvider -> UserRole
-  ServiceProvider.hasMany(UserRole, {
-    foreignKey: "related_id",
-    constraints: false,
-    scope: {
-      related_type: "ServiceProvider",
-    },
-    as: "roles",
-  });
-
-  UserRole.belongsTo(ServiceProvider, {
-    foreignKey: "related_id",
-    constraints: false,
-    as: "serviceProvider",
-  });
-
-  //user - service
-  User.belongsToMany(Service, {
-    through: UserService,
+  //favorite
+  Favorite.belongsTo(User, {
     foreignKey: "user_id",
-    otherKey: "service_id",
-    unique: false,
   });
-
-  Service.belongsToMany(User, {
-    through: UserService,
+  Favorite.belongsTo(Service, {
     foreignKey: "service_id",
-    otherKey: "user_id",
-    unique: false,
   });
-  //user - permission
-  User.belongsToMany(Permission, {
-    through: UserPermission,
-    as: "userToPermission",
-    foreignKey: "user_id",
-    otherKey: "permission_id",
-    onDelete: "cascade",
-    unique: true,
-  });
+
+  //permission
   Permission.belongsToMany(User, {
     as: "permissionToUser",
     through: UserPermission,
@@ -115,16 +165,15 @@ export const defineConstrains = () => {
 
   return true;
 };
-if (process.env.SEEDING !== "true") {
+if (NODE_ENV !== "test") {
   defineConstrains();
 }
-
 const db = {
   User,
+  AssetTypes,
   ServiceProvider,
   Service,
   Asset,
-  Contract,
   Review,
   Coupon,
   Chat,
@@ -132,8 +181,13 @@ const db = {
   UserPermission,
   UserRole,
   Employer,
+  Timeline,
+  Post,
   Category,
-  ServiceCategory,
+  Order,
+  StripeEvent,
+  Comment,
+  Favorite,
 };
 
 export default db;
