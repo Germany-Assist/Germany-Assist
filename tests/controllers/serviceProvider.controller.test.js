@@ -9,6 +9,7 @@ import { afterEach, before, beforeEach, describe, it } from "node:test";
 import authUtil from "../../utils/authorize.util.js";
 import { AppError } from "../../utils/error.class.js";
 import userController from "../../controllers/user.controller.js";
+import authUtils from "../../utils/authorize.util.js";
 describe("Create Service Provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
@@ -44,6 +45,7 @@ describe("Create Service Provider Controller Unit Tests", () => {
       .stub(jwt, "generateTokens")
       .returns({ accessToken: "a", refreshToken: "r" });
 
+    sinon.stub(authUtils, "checkRoleAndPermission").resolves();
     const resp = await serviceProviderController.createServiceProvider(
       req,
       res,

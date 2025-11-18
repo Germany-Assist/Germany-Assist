@@ -7,6 +7,10 @@ import hashIdUtil from "../utils/hashId.util.js";
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
   try {
+    const hasPermission = await authUtils.checkRoleAndPermission(req.auth, [
+      "admin",
+      "super_admin",
+    ]);
     const { email, password } = req.body;
     const profile = await serviceProviderServices.createServiceProvider(
       req.body,
