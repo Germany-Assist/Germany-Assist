@@ -32,6 +32,7 @@ serviceProviderRouter.put(
 );
 serviceProviderRouter.post(
   "/",
+  jwt.authenticateJwt,
   createServiceProviderValidator,
   validateExpress,
   serviceProviderController.createServiceProvider
