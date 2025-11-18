@@ -7,6 +7,7 @@ import {
 } from "../configs/serverConfig.js";
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/error.class.js";
+
 const authenticateJwt = expressjwt({
   secret: ACCESS_TOKEN_SECRET,
   algorithms: ["HS256"],

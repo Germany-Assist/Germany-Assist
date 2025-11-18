@@ -8,6 +8,7 @@ import permissionRouter from "./permissions.routes.js";
 import { Router } from "express";
 import ordersRouter from "./orders.routes.js";
 import postRouter from "../routes/post.routes.js";
+import authRouter from "./auth.routes.js";
 
 const apiRouter = Router();
 
@@ -20,7 +21,8 @@ apiRouter
   .use("/service", serviceRouter) //
   .use("/permission", permissionRouter)
   .use("/order", ordersRouter)
-  .use("/post", postRouter);
+  .use("/post", postRouter)
+  .use("/auth", authRouter);
 
 // Badges;
 // Events;
