@@ -1,0 +1,29 @@
+[
+  {
+    "id": 2,
+    "service_id": 2,
+    "is_archived": false,
+    "label": "iteration one",
+    "createdAt": "2025-11-17T14:31:49.774Z",
+    "updatedAt": "2025-11-17T14:31:49.774Z",
+    "deletedAt": null
+  },
+  {
+    "id": 1,
+    "service_id": 1,
+    "is_archived": true,
+    "label": "iteration one",
+    "createdAt": "2025-11-11T23:58:26.154Z",
+    "updatedAt": "2025-11-17T15:29:27.310Z",
+    "deletedAt": null
+  },
+  {
+    "id": 3,
+    "service_id": 1,
+    "is_archived": false,
+    "label": "itteration 2026-2027",
+    "createdAt": "2025-11-17T15:29:27.313Z",
+    "updatedAt": "2025-11-17T15:29:27.313Z",
+    "deletedAt": null
+  }
+]

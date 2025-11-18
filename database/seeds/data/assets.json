@@ -1,0 +1,20 @@
+[
+  {
+    "id": 92,
+    "name": "57f15d28-5437-4581-85d6-b17bddd87b3a",
+    "media_type": "image",
+    "user_id": 21,
+    "service_provider_id": null,
+    "service_id": null,
+    "post_id": null,
+    "key": "userImage",
+    "confirmed": false,
+    "size": "0",
+    "url": "https://lh3.googleusercontent.com/a/ACg8ocKxCFU8YLlO69mMXj6g0XBCW5vkZRoIZzRk7lJWPBy9vLhjKA=s96-c",
+    "views": 0,
+    "thumb": false,
+    "createdAt": "2025-11-18T18:33:25.863Z",
+    "updatedAt": "2025-11-18T18:33:25.863Z",
+    "deletedAt": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "best carrer couching",
+    "description": "i manage travel visa processes for tourists.",
+    "user_id": 4,
+    "service_provider_id": "2883f210-e7c6-42c8-8e9e-bbbfbc6fd923",
+    "views": 11,
+    "type": "oneTime",
+    "rating": 0,
+    "category_id": 1,
+    "total_reviews": 0,
+    "price": 1000,
+    "approved": true,
+    "rejected": false,
+    "published": true,
+    "quantity": null,
+    "createdAt": "2025-11-11T23:58:26.144Z",
+    "updatedAt": "2025-11-17T14:30:33.717Z",
+    "deletedAt": null
+  },
+  {
+    "id": 2,
+    "title": "test",
+    "description": "test",
+    "user_id": 13,
+    "service_provider_id": "7584177d-2321-4aba-8199-a2ca0b09ea78",
+    "views": 0,
+    "type": "oneTime",
+    "rating": 0,
+    "category_id": 1,
+    "total_reviews": 0,
+    "price": 200,
+    "approved": true,
+    "rejected": false,
+    "published": true,
+    "quantity": null,
+    "createdAt": "2025-11-17T14:31:49.769Z",
+    "updatedAt": "2025-11-17T14:31:49.769Z",
+    "deletedAt": null
+  }
+]
