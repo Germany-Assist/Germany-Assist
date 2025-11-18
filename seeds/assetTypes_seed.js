@@ -40,7 +40,7 @@ const assetTypes = [
   {
     key: "serviceProviderProfileDocument",
     limit: "5",
-    basekey: "document/serviceProviders/profile/gallery",
+    basekey: "documents/serviceProviders/profile/gallery",
     size: 2000000,
     thumb: false,
     mediaType: "document",
@@ -49,7 +49,7 @@ const assetTypes = [
   {
     key: "serviceProfileImage",
     limit: "1",
-    basekey: "image/services/profile",
+    basekey: "images/services/profile",
     size: 3000000,
     thumb: true,
     mediaType: "image",
@@ -58,7 +58,7 @@ const assetTypes = [
   {
     key: "serviceProfileGalleryImage",
     limit: "5",
-    basekey: "image/services/profile/gallery",
+    basekey: "images/services/profile/gallery",
     size: 3000000,
     thumb: true,
     mediaType: "image",
@@ -67,7 +67,7 @@ const assetTypes = [
   {
     key: "serviceProfileGalleryVideo",
     limit: "1",
-    basekey: "video/services/profile/gallery",
+    basekey: "videos/services/profile/gallery",
     size: 15000000,
     thumb: false,
     mediaType: "video",
@@ -76,7 +76,7 @@ const assetTypes = [
   {
     key: "postAttachmentsVideo",
     limit: "1",
-    basekey: "video/post/attachments",
+    basekey: "videos/posts/attachments",
     size: 15000000,
     thumb: false,
     mediaType: "video",
@@ -85,7 +85,7 @@ const assetTypes = [
   {
     key: "postAttachmentsDocuments",
     limit: "1",
-    basekey: "documents/post/attachments",
+    basekey: "documents/posts/attachments",
     size: 3000000,
     thumb: false,
     mediaType: "document",
@@ -94,7 +94,7 @@ const assetTypes = [
   {
     key: "postAttachmentsImage",
     limit: "1",
-    basekey: "image/post/attachments",
+    basekey: "images/posts/attachments",
     size: 3000000,
     thumb: false,
     mediaType: "image",
@@ -103,7 +103,7 @@ const assetTypes = [
   {
     key: "assetImage",
     limit: "*",
-    basekey: "assets/images",
+    basekey: "images/assets",
     size: 3000000,
     thumb: false,
     mediaType: "image",
@@ -112,7 +112,7 @@ const assetTypes = [
   {
     key: "assetVideo",
     limit: "*",
-    basekey: "assets/videos",
+    basekey: "videos/assets",
     size: 30000000,
     thumb: false,
     mediaType: "video",
@@ -121,7 +121,7 @@ const assetTypes = [
   {
     key: "assetDocument",
     limit: "*",
-    basekey: "assets/documents",
+    basekey: "documents/assets",
     size: 3000000,
     thumb: false,
     mediaType: "document",

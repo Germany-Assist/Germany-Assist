@@ -40,7 +40,11 @@ const sanitizeUser = async (user) => {
     });
   }
   if (user.profilePicture && user.profilePicture.length > 0) {
-    signedImage = await generateDownloadUrl(user?.profilePicture[0]?.url);
+    if (user.googleId) {
+      signedImage = user?.profilePicture[0]?.url;
+    } else {
+      signedImage = await generateDownloadUrl(user?.profilePicture[0]?.url);
+    }
     imageKey = user?.profilePicture[0]?.name;
   }
   return {

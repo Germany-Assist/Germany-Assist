@@ -2,3 +2,5 @@
 node_modules
 logs/
 localstack
+database/seeds/data
+backup

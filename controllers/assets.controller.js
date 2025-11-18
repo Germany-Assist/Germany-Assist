@@ -469,7 +469,6 @@ export function updateUserProfileImage(type) {
         req.auth,
         req.params
       );
-      console.log("test");
 
       await res.json({ message: "File uploaded successfully", publicUrls });
     } catch (error) {
