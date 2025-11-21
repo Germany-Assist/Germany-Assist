@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  localstack:
+    image: gresau/localstack-persist:4 # or pin to a specific version
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - PERSIST_DEFAULT=0
+      - PERSIST_S3=1
+      - PERSIST_DYNAMODB=1
+      - PERSIST_FORMAT=json # default is json
+      - PERSIST_FREQUENCY=10 # seconds between writes, default is 10 :contentReference[oaicite:1]{index=1}
+    volumes:
+      - ./backup/localstack-data:/persisted-data
+    restart: unless-stopped
+
+volumes:
+  localstack-data:

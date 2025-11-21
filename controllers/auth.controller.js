@@ -15,6 +15,7 @@ const client = new OAuth2Client(googleOAuthConfig.clientId);
 async function googleAuthController(req, res) {
   const t = await sequelize.transaction();
   const { credential } = req.body;
+  let status = 200;
   try {
     const ticket = await client.verifyIdToken({
       idToken: credential,
@@ -24,6 +25,7 @@ async function googleAuthController(req, res) {
     const email = payload.email;
     let user = await userServices.getUserByEmail(email);
     if (!user) {
+      status = 201;
       user = await userServices.createUser(
         {
           email: payload.email,
@@ -56,7 +58,7 @@ async function googleAuthController(req, res) {
     const sanitizedUser = await userController.sanitizeUser(user);
     res
       .cookie("refreshToken", refreshToken, cookieOptions)
-      .status(201)
+      .status(status)
       .json({ accessToken, user: sanitizedUser });
     await t.commit();
   } catch (error) {
