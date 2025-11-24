@@ -1,4 +1,4 @@
-name: Deploy Node.js App
+name: Deploy Backend App
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20 # match your server node version
+          node-version: 24 # match your server node version
 
       - name: Install dependencies
         run: npm install
@@ -32,8 +32,8 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           port: 22
           script: |
-            cd /var/www/backend || mkdir -p /var/www/backend
-            cd /var/www/backend
+            cd /var/www/germany-assist-backend || mkdir -p /var/www/germany-assist-backend
+            cd /var/www/germany-assist-backend
             git reset --hard
             git pull origin main
             npm install 
