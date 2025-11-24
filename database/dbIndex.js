@@ -17,10 +17,13 @@ import Timeline from "./models/timeline.js";
 import Post from "./models/post.js";
 import Comment from "./models/comment.js";
 import AssetTypes from "./models/assetTypes.js";
-import { NODE_ENV } from "../configs/serverConfig.js";
 import Notification from "./models/notification.js";
+import { NODE_ENV } from "../configs/serverConfig.js";
+import { sequelize } from "./connection.js";
 
 export const defineConstrains = () => {
+  if (sequelize.associationsDefined) return;
+  sequelize.associationsDefined = true;
   //notification
   Notification.belongsTo(User, { foreignKey: "user_id" });
   User.hasMany(Notification, { foreignKey: "user_id" });
@@ -171,9 +174,9 @@ export const defineConstrains = () => {
 
   return true;
 };
-if (NODE_ENV !== "test") {
-  defineConstrains();
-}
+
+defineConstrains();
+
 const db = {
   User,
   AssetTypes,
