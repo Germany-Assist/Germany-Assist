@@ -1,0 +1,40 @@
+name: Deploy Node.js App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # match your server node version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (if applicable)
+        run: npm run build || echo "No build step"
+
+      - name: Copy files to server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: deploy
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          script: |
+            cd /var/www/backend || mkdir -p /var/www/backend
+            cd /var/www/backend
+            git reset --hard
+            git pull origin main
+            npm install 
+            pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js

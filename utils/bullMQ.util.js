@@ -10,6 +10,7 @@ import cron from "node-cron";
 import db from "../database/dbIndex.js";
 import { Op } from "sequelize";
 import { deleteFromS3 } from "../configs/s3Configs.js";
+import workersProcessors from "./workers.js";
 
 export async function stripeProcessor(job) {
   const event = job.data.event;
@@ -18,7 +19,6 @@ export async function stripeProcessor(job) {
   if (stripeEvent?.status === "processed") return;
   const metadata = event.data.object?.metadata;
   const t = await sequelize.transaction();
-
   try {
     switch (event.type) {
       case "payment_intent.created": {
@@ -34,10 +34,12 @@ export async function stripeProcessor(job) {
           user_id: metadata.userId,
           service_id: metadata.serviceId,
           timeline_id: metadata.timelineId,
+          service_provider_id: metadata.serviceProviderId,
           stripe_payment_intent_id: pi.id,
           currency: "usd",
         };
         await orderService.createOrder(orderData, t);
+        await notificationQueue.add("payment_success", orderData);
         break;
       }
       case "payment_intent.payment_failed": {
@@ -62,20 +64,20 @@ export async function stripeProcessor(job) {
 
 let stripeQueue;
 let cleanupQueue;
+let notificationQueue;
+let deadLetterQueue;
+// i cant have them to run the queues in testing since redis will fail the whole app
 if (NODE_ENV !== "test") {
+  //queues
   cleanupQueue = new Queue("cleanup-queue", { connection: redis });
-  stripeQueue = new Queue("stripe-events", {
-    connection: redis,
-  });
+  notificationQueue = new Queue("notification-events", { connection: redis });
+  stripeQueue = new Queue("stripe-events", { connection: redis });
+  deadLetterQueue = new Queue("dead-letter", { connection: redis });
 
-  const deadLetterQueue = new Queue("dead-letter", {
-    connection: redis,
-  });
-
+  //workers
   const stripeWorker = new Worker("stripe-events", stripeProcessor, {
     connection: redis,
   });
-
   const cleanupWorker = new Worker(
     "cleanup-queue",
     async (job) => {
@@ -94,14 +96,17 @@ if (NODE_ENV !== "test") {
     },
     { connection: redis }
   );
-
   const dlqWorker = new Worker(
     "dead-letter",
     async (job) => {
       infoLogger(`📥 Handling DLQ job ${job.id}`);
-      const filePath = path.join(process.cwd(), "emergencyDLQ.txt");
-      await writeFile(filePath, JSON.stringify(job), { flag: "a" });
+      await writeFile("./emergencyDLQ.txt", JSON.stringify(job), { flag: "a" });
     },
+    { connection: redis }
+  );
+  const notificationWorker = new Worker(
+    "notification-events",
+    workersProcessors.notificationProcessor,
     { connection: redis }
   );
 
@@ -136,6 +141,7 @@ export const enqueueDeletedAssets = async () => {
   }
   console.log(`✅ Added ${assets.length} assets for cleanup`);
 };
+
 if (NODE_ENV !== "test") {
   cron.schedule("0 0 * * * *", enqueueDeletedAssets);
 }
