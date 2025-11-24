@@ -18,7 +18,13 @@ import Post from "./models/post.js";
 import Comment from "./models/comment.js";
 import AssetTypes from "./models/assetTypes.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
+import Notification from "./models/notification.js";
+
 export const defineConstrains = () => {
+  //notification
+  Notification.belongsTo(User, { foreignKey: "user_id" });
+  User.hasMany(Notification, { foreignKey: "user_id" });
+
   //comment
   Comment.belongsTo(Post, {
     foreignKey: "post_id",
@@ -188,6 +194,7 @@ const db = {
   StripeEvent,
   Comment,
   Favorite,
+  Notification,
 };
 
 export default db;
