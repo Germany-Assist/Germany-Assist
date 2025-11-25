@@ -2,7 +2,7 @@ name: Node.js tests
 
 on:
   push:
-    branches: ["**"] # Double asterisk matches all branches
+    branches: ["*"] # Double asterisk matches all branches
   pull_request:
     branches: ["main"]
 
