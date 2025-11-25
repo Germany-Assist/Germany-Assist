@@ -36,7 +36,7 @@ app
   .use(helmet())
   .use(
     cors({
-      origin: CLIENT_URL,
+      origin: [CLIENT_URL],
       credentials: true,
     })
   )
@@ -88,7 +88,7 @@ export const shutdownServer = async (event) => {
 };
 
 if (NODE_ENV !== "test") {
-  server.listen(SERVER_PORT, "0.0.0.0", async () => {
+  server.listen(SERVER_PORT, "127.0.0.1", async () => {
     try {
       if (!ENV_IS_LOADED) throw new Error("Failed to load .env file");
       await sequelize.authenticate();
