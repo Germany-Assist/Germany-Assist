@@ -11,6 +11,7 @@ import db from "../database/dbIndex.js";
 import { Op } from "sequelize";
 import { deleteFromS3 } from "../configs/s3Configs.js";
 import workersProcessors from "./workers.js";
+import { NOTIFICATION_EVENTS } from "./constants.js";
 
 export async function stripeProcessor(job) {
   const event = job.data.event;
@@ -39,7 +40,10 @@ export async function stripeProcessor(job) {
           currency: "usd",
         };
         await orderService.createOrder(orderData, t);
-        await notificationQueue.add("payment_success", orderData);
+        await notificationQueue.add(
+          NOTIFICATION_EVENTS.PAYMENT_SUCCESS,
+          orderData
+        );
         break;
       }
       case "payment_intent.payment_failed": {

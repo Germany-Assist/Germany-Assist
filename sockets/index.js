@@ -1,11 +1,12 @@
 import { Server } from "socket.io";
-import socketAuthMiddleware from "../middlewares/socketAuth.middleware.js";
-import setupNamespaces from "./events/index.js";
-import { socketErrorMiddleware } from "../middlewares/socket.error.middleware.js";
 import { CLIENT_URL } from "../configs/serverConfig.js";
-/// in the future this should be replaced with redis
+import socketAuthMiddleware from "./middlewares/socketAuth.middleware.js";
+import { AppError } from "../utils/error.class.js";
+import { registerEvents } from "./events.js";
 class usersLiveModel {
-  users = {};
+  constructor() {
+    this.users = {};
+  }
   registerUser(socket) {
     this.users[socket.user.id] = {
       ...socket.user,
@@ -58,21 +59,26 @@ class usersLiveModel {
 }
 
 export const activeUsers = new usersLiveModel();
-
+let io;
 export default function createSocketServer(server) {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
       origin: [CLIENT_URL],
       methods: ["GET", "POST"],
     },
+    reconnection: true,
     connectionStateRecovery: {
       maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutes
     },
   });
 
-  io.use(socketErrorMiddleware);
   io.use(socketAuthMiddleware);
-  //dont forget to auth the name spaces
-  setupNamespaces(io);
+  io.on("connection", (socket) => {
+    registerEvents(socket, io);
+  });
+  return io;
+}
+export function getIO() {
+  if (!io) throw new AppError("Socket.io not initialized");
   return io;
 }

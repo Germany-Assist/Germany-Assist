@@ -59,6 +59,7 @@ export const shutdownServer = async (event) => {
   infoLogger(`Server is shutting down due to: ${event}`);
   try {
     await Promise.allSettled([
+      io.close(),
       sequelize
         ?.close()
         .then(() => infoLogger("✅ Database connection closed")),

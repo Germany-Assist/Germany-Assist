@@ -23,8 +23,7 @@ export const s3 = new S3Client({
   },
 });
 export async function generateDownloadUrl(objectUrl, expireTime) {
-  const s3endPoint = S3_EXTERNAL_ENDPOINT ? S3_EXTERNAL_ENDPOINT : S3_ENDPOINT;
-  const key = objectUrl.replace(`${s3endPoint}/${S3_BUCKET_NAME}/`, "");
+  const key = objectUrl.replace(`${S3_ENDPOINT}/${S3_BUCKET_NAME}/`, "");
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: key,
@@ -32,7 +31,10 @@ export async function generateDownloadUrl(objectUrl, expireTime) {
   const url = await getSignedUrl(s3, command, {
     expiresIn: expireTime ? expireTime : SIGN_URL_EXPIRATION,
   });
-  return url;
+  let accessUrl;
+  if (S3_EXTERNAL_ENDPOINT)
+    accessUrl = url.replace(S3_ENDPOINT, S3_EXTERNAL_ENDPOINT);
+  return accessUrl;
 }
 
 export async function uploadImagesToS3(images) {
