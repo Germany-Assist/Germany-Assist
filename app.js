@@ -1,5 +1,6 @@
 import express from "express";
 import "./utils/loggers.js";
+import "./jobs/index.js";
 import { createServer } from "http";
 import {
   SERVER_PORT,
@@ -20,7 +21,7 @@ import { v4 as uuidv4 } from "uuid";
 import paymentsRouter from "./routes/payments.routes.js";
 import { DB_NAME } from "./configs/databaseConfig.js";
 import redis from "./configs/redis.js";
-import "./utils/bullMQ.util.js";
+import "./configs/bullMQ.config.js";
 import helmet from "helmet";
 export const app = express();
 export const server = createServer(app);

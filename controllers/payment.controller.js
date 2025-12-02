@@ -1,6 +1,6 @@
+import stripeQueue from "../jobs/queues/stripe.queue.js";
 import { infoLogger } from "../utils/loggers.js";
 import stripeUtils from "../utils/stripe.util.js";
-import stripeQueue from "../utils/bullMQ.util.js";
 
 export async function processPaymentWebhook(req, res, next) {
   try {

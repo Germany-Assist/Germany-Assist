@@ -1,12 +1,11 @@
-import db from "../database/dbIndex.js";
-import emailServices from "../services/email.services.js";
-import { sendNotification } from "../sockets/services/notificationService.js";
-import { NOTIFICATION_EVENTS } from "./constants.js";
-import { errorLogger } from "./loggers.js";
+import db from "../../database/dbIndex.js";
+import emailServices from "../../services/email.services.js";
+import socketNotificationServices from "../../sockets/services/notificationService.js";
+import { NOTIFICATION_EVENTS } from "../../utils/constants.js";
+import { errorLogger } from "../../utils/loggers.js";
 
 async function notificationProcessor(job) {
   const data = job.data;
-
   try {
     switch (job.name) {
       case NOTIFICATION_EVENTS.PAYMENT_SUCCESS:
@@ -41,11 +40,10 @@ async function notificationProcessor(job) {
           service.ServiceProvider.email,
           notificationData.message
         );
-        sendNotification(data.user_id, {
+        socketNotificationServices.sendSocketNotification(data.user_id, {
           message: notificationData.message,
           id: notification.id,
         });
-        // notifySockets(recipients, { message: "Payment success" });
         break;
       case NOTIFICATION_EVENTS.COMMENT_CREATED:
         // handle comment notifications
@@ -59,6 +57,4 @@ async function notificationProcessor(job) {
     throw error;
   }
 }
-
-const workersProcessors = { notificationProcessor };
-export default workersProcessors;
+export default notificationProcessor;

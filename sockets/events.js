@@ -6,7 +6,6 @@ export function registerEvents(socket, io) {
 
   socket.on("markNotificationAsRead", async ({ id: notificationId }) => {
     try {
-      console.log(notificationId, socket.auth.id);
       await db.Notification.update(
         { isRead: true },
         { where: { id: notificationId, user_id: socket.auth.id } }
