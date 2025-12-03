@@ -1,5 +1,5 @@
-import { AppError } from "../utils/error.class.js";
-import { errorLogger } from "../utils/loggers.js";
+import { AppError } from "../../utils/error.class.js";
+import { errorLogger } from "../../utils/loggers.js";
 
 export const socketErrorMiddleware = (socket, next) => {
   socket.error = (error) => {

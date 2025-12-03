@@ -34,6 +34,7 @@ export async function payOrder(req, res, next) {
     const metadata = {
       serviceId,
       userId: req.auth.id,
+      serviceProviderId: service.service_provider_id,
       timelineId: service["Timelines.id"],
     };
     // in the future subscription may go here

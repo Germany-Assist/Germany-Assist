@@ -11,6 +11,7 @@ export const AWS_REGION = process.env.AWS_REGION;
 export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 export const S3_ENDPOINT = process.env.S3_ENDPOINT;
+export const S3_EXTERNAL_ENDPOINT = process.env.S3_EXTERNAL_ENDPOINT;
 const SIGN_URL_EXPIRATION = process.env.SIGN_URL_EXPIRATION || 600;
 export const s3 = new S3Client({
   region: AWS_REGION,
@@ -30,7 +31,10 @@ export async function generateDownloadUrl(objectUrl, expireTime) {
   const url = await getSignedUrl(s3, command, {
     expiresIn: expireTime ? expireTime : SIGN_URL_EXPIRATION,
   });
-  return url;
+  let accessUrl;
+  if (S3_EXTERNAL_ENDPOINT)
+    accessUrl = url.replace(S3_ENDPOINT, S3_EXTERNAL_ENDPOINT);
+  return accessUrl;
 }
 
 export async function uploadImagesToS3(images) {
