@@ -1,9 +1,8 @@
 import db from "../../database/dbIndex.js";
 import emailServices from "../../services/email.services.js";
 import socketNotificationServices from "../../sockets/services/notificationService.js";
-import { NOTIFICATION_EVENTS } from "../../utils/constants.js";
+import { NOTIFICATION_EVENTS } from "../../configs/constants.js";
 import { errorLogger } from "../../utils/loggers.js";
-
 async function notificationProcessor(job) {
   const data = job.data;
   try {
@@ -46,9 +45,7 @@ async function notificationProcessor(job) {
         });
         break;
       case NOTIFICATION_EVENTS.COMMENT_CREATED:
-        // handle comment notifications
         break;
-
       default:
         return;
     }

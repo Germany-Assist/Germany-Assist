@@ -1,11 +1,11 @@
 import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import workersProcessors from "../../utils/workers.js";
 import stripeServices from "../../services/stripe.service.js";
 import orderService from "../../services/order.services.js";
 import { infoLogger, errorLogger } from "../../utils/loggers.js";
 import { sequelize } from "../../database/connection.js";
+import stripeProcessor from "../../jobs/processors/stripe.processor.js";
 
 describe("testing stripe processor", () => {
   test("should skip processing if stripeEvent.status is 'processed'", async (t) => {
@@ -18,7 +18,7 @@ describe("testing stripe processor", () => {
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
 
-    await workersProcessors.stripeProcessor(job);
+    await stripeProcessor(job);
 
     assert.ok(stripeServices.getStripeEvent.calledOnceWith("evt_1"));
     assert.ok(tMock.commit.notCalled);
@@ -47,7 +47,7 @@ describe("testing stripe processor", () => {
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
 
-    await workersProcessors.stripeProcessor(job);
+    await stripeProcessor(job);
 
     assert.ok(createStub.calledOnce);
     assert.ok(updateStub.calledOnceWith("evt_2", "processed", tMock));
@@ -72,7 +72,7 @@ describe("testing stripe processor", () => {
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
 
-    await workersProcessors.stripeProcessor(job);
+    await stripeProcessor(job);
 
     assert.ok(orderStub.calledOnce);
     assert.ok(tMock.commit.calledOnce);
@@ -101,7 +101,7 @@ describe("testing stripe processor", () => {
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
 
-    await workersProcessors.stripeProcessor(job);
+    await stripeProcessor(job);
 
     assert.ok(infoStub);
     assert.ok(tMock.commit.calledOnce);
@@ -120,7 +120,7 @@ describe("testing stripe processor", () => {
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
 
-    await workersProcessors.stripeProcessor(job);
+    await stripeProcessor(job);
 
     assert.ok(tMock.commit.calledOnce);
     assert.ok(
@@ -152,10 +152,7 @@ describe("testing stripe processor", () => {
     const tMock = { commit: sinon.stub(), rollback: sinon.stub() };
     sinon.stub(sequelize, "transaction").resolves(tMock);
 
-    await assert.rejects(
-      () => workersProcessors.stripeProcessor(job),
-      /DB failed/
-    );
+    await assert.rejects(() => stripeProcessor(job), /DB failed/);
     assert.ok(tMock.rollback.calledOnce);
 
     sinon.restore();

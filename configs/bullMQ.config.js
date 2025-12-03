@@ -1,92 +1,66 @@
-import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./redis.js";
+import redis, { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./redis.js";
+import { Queue, Worker } from "bullmq";
+import { NODE_ENV } from "./serverConfig.js";
+import { errorLogger, infoLogger } from "../utils/loggers.js";
 
-export const connection = {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  password: REDIS_PASSWORD,
-};
+const isTest = NODE_ENV === "test";
 
-export const queueConfig = {
-  connection,
+export const defaultQueueOptions = {
+  connection: redis,
   defaultJobOptions: {
-    attempts: 3,
-    backoff: { type: "exponential", delay: 3000 },
-    removeOnComplete: true,
-    removeOnFail: false,
+    attempts: 10,
+    backoff: { type: "exponential", delay: 5000 },
+    removeOnComplete: 100,
+    removeOnFail: 100,
   },
 };
-export default queueConfig;
-// i cant have them to run the queues in testing since redis will fail the whole app
 
-// const cleanupQueue = new Queue("cleanup-queue", { connection: redis });
+export function createQueue(name) {
+  if (isTest) {
+    return { add: async () => {} };
+  }
+  return new Queue(name, {
+    connection: redis,
+    ...defaultQueueOptions,
+    limiter: {
+      max: 10,
+      duration: 1000,
+    },
+  });
+}
 
-// const deadLetterQueue = new Queue("dead-letter", { connection: redis });
+export function createWorker(name, processor, options = {}) {
+  if (isTest) return;
 
-// const cleanupWorker = new Worker(
-//   "cleanup-queue",
-//   async (job) => {
-//     const { id, url } = job.data;
-//     try {
-//       console.log(`🗑️ Deleted S3 file: ${url}`);
-//       await db.Asset.destroy({ where: { id }, force: true });
-//       // flag
-//       // await deleteFromS3(url);
-//       console.log(`🧹 Deleted asset record ${id}`);
-//     } catch (err) {
-//       console.log(err);
-//       console.error(`❌ Failed to delete asset ${id}:`, err.message);
-//       throw err;
-//     }
-//   },
-//   { connection: redis }
-// );
-// const dlqWorker = new Worker(
-//   "dead-letter",
-//   async (job) => {
-//     infoLogger(`📥 Handling DLQ job ${job.id}`);
-//     await writeFile("./emergencyDLQ.txt", JSON.stringify(job), { flag: "a" });
-//   },
-//   { connection: redis }
-// );
+  const worker = new Worker(name, processor, {
+    concurrency: 1,
+    connection: redis,
+    lockDuration: 30000,
+    stalledInterval: 60000,
+    maxStalledCount: 2,
+    autorun: true,
+    ...options,
+  });
 
-// stripeWorker.on("completed", (job) => {
-//   infoLogger(`✅ Job ${job.id} is completed`);
-// });
+  worker.on("completed", (job) => {
+    infoLogger(`Job ${job.id} completed`);
+  });
 
-// stripeWorker.on("failed", async (job, err) => {
-//   errorLogger(`❌ Job ${job.id} failed:`, err.message);
-//   if (job.attemptsMade >= job.opts.attempts) {
-//     infoLogger(`🚨 Job ${job.id} reached max attempts, moving to DLQ`);
-//     await deadLetterQueue.add("failed-job", {
-//       id: job.id,
-//       name: job.name,
-//       data: job.data,
-//       error: err.message,
-//       stack: err.stack,
-//     });
-//   }
-// });
+  worker.on("failed", (job, err) => {
+    errorLogger(`Job ${job.id} failed:`, err);
+  });
 
-// export const enqueueDeletedAssets = async () => {
-//   const assets = await db.Asset.findAll({
-//     paranoid: false,
-//     where: {
-//       deleted_at: { [Op.not]: null },
-//     },
-//   });
-//   for (const asset of assets) {
-//     await cleanupQueue.add("deleteAsset", { id: asset.id, url: asset.url });
-//   }
-//   console.log(`✅ Added ${assets.length} assets for cleanup`);
-// };
+  worker.on("error", (err) => {
+    errorLogger("Worker error:", err);
+  });
 
-// if (NODE_ENV !== "test") {
-//   cron.schedule("0 0 * * * *", enqueueDeletedAssets);
-// }
-// const Queues = {
-//   stripeQueue,
-//   notificationQueue,
-//   cleanupQueue,
-//   deadLetterQueue,
-// };
-// export default Queues;
+  worker.on("stalled", (jobId) => {
+    errorLogger(`Job ${jobId} stalled`);
+  });
+
+  worker.on("active", (job) => {
+    infoLogger(`Job ${job.id} started processing`);
+  });
+
+  return worker;
+}

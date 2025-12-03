@@ -1,6 +1,3 @@
-import { Queue } from "bullmq";
-import queueConfig from "../../configs/bullMQ.config.js";
-
-const notificationQueue = new Queue("notification-events", queueConfig);
-
+import { createQueue } from "../../configs/bullMQ.config.js";
+const notificationQueue = createQueue("notification-events");
 export default notificationQueue;
