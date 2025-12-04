@@ -22,7 +22,11 @@ async function retrievePost(filters) {
   }
 }
 after(async () => {
-  await app?.close();
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
 });
 describe("api/post - post - testing create new post", () => {
   it("should create new post successfully", async () => {

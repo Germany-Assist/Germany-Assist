@@ -14,7 +14,11 @@ beforeEach(async () => {
   }
 });
 after(async () => {
-  await app?.close();
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
 });
 describe("Tests the permission ", () => {
   it("should try to access unauthorized resource protected route", async () => {});

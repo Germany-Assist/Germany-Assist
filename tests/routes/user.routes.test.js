@@ -26,7 +26,11 @@ beforeEach(async () => {
   }
 });
 after(async () => {
-  await app?.close();
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
 });
 describe("userRouter.post/ create new client", () => {
   it("should create new client correctly and retrieve the correct data", async () => {

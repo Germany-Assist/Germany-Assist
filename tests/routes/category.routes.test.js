@@ -15,7 +15,11 @@ beforeEach(async () => {
   }
 });
 after(async () => {
-  await app?.close();
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
 });
 async function getCatFromDB(filters) {
   return await db.Category.findOne({ where: filters, raw: true });

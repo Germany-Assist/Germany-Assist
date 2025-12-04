@@ -40,7 +40,11 @@ const getService = async (filters) => {
   return false;
 };
 after(async () => {
-  await app?.close();
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
 });
 describe("/api/service   //   /* ---------------- Public Routes ---------------- */", () => {
   test("GET /api/service returns array and checking for pagination", async () => {

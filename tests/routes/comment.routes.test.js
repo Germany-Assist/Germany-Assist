@@ -28,7 +28,11 @@ beforeEach(async () => {
   }
 });
 after(async () => {
-  await app?.close();
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
 });
 describe("api/post/comment - post - testing comment routes", () => {
   it("should create comment successfully and create a reply", async () => {
