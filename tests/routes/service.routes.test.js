@@ -19,6 +19,7 @@ import hashIdUtil from "../../utils/hashId.util.js";
 import db from "../../database/dbIndex.js";
 import { getUserProfile } from "../../services/user.services.js";
 import { initDatabase } from "../../database/migrateAndSeed.js";
+import { errorLogger } from "../../utils/loggers.js";
 
 const API_PREFIX = "/api/service";
 

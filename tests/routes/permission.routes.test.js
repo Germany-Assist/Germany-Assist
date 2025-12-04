@@ -5,6 +5,7 @@ import { after, before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
 import hashIdUtil from "../../utils/hashId.util.js";
 import { initDatabase } from "../../database/migrateAndSeed.js";
+import { errorLogger } from "../../utils/loggers.js";
 
 beforeEach(async () => {
   try {
