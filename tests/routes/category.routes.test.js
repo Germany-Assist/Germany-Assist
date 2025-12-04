@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test";
+import { describe, it, beforeEach, after } from "node:test";
 import { app } from "../../app.js";
 import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
@@ -13,6 +13,9 @@ beforeEach(async () => {
   } catch (error) {
     errorLogger(error);
   }
+});
+after(async () => {
+  await app?.close();
 });
 async function getCatFromDB(filters) {
   return await db.Category.findOne({ where: filters, raw: true });

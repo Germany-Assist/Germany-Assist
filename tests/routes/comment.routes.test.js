@@ -27,7 +27,9 @@ beforeEach(async () => {
     errorLogger(error);
   }
 });
-
+after(async () => {
+  await app?.close();
+});
 describe("api/post/comment - post - testing comment routes", () => {
   it("should create comment successfully and create a reply", async () => {
     const { post, service, timeline } = await fullPostFactory();

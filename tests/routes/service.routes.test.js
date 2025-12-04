@@ -1,12 +1,4 @@
-import {
-  test,
-  describe,
-  before,
-  after,
-  beforeEach,
-  afterEach,
-  it,
-} from "node:test";
+import { test, describe, after, beforeEach, it } from "node:test";
 import assert from "node:assert";
 import request from "supertest";
 import { app } from "../../app.js";
@@ -47,6 +39,9 @@ const getService = async (filters) => {
   if (service) return service.toJSON();
   return false;
 };
+after(async () => {
+  await app?.close();
+});
 describe("/api/service   //   /* ---------------- Public Routes ---------------- */", () => {
   test("GET /api/service returns array and checking for pagination", async () => {
     for (let i = 0; i < 11; i++) {

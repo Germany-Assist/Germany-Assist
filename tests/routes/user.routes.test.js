@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test";
+import { describe, it, beforeEach, after } from "node:test";
 import { app } from "../../app.js";
 import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
@@ -25,7 +25,9 @@ beforeEach(async () => {
     errorLogger(error);
   }
 });
-
+after(async () => {
+  await app?.close();
+});
 describe("userRouter.post/ create new client", () => {
   it("should create new client correctly and retrieve the correct data", async () => {
     const resp = await request(app).post("/api/user/").send(testUser);

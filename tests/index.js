@@ -30,7 +30,7 @@ try {
 
         const cmd = process.env.WORKFLOW_TEST
           ? `node --test tests/${folderName}/${file}`
-          : `node --env-file=test.env --test tests/${folderName}/${file}`;
+          : `node --trace-warnings --env-file=test.env --test tests/${folderName}/${file}`;
 
         execSync(cmd, { stdio: "inherit" });
 

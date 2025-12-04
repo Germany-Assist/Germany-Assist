@@ -19,13 +19,11 @@ export function createQueue(name) {
   if (isTest) {
     return { add: async () => {} };
   }
+
   return new Queue(name, {
     connection: redis,
     ...defaultQueueOptions,
-    limiter: {
-      max: 10,
-      duration: 1000,
-    },
+    limiter: { max: 10, duration: 1000 },
   });
 }
 
@@ -33,34 +31,15 @@ export function createWorker(name, processor, options = {}) {
   if (isTest) return;
 
   const worker = new Worker(name, processor, {
-    concurrency: 1,
     connection: redis,
-    lockDuration: 30000,
-    stalledInterval: 60000,
-    maxStalledCount: 2,
+    concurrency: 1,
     autorun: true,
     ...options,
   });
 
-  worker.on("completed", (job) => {
-    infoLogger(`Job ${job.id} completed`);
-  });
-
-  worker.on("failed", (job, err) => {
-    errorLogger(`Job ${job.id} failed:`, err);
-  });
-
-  worker.on("error", (err) => {
-    errorLogger("Worker error:", err);
-  });
-
-  worker.on("stalled", (jobId) => {
-    errorLogger(`Job ${jobId} stalled`);
-  });
-
-  worker.on("active", (job) => {
-    infoLogger(`Job ${job.id} started processing`);
-  });
+  worker.on("completed", (job) => infoLogger(`Job ${job.id} completed`));
+  worker.on("failed", (job, err) => errorLogger(`Job ${job.id} failed`, err));
+  worker.on("error", (err) => errorLogger(`Worker error`, err));
 
   return worker;
 }

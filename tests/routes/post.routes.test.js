@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test";
+import { describe, it, beforeEach, after } from "node:test";
 import { app } from "../../app.js";
 import request from "supertest";
 import { errorLogger } from "../../utils/loggers.js";
@@ -21,6 +21,9 @@ async function retrievePost(filters) {
     console.log(error);
   }
 }
+after(async () => {
+  await app?.close();
+});
 describe("api/post - post - testing create new post", () => {
   it("should create new post successfully", async () => {
     const { SP, timeline, service } = await fullServiceFactory();
