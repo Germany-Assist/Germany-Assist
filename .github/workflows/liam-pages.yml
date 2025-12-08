@@ -55,7 +55,7 @@ jobs:
         run: npm run dbInitForLiam
 
       - name: Dump schema
-        run: pg_dump-17 -s -U postgres -h localhost -p 5432 germany-assist-testing > schema.sql
+        run: /usr/lib/postgresql/17/bin/pg_dump -s -U postgres -h localhost -p 5432 germany-assist-testing > schema.sql
         env:
           PGPASSWORD: postgres
 
