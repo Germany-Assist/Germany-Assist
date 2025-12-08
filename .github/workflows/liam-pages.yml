@@ -40,7 +40,7 @@ jobs:
         env:
           NODE_ENV: "dev"
         run: |
-          npm run dbInit"
+          npm run dbInit
 
       - name: Dump schema
         run: pg_dump -s -U postgres -h localhost -p 5432 mydb > schema.sql
