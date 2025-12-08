@@ -63,12 +63,12 @@ jobs:
         run: npm install -g @liam-hq/cli
 
       - name: Generate ERD
-        run: liam generate schema.sql --out erd
+        run: npx @liam-hq/cli erd build --input schema.sql
 
       - name: Upload ERD artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./erd
+          path: ./dist
 
   deploy:
     needs: erd
