@@ -9,6 +9,7 @@ import userController, {
 import { roleTemplates } from "../database/templates.js";
 import { v4 as uuid } from "uuid";
 import { sequelize } from "../database/connection.js";
+import { errorLogger } from "../utils/loggers.js";
 
 const client = new OAuth2Client(googleOAuthConfig.clientId);
 
@@ -63,7 +64,7 @@ async function googleAuthController(req, res) {
     await t.commit();
   } catch (error) {
     await t.rollback();
-    res.status(401).json({ message: "Invalid Google token" });
+    next(error);
   }
 }
 const authController = {

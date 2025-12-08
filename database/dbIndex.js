@@ -17,9 +17,11 @@ import Timeline from "./models/timeline.js";
 import Post from "./models/post.js";
 import Comment from "./models/comment.js";
 import AssetTypes from "./models/assetTypes.js";
-import Notification from "./models/notification.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 import { sequelize } from "./connection.js";
+import Subscriber from "./models/subscriber.js";
+import Event from "./models/event.js";
+import Notification from "./models/notification.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
@@ -198,6 +200,8 @@ const db = {
   Comment,
   Favorite,
   Notification,
+  Subscriber,
+  Event,
 };
 
 export default db;

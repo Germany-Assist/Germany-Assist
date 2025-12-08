@@ -43,3 +43,35 @@ export function createWorker(name, processor, options = {}) {
 
   return worker;
 }
+
+export async function listAllJobs(queue) {
+  try {
+    const jobsPromise = queue.getJobs([
+      "waiting",
+      "delayed",
+      "active",
+      "failed",
+      "completed",
+    ]);
+
+    const countsPromise = queue.getJobCounts();
+
+    const [jobs, counts] = await Promise.all([jobsPromise, countsPromise]);
+
+    infoLogger(`\n=== ${queue.name} Queue Status ===`);
+    infoLogger(`Total jobs: ${jobs.length}`);
+
+    for (const job of jobs) {
+      infoLogger(
+        `${job.id} - ${job.name} - ${job.data?.event?.id} - ${job.state}`
+      );
+    }
+    // Get counts
+    infoLogger("\nJob counts:", counts);
+
+    return jobs;
+  } catch (error) {
+    console.error("Error listing jobs:", error);
+    return [];
+  }
+}

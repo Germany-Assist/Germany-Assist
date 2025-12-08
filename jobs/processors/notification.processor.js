@@ -28,10 +28,12 @@ async function notificationProcessor(job) {
           message: `Successful payment from user ${user.email} for timeline ${service.Timelines[0].label} of service ${service.title} `,
           url: "",
           type: "info",
-          user_id: data.user_id,
-          service_provider_id: data.service_provider_id,
+          userId: data.user_id,
+          metadata: {
+            serviceProviderId: data.service_provider_id,
+            serviceId: service.id,
+          },
         };
-
         const notification = await db.Notification.create(notificationData);
 
         await emailServices.sendNotificationPaymentEmail(

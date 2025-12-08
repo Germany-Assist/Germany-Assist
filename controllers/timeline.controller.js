@@ -23,6 +23,7 @@ async function formatPost(post) {
       })
     );
   }
+
   return {
     id: hashIdUtil.hashIdEncode(post.id),
     description: post.description,
@@ -76,7 +77,7 @@ async function getTimelineByIdClient(req, res, next) {
     }
     let posts = [];
     if (timeline.Posts) {
-      posts = Promise.all(map(formatPost));
+      posts = await Promise.all(timeline.Posts.map(formatPost));
     }
     res.send({
       id: hashIdUtil.hashIdEncode(timeline.id),

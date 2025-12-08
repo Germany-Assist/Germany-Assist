@@ -1,0 +1,67 @@
+name: ERD Deployment
+
+on:
+  push:
+    branches: ["**"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  erd:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mydb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Wait for Postgres
+        run: sleep 10
+
+      - name: Apply Sequelize migrations
+        env:
+          NODE_ENV: "dev"
+        run: |
+          npm run dbInit"
+
+      - name: Dump schema
+        run: pg_dump -s -U postgres -h localhost -p 5432 mydb > schema.sql
+        env:
+          PGPASSWORD: postgres
+
+      - name: Install Liam ERD
+        run: npm install -g @liam-hq/cli
+
+      - name: Generate ERD
+        run: liam generate schema.sql --out erd
+
+      - name: Upload ERD artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./erd
+
+  deploy:
+    needs: erd
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/deploy-pages@v4

@@ -40,10 +40,6 @@ User.init(
           args: [2, 50],
           msg: "Last name must be between 2 and 50 characters",
         },
-        is: {
-          args: /^[a-zA-Z\s'-]+$/i,
-          msg: "Last name can only contain letters, spaces, hyphens, and apostrophes",
-        },
       },
     },
 
