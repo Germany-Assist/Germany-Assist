@@ -1,7 +1,7 @@
-import redis, { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "./redis.js";
-import { Queue, Worker } from "bullmq";
+import redis from "./redis.js";
+import { Queue, QueueEvents, Worker } from "bullmq";
 import { NODE_ENV } from "./serverConfig.js";
-import { errorLogger, infoLogger } from "../utils/loggers.js";
+import { debugLogger, errorLogger, infoLogger } from "../utils/loggers.js";
 
 const isTest = NODE_ENV === "test";
 
@@ -15,38 +15,92 @@ export const defaultQueueOptions = {
   },
 };
 
-export function createQueue(name) {
-  if (isTest) {
-    return { add: async () => {} };
+export class QueueManager {
+  constructor() {
+    this.queues = new Map();
+    this.events = new Map();
+    this.workers = new Map();
   }
 
-  return new Queue(name, {
-    connection: redis,
-    ...defaultQueueOptions,
-    limiter: { max: 10, duration: 1000 },
-  });
+  createQueue(name, options = {}) {
+    if (isTest) {
+      const stubQueue = { add: async () => {} };
+      const stubEvents = { on: () => {} };
+      this.queues.set(name, stubQueue);
+      this.events.set(name, stubEvents);
+      return { queue: stubQueue, events: stubEvents };
+    }
+
+    const queue = new Queue(name, { ...defaultQueueOptions, ...options });
+    const events = new QueueEvents(name, { connection: redis });
+    (queue.listAllJobs = async () => {
+      await listAllJobs(queue);
+    })();
+    events.on("waiting", ({ jobId }) =>
+      debugLogger(`[${name}] waiting ${jobId}`)
+    );
+    events.on("active", ({ jobId }) =>
+      debugLogger(`[${name}] active ${jobId}`)
+    );
+    events.on("completed", ({ jobId }) =>
+      debugLogger(`[${name}] completed ${jobId}`)
+    );
+    events.on("failed", ({ jobId, failedReason }) =>
+      errorLogger(`[${name}] failed ${jobId}`, failedReason)
+    );
+    events.on("error", (err) =>
+      errorLogger(`[${name}] QueueEvents error`, err)
+    );
+
+    this.queues.set(name, queue);
+    this.events.set(name, events);
+    return { queue, events };
+  }
+
+  createWorker(name, processor, options = {}) {
+    if (isTest) return null;
+    debugLogger(`creating ${name} worker`);
+    const worker = new Worker(name, processor, {
+      connection: redis,
+      concurrency: 1,
+      autorun: true,
+      ...options,
+    });
+    worker.on("completed", (job) =>
+      infoLogger(`[${name}] job ${job.id} completed`)
+    );
+    worker.on("failed", (job, err) =>
+      errorLogger(`[${name}] job ${job.id} failed`, err)
+    );
+    worker.on("error", (err) => errorLogger(`[${name}] worker error`, err));
+
+    this.workers.set(name, worker);
+    return worker;
+  }
+
+  async shutdownAll() {
+    // close workers
+    for (const worker of this.workers.values()) {
+      infoLogger("Closing All the bullmq-workers");
+      await worker?.close();
+    }
+    // close queue events
+    for (const events of this.events.values()) {
+      infoLogger("Closing All the bullmq-events");
+      await events?.close();
+    }
+    // optionally close queues (not mandatory)
+    for (const queue of this.queues.values()) {
+      infoLogger("Closing All the bullmq-queues");
+      await queue?.close();
+    }
+  }
 }
-
-export function createWorker(name, processor, options = {}) {
-  if (isTest) return;
-
-  const worker = new Worker(name, processor, {
-    connection: redis,
-    concurrency: 1,
-    autorun: true,
-    ...options,
-  });
-
-  worker.on("completed", (job) => infoLogger(`Job ${job.id} completed`));
-  worker.on("failed", (job, err) => errorLogger(`Job ${job.id} failed`, err));
-  worker.on("error", (err) => errorLogger(`Worker error`, err));
-
-  return worker;
-}
+export default QueueManager = new QueueManager();
 
 export async function listAllJobs(queue) {
   try {
-    const jobsPromise = queue.getJobs([
+    const jobs = await queue.getJobs([
       "waiting",
       "delayed",
       "active",
@@ -54,24 +108,22 @@ export async function listAllJobs(queue) {
       "completed",
     ]);
 
-    const countsPromise = queue.getJobCounts();
-
-    const [jobs, counts] = await Promise.all([jobsPromise, countsPromise]);
+    const counts = await queue.getJobCounts();
 
     infoLogger(`\n=== ${queue.name} Queue Status ===`);
     infoLogger(`Total jobs: ${jobs.length}`);
 
     for (const job of jobs) {
-      infoLogger(
-        `${job.id} - ${job.name} - ${job.data?.event?.id} - ${job.state}`
-      );
+      const state = await job.getState(); // ✅ fetch actual state from Redis
+      const eventId = job.data?.event?.id || job.data?.id || "undefined";
+      infoLogger(`${job.id} - ${job.name} - ${eventId} - ${state}`);
     }
-    // Get counts
+
     infoLogger("\nJob counts:", counts);
 
     return jobs;
   } catch (error) {
-    console.error("Error listing jobs:", error);
+    errorLogger("Error listing jobs:", error);
     return [];
   }
 }

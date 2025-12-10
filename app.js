@@ -12,7 +12,7 @@ import { sequelize } from "./database/connection.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import cookieParser from "cookie-parser";
-import { errorLogger, infoLogger } from "./utils/loggers.js";
+import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
 import { AppError } from "./utils/error.class.js";
 import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
 import createSocketServer from "./sockets/index.js";
@@ -23,6 +23,7 @@ import { DB_NAME } from "./configs/databaseConfig.js";
 import redis from "./configs/redis.js";
 import "./configs/bullMQ.config.js";
 import helmet from "helmet";
+import { QueueManager } from "./configs/bullMQ.config.js";
 export const app = express();
 export const server = createServer(app);
 export const io = createSocketServer(server);
@@ -64,6 +65,7 @@ export const shutdownServer = async (event) => {
       sequelize
         ?.close()
         .then(() => infoLogger("✅ Database connection closed")),
+      QueueManager.shutdownAll(),
       (async () => {
         if (redis) {
           try {
@@ -88,7 +90,6 @@ export const shutdownServer = async (event) => {
     process.exit(1);
   }
 };
-
 if (NODE_ENV !== "test") {
   server.listen(SERVER_PORT, "127.0.0.1", async () => {
     try {

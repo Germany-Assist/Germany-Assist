@@ -24,7 +24,4 @@ apiRouter
   .use("/post", postRouter)
   .use("/auth", authRouter);
 
-// Badges;
-// Events;
-
 export default apiRouter;

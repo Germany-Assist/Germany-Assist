@@ -1,26 +1,23 @@
 import { sequelize } from "../../database/connection.js";
 import orderService from "../../services/order.services.js";
 import { NOTIFICATION_EVENTS, STRIPE_EVENTS } from "../../configs/constants.js";
-import { errorLogger, infoLogger } from "../../utils/loggers.js";
+import { debugLogger, errorLogger, infoLogger } from "../../utils/loggers.js";
 import stripeServices from "../../services/stripe.service.js";
 import notificationQueue from "../queues/notification.queue.js";
 export async function stripeProcessor(job) {
   const startTime = Date.now();
-  infoLogger(`Starting job ${job.id} - ${job.data.event.type}`);
   const event = job.data.event;
   const eventId = event.id;
-  // Add timeout to prevent infinite processing
   const timeout = 55000; // 55 seconds (just under lockDuration)
+
   try {
     const stripeEvent = await stripeServices.getStripeEvent(eventId);
     if (stripeEvent?.status === "processed") {
       infoLogger(`Event ${eventId} already processed, skipping`);
       return;
     }
-
     const metadata = event.data.object?.metadata;
     const t = await sequelize.transaction();
-
     try {
       switch (event.type) {
         case STRIPE_EVENTS.PAYMENT_CREATED: {
@@ -41,25 +38,24 @@ export async function stripeProcessor(job) {
             currency: "usd",
           };
           await orderService.createOrder(orderData, t);
-          infoLogger(`Created order for payment ${pi.id}`);
+          debugLogger(`Created order for payment ${pi.id}`);
           await notificationQueue.add(
             NOTIFICATION_EVENTS.PAYMENT_SUCCESS,
             orderData
           );
-          infoLogger(`adding to notification queue payment ${pi.id}`);
+          debugLogger(`adding to notification queue payment ${pi.id}`);
           break;
         }
         case STRIPE_EVENTS.PAYMENT_FAILED: {
-          infoLogger(`Payment Failed: ${event.id}`);
+          debugLogger(`Payment Failed: ${event.id}`);
           break;
         }
         default:
-          infoLogger(`Unhandled Stripe event: ${event.type} - ${event.id}`);
+          debugLogger(`Unhandled Stripe event: ${event.type} - ${event.id}`);
       }
 
       await stripeServices.updateStripeEvent(event.id, "processed", t);
       await t.commit();
-
       const processingTime = Date.now() - startTime;
       infoLogger(`Job ${job.id} completed in ${processingTime}ms`);
     } catch (err) {
