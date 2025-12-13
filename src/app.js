@@ -19,7 +19,7 @@ import createSocketServer from "./sockets/index.js";
 import apiRouter from "./routes/index.routes.js";
 import { v4 as uuidv4 } from "uuid";
 import paymentsRouter from "./routes/payments.routes.js";
-import { DB_NAME } from "./configs/databaseConfig.js";
+import { DB_NAME } from "./configs/database.js";
 import redis from "./configs/redis.js";
 import "./configs/bullMQ.config.js";
 import helmet from "helmet";

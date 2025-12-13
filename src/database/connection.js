@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import * as db_params from "./../configs/databaseConfig.js";
+import * as db_params from "../configs/database.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 

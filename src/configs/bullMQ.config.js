@@ -108,19 +108,17 @@ export async function listAllJobs(queue) {
       "completed",
     ]);
 
-    const counts = await queue.getJobCounts();
-
-    infoLogger(`\n=== ${queue.name} Queue Status ===`);
-    infoLogger(`Total jobs: ${jobs.length}`);
-
-    for (const job of jobs) {
+    const jobsList = jobs.map(async (job) => {
       const state = await job.getState(); // ✅ fetch actual state from Redis
       const eventId = job.data?.event?.id || job.data?.id || "undefined";
-      infoLogger(`${job.id} - ${job.name} - ${eventId} - ${state}`);
-    }
+      return `${job.id} - ${job.name} - ${eventId} - ${state}`;
+    });
 
-    infoLogger("\nJob counts:", counts);
-
+    const QueueStatus = {
+      title: `=== ${queue.name} Queue Status ===`,
+      jobs: await Promise.all(jobsList),
+    };
+    console.log(QueueStatus);
     return jobs;
   } catch (error) {
     errorLogger("Error listing jobs:", error);

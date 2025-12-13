@@ -25,13 +25,13 @@
   "contributors": [],
   "scripts": {
     "start": "node --env-file=.env app.js",
-    "dev": "node --watch --env-file=dev.env app.js ",
-    "dbInit": "node --env-file=dev.env  ./database/migrateAndSeed.js",
-    "dbInitForLiam": "node ./database/migrateAndSeed.js",
+    "dev": "node --watch --env-file=dev.env ./src/app.js ",
+    "dbInit": "node --env-file=dev.env  ./src/database/migrateAndSeed.js",
+    "dbInitForLiam": "node ./src/database/migrateAndSeed.js",
     "test": "node --env-file=test.env ./tests/index.js",
     "workflowTest": "node  ./tests/index.js",
-    "export": "node --env-file=dev.env  ./database/export.js",
-    "seed": "node --env-file=dev.env ./database/seed.js"
+    "export": "node --env-file=dev.env  ./src/database/export.js",
+    "seed": "node --env-file=dev.env ./src/database/seed.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.929.0",
