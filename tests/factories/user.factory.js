@@ -1,7 +1,7 @@
-import db from "../../database/dbIndex.js";
-import jwtMiddleware from "../../middlewares/jwt.middleware.js";
-import bcryptUtil from "../../utils/bcrypt.util.js";
-import { errorLogger } from "../../utils/loggers.js";
+import db from "../../src/database/dbIndex.js";
+import jwtMiddleware from "../../src/middlewares/jwt.middleware.js";
+import bcryptUtil from "../../src/utils/bcrypt.util.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import { v4 as uuidv4 } from "uuid";
 import { permissionFactory } from "./permission.factory.js";
 export async function userFactory(overrides = {}) {

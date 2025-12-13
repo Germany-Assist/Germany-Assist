@@ -3,14 +3,14 @@ import { beforeEach, afterEach, test } from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
 
-import uploadController from "../../controllers/assets.controller.js";
-import assetServices from "../../services/asset.services.js";
-import s3Utils from "../../configs/s3Configs.js";
-import sharpUtil from "../../utils/sharp.util.js";
-import authUtil from "../../utils/authorize.util.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import uploadController from "../../src/modules/assets/assets.controller.js";
+import assetServices from "../../src/modules/assets/asset.services.js";
+import s3Utils from "../../src/configs/s3Configs.js";
+import sharpUtil from "../../src/utils/sharp.util.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import db from "../../src/database/dbIndex.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 let req;

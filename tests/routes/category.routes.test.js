@@ -1,12 +1,12 @@
 import { describe, it, beforeEach, after } from "node:test";
-import { app } from "../../app.js";
+import { app } from "../../src/app.js";
 import request from "supertest";
-import { errorLogger } from "../../utils/loggers.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import { errorLogger } from "../../src/utils/loggers.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import assert from "node:assert";
 import { userAdminFactory } from "../factories/user.factory.js";
-import db from "../../database/dbIndex.js";
-import hashIdUtil from "../../utils/hashId.util.js";
+import db from "../../src/database/dbIndex.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
 beforeEach(async () => {
   try {
     await initDatabase(false);

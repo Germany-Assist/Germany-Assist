@@ -1,10 +1,10 @@
 import { describe, it, beforeEach, after } from "node:test";
-import { app } from "../../app.js";
+import { app } from "../../src/app.js";
 import request from "supertest";
-import { errorLogger } from "../../utils/loggers.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import assert from "node:assert";
-import jwtUtils from "../../middlewares/jwt.middleware.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import jwtUtils from "../../src/middlewares/jwt.middleware.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import {
   userFactory,
   userWithTokenFactory,

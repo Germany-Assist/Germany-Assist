@@ -1,9 +1,8 @@
 import db from "../database/dbIndex.js";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import { AppError } from "./error.class.js";
-import permissionServices from "../services/permission.services.js";
+import permissionServices from "../modules/permission/permission.services.js";
 import hashIdUtil from "./hashId.util.js";
-import { Model } from "sequelize";
 function capitalizeFirstLetter(str) {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1);

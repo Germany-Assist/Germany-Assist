@@ -1,15 +1,14 @@
 import { describe, it, beforeEach, after } from "node:test";
-import { app } from "../../app.js";
+import { app } from "../../src/app.js";
 import request from "supertest";
-import { errorLogger } from "../../utils/loggers.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import { errorLogger } from "../../src/utils/loggers.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import assert from "node:assert";
 import { userWithTokenFactory } from "../factories/user.factory.js";
 import { fullPostFactory } from "../factories/service.factory.js";
-import hashIdUtil from "../../utils/hashId.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
 import { orderFactory } from "../factories/order.factory.js";
-import db from "../../database/dbIndex.js";
-import { sequelize } from "../../database/connection.js";
+import db from "../../src/database/dbIndex.js";
 
 const retrieveComment = async (filters) => {
   try {

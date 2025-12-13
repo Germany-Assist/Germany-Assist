@@ -2,12 +2,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import permissionController from "../../controllers/permission.controller.js";
-import { AppError } from "../../utils/error.class.js";
-import authUtil from "../../utils/authorize.util.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import permissionServices from "../../services/permission.services.js";
-import { roleTemplates } from "../../database/templates.js";
+import permissionController from "../../src/modules/permission/permission.controller.js";
+import { AppError } from "../../src/utils/error.class.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import { roleTemplates } from "../../src/database/templates.js";
 
 test("assignPermission works for valid request", async () => {
   const req = {

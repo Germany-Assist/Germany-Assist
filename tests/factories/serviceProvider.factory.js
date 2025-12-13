@@ -1,5 +1,5 @@
-import db from "../../database/dbIndex.js";
-import { errorLogger } from "../../utils/loggers.js";
+import db from "../../src/database/dbIndex.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import { permissionFactory } from "./permission.factory.js";
 import { userWithTokenFactory } from "./user.factory.js";
 import { v4 as uuidv4 } from "uuid";

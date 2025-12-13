@@ -1,11 +1,11 @@
 import request from "supertest";
-import { app } from "../../app.js";
-import db from "../../database/dbIndex.js";
+import { app } from "../../src/app.js";
+import db from "../../src/database/dbIndex.js";
 import { after, before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
-import hashIdUtil from "../../utils/hashId.util.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
-import { errorLogger } from "../../utils/loggers.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 
 beforeEach(async () => {
   try {

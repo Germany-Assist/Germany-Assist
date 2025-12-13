@@ -3,8 +3,8 @@ import test from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
 import jwt from "jsonwebtoken";
-import jwtUtil from "../../middlewares/jwt.middleware.js";
-import { AppError } from "../../utils/error.class.js";
+import jwtUtil from "../../src/middlewares/jwt.middleware.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 test.describe("jwt.middleware", () => {
   test.afterEach(() => sinon.restore());

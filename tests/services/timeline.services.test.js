@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import timelineServices from "../../services/timeline.service.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import timelineServices from "../../src/modules/timeline/timeline.service.js";
+import db from "../../src/database/dbIndex.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 

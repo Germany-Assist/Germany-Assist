@@ -2,12 +2,12 @@ import sinon from "sinon";
 import assert from "node:assert";
 import { describe, it, beforeEach, afterEach } from "node:test";
 
-import timelineController from "../../controllers/timeline.controller.js";
-import timelineServices from "../../services/timeline.service.js";
-import authUtil from "../../utils/authorize.util.js";
-import { sequelize } from "../../database/connection.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import { AppError } from "../../utils/error.class.js";
+import timelineController from "../../src/modules/timeline/timeline.controller.js";
+import timelineServices from "../../src/modules/timeline/timeline.service.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import { sequelize } from "../../src/database/connection.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 describe("Timeline Controller", () => {
   let sandbox, req, res, next, fakeTransaction;

@@ -1,12 +1,12 @@
 import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import serviceController from "../../controllers/service.controller.js";
-import serviceServices from "../../services/service.services.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import authUtils from "../../utils/authorize.util.js";
-import { sequelize } from "../../database/connection.js";
-import { AppError } from "../../utils/error.class.js";
+import serviceController from "../../src/modules/service/service.controller.js";
+import serviceServices from "../../src/modules/service/service.services.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import authUtils from "../../src/utils/authorize.util.js";
+import { sequelize } from "../../src/database/connection.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 describe("Testing Services Controller", () => {
   test("createService → success", async (t) => {

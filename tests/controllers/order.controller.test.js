@@ -1,16 +1,14 @@
 import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import orderController from "../../controllers/order.controller.js";
-import authUtil from "../../utils/authorize.util.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import orderService from "../../services/order.services.js";
-import userServices from "../../services/user.services.js";
-import stripeUtils from "../../utils/stripe.util.js";
-import { AppError } from "../../utils/error.class.js";
-import { v4 as uuidv4 } from "uuid";
+import orderController from "../../src/modules/order/order.controller.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import orderService from "../../src/modules/order/order.services.js";
+import userServices from "../../src/modules/user/user.services.js";
+import stripeUtils from "../../src/utils/stripe.util.js";
+import { AppError } from "../../src/utils/error.class.js";
 
-// ✅ Mock req, res, next
 function mockReqRes(
   auth = { id: 1, related_id: 10, role: "client" },
   body = {},
@@ -64,9 +62,6 @@ describe("testing order controllers", () => {
     assert.ok(next.firstCall.args[0] instanceof AppError);
   });
 
-  //
-  // 💳 payOrder
-  //
   test("payOrder → should create free order when price = 0", async () => {
     const { req, res, next } = mockReqRes({}, {}, { id: "xyz" });
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
@@ -105,9 +100,6 @@ describe("testing order controllers", () => {
     );
   });
 
-  //
-  // 🧾 getOrderAdmin
-  //
   test("getOrderAdmin → should send encoded order", async () => {
     const { req, res, next } = mockReqRes({ role: "admin" }, {}, { id: "123" });
     const order = { id: 1, user_id: 2, timeline_id: 3, service_id: 4 };
@@ -129,9 +121,6 @@ describe("testing order controllers", () => {
     });
   });
 
-  //
-  // 🧾 getOrderSP
-  //
   test("getOrderSP → should fetch and send encoded order for service provider", async () => {
     const { req, res, next } = mockReqRes(
       { role: "service_provider_root", related_id: 9 },
@@ -157,9 +146,6 @@ describe("testing order controllers", () => {
     });
   });
 
-  //
-  // 👤 getOrderCL
-  //
   test("getOrderCL → should fetch and send encoded order for client", async () => {
     const { req, res, next } = mockReqRes(
       { id: 7, role: "client" },
@@ -185,9 +171,6 @@ describe("testing order controllers", () => {
     });
   });
 
-  //
-  // 📋 getOrdersAdmin
-  //
   test("getOrdersAdmin → should encode and send all admin orders", async () => {
     const { req, res, next } = mockReqRes({ role: "admin" });
     const orders = [{ id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 }];
@@ -202,9 +185,6 @@ describe("testing order controllers", () => {
     assert.ok(res.send.firstCall.args[0][0].id === "encoded");
   });
 
-  //
-  // 🧾 getOrdersSP
-  //
   test("getOrdersSP → should encode and send SP orders", async () => {
     const { req, res, next } = mockReqRes(
       { role: "service_provider_rep", related_id: 22 },
@@ -224,9 +204,6 @@ describe("testing order controllers", () => {
     assert.ok(res.send.firstCall.args[0][0].id === "encoded");
   });
 
-  //
-  // 👥 getOrdersCL
-  //
   test("getOrdersCL → should encode and send client orders", async () => {
     const { req, res, next } = mockReqRes({ id: 5, role: "client" });
     const orders = [{ id: 1, user_id: 5, timeline_id: 3, user_iservice_id: 4 }];

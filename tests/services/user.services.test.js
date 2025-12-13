@@ -2,10 +2,10 @@ import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import userServices from "../../services/user.services.js";
-import db from "../../database/dbIndex.js";
-import bcryptUtil from "../../utils/bcrypt.util.js";
-import { AppError } from "../../utils/error.class.js";
+import userServices from "../../src/modules/user/user.services.js";
+import db from "../../src/database/dbIndex.js";
+import bcryptUtil from "../../src/utils/bcrypt.util.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 describe("testing User Services", () => {
   test("createUser() should call db.User.create with provided data", async (t) => {

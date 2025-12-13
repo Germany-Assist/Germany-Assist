@@ -1,5 +1,5 @@
 import { sequelize } from "../../database/connection.js";
-import orderService from "../../services/order.services.js";
+import orderService from "../../modules/order/order.services.js";
 import { NOTIFICATION_EVENTS, STRIPE_EVENTS } from "../../configs/constants.js";
 import { debugLogger, errorLogger, infoLogger } from "../../utils/loggers.js";
 import stripeServices from "../../services/stripe.service.js";

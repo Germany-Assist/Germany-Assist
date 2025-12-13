@@ -1,7 +1,7 @@
-import { sequelize } from "../../database/connection.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
-import { errorLogger } from "../../utils/loggers.js";
+import { sequelize } from "../../src/database/connection.js";
+import db from "../../src/database/dbIndex.js";
+import { AppError } from "../../src/utils/error.class.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import { serviceProviderFullFactory } from "./serviceProvider.factory.js";
 import { userWithTokenFactory } from "./user.factory.js";
 

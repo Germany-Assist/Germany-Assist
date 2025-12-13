@@ -1,11 +1,11 @@
 import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import stripeServices from "../../services/stripe.service.js";
-import orderService from "../../services/order.services.js";
-import { infoLogger, errorLogger } from "../../utils/loggers.js";
-import { sequelize } from "../../database/connection.js";
-import stripeProcessor from "../../jobs/processors/stripe.processor.js";
+import stripeServices from "../../src/services/stripe.service.js";
+import orderService from "../../src/modules/order/order.services.js";
+import { infoLogger, errorLogger } from "../../src/utils/loggers.js";
+import { sequelize } from "../../src/database/connection.js";
+import stripeProcessor from "../../src/jobs/processors/stripe.processor.js";
 
 describe("testing stripe processor", () => {
   test("should skip processing if stripeEvent.status is 'processed'", async (t) => {

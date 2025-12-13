@@ -1,10 +1,9 @@
 import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-
-import reviewServices from "../../services/review.services.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import reviewServices from "../../src/modules/review/review.services.js";
+import db from "../../src/database/dbIndex.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 

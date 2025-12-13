@@ -2,12 +2,12 @@
 import test from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
-import authUtil from "../../utils/authorize.util.js";
-import db from "../../database/dbIndex.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import db from "../../src/database/dbIndex.js";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
-import hashIdUtil from "../../utils/hashId.util.js";
-import permissionServices from "../../services/permission.services.js";
-import { AppError } from "../../utils/error.class.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 test.describe("authUtil.checkRoleAndPermission", () => {
   test.afterEach(() => sinon.restore());

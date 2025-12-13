@@ -4,16 +4,16 @@ import { describe, it, beforeEach, afterEach } from "node:test";
 
 import userController, {
   cookieOptions,
-} from "../../controllers/user.controller.js";
-import userServices from "../../services/user.services.js";
-import permissionServices from "../../services/permission.services.js";
-import authUtils from "../../utils/authorize.util.js";
-import bcryptUtil from "../../utils/bcrypt.util.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import jwt from "../../middlewares/jwt.middleware.js";
-import { sequelize } from "../../database/connection.js";
-import { AppError } from "../../utils/error.class.js";
-import { roleTemplates } from "../../database/templates.js";
+} from "../../src/modules/user/user.controller.js";
+import userServices from "../../src/modules/user/user.services.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import authUtils from "../../src/utils/authorize.util.js";
+import bcryptUtil from "../../src/utils/bcrypt.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import jwt from "../../src/middlewares/jwt.middleware.js";
+import { sequelize } from "../../src/database/connection.js";
+import { AppError } from "../../src/utils/error.class.js";
+import { roleTemplates } from "../../src/database/templates.js";
 
 describe("User Controller", () => {
   let sandbox, req, res, next, fakeTransaction;
