@@ -1,6 +1,6 @@
 import serviceProviderServices from "./serviceProvider.services.js";
 import { AppError } from "../../utils/error.class.js";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 import authUtils from "../../utils/authorize.util.js";
 import userController, { cookieOptions } from "../user/user.controller.js";
 import hashIdUtil from "../../utils/hashId.util.js";

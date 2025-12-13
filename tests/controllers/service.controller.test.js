@@ -5,7 +5,7 @@ import serviceController from "../../src/modules/service/service.controller.js";
 import serviceServices from "../../src/modules/service/service.services.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
 import authUtils from "../../src/utils/authorize.util.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 import { AppError } from "../../src/utils/error.class.js";
 
 describe("Testing Services Controller", () => {

@@ -1,7 +1,7 @@
 import serviceServices from "./service.services.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 import authUtils from "../../utils/authorize.util.js";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 import { AppError } from "../../utils/error.class.js";
 import { generateDownloadUrl } from "../../configs/s3Configs.js";
 const sanitizeServices = async (services) => {

@@ -1,4 +1,4 @@
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 import reviewServices from "./review.services.js";
 import serviceServices from "../service/service.services.js";
 import authUtil from "../../utils/authorize.util.js";

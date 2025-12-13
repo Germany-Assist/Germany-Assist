@@ -1,4 +1,4 @@
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 import commentServices from "./comment.services.js";
 import { AppError } from "../../utils/error.class.js";
 import hashIdUtil from "../../utils/hashId.util.js";

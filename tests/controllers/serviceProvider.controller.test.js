@@ -4,7 +4,7 @@ import serviceProviderServices from "../../src/modules/serviceProvider/servicePr
 import userServices from "../../src/modules/user/user.services.js";
 import permissionServices from "../../src/modules/permission/permission.services.js";
 import jwt from "../../src/middlewares/jwt.middleware.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 import { afterEach, before, beforeEach, describe, it } from "node:test";
 import authUtil from "../../src/utils/authorize.util.js";
 import { AppError } from "../../src/utils/error.class.js";

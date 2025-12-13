@@ -1,5 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../connection.js";
+import { sequelize } from "../../configs/database.js";
 
 class AssetTypes extends Model {}
 

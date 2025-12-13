@@ -18,7 +18,7 @@ import Post from "./models/post.js";
 import Comment from "./models/comment.js";
 import AssetTypes from "./models/assetTypes.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
-import { sequelize } from "./connection.js";
+import { sequelize } from "../configs/database.js";
 import Subscriber from "./models/subscriber.js";
 import Event from "./models/event.js";
 import Notification from "./models/notification.js";

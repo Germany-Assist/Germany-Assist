@@ -3,7 +3,7 @@ import test from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
 import authUtil from "../../src/utils/authorize.util.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import hashIdUtil from "../../src/utils/hashId.util.js";
 import permissionServices from "../../src/modules/permission/permission.services.js";

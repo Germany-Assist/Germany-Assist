@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../../src/app.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { after, before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
 import hashIdUtil from "../../src/utils/hashId.util.js";

@@ -1,4 +1,4 @@
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { errorLogger } from "../../src/utils/loggers.js";
 import { permissionFactory } from "./permission.factory.js";
 import { userWithTokenFactory } from "./user.factory.js";

@@ -1,4 +1,4 @@
-import db from "../database/dbIndex.js";
+import db from "../database/index.js";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import { AppError } from "./error.class.js";
 import permissionServices from "../modules/permission/permission.services.js";

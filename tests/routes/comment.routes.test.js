@@ -8,7 +8,7 @@ import { userWithTokenFactory } from "../factories/user.factory.js";
 import { fullPostFactory } from "../factories/service.factory.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
 import { orderFactory } from "../factories/order.factory.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 
 const retrieveComment = async (filters) => {
   try {

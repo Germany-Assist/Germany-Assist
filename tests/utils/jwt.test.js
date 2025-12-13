@@ -10,22 +10,22 @@ test.describe("jwt.middleware", () => {
   test.afterEach(() => sinon.restore());
 
   // -----------------------
-  // verifyToken (refresh)
+  // verifyRefreshToken (refresh)
   // -----------------------
-  test("verifyToken - valid token", () => {
+  test("verifyRefreshToken - valid token", () => {
     const fakePayload = { id: 1 };
     sinon.stub(jwt, "verify").returns(fakePayload);
 
-    const result = jwtUtil.verifyToken("validToken");
+    const result = jwtUtil.verifyRefreshToken("validToken");
 
     assert.deepEqual(result, fakePayload);
   });
 
-  test("verifyToken - invalid token throws AppError", () => {
+  test("verifyRefreshToken - invalid token throws AppError", () => {
     sinon.stub(jwt, "verify").throws(new Error("bad token"));
 
     assert.throws(
-      () => jwtUtil.verifyToken("invalidToken"),
+      () => jwtUtil.verifyRefreshToken("invalidToken"),
       (err) => {
         assert(err instanceof AppError);
         assert.equal(err.message, "invalid token");

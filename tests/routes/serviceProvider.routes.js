@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../../app.js";
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 import { serviceProviderFactory } from "../factories/serviceProvider.factory.js";
 import { before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";

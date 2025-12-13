@@ -16,7 +16,7 @@ import {
   serviceFactory,
 } from "../factories/service.factory.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import { errorLogger } from "../../src/utils/loggers.js";
 

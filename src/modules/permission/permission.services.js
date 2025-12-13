@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
 
 const userAndPermission = async (id, resource, action) => {

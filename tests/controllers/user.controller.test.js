@@ -11,7 +11,7 @@ import authUtils from "../../src/utils/authorize.util.js";
 import bcryptUtil from "../../src/utils/bcrypt.util.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
 import jwt from "../../src/middlewares/jwt.middleware.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 import { AppError } from "../../src/utils/error.class.js";
 import { roleTemplates } from "../../src/database/templates.js";
 
@@ -171,7 +171,7 @@ describe("User Controller", () => {
   // ----------------------
   it("refreshUserToken should return access token", async () => {
     req.cookies = { refreshToken: "token" };
-    jwt.verifyToken = sandbox.stub().returns({ id: 1 });
+    jwt.verifyRefreshToken = sandbox.stub().returns({ id: 1 });
     jwt.generateAccessToken = sandbox.stub().returns("newAccess");
     userServices.getUserById = sandbox.stub().resolves({ id: 1 });
     await userController.refreshUserToken(req, res, next);

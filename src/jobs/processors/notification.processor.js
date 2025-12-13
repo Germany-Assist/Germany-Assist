@@ -1,9 +1,9 @@
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 import emailServices from "../../services/email.services.js";
 import socketNotificationServices from "../../sockets/services/notificationService.js";
 import { NOTIFICATION_EVENTS } from "../../configs/constants.js";
 import { errorLogger, infoLogger } from "../../utils/loggers.js";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 
 async function handlePaymentSuccess(data) {
   const { service_id, timeline_id, user_id, service_provider_id } = data;

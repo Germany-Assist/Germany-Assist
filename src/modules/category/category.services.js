@@ -1,4 +1,4 @@
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 
 export const createCategory = async (data) => {
   return await db.Category.create(data);

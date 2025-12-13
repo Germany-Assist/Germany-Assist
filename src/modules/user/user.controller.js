@@ -2,7 +2,7 @@ import { NODE_ENV, REFRESH_COOKIE_AGE } from "../../configs/serverConfig.js";
 import jwt from "../../middlewares/jwt.middleware.js";
 import { infoLogger } from "../../utils/loggers.js";
 import bcryptUtil from "../../utils/bcrypt.util.js";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 import permissionServices from "../permission/permission.services.js";
 import { roleTemplates } from "../../database/templates.js";
 import hashIdUtil from "../../utils/hashId.util.js";
@@ -275,7 +275,7 @@ export async function refreshUserToken(req, res, next) {
     if (!refreshToken) {
       return res.sendStatus(401);
     }
-    const { id } = jwt.verifyToken(refreshToken);
+    const { id } = jwt.verifyRefreshToken(refreshToken);
     const user = await userServices.getUserById(id);
     const accessToken = jwt.generateAccessToken(user);
     res.send({ accessToken });

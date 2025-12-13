@@ -1,4 +1,4 @@
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import jwtMiddleware from "../../src/middlewares/jwt.middleware.js";
 import bcryptUtil from "../../src/utils/bcrypt.util.js";
 import { errorLogger } from "../../src/utils/loggers.js";

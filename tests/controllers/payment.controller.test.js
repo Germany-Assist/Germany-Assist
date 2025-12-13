@@ -1,7 +1,7 @@
 import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 import postController from "../../src/modules/post/post.controller.js";
 import postServices from "../../src/modules/post/post.service.js";
 import timelineServices from "../../src/modules/timeline/timeline.service.js";

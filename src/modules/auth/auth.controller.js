@@ -6,7 +6,7 @@ import permissionServices from "../permission/permission.services.js";
 import userController, { cookieOptions } from "../user/user.controller.js";
 import { roleTemplates } from "../../database/templates.js";
 import { v4 as uuid } from "uuid";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 
 const client = new OAuth2Client(googleOAuthConfig.clientId);
 

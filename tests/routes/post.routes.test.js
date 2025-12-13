@@ -6,7 +6,7 @@ import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import assert from "node:assert";
 import { fullServiceFactory } from "../factories/service.factory.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 beforeEach(async () => {
   try {
     await initDatabase(false);

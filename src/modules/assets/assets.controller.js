@@ -6,7 +6,7 @@ import { AppError } from "../../utils/error.class.js";
 import authUtil from "../../utils/authorize.util.js";
 import path from "node:path";
 import hashIdUtil from "../../utils/hashId.util.js";
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 async function uploadService(type, files, auth, params) {
   // extracting Constrains
   const constrains = await assetServices.extractConstrains(type);

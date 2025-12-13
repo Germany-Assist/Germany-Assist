@@ -1,4 +1,4 @@
-import { sequelize } from "../connection.js";
+import { sequelize } from "../../configs/database.js";
 import { DataTypes, Model } from "sequelize";
 
 export default class Favorite extends Model {}

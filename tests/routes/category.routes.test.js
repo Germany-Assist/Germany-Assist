@@ -5,7 +5,7 @@ import { errorLogger } from "../../src/utils/loggers.js";
 import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import assert from "node:assert";
 import { userAdminFactory } from "../factories/user.factory.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
 beforeEach(async () => {
   try {

@@ -1,4 +1,4 @@
-import db from "../database/dbIndex.js";
+import db from "../database/index.js";
 
 export async function getStripeEvent(id) {
   return await db.StripeEvent.findByPk(id);

@@ -8,13 +8,13 @@ import {
   ENV_IS_LOADED,
   NODE_ENV,
 } from "./configs/serverConfig.js";
-import { sequelize } from "./database/connection.js";
+import { sequelize } from "./configs/database.js";
 import cors from "cors";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import cookieParser from "cookie-parser";
 import { debugLogger, errorLogger, infoLogger } from "./utils/loggers.js";
 import { AppError } from "./utils/error.class.js";
-import { errorMiddleware } from "./middlewares/errorHandler.middleware.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 import createSocketServer from "./sockets/index.js";
 import apiRouter from "./routes/index.routes.js";
 import { v4 as uuidv4 } from "uuid";
@@ -96,7 +96,7 @@ if (NODE_ENV !== "test") {
       if (!ENV_IS_LOADED) throw new Error("Failed to load .env file");
       await sequelize.authenticate();
       await sequelize.sync({ alter: true });
-      await import("./database/dbIndex.js");
+      await import("./database/index.js");
       infoLogger(`✅ Connected to database ${DB_NAME} successfully`);
       infoLogger(`🚀 Server is running at port ${SERVER_PORT}`);
       infoLogger(`🏗️  Running in ${NODE_ENV} Mode`);

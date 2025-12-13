@@ -1,5 +1,5 @@
-import { sequelize } from "../../src/database/connection.js";
-import db from "../../src/database/dbIndex.js";
+import { sequelize } from "../../src/configs/database.js";
+import db from "../../src/database/index.js";
 import { AppError } from "../../src/utils/error.class.js";
 import { errorLogger } from "../../src/utils/loggers.js";
 import { serviceProviderFullFactory } from "./serviceProvider.factory.js";

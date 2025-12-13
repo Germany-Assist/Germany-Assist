@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../connection.js"; // adjust your path
+import { sequelize } from "../../configs/database.js"; // adjust your path
 
 class StripeEvent extends Model {}
 

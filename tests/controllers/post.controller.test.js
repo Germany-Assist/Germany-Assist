@@ -7,7 +7,7 @@ import timelineServices from "../../src/modules/timeline/timeline.service.js";
 import authUtil from "../../src/utils/authorize.util.js";
 import { AppError } from "../../src/utils/error.class.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 
 describe("Post Controller - createNewPost", () => {
   let sandbox;

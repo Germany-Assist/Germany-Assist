@@ -4,7 +4,7 @@ import sinon from "sinon";
 import stripeServices from "../../src/services/stripe.service.js";
 import orderService from "../../src/modules/order/order.services.js";
 import { infoLogger, errorLogger } from "../../src/utils/loggers.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 import stripeProcessor from "../../src/jobs/processors/stripe.processor.js";
 
 describe("testing stripe processor", () => {

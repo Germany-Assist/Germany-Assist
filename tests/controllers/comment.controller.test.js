@@ -6,7 +6,7 @@ import commentController from "../../src/modules/comment/comment.controller.js";
 import commentServices from "../../src/modules/comment/comment.services.js";
 import { AppError } from "../../src/utils/error.class.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 describe("testing comment controller", () => {
   test("should create a new comment successfully", async (t) => {
     const req = {

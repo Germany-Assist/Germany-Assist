@@ -1,14 +1,15 @@
-import { sequelize } from "./connection.js";
+import { sequelize } from "../configs/database.js";
 import seedUsers from "./seeds/users_seeds.js";
 import seedPermissions from "./seeds/permission_seed.js";
 import seedCategory from "./seeds/category_seed.js";
-import { defineConstrains } from "./dbIndex.js";
+import { defineConstrains } from "./index.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 import seedAssetTypes from "./seeds/assetTypes_seed.js";
 import User from "./models/user.js";
 import Permission from "./models/permission.js";
 import AssetTypes from "./models/assetTypes.js";
 import Category from "./models/category.js";
+
 export async function initDatabase(exit = true) {
   try {
     if (process.env.NODE_ENV == "test" || process.env.NODE_ENV == "dev") {

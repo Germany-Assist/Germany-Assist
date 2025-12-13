@@ -1,6 +1,6 @@
 // models/Event.js
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../connection.js";
+import { sequelize } from "../../configs/database.js";
 
 /**
  * Event model: stores actions happening in the system

@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { errorLogger } from "../../src/utils/loggers.js";
 
 export async function orderFactory(overrides = {}) {

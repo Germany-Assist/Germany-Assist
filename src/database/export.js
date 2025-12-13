@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { sequelize } from "./connection.js";
+import { sequelize } from "../../configs/database.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 
 const modelsDir = path.resolve("./database/models");

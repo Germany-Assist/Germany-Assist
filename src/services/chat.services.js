@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
-import { sequelize } from "../database/connection.js";
-import db from "../database/dbIndex.js";
+import { sequelize } from "../configs/database.js";
+import db from "../database/index.js";
 import { AppError } from "../utils/error.class.js";
 import { debugLogger, infoLogger } from "../utils/loggers.js";
 

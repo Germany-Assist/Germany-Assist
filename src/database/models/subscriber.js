@@ -1,6 +1,6 @@
 // models/Subscriber.js
 import { Model, DataTypes } from "sequelize";
-import { sequelize } from "../connection.js";
+import { sequelize } from "../../configs/database.js";
 
 /**
  * Subscriber model: keeps track of which users follow which entities

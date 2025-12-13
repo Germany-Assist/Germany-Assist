@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import sinon from "sinon";
 
 import serviceServices from "../../src/modules/service/service.services.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import sinon from "sinon";
 
 import userServices from "../../src/modules/user/user.services.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import bcryptUtil from "../../src/utils/bcrypt.util.js";
 import { AppError } from "../../src/utils/error.class.js";
 

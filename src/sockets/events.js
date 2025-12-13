@@ -1,4 +1,4 @@
-import db from "../database/dbIndex.js";
+import db from "../database/index.js";
 import { errorLogger } from "../utils/loggers.js";
 
 export function registerEvents(socket, io) {

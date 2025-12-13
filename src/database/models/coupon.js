@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../connection.js";
+import { sequelize } from "../../configs/database.js";
 import { v4 as uuidv4 } from "uuid";
 
 class Coupon extends Model {}

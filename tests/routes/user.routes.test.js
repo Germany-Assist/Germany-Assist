@@ -51,7 +51,7 @@ describe("userRouter.post/ create new client", () => {
     });
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
-      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
       { role: "client", related_type: "client", related_id: null }
     );
     assert.partialDeepStrictEqual(
@@ -164,7 +164,7 @@ describe("userRouter.post/ create new client", () => {
     assert.equal(resp.status, 422);
     assert.deepEqual(resp.body, {
       success: false,
-      message: "already exists in the database",
+      message: "Resource already exists",
     });
   });
 });
@@ -193,7 +193,7 @@ describe("userRouter.post/login login with username and password", () => {
     assert.equal(res.body.user.role, user.UserRole.role);
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
-      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
       {
         role: user.UserRole.role,
         related_type: user.UserRole.related_type,

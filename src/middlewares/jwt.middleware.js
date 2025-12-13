@@ -22,7 +22,7 @@ const authenticateJwt = expressjwt({
   },
 });
 
-function verifyToken(token) {
+function verifyRefreshToken(token) {
   try {
     const decode = jwt.verify(token, REFRESH_TOKEN_SECRET);
     return decode;
@@ -68,7 +68,7 @@ const jwtUtils = {
   generateRefreshToken,
   generateAccessToken,
   verifyAccessToken,
-  verifyToken,
+  verifyRefreshToken,
   authenticateJwt,
 };
 

@@ -9,7 +9,7 @@ import s3Utils from "../../src/configs/s3Configs.js";
 import sharpUtil from "../../src/utils/sharp.util.js";
 import authUtil from "../../src/utils/authorize.util.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
-import db from "../../src/database/dbIndex.js";
+import db from "../../src/database/index.js";
 import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;

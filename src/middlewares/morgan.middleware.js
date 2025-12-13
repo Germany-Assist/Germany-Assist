@@ -1,5 +1,4 @@
 import morgan from "morgan";
-import winston from "winston";
 import { httpLogger } from "../utils/loggers.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 // please dont forget to edit the node env

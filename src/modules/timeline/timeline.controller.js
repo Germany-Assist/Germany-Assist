@@ -1,5 +1,5 @@
 import { generateDownloadUrl } from "../../configs/s3Configs.js";
-import { sequelize } from "../../database/connection.js";
+import { sequelize } from "../../configs/database.js";
 import timelineServices from "./timeline.service.js";
 import authUtil from "../../utils/authorize.util.js";
 import { AppError } from "../../utils/error.class.js";

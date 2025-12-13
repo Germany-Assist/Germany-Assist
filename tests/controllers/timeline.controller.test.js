@@ -5,7 +5,7 @@ import { describe, it, beforeEach, afterEach } from "node:test";
 import timelineController from "../../src/modules/timeline/timeline.controller.js";
 import timelineServices from "../../src/modules/timeline/timeline.service.js";
 import authUtil from "../../src/utils/authorize.util.js";
-import { sequelize } from "../../src/database/connection.js";
+import { sequelize } from "../../src/configs/database.js";
 import hashIdUtil from "../../src/utils/hashId.util.js";
 import { AppError } from "../../src/utils/error.class.js";
 

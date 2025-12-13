@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 
 async function createNewComment(data, t) {
   await db.Comment.create(data, t);

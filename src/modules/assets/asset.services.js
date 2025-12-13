@@ -1,4 +1,4 @@
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
 
 // Create a new asset
