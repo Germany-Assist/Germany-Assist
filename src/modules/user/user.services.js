@@ -14,14 +14,14 @@ export const createUser = async (userData, t) => {
 };
 
 export const createUserRole = async (
-  user_id,
+  userId,
   role,
-  related_type,
+  relatedType,
   related_id,
   t
 ) => {
   return await db.UserRole.create(
-    { user_id, related_id: related_id ?? null, related_type, role },
+    { userId, related_id: related_id ?? null, relatedType, role },
     { transaction: t, raw: true }
   );
 };
@@ -82,7 +82,7 @@ export const alterUserVerification = async (id, status) => {
   const user = await db.User.findByPk(id);
   if (!user)
     throw new AppError(401, "User not found", true, "invalid credentials");
-  return await user.update({ is_verified: status });
+  return await user.update({ isVerified: status });
 };
 
 export const getAllUsers = async () => {

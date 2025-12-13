@@ -17,7 +17,7 @@ User.init(
       unique: true,
     },
 
-    first_name: {
+    firstName: {
       type: DataTypes.STRING(50),
       allowNull: true, // <-- changed
       validate: {
@@ -32,7 +32,7 @@ User.init(
       },
     },
 
-    last_name: {
+    lastName: {
       type: DataTypes.STRING(50),
       allowNull: true, // <-- changed
       validate: {
@@ -46,10 +46,10 @@ User.init(
     fullName: {
       type: DataTypes.VIRTUAL,
       get() {
-        if (this.first_name && this.last_name)
-          return this.first_name + " " + this.last_name;
+        if (this.firstName && this.lastName)
+          return this.firstName + " " + this.lastName;
 
-        return this.first_name || this.last_name || null;
+        return this.firstName || this.lastName || null;
       },
     },
 
@@ -91,12 +91,12 @@ User.init(
       allowNull: true,
     },
 
-    is_verified: {
+    isVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
 
-    is_root: {
+    isRoot: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },

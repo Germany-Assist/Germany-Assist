@@ -66,7 +66,7 @@ Employer.init(
         isEmail: { msg: "Email must be a valid email address" },
       },
     },
-    phone_number: {
+    phoneNumber: {
       type: DataTypes.STRING(20),
       allowNull: true,
       validate: {
@@ -87,7 +87,7 @@ Employer.init(
         isUrl: { msg: "Image must be a valid URL" },
       },
     },
-    is_verified: {
+    isVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
@@ -99,7 +99,7 @@ Employer.init(
         max: { args: [5], msg: "Rating cannot be greater than 5" },
       },
     },
-    total_reviews: {
+    totalReviews: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,

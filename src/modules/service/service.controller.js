@@ -12,7 +12,7 @@ const sanitizeServices = async (services) => {
         "Category.title": categoryTitle,
         "ServiceProvider.name": providerName,
         "profileImages.url": imageUrl,
-        category_id,
+        categoryId,
         ...rest
       } = i;
 
@@ -50,7 +50,7 @@ const sanitizeServiceProfile = async (service) => {
         body: i.body,
         rating: i.rating,
         user: {
-          name: i.User.first_name + " " + i.User.last_name,
+          name: i.User.firstName + " " + i.User.lastName,
           id: hashIdUtil.hashIdEncode(i.id),
         },
       };
@@ -68,7 +68,7 @@ const formatTimelines = (timelines) => {
     return {
       id: hashIdUtil.hashIdEncode(i.id),
       label: i.label,
-      isArchived: i.is_archived,
+      isArchived: i.isArchived,
     };
   });
 };
@@ -84,13 +84,13 @@ export async function createService(req, res, next) {
     );
 
     const serviceData = {
-      user_id: req.auth.id,
-      service_provider_id: req.auth.related_id,
+      userId: req.auth.id,
+      serviceProviderId: req.auth.related_id,
       title: req.body.title,
       description: req.body.description,
       type: "oneTime",
       rating: 0,
-      total_reviews: 0,
+      totalReviews: 0,
       price: req.body.price,
       image: req.body.image || null,
       published: req.body.publish
@@ -113,8 +113,8 @@ export async function createService(req, res, next) {
       data: {
         id: hashIdUtil.hashIdEncode(service.id),
         title: service.title,
-        userId: hashIdUtil.hashIdEncode(service.user_id),
-        categoryId: hashIdUtil.hashIdEncode(service.category_id),
+        userId: hashIdUtil.hashIdEncode(service.userId),
+        categoryId: hashIdUtil.hashIdEncode(service.categoryId),
         timelines,
       },
     });

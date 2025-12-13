@@ -15,13 +15,13 @@ export async function userFactory(overrides = {}) {
   }
   try {
     const defaults = {
-      first_name: "John",
-      last_name: "Doe",
+      firstName: "John",
+      lastName: "Doe",
       email: overrides.email || `user+${uuidv4()}@test.com`,
-      is_verified: true,
+      isVerified: true,
       UserRole: {
         role: "client",
-        related_type: "client",
+        relatedType: "client",
         related_id: null,
       },
     };
@@ -47,10 +47,10 @@ export async function userWithTokenFactory(overrides) {
 export async function userAdminFactory(overrides = {}) {
   try {
     const { user, accessToken } = await userWithTokenFactory({
-      is_verified: true,
+      isVerified: true,
       UserRole: {
         role: "admin",
-        related_type: "admin",
+        relatedType: "admin",
         related_id: null,
       },
       ...overrides,

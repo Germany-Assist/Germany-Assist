@@ -44,8 +44,6 @@ AssetTypes.init(
   {
     sequelize,
     modelName: "AssetTypes",
-    tableName: "asset_types",
-    timestamps: true,
   }
 );
 

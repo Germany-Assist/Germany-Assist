@@ -10,21 +10,21 @@ Comment.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isInt: { msg: "user id must be a integer" },
       },
     },
-    post_id: {
+    postId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isInt: { msg: "post id must be a integer" },
       },
     },
-    parent_id: {
+    parentId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {

@@ -45,26 +45,26 @@ Post.init(
       },
     },
     //creator
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        isInt: { msg: "user_id must be an integer" },
-        min: { args: [1], msg: "user_id must be greater than 0" },
+        isInt: { msg: "userId must be an integer" },
+        min: { args: [1], msg: "userId must be greater than 0" },
       },
     },
-    timeline_id: {
+    timelineId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        isInt: { msg: "timeline_id must be an integer" },
-        min: { args: [1], msg: "timeline_id must be greater than 0" },
+        isInt: { msg: "timelineId must be an integer" },
+        min: { args: [1], msg: "timelineId must be greater than 0" },
       },
     },
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        return this.user_id;
+        return this.userId;
       },
     },
   },

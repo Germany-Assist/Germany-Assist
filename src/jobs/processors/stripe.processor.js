@@ -30,11 +30,11 @@ export async function stripeProcessor(job) {
           const orderData = {
             amount: pi.amount,
             status: "paid",
-            user_id: metadata.userId,
-            service_id: metadata.serviceId,
-            timeline_id: metadata.timelineId,
-            service_provider_id: metadata.serviceProviderId,
-            stripe_payment_intent_id: pi.id,
+            userId: metadata.userId,
+            serviceId: metadata.serviceId,
+            timelineId: metadata.timelineId,
+            serviceProviderId: metadata.serviceProviderId,
+            stripePaymentIntentId: pi.id,
             currency: "usd",
           };
           await orderService.createOrder(orderData, t);

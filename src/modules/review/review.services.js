@@ -3,7 +3,7 @@ import { AppError } from "../../utils/error.class.js";
 
 export async function canReview(userId, serviceId) {
   const can = await db.Order.findOne({
-    where: { user_id: userId, service_id: serviceId },
+    where: { userId: userId, serviceId: serviceId },
   });
   if (!can)
     throw new AppError(
@@ -14,21 +14,21 @@ export async function canReview(userId, serviceId) {
     );
 }
 export const createReview = async (data, t) => {
-  const { body, rating, service_id, user_id } = data;
+  const { body, rating, serviceId, userId } = data;
   return await db.Review.create(
     {
       body,
       rating,
-      user_id,
-      service_id,
+      userId,
+      serviceId,
     },
     { transaction: t }
   );
 };
 
 export const updateReview = async (data, t) => {
-  const { body, rating, service_id, user_id } = data;
-  const review = await db.Review.findOne({ where: { service_id, user_id } });
+  const { body, rating, serviceId, userId } = data;
+  const review = await db.Review.findOne({ where: { serviceId, userId } });
   if (!review)
     throw new AppError(404, "no review found", true, "no review found");
   const oldRating = review.rating;

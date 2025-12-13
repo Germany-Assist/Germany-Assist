@@ -19,13 +19,13 @@ Subscriber.init(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "user_id",
+      field: "userId",
     },
 
     relatedType: {
       type: DataTypes.ENUM("timeline", "service_provider", "comment", "post"),
       allowNull: false,
-      field: "related_type",
+      field: "relatedType",
     },
 
     relatedId: {

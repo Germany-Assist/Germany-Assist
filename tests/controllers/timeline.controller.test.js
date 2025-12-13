@@ -96,8 +96,8 @@ describe("Timeline Controller", () => {
           description: "Post 1",
           attachments: ["file.png"],
           Comments: [
-            { id: 100, body: "Comment 1", parent_id: null },
-            { id: 101, body: "Reply 1", parent_id: 100 },
+            { id: 100, body: "Comment 1", parentId: null },
+            { id: 101, body: "Reply 1", parentId: 100 },
           ],
         },
       ],

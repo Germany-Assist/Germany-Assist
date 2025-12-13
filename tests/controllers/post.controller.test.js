@@ -73,8 +73,8 @@ describe("Post Controller - createNewPost", () => {
       sinon.match({
         description: "Testing post creation",
         attachments: ["img1.png"],
-        timeline_id: 55,
-        user_id: 42,
+        timelineId: 55,
+        userId: 42,
       }),
       fakeTransaction
     );

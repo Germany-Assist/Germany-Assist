@@ -10,7 +10,7 @@ UserPermission.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -18,7 +18,7 @@ UserPermission.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    permission_id: {
+    permissionId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {

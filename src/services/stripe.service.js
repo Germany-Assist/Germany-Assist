@@ -9,7 +9,7 @@ export async function createStripeEvent(event, status, t) {
     {
       id: event.id,
       type: event.type,
-      object_id: event.data.object.id,
+      objectId: event.data.object.id,
       payload: event,
       status,
     },

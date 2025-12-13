@@ -45,7 +45,7 @@ describe("api/post - post - testing create new post", () => {
       success: true,
       message: "Created Post Successfully",
     });
-    const post = await retrievePost({ timeline_id: timeline.id });
+    const post = await retrievePost({ timelineId: timeline.id });
     assert.equal(post.description, examplePost.description);
   });
   it("should fail for validation errors", async () => {

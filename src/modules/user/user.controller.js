@@ -49,15 +49,15 @@ const sanitizeUser = async (user) => {
   }
   return {
     id: hashIdUtil.hashIdEncode(user.id),
-    firstName: user.first_name,
-    lastName: user.last_name,
+    firstName: user.firstName,
+    lastName: user.lastName,
     dob: user.dob,
     email: user.email,
     image: signedImage,
     imageKey: imageKey,
-    isVerified: user.is_verified,
+    isVerified: user.isVerified,
     role: user.UserRole.role,
-    related_type: user.UserRole.related_type,
+    relatedType: user.UserRole.relatedType,
     related_id: user.UserRole.related_id,
     favorites,
     orders,
@@ -84,20 +84,20 @@ function setRoleAndType(type) {
   return { rootRole, rootRelatedType, firstName, lastName };
 }
 function setRoleAndTypeRep(parentRole) {
-  let role, related_type;
+  let role, relatedType;
   switch (parentRole) {
     case "service_provider_root":
       role = "service_provider_rep";
-      related_type = "ServiceProvider";
+      relatedType = "ServiceProvider";
       break;
     case "employer_root":
       role = "employer_rep";
-      related_type = "Employer";
+      relatedType = "Employer";
       break;
     default:
       throw new AppError(400, "failed to set role", false);
   }
-  return { role, related_type };
+  return { role, relatedType };
 }
 export async function createClientController(req, res, next) {
   const t = await sequelize.transaction();
@@ -106,16 +106,16 @@ export async function createClientController(req, res, next) {
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
-        first_name: firstName,
-        last_name: lastName,
+        firstName: firstName,
+        lastName: lastName,
         email,
         password,
         dob,
         image,
-        is_verified: false,
+        isVerified: false,
         UserRole: {
           role: "client",
-          related_type: "client",
+          relatedType: "client",
           related_id: null,
         },
       },
@@ -147,22 +147,22 @@ export async function createRepController(req, res, next) {
   if (!permission) throw new AppError(403, "forbidden", true, "forbidden");
 
   try {
-    const { role, related_type } = userController.setRoleAndTypeRep(
+    const { role, relatedType } = userController.setRoleAndTypeRep(
       req.auth.role
     );
     const { firstName, lastName, email, dob, image } = req.body;
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
-        first_name: firstName,
-        last_name: lastName,
+        firstName: firstName,
+        lastName: lastName,
         email,
         password,
         dob,
         image,
         UserRole: {
           role,
-          related_type,
+          relatedType,
           related_id: req.auth.related_id,
         },
       },
@@ -194,16 +194,16 @@ export async function createAdminController(req, res, next) {
     const password = bcryptUtil.hashPassword(req.body.password);
     const user = await userServices.createUser(
       {
-        first_name: firstName,
-        last_name: lastName,
+        firstName: firstName,
+        lastName: lastName,
         email,
         password,
         dob,
         image,
-        is_verified: false,
+        isVerified: false,
         UserRole: {
           role: "admin",
-          related_type: "admin",
+          relatedType: "admin",
           related_id: null,
         },
       },
@@ -232,13 +232,13 @@ export async function createRootAccount(
   let password = bcryptUtil.hashPassword(unHashedPassword);
   const user = await userServices.createUser(
     {
-      first_name: firstName,
-      last_name: lastName,
+      firstName: firstName,
+      lastName: lastName,
       email,
       password,
       UserRole: {
         role: rootRole,
-        related_type: rootRelatedType,
+        relatedType: rootRelatedType,
         related_id: relatedId,
       },
     },

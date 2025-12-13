@@ -8,7 +8,7 @@ export function registerEvents(socket, io) {
     try {
       await db.Notification.update(
         { isRead: true },
-        { where: { id: notificationId, user_id: socket.auth.id } }
+        { where: { id: notificationId, userId: socket.auth.id } }
       );
     } catch (error) {
       errorLogger(error);

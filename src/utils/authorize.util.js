@@ -40,7 +40,7 @@ async function checkRoleAndPermission(
       !targetRoles.includes(user.UserRole.role)
     )
       throw new AppError(403, "Improper Role", true, "Improper Role");
-    if (!user.is_verified)
+    if (!user.isVerified)
       throw new AppError(403, "Unverified User", true, "Unverified User");
     if (user.UserRole.related_id !== relatedId)
       throw new AppError(403, "Manipulated token", true, "forbidden");

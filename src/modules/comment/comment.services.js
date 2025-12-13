@@ -13,14 +13,14 @@ async function canCommentOnPost(userId, postId) {
         model: db.Timeline,
         attributes: [],
         required: true,
-        where: { is_archived: { [Op.ne]: true } },
+        where: { isArchived: { [Op.ne]: true } },
         include: [
           {
             model: db.Order,
             attributes: [],
             required: true,
             where: {
-              user_id: userId,
+              userId: userId,
               status: { [Op.or]: ["paid", "fulfilled", "completed"] },
             },
           },

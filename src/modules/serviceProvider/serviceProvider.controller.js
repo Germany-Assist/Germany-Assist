@@ -86,7 +86,7 @@ export async function updateServiceProvider(req, res, next) {
       "name",
       "about",
       "description",
-      "phone_number",
+      "phoneNumber",
       "image",
       "email",
     ];

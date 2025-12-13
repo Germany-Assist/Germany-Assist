@@ -6,16 +6,16 @@ import { errorLogger, infoLogger } from "../../utils/loggers.js";
 import { sequelize } from "../../configs/database.js";
 
 async function handlePaymentSuccess(data) {
-  const { service_id, timeline_id, user_id, service_provider_id } = data;
+  const { serviceId, timelineId, userId, serviceProviderId } = data;
 
   const [user, service] = await Promise.all([
-    db.User.findByPk(user_id, { attributes: ["email"] }),
-    db.Service.findByPk(service_id, {
+    db.User.findByPk(userId, { attributes: ["email"] }),
+    db.Service.findByPk(serviceId, {
       include: [
         { model: db.ServiceProvider },
         {
           model: db.Timeline,
-          where: { id: timeline_id, is_archived: false },
+          where: { id: timelineId, isArchived: false },
           attributes: ["label"],
         },
       ],
@@ -24,7 +24,7 @@ async function handlePaymentSuccess(data) {
 
   if (!user || !service) {
     throw new Error(
-      `User or Service not found: userId=${user_id}, serviceId=${service_id}`
+      `User or Service not found: userId=${userId}, serviceId=${serviceId}`
     );
   }
 
@@ -34,9 +34,9 @@ async function handlePaymentSuccess(data) {
     message: `Successful payment from user ${user.email} for timeline ${timelineLabel} of service ${service.title}`,
     url: "",
     type: "info",
-    userId: user_id,
+    userId: userId,
     metadata: {
-      serviceProviderId: service_provider_id,
+      serviceProviderId: serviceProviderId,
       serviceId: service.id,
     },
   };
@@ -45,7 +45,7 @@ async function handlePaymentSuccess(data) {
     return db.Notification.create(notificationData, { transaction: t });
   });
 
-  socketNotificationServices.sendSocketNotification(user_id, {
+  socketNotificationServices.sendSocketNotification(userId, {
     message: notificationData.message,
     id: notification.id,
   });
@@ -57,7 +57,7 @@ async function handlePaymentSuccess(data) {
   );
 
   infoLogger(
-    `Notification processed for payment: userId=${user_id}, serviceId=${service.id}`
+    `Notification processed for payment: userId=${userId}, serviceId=${service.id}`
   );
 }
 
@@ -89,7 +89,7 @@ async function notificationProcessor(job) {
     errorLogger({
       jobId: job.id,
       eventName: job.name,
-      userId: data.user_id,
+      userId: data.userId,
       error,
       stack: error.stack,
     });

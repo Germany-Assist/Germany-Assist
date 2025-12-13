@@ -1,6 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../connection.js";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { sequelize } from "../../configs/database.js";
 
 class Asset extends Model {}
 
@@ -18,7 +17,7 @@ Asset.init(
         notEmpty: { msg: "Name cannot be empty" },
       },
     },
-    media_type: {
+    mediaType: {
       type: DataTypes.STRING(50),
       allowNull: false,
       validate: {
@@ -29,7 +28,7 @@ Asset.init(
         },
       },
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -37,14 +36,14 @@ Asset.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    service_provider_id: {
+    serviceProviderId: {
       type: DataTypes.UUID,
       allowNull: true,
       validate: {
         isUUID: { args: 4, msg: "Service Provider must be a valid UUIDv4" },
       },
     },
-    service_id: {
+    serviceId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
@@ -52,7 +51,7 @@ Asset.init(
         min: { args: [1], msg: "ServiceId must be greater than 0" },
       },
     },
-    post_id: {
+    postId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
@@ -97,10 +96,10 @@ Asset.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        if (this.post_id || this.service_id || this.service_provider_id) {
-          return this.service_provider_id;
+        if (this.postId || this.serviceId || this.serviceProviderId) {
+          return this.serviceProviderId;
         } else {
-          return this.user_id;
+          return this.userId;
         }
       },
     },
@@ -108,7 +107,6 @@ Asset.init(
   {
     sequelize,
     paranoid: true,
-    validate: {},
   }
 );
 

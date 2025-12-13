@@ -17,74 +17,73 @@ import Timeline from "./models/timeline.js";
 import Post from "./models/post.js";
 import Comment from "./models/comment.js";
 import AssetTypes from "./models/assetTypes.js";
-import { NODE_ENV } from "../configs/serverConfig.js";
-import { sequelize } from "../configs/database.js";
 import Subscriber from "./models/subscriber.js";
 import Event from "./models/event.js";
 import Notification from "./models/notification.js";
+import { sequelize } from "../configs/database.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
   sequelize.associationsDefined = true;
   //notification
-  Notification.belongsTo(User, { foreignKey: "user_id" });
-  User.hasMany(Notification, { foreignKey: "user_id" });
+  Notification.belongsTo(User, { foreignKey: "userId" });
+  User.hasMany(Notification, { foreignKey: "userId" });
 
   //comment
   Comment.belongsTo(Post, {
-    foreignKey: "post_id",
+    foreignKey: "postId",
     constraints: true,
   });
   Comment.belongsTo(Comment, {
     as: "parent",
-    foreignKey: "parent_id",
+    foreignKey: "parentId",
     constraints: true,
   });
   Comment.hasMany(Comment, {
     as: "replies",
-    foreignKey: "parent_id",
+    foreignKey: "parentId",
     constraints: true,
   });
   //post
-  Post.belongsTo(Timeline, { foreignKey: "timeline_id" });
-  Post.belongsTo(User, { foreignKey: "user_id" });
+  Post.belongsTo(Timeline, { foreignKey: "timelineId" });
+  Post.belongsTo(User, { foreignKey: "userId" });
   Post.hasMany(Comment, {
-    foreignKey: "post_id",
+    foreignKey: "postId",
     constraints: false,
   });
   Post.hasMany(Asset, {
-    foreignKey: "post_id",
+    foreignKey: "postId",
   });
   //timeline
-  Timeline.hasMany(Order, { foreignKey: "timeline_id" });
-  Timeline.belongsTo(Service, { foreignKey: "service_id" });
-  Timeline.hasMany(Post, { foreignKey: "timeline_id" });
+  Timeline.hasMany(Order, { foreignKey: "timelineId" });
+  Timeline.belongsTo(Service, { foreignKey: "serviceId" });
+  Timeline.hasMany(Post, { foreignKey: "timelineId" });
   //order
-  Order.belongsTo(User, { foreignKey: "user_id" });
-  Order.belongsTo(Service, { foreignKey: "service_id" });
-  Order.belongsTo(Timeline, { foreignKey: "timeline_id" });
+  Order.belongsTo(User, { foreignKey: "userId" });
+  Order.belongsTo(Service, { foreignKey: "serviceId" });
+  Order.belongsTo(Timeline, { foreignKey: "timelineId" });
   //user
-  User.hasMany(Post, { foreignKey: "user_id" });
-  User.hasMany(Order, { foreignKey: "user_id" });
-  User.hasMany(Service, { foreignKey: "user_id" });
+  User.hasMany(Post, { foreignKey: "userId" });
+  User.hasMany(Order, { foreignKey: "userId" });
+  User.hasMany(Service, { foreignKey: "userId" });
   User.hasMany(Asset, {
-    foreignKey: "user_id",
+    foreignKey: "userId",
     as: "profilePicture",
     scope: { key: "userImage", thumb: false },
   });
-  User.hasMany(Review, { foreignKey: "user_id" });
-  User.hasOne(UserRole, { foreignKey: "user_id" });
-  User.hasMany(Favorite, { foreignKey: "user_id" });
+  User.hasMany(Review, { foreignKey: "userId" });
+  User.hasOne(UserRole, { foreignKey: "userId" });
+  User.hasMany(Favorite, { foreignKey: "userId" });
   User.belongsToMany(Permission, {
     through: UserPermission,
     as: "userToPermission",
-    foreignKey: "user_id",
-    otherKey: "permission_id",
+    foreignKey: "userId",
+    otherKey: "permissionId",
     onDelete: "cascade",
     unique: true,
   });
   //user Role
-  UserRole.belongsTo(User, { foreignKey: "user_id" });
+  UserRole.belongsTo(User, { foreignKey: "userId" });
   UserRole.belongsTo(Employer, {
     foreignKey: "related_id",
     constraints: false,
@@ -96,38 +95,38 @@ export const defineConstrains = () => {
     as: "serviceProvider",
   });
   //service
-  Service.hasMany(Order, { foreignKey: "service_id" });
-  Service.belongsTo(User, { foreignKey: "user_id" });
-  Service.hasMany(Asset, { foreignKey: "service_id" });
+  Service.hasMany(Order, { foreignKey: "serviceId" });
+  Service.belongsTo(User, { foreignKey: "userId" });
+  Service.hasMany(Asset, { foreignKey: "serviceId" });
   Service.hasMany(Asset, {
-    foreignKey: "service_id",
+    foreignKey: "serviceId",
     as: "profileImages",
     scope: { thumb: true, key: "serviceProfileImage" },
   });
-  Service.hasMany(Review, { foreignKey: "service_id" });
-  Service.hasMany(Favorite, { foreignKey: "service_id" });
-  Service.hasMany(Timeline, { foreignKey: "service_id" });
-  Service.belongsTo(Category, { foreignKey: "category_id" });
+  Service.hasMany(Review, { foreignKey: "serviceId" });
+  Service.hasMany(Favorite, { foreignKey: "serviceId" });
+  Service.hasMany(Timeline, { foreignKey: "serviceId" });
+  Service.belongsTo(Category, { foreignKey: "categoryId" });
   Service.belongsTo(ServiceProvider);
   //assets
   Asset.belongsTo(AssetTypes, { foreignKey: "key", targetKey: "key" });
-  Asset.belongsTo(Service, { foreignKey: "service_id", as: "allAssets" });
+  Asset.belongsTo(Service, { foreignKey: "serviceId", as: "allAssets" });
   Asset.belongsTo(Service, {
-    foreignKey: "service_id",
+    foreignKey: "serviceId",
     as: "profileImages",
     scope: { thumb: true, key: "serviceProfileImage" },
   });
   Asset.belongsTo(User, {
-    foreignKey: "user_id",
+    foreignKey: "userId",
     as: "profilePicture",
     scope: { key: "userImage" },
   });
-  Asset.belongsTo(Post, { foreignKey: "post_id" });
+  Asset.belongsTo(Post, { foreignKey: "postId" });
   //assetTypes
   AssetTypes.hasMany(Asset, { foreignKey: "key", targetKey: "key" });
   //review
-  Review.belongsTo(Service, { foreignKey: "service_id" });
-  Review.belongsTo(User, { foreignKey: "user_id" });
+  Review.belongsTo(Service, { foreignKey: "serviceId" });
+  Review.belongsTo(User, { foreignKey: "userId" });
 
   // service provider
   ServiceProvider.hasMany(Service);
@@ -137,13 +136,13 @@ export const defineConstrains = () => {
     foreignKey: "related_id",
     constraints: false,
     scope: {
-      related_type: "ServiceProvider",
+      relatedType: "ServiceProvider",
     },
     as: "roles",
   });
   //category
   Category.hasMany(Service, {
-    foreignKey: "category_id",
+    foreignKey: "categoryId",
   });
 
   // Employer
@@ -151,29 +150,28 @@ export const defineConstrains = () => {
     foreignKey: "related_id",
     constraints: false,
     scope: {
-      related_type: "Employer",
+      relatedType: "Employer",
     },
     as: "roles",
   });
 
   //favorite
   Favorite.belongsTo(User, {
-    foreignKey: "user_id",
+    foreignKey: "userId",
   });
   Favorite.belongsTo(Service, {
-    foreignKey: "service_id",
+    foreignKey: "serviceId",
   });
 
   //permission
   Permission.belongsToMany(User, {
     as: "permissionToUser",
     through: UserPermission,
-    foreignKey: "permission_id",
-    otherKey: "user_id",
+    foreignKey: "permissionId",
+    otherKey: "userId",
     onDelete: "cascade",
     unique: true,
   });
-
   return true;
 };
 

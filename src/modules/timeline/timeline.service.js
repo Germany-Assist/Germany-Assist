@@ -4,13 +4,13 @@ import { AppError } from "../../utils/error.class.js";
 // create new timeline
 async function createTimeline(serviceId, label = "newTimeline", t) {
   return await db.Timeline.create(
-    { service_id: serviceId, label: label },
+    { serviceId: serviceId, label: label },
     { transaction: t }
   );
 }
 async function activeTimeline(serviceId, t) {
   return await db.Timeline.findOne({
-    where: { service_id: serviceId, is_archived: false },
+    where: { serviceId: serviceId, isArchived: false },
     include: [{ model: db.Service }],
     transaction: t,
   });
@@ -18,7 +18,7 @@ async function activeTimeline(serviceId, t) {
 // archive time line
 async function archiveTimeline(timelineId, t) {
   return await db.Timeline.update(
-    { is_archived: true },
+    { isArchived: true },
     { where: { id: timelineId }, transaction: t }
   );
 }
@@ -34,11 +34,11 @@ async function getTimelineFull(userId, timelineId) {
         include: [
           {
             model: db.Asset,
-            attributes: ["url", "thumb", "key", "media_type", "name"],
+            attributes: ["url", "thumb", "key", "mediaType", "name"],
           },
           {
             model: db.Comment,
-            attributes: ["id", "body", "parent_id"],
+            attributes: ["id", "body", "parentId"],
           },
         ],
       },
@@ -47,7 +47,7 @@ async function getTimelineFull(userId, timelineId) {
         attributes: [],
         required: true,
         where: {
-          user_id: userId,
+          userId: userId,
           status: { [Op.or]: ["paid", "fulfilled", "completed"] },
         },
       },
@@ -74,11 +74,11 @@ async function getTimelineSP(serviceProviderId, timelineId) {
         include: [
           {
             model: db.Asset,
-            attributes: ["url", "thumb", "key", "media_type", "name"],
+            attributes: ["url", "thumb", "key", "mediaType", "name"],
           },
           {
             model: db.Comment,
-            attributes: ["id", "body", "parent_id"],
+            attributes: ["id", "body", "parentId"],
           },
         ],
       },
@@ -87,7 +87,7 @@ async function getTimelineSP(serviceProviderId, timelineId) {
         attributes: [],
         required: true,
         where: {
-          service_provider_id: serviceProviderId,
+          serviceProviderId: serviceProviderId,
         },
       },
     ],

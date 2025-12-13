@@ -12,7 +12,7 @@ export async function getServiceForPaymentPrivate(id) {
     raw: true,
     where: { id, published: true, approved: true, rejected: false },
     include: [
-      { model: db.Timeline, where: { is_archived: false }, attributes: ["id"] },
+      { model: db.Timeline, where: { isArchived: false }, attributes: ["id"] },
     ],
   });
 }
@@ -33,7 +33,7 @@ export async function getOrderByIdAndSPID(filters, SPID) {
     include: [
       {
         model: db.Service,
-        where: { service_provider_id: SPID },
+        where: { serviceProviderId: SPID },
         attributes: [],
         required: true,
       },
@@ -44,15 +44,15 @@ export async function getOrderByIdAndSPID(filters, SPID) {
   return order.toJSON();
 }
 export async function getOrders(filters = {}) {
-  const { service_provider_id } = filters;
+  const { serviceProviderId } = filters;
   const include = [];
-  delete filters.service_provider_id;
-  if (service_provider_id) {
+  delete filters.serviceProviderId;
+  if (serviceProviderId) {
     include.push({
       model: db.Service,
       attributes: [],
       required: true,
-      where: { service_provider_id },
+      where: { serviceProviderId },
     });
   }
   const order = await db.Order.findAll({

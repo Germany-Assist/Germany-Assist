@@ -16,7 +16,7 @@ export async function checkoutController(req, res, next) {
     if (!user || !service)
       throw new AppError(404, "failed to find user or service", false);
     res.send(
-      `user ${(user.first_name_, user.first_name)} wants to buy service ${
+      `user ${(user.firstName_, user.firstName)} wants to buy service ${
         service.title
       } for price of "${service.price}"`
     );
@@ -33,7 +33,7 @@ export async function payOrder(req, res, next) {
     const metadata = {
       serviceId,
       userId: req.auth.id,
-      serviceProviderId: service.service_provider_id,
+      serviceProviderId: service.serviceProviderId,
       timelineId: service["Timelines.id"],
     };
     // in the future subscription may go here
@@ -42,10 +42,10 @@ export async function payOrder(req, res, next) {
       const orderData = {
         amount: 0,
         status: "paid",
-        user_id: metadata.userId,
-        service_id: metadata.serviceId,
-        timeline_id: metadata.timelineId,
-        stripe_payment_intent_id: uuidv4(),
+        userId: metadata.userId,
+        serviceId: metadata.serviceId,
+        timelineId: metadata.timelineId,
+        stripePaymentIntentId: uuidv4(),
         currency: "usd",
       };
       await orderService.createOrder(orderData);
@@ -73,9 +73,9 @@ export async function getOrderAdmin(req, res, next) {
     res.send({
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),
-      user_id: hashIdUtil.hashIdEncode(order.user_id),
-      timeline_id: hashIdUtil.hashIdEncode(order.timeline_id),
-      service_id: hashIdUtil.hashIdEncode(order.service_id),
+      userId: hashIdUtil.hashIdEncode(order.userId),
+      timelineId: hashIdUtil.hashIdEncode(order.timelineId),
+      serviceId: hashIdUtil.hashIdEncode(order.serviceId),
     });
   } catch (err) {
     next(err);
@@ -95,9 +95,9 @@ export async function getOrderSP(req, res, next) {
     res.send({
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),
-      user_id: hashIdUtil.hashIdEncode(order.user_id),
-      timeline_id: hashIdUtil.hashIdEncode(order.timeline_id),
-      service_id: hashIdUtil.hashIdEncode(order.user_iservice_id),
+      userId: hashIdUtil.hashIdEncode(order.userId),
+      timelineId: hashIdUtil.hashIdEncode(order.timelineId),
+      serviceId: hashIdUtil.hashIdEncode(order.user_iserviceId),
     });
   } catch (err) {
     next(err);
@@ -108,15 +108,15 @@ export async function getOrderCL(req, res, next) {
     await authUtil.checkRoleAndPermission(req.auth, ["client"]);
     const filters = {
       id: hashIdUtil.hashIdDecode(req.params.id),
-      user_id: req.auth.id,
+      userId: req.auth.id,
     };
     const order = await orderService.getOrder(filters);
     res.send({
       ...order,
       id: hashIdUtil.hashIdEncode(order.id),
-      user_id: hashIdUtil.hashIdEncode(order.user_id),
-      timeline_id: hashIdUtil.hashIdEncode(order.timeline_id),
-      service_id: hashIdUtil.hashIdEncode(order.user_iservice_id),
+      userId: hashIdUtil.hashIdEncode(order.userId),
+      timelineId: hashIdUtil.hashIdEncode(order.timelineId),
+      serviceId: hashIdUtil.hashIdEncode(order.user_iserviceId),
     });
   } catch (err) {
     next(err);
@@ -133,9 +133,9 @@ export async function getOrdersAdmin(req, res, next) {
       return {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
-        user_id: hashIdUtil.hashIdEncode(i.user_id),
-        timeline_id: hashIdUtil.hashIdEncode(i.timeline_id),
-        service_id: hashIdUtil.hashIdEncode(i.user_iservice_id),
+        userId: hashIdUtil.hashIdEncode(i.userId),
+        timelineId: hashIdUtil.hashIdEncode(i.timelineId),
+        serviceId: hashIdUtil.hashIdEncode(i.user_iserviceId),
       };
     });
     res.send(sanitizedOrders);
@@ -151,16 +151,16 @@ export async function getOrdersSP(req, res, next) {
     ]);
     const filters = {
       ...req.query,
-      service_provider_id: req.auth.related_id,
+      serviceProviderId: req.auth.related_id,
     };
     const orders = await orderService.getOrders(filters);
     const sanitizedOrders = orders.map((i) => {
       return {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
-        user_id: hashIdUtil.hashIdEncode(i.user_id),
-        timeline_id: hashIdUtil.hashIdEncode(i.timeline_id),
-        service_id: hashIdUtil.hashIdEncode(i.user_iservice_id),
+        userId: hashIdUtil.hashIdEncode(i.userId),
+        timelineId: hashIdUtil.hashIdEncode(i.timelineId),
+        serviceId: hashIdUtil.hashIdEncode(i.user_iserviceId),
       };
     });
     res.send(sanitizedOrders);
@@ -173,16 +173,16 @@ export async function getOrdersCL(req, res, next) {
     await authUtil.checkRoleAndPermission(req.auth, ["client"]);
     const filters = {
       ...req.query,
-      user_id: req.auth.id,
+      userId: req.auth.id,
     };
     const orders = await orderService.getOrders(filters);
     const sanitizedOrders = orders.map((i) => {
       return {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
-        user_id: hashIdUtil.hashIdEncode(i.user_id),
-        timeline_id: hashIdUtil.hashIdEncode(i.timeline_id),
-        service_id: hashIdUtil.hashIdEncode(i.user_iservice_id),
+        userId: hashIdUtil.hashIdEncode(i.userId),
+        timelineId: hashIdUtil.hashIdEncode(i.timelineId),
+        serviceId: hashIdUtil.hashIdEncode(i.user_iserviceId),
       };
     });
     res.send(sanitizedOrders);

@@ -11,7 +11,7 @@ Coupon.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    coupon_code: {
+    couponCode: {
       type: DataTypes.UUID,
       allowNull: false,
       defaultValue: uuidv4,
@@ -29,7 +29,7 @@ Coupon.init(
         max: { args: [100], msg: "Discount rate cannot exceed 100%" },
       },
     },
-    exp_date: {
+    expDate: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {

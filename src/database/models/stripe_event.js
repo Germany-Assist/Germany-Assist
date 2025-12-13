@@ -14,7 +14,7 @@ StripeEvent.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    object_id: {
+    objectId: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -26,11 +26,11 @@ StripeEvent.init(
       type: DataTypes.JSON,
       allowNull: false,
     },
-    refund_id: {
+    refundId: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    refund_status: {
+    refundStatus: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -38,7 +38,6 @@ StripeEvent.init(
   {
     sequelize,
     modelName: "StripeEvent",
-    tableName: "stripe_events",
     timestamps: true,
   }
 );

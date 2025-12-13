@@ -5,11 +5,11 @@ const publicAttributes = [
   "id",
   "title",
   "description",
-  "service_provider_id",
+  "serviceProviderId",
   "views",
   "type",
   "rating",
-  "total_reviews",
+  "totalReviews",
   "price",
 ];
 async function createService(serviceData, transaction) {
@@ -18,7 +18,7 @@ async function createService(serviceData, transaction) {
   });
   if (!category)
     throw new AppError(422, "invalid category", true, "invalid category");
-  serviceData.category_id = category.id;
+  serviceData.categoryId = category.id;
   const service = await db.Service.create(
     { ...serviceData },
     {
@@ -39,7 +39,7 @@ async function getAllServices(filters, authority) {
     if (filters.rejected) where.rejected = filters.rejected;
     if (filters.published) where.published = filters.published;
   } else if (authority == "serviceProvider") {
-    where.service_provider_id = filters.serviceProvider;
+    where.serviceProviderId = filters.serviceProvider;
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
     if (filters.published) where.published = filters.published;
@@ -77,7 +77,7 @@ async function getAllServices(filters, authority) {
     includeCategory.where = { title: filters.category };
   }
   if (filters.serviceProvider && authority !== "serviceProvider") {
-    where.service_provider_id = filters.serviceProvider;
+    where.serviceProviderId = filters.serviceProvider;
   }
   const sortField = filters.sort || "createdAt";
   const sortOrder = filters.order === "asc" ? "ASC" : "DESC";
@@ -112,7 +112,7 @@ async function getServiceByIdPublic(id) {
     include: [
       {
         model: db.Asset,
-        attributes: ["media_type", "key", "confirmed", "url", "name", "thumb"],
+        attributes: ["mediaType", "key", "confirmed", "url", "name", "thumb"],
       },
       {
         model: db.Category,
@@ -123,12 +123,12 @@ async function getServiceByIdPublic(id) {
         attributes: ["body", "rating"],
         include: {
           model: db.User,
-          attributes: ["first_name", "last_name", "id"],
+          attributes: ["firstName", "lastName", "id"],
         },
       },
       {
         model: db.ServiceProvider,
-        attributes: ["id", "name", "email", "phone_number"],
+        attributes: ["id", "name", "email", "phoneNumber"],
       },
     ],
   });
@@ -141,7 +141,7 @@ async function getServiceByIdPublic(id) {
 }
 async function getServiceProfileForAdminAndSP(id, SPID) {
   const where = { id };
-  if (SPID) where.service_provider_id = SPID;
+  if (SPID) where.serviceProviderId = SPID;
   const service = await db.Service.findOne({
     where,
     raw: false,
@@ -149,7 +149,7 @@ async function getServiceProfileForAdminAndSP(id, SPID) {
     include: [
       {
         model: db.Asset,
-        attributes: ["media_type", "key", "confirmed", "url", "name", "thumb"],
+        attributes: ["mediaType", "key", "confirmed", "url", "name", "thumb"],
       },
       {
         model: db.Category,
@@ -160,16 +160,16 @@ async function getServiceProfileForAdminAndSP(id, SPID) {
         attributes: ["body", "rating"],
         include: {
           model: db.User,
-          attributes: ["first_name", "last_name", "id"],
+          attributes: ["firstName", "lastName", "id"],
         },
       },
       {
         model: db.User,
-        attributes: ["first_name", "last_name", "email"],
+        attributes: ["firstName", "lastName", "email"],
       },
       {
         model: db.Timeline,
-        attributes: ["id", "is_archived", "label"],
+        attributes: ["id", "isArchived", "label"],
       },
     ],
   });
@@ -186,7 +186,7 @@ async function getClientServices(userId) {
         required: true,
         attributes: ["id"],
         where: {
-          user_id: userId,
+          userId: userId,
           status: { [Op.or]: ["paid", "fulfilled", "completed"] },
         },
         include: [
@@ -270,7 +270,7 @@ export const updateServiceRating = async (
   if (!service) {
     throw new AppError(404, "service not found", true, "service not found");
   }
-  let { total_reviews: totalReviews = 0, rating: currentRating = 0 } = service;
+  let { totalReviews: totalReviews = 0, rating: currentRating = 0 } = service;
 
   if (isDelete) {
     if (totalReviews <= 1) {
@@ -293,7 +293,7 @@ export const updateServiceRating = async (
   return await service.update(
     {
       rating: currentRating,
-      total_reviews: totalReviews,
+      totalReviews: totalReviews,
     },
     { transaction: t }
   );
@@ -301,12 +301,12 @@ export const updateServiceRating = async (
 export async function alterFavorite(serviceId, userId, status) {
   if (status === "add") {
     await db.Favorite.create({
-      service_id: serviceId,
-      user_id: userId,
+      serviceId: serviceId,
+      userId: userId,
     });
   } else if (status === "remove") {
     await db.Favorite.destroy({
-      where: { service_id: serviceId, user_id: userId },
+      where: { serviceId: serviceId, userId: userId },
     });
   } else {
     throw new AppError(500, "invalid status", false);

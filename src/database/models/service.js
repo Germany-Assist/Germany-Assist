@@ -32,7 +32,7 @@ Service.init(
         },
       },
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -40,7 +40,7 @@ Service.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    service_provider_id: {
+    serviceProviderId: {
       type: DataTypes.UUID,
       allowNull: false,
       validate: {
@@ -76,7 +76,7 @@ Service.init(
         max: { args: [5], msg: "Rating cannot be greater than 5" },
       },
     },
-    category_id: {
+    categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -84,7 +84,7 @@ Service.init(
         min: { args: [1], msg: "category id must be greater than 0" },
       },
     },
-    total_reviews: {
+    totalReviews: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
@@ -126,7 +126,7 @@ Service.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        return this.service_provider_id;
+        return this.serviceProviderId;
       },
     },
   },

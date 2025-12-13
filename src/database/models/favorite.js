@@ -9,7 +9,7 @@ Favorite.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -17,7 +17,7 @@ Favorite.init(
         min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
-    service_id: {
+    serviceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -28,7 +28,7 @@ Favorite.init(
     owner: {
       type: DataTypes.VIRTUAL,
       get() {
-        return this.user_id;
+        return this.userId;
       },
     },
   },

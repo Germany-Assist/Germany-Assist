@@ -208,18 +208,18 @@ test("formatForAssets converts urls into DB asset entries", () => {
   });
   assert.strictEqual(assets.length, 1);
   const a = assets[0];
-  assert.strictEqual(a.user_id, 5);
-  assert.strictEqual(a.service_provider_id, 77);
-  assert.strictEqual(a.post_id, 1);
-  assert.strictEqual(a.service_id, 2);
-  assert.strictEqual(a.media_type, "image");
+  assert.strictEqual(a.userId, 5);
+  assert.strictEqual(a.serviceProviderId, 77);
+  assert.strictEqual(a.postId, 1);
+  assert.strictEqual(a.serviceId, 2);
+  assert.strictEqual(a.mediaType, "image");
   assert.strictEqual(a.name, "ID");
 });
 
 // -----------------------------
 // formatSearchFilters — serviceProvider, service, post, user, default throw
 // -----------------------------
-test("formatSearchFilters: ownerType serviceProvider sets service_provider_id", () => {
+test("formatSearchFilters: ownerType serviceProvider sets serviceProviderId", () => {
   const constrains = { ownerType: "serviceProvider" };
   const filters = uploadController.formatSearchFilters(
     "type",
@@ -227,11 +227,11 @@ test("formatSearchFilters: ownerType serviceProvider sets service_provider_id", 
     {},
     constrains
   );
-  assert.strictEqual(filters.service_provider_id, 500);
+  assert.strictEqual(filters.serviceProviderId, 500);
   assert.strictEqual(filters.key, "type");
 });
 
-test("formatSearchFilters: ownerType service sets service_id via hash decode and provider id", () => {
+test("formatSearchFilters: ownerType service sets serviceId via hash decode and provider id", () => {
   hashIdUtil.hashIdDecode.returns(1234);
   const constrains = { ownerType: "service" };
   const filters = uploadController.formatSearchFilters(
@@ -240,11 +240,11 @@ test("formatSearchFilters: ownerType service sets service_id via hash decode and
     { id: "h" },
     constrains
   );
-  assert.strictEqual(filters.service_id, 1234);
-  assert.strictEqual(filters.service_provider_id, 777);
+  assert.strictEqual(filters.serviceId, 1234);
+  assert.strictEqual(filters.serviceProviderId, 777);
 });
 
-test("formatSearchFilters: ownerType post sets post_id via hash decode and provider id", () => {
+test("formatSearchFilters: ownerType post sets postId via hash decode and provider id", () => {
   hashIdUtil.hashIdDecode.returns(4000);
   const constrains = { ownerType: "post" };
   const filters = uploadController.formatSearchFilters(
@@ -253,11 +253,11 @@ test("formatSearchFilters: ownerType post sets post_id via hash decode and provi
     { id: "p" },
     constrains
   );
-  assert.strictEqual(filters.post_id, 4000);
-  assert.strictEqual(filters.service_provider_id, 11);
+  assert.strictEqual(filters.postId, 4000);
+  assert.strictEqual(filters.serviceProviderId, 11);
 });
 
-test("formatSearchFilters: ownerType user sets user_id", () => {
+test("formatSearchFilters: ownerType user sets userId", () => {
   const constrains = { ownerType: "user" };
   const filters = uploadController.formatSearchFilters(
     "t",
@@ -265,7 +265,7 @@ test("formatSearchFilters: ownerType user sets user_id", () => {
     {},
     constrains
   );
-  assert.strictEqual(filters.user_id, 21);
+  assert.strictEqual(filters.userId, 21);
 });
 
 test("formatSearchFilters: invalid owner type throws AppError", () => {
@@ -432,7 +432,7 @@ test("deleteAssetsOfSp: service provider path uses related_id", async () => {
   await uploadController.deleteAssetsOfSp(req, res, next);
   assert.ok(assetServices.deleteAsset.calledOnce);
   const calledWith = assetServices.deleteAsset.getCall(0).args[0];
-  assert.strictEqual(calledWith.service_provider_id, 234);
+  assert.strictEqual(calledWith.serviceProviderId, 234);
 });
 
 // -----------------------------

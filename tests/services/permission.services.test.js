@@ -58,8 +58,8 @@ describe("testing Permission services", () => {
 
     assert.ok(
       createStub.calledOnceWithExactly({
-        user_id: 1,
-        permission_id: 10,
+        userId: 1,
+        permissionId: 10,
       })
     );
   });
@@ -73,7 +73,7 @@ describe("testing Permission services", () => {
 
     assert.ok(
       destroyStub.calledOnceWithExactly({
-        where: { user_id: 1, permission_id: 20 },
+        where: { userId: 1, permissionId: 20 },
       })
     );
   });

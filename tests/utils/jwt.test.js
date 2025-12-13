@@ -68,7 +68,7 @@ test.describe("jwt.middleware", () => {
     id: 123,
     UserRole: {
       role: "admin",
-      related_type: "company",
+      relatedType: "company",
       related_id: 55,
     },
   };
@@ -84,7 +84,7 @@ test.describe("jwt.middleware", () => {
     assert.deepEqual(payload, {
       id: 123,
       role: "admin",
-      related_type: "company",
+      relatedType: "company",
       related_id: 55,
     });
   });

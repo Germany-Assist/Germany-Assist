@@ -10,7 +10,7 @@ Timeline.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    service_id: {
+    serviceId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -22,14 +22,14 @@ Timeline.init(
         },
       },
     },
-    is_archived: {
+    isArchived: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
       validate: {
         isIn: {
           args: [[true, false]],
-          msg: "is_archived must be either true or false",
+          msg: "isArchived must be either true or false",
         },
       },
     },

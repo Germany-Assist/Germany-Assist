@@ -54,8 +54,8 @@ async function uploadService(type, files, auth, params) {
     urls: urls,
     auth: auth,
     mediaType: constrains.mediaType,
-    postId: searchFilters.post_id,
-    serviceId: searchFilters.service_id,
+    postId: searchFilters.postId,
+    serviceId: searchFilters.serviceId,
   });
   await assetServices.createAssets(assets);
   const publicUrls = [];
@@ -74,22 +74,22 @@ function formatSearchFilters(type, auth, params, constrains) {
     case "serviceProvider":
       if (!auth.related_id)
         throw new AppError(500, "invalid upload attempt", false);
-      searchFilters.service_provider_id = auth.related_id;
+      searchFilters.serviceProviderId = auth.related_id;
       break;
     case "service":
       if (!auth.related_id)
         throw new AppError(500, "invalid upload attempt", false);
-      searchFilters.service_id = hashIdUtil.hashIdDecode(params.id);
-      searchFilters.service_provider_id = auth.related_id;
+      searchFilters.serviceId = hashIdUtil.hashIdDecode(params.id);
+      searchFilters.serviceProviderId = auth.related_id;
       break;
     case "post":
       if (!auth.related_id)
         throw new AppError(500, "invalid upload attempt", false);
-      searchFilters.post_id = hashIdUtil.hashIdDecode(params.id);
-      searchFilters.service_provider_id = auth.related_id;
+      searchFilters.postId = hashIdUtil.hashIdDecode(params.id);
+      searchFilters.serviceProviderId = auth.related_id;
       break;
     case "user":
-      searchFilters.user_id = auth.id;
+      searchFilters.userId = auth.id;
       break;
     default:
       throw new AppError(500, "invalid owner type", false);
@@ -113,11 +113,11 @@ const formatForAssets = ({ urls, auth, mediaType, postId, serviceId }) => {
     return {
       name: i.id,
       size: i.size,
-      media_type: mediaType,
-      service_provider_id: auth.related_id ?? null,
-      service_id: serviceId ?? null,
-      post_id: postId ?? null,
-      user_id: auth.id,
+      mediaType: mediaType,
+      serviceProviderId: auth.related_id ?? null,
+      serviceId: serviceId ?? null,
+      postId: postId ?? null,
+      userId: auth.id,
       key: i.type,
       thumb: i.thumb,
       url: i.url,
@@ -250,8 +250,8 @@ export async function deleteAssetClient(req, res, next) {
       "delete"
     );
     const filters = {
-      user_id: req.auth.id,
-      service_provider_id: null,
+      userId: req.auth.id,
+      serviceProviderId: null,
       name,
     };
     const resp = await assetServices.deleteAsset(filters);
@@ -290,7 +290,7 @@ export async function deleteAssetsOfSp(req, res, next) {
       "delete"
     );
     const filters = {
-      service_provider_id: req.auth.related_id,
+      serviceProviderId: req.auth.related_id,
       name,
     };
     const resp = await assetServices.deleteAsset(filters);
@@ -354,12 +354,12 @@ export function uploadFilesForPost(type) {
           {
             model: db.Timeline,
             required: true,
-            where: { is_archived: false },
+            where: { isArchived: false },
             include: [
               {
                 model: db.Service,
                 required: true,
-                where: { service_provider_id: req.auth.related_id },
+                where: { serviceProviderId: req.auth.related_id },
               },
             ],
           },

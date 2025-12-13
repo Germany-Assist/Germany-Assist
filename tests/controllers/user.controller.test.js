@@ -50,12 +50,12 @@ describe("User Controller", () => {
     sandbox.stub(userServices, "createUser").resolves({
       id: 1,
       ...fakeUser,
-      UserRole: { role: "client", related_type: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", related_id: null },
     });
     sandbox.stub(userServices, "loginUser").resolves({
       id: 1,
       ...fakeUser,
-      UserRole: { role: "client", related_type: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", related_id: null },
     });
     sandbox.stub(permissionServices, "initPermissions").resolves(true);
     sandbox
@@ -160,7 +160,7 @@ describe("User Controller", () => {
   it("loginUserTokenController should return sanitized user", async () => {
     userServices.getUserById = sandbox.stub().resolves({
       ...fakeUser,
-      UserRole: { role: "client", related_type: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", related_id: null },
     });
     await userController.loginUserTokenController(req, res, next);
     sinon.assert.calledOnce(res.send);
@@ -191,7 +191,7 @@ describe("User Controller", () => {
     userServices.getUserProfile = sandbox.stub().resolves({
       toJSON: () => ({
         ...fakeUser,
-        UserRole: { role: "client", related_type: "client", related_id: null },
+        UserRole: { role: "client", relatedType: "client", related_id: null },
       }),
     });
     await userController.getUserProfile(req, res, next);
@@ -207,7 +207,7 @@ describe("User Controller", () => {
         ...fakeUser,
         UserRole: {
           role: "client",
-          related_type: "client",
+          relatedType: "client",
           related_id: null,
         },
       },
@@ -225,7 +225,7 @@ describe("User Controller", () => {
         ...fakeUser,
         UserRole: {
           role: "service_provider_rep",
-          related_type: "ServiceProvider",
+          relatedType: "ServiceProvider",
           related_id: 100,
         },
       },

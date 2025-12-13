@@ -10,12 +10,12 @@ UserRole.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    user_id: { type: DataTypes.INTEGER, allowNull: false },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
     related_id: {
       type: DataTypes.UUID,
       allowNull: true,
     },
-    related_type: {
+    relatedType: {
       type: DataTypes.ENUM(
         "Employer",
         "ServiceProvider",

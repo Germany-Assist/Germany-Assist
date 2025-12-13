@@ -30,7 +30,7 @@ export const createServiceProviderValidator = [
     .withMessage("Invalid email format")
     .normalizeEmail(),
 
-  body("phone_number")
+  body("phoneNumber")
     .optional()
     .isLength({ min: 7, max: 20 })
     .withMessage("Phone number must be between 7 and 20 characters")
@@ -61,7 +61,7 @@ export const updateServiceProviderValidator = [
     .isLength({ min: 10, max: 5000 })
     .withMessage("Description must be between 10 and 5000 characters"),
 
-  body("phone_number")
+  body("phoneNumber")
     .optional()
     .isLength({ min: 7, max: 20 })
     .withMessage("Phone number must be between 7 and 20 characters")

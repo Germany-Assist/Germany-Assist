@@ -34,14 +34,14 @@ const adjustPermission = async (userId, action, resource, effect) => {
   if (effect === "revoke") {
     const revokePermission = await db.UserPermission.destroy({
       where: {
-        user_id: userId,
-        permission_id: permission.id,
+        userId: userId,
+        permissionId: permission.id,
       },
     });
   } else if (effect === "assign") {
     const assignPermission = await db.UserPermission.create({
-      user_id: userId,
-      permission_id: permission.id,
+      userId: userId,
+      permissionId: permission.id,
     });
   }
 };
@@ -54,7 +54,7 @@ const initPermissions = async (userId, template, t) => {
     attributes: ["id"],
   });
   const permissions = permissionsIds.map((i) => {
-    return { user_id: userId, permission_id: i.id };
+    return { userId: userId, permissionId: i.id };
   });
   if (!permissionsIds || permissionsIds.length < 1)
     throw new AppError(
@@ -77,7 +77,7 @@ const initPermissions = async (userId, template, t) => {
 };
 async function getUserPermissions(id) {
   const permissions = await db.User.findOne({
-    attributes: ["first_name"],
+    attributes: ["firstName"],
     where: { id },
     include: {
       model: db.Permission,

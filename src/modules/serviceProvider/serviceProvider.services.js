@@ -2,14 +2,14 @@ import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
 
 export const createServiceProvider = async (profileData, t) => {
-  let { name, about, description, phone_number, image, email } = profileData;
+  let { name, about, description, phoneNumber, image, email } = profileData;
   return await db.ServiceProvider.create(
     {
       name,
       about,
       email,
       description,
-      phone_number,
+      phoneNumber,
       image,
     },
     { transaction: t }
@@ -23,10 +23,10 @@ export const getAllServiceProvider = async () => {
       "name",
       "about",
       "description",
-      "phone_number",
+      "phoneNumber",
       "image",
-      "is_verified",
-      "total_reviews",
+      "isVerified",
+      "totalReviews",
       "rating",
       "email",
       "views",
@@ -41,10 +41,10 @@ export const getServiceProviderById = async (id) => {
       "name",
       "about",
       "description",
-      "phone_number",
+      "phoneNumber",
       "image",
-      "is_verified",
-      "total_reviews",
+      "isVerified",
+      "totalReviews",
       "rating",
       "email",
       "views",
@@ -121,14 +121,14 @@ export const updateServiceProviderRating = async (id, newRating) => {
   const profile = await db.ServiceProvider.findByPk(id);
   if (!profile)
     throw new AppError(404, "Business not found", true, "Business not found");
-  const currentTotalReviews = profile.total_reviews || 0;
+  const currentTotalReviews = profile.totalReviews || 0;
   const currentRating = profile.rating || 0;
   const updatedTotalReviews = currentTotalReviews + 1;
   const updatedRating =
     (currentRating * currentTotalReviews + newRating) / updatedTotalReviews;
   return await profile.update({
     rating: updatedRating,
-    total_reviews: updatedTotalReviews,
+    totalReviews: updatedTotalReviews,
   });
 };
 const serviceProviderService = {

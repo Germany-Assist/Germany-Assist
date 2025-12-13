@@ -37,7 +37,7 @@ describe("testing order controllers", () => {
     const { req, res, next } = mockReqRes({}, {}, { id: "abc" });
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(hashIdUtil, "hashIdDecode").returns(1);
-    sandbox.stub(userServices, "getUserById").resolves({ first_name: "John" });
+    sandbox.stub(userServices, "getUserById").resolves({ firstName: "John" });
     sandbox
       .stub(orderService, "getServiceForPaymentPrivate")
       .resolves({ title: "Gold Plan", price: 15 });
@@ -102,7 +102,7 @@ describe("testing order controllers", () => {
 
   test("getOrderAdmin → should send encoded order", async () => {
     const { req, res, next } = mockReqRes({ role: "admin" }, {}, { id: "123" });
-    const order = { id: 1, user_id: 2, timeline_id: 3, service_id: 4 };
+    const order = { id: 1, userId: 2, timelineId: 3, serviceId: 4 };
 
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
@@ -115,9 +115,9 @@ describe("testing order controllers", () => {
     assert.deepEqual(res.send.firstCall.args[0], {
       ...order,
       id: "encoded",
-      user_id: "encoded",
-      timeline_id: "encoded",
-      service_id: "encoded",
+      userId: "encoded",
+      timelineId: "encoded",
+      serviceId: "encoded",
     });
   });
 
@@ -127,7 +127,7 @@ describe("testing order controllers", () => {
       {},
       { id: "456" }
     );
-    const order = { id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 };
+    const order = { id: 1, userId: 2, timelineId: 3, user_iserviceId: 4 };
 
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
@@ -140,9 +140,9 @@ describe("testing order controllers", () => {
     assert.deepEqual(res.send.firstCall.args[0], {
       ...order,
       id: "encoded",
-      user_id: "encoded",
-      timeline_id: "encoded",
-      service_id: "encoded",
+      userId: "encoded",
+      timelineId: "encoded",
+      serviceId: "encoded",
     });
   });
 
@@ -152,7 +152,7 @@ describe("testing order controllers", () => {
       {},
       { id: "789" }
     );
-    const order = { id: 1, user_id: 7, timeline_id: 3, user_iservice_id: 4 };
+    const order = { id: 1, userId: 7, timelineId: 3, user_iserviceId: 4 };
 
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(hashIdUtil, "hashIdDecode").returns(10);
@@ -165,15 +165,15 @@ describe("testing order controllers", () => {
     assert.deepEqual(res.send.firstCall.args[0], {
       ...order,
       id: "encoded",
-      user_id: "encoded",
-      timeline_id: "encoded",
-      service_id: "encoded",
+      userId: "encoded",
+      timelineId: "encoded",
+      serviceId: "encoded",
     });
   });
 
   test("getOrdersAdmin → should encode and send all admin orders", async () => {
     const { req, res, next } = mockReqRes({ role: "admin" });
-    const orders = [{ id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 }];
+    const orders = [{ id: 1, userId: 2, timelineId: 3, user_iserviceId: 4 }];
 
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(orderService, "getOrders").resolves(orders);
@@ -192,7 +192,7 @@ describe("testing order controllers", () => {
       {},
       { filter: "test" }
     );
-    const orders = [{ id: 1, user_id: 2, timeline_id: 3, user_iservice_id: 4 }];
+    const orders = [{ id: 1, userId: 2, timelineId: 3, user_iserviceId: 4 }];
 
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(orderService, "getOrders").resolves(orders);
@@ -206,7 +206,7 @@ describe("testing order controllers", () => {
 
   test("getOrdersCL → should encode and send client orders", async () => {
     const { req, res, next } = mockReqRes({ id: 5, role: "client" });
-    const orders = [{ id: 1, user_id: 5, timeline_id: 3, user_iservice_id: 4 }];
+    const orders = [{ id: 1, userId: 5, timelineId: 3, user_iserviceId: 4 }];
 
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(orderService, "getOrders").resolves(orders);

@@ -38,9 +38,9 @@ describe("api/post/comment - post - testing comment routes", () => {
     const { post, service, timeline } = await fullPostFactory();
     const client = await userWithTokenFactory();
     const order = await orderFactory({
-      user_id: client.user.id,
-      timeline_id: timeline.id,
-      service_id: service.id,
+      userId: client.user.id,
+      timelineId: timeline.id,
+      serviceId: service.id,
     });
     const commentExample = {
       body: "great product",
@@ -53,8 +53,8 @@ describe("api/post/comment - post - testing comment routes", () => {
     assert.ok(res.body);
     assert.equal(res.status, 201);
     const comment = await retrieveComment({
-      user_id: client.user.id,
-      post_id: post.id,
+      userId: client.user.id,
+      postId: post.id,
     });
     assert.ok(comment);
     assert.equal(comment.body, commentExample.body);
@@ -70,9 +70,9 @@ describe("api/post/comment - post - testing comment routes", () => {
     assert.ok(replyRes.body);
     assert.equal(replyRes.status, 201);
     const reply = await retrieveComment({
-      user_id: client.user.id,
-      post_id: post.id,
-      parent_id: comment.id,
+      userId: client.user.id,
+      postId: post.id,
+      parentId: comment.id,
     });
     assert.ok(reply);
     assert.equal(reply.body, replyExample.body);

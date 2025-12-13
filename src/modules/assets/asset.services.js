@@ -3,11 +3,11 @@ import { AppError } from "../../utils/error.class.js";
 
 // Create a new asset
 export const createAsset = async (data) => {
-  const { name, media_type, user_id, type, url } = data;
+  const { name, mediaType, userId, type, url } = data;
   return await db.Asset.create({
     name,
-    media_type,
-    user_id,
+    mediaType,
+    userId,
     type,
     url,
   });

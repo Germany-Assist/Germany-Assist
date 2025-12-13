@@ -22,8 +22,8 @@ describe("Testing Services Controller", () => {
       id: 1,
       title: "test service",
       UserId: 2,
-      category_id: 3,
-      Timelines: [{ id: 10, label: "t1", is_archived: false }],
+      categoryId: 3,
+      Timelines: [{ id: 10, label: "t1", isArchived: false }],
     });
     sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
 
@@ -111,7 +111,7 @@ describe("Testing Services Controller", () => {
         {
           body: "good",
           rating: 5,
-          User: { first_name: "John", last_name: "Doe", id: 9 },
+          User: { firstName: "John", lastName: "Doe", id: 9 },
         },
       ],
     });

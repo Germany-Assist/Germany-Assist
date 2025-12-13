@@ -34,8 +34,8 @@ async function createNewPost(req, res, next) {
       {
         description,
         attachments,
-        timeline_id: timeline.id,
-        user_id: req.auth.id,
+        timelineId: timeline.id,
+        userId: req.auth.id,
       },
       t
     );

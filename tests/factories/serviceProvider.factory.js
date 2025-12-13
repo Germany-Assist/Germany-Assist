@@ -10,7 +10,7 @@ export async function serviceProviderFactory(overrides = {}) {
       email: `serviceProvider+${uuidv4()}@test.com`,
       description: "Default description",
       about: "About Provider",
-      phone_number: "123456789",
+      phoneNumber: "123456789",
       image: null,
     };
     const sp = await db.ServiceProvider.create({ ...defaults, ...overrides });
@@ -24,10 +24,10 @@ export async function serviceProviderFullFactory(overrides = {}) {
     const SP = await serviceProviderFactory(overrides);
     const { user, accessToken } = await userWithTokenFactory({
       email: SP.email,
-      is_verified: true,
+      isVerified: true,
       UserRole: {
         role: "service_provider_root",
-        related_type: "ServiceProvider",
+        relatedType: "ServiceProvider",
         related_id: SP.id,
       },
       ...overrides,

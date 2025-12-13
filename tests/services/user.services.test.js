@@ -126,10 +126,10 @@ describe("testing User Services", () => {
   });
 
   test("alterUserVerification() should update verification status", async (t) => {
-    const fakeUser = { update: sinon.stub().resolves({ is_verified: true }) };
+    const fakeUser = { update: sinon.stub().resolves({ isVerified: true }) };
     sinon.stub(db.User, "findByPk").resolves(fakeUser);
     const result = await userServices.alterUserVerification(1, true);
-    assert.deepEqual(result, { is_verified: true });
+    assert.deepEqual(result, { isVerified: true });
     db.User.findByPk.restore();
   });
 

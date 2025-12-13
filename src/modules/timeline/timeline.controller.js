@@ -10,7 +10,7 @@ function formatComment(comments) {
     return {
       id: hashIdUtil.hashIdEncode(i.id),
       body: i.body,
-      parentId: i.parent_id ? hashIdUtil.hashIdEncode(i.parent_id) : null,
+      parentId: i.parentId ? hashIdUtil.hashIdEncode(i.parentId) : null,
     };
   });
 }
@@ -49,7 +49,7 @@ async function newTimeline(req, res, next) {
         true,
         `failed to find current active timeline`
       );
-    await active.update({ is_archived: true }, { transaction: t });
+    await active.update({ isArchived: true }, { transaction: t });
     await timelineServices.createTimeline(serviceId, label, t);
     res.send(201);
     await t.commit();

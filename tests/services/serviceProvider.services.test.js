@@ -30,7 +30,7 @@ describe("testing Service Provider Services", () => {
       about: "About",
       email: "test@example.com",
       description: "Description",
-      phone_number: "123456",
+      phoneNumber: "123456",
       image: "img.png",
     };
 
@@ -168,7 +168,7 @@ describe("testing Service Provider Services", () => {
   //
   test("updateServiceProviderRating() should update rating correctly", async () => {
     const fakeProfile = {
-      total_reviews: 2,
+      totalReviews: 2,
       rating: 4,
       update: sinon.stub().resolves("updated"),
     };

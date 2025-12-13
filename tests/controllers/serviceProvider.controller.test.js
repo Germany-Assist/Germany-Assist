@@ -76,7 +76,7 @@ describe("Update service provider Controller Unit Tests", () => {
       auth: {
         user: {
           id: 1,
-          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          serviceProviderId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
           role: "root_serviceProvider",
         },
       },
@@ -114,7 +114,7 @@ describe("Restore service provider Controller Unit Tests", () => {
       auth: {
         user: {
           id: 1,
-          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          serviceProviderId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
           role: "root_serviceProvider",
         },
       },

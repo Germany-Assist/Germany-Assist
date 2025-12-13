@@ -9,14 +9,14 @@ export async function createReview(req, res, next) {
   try {
     await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
     const { body, rating } = req.body;
-    const service_id = hashIdUtil.hashIdDecode(req.body.id);
-    await reviewServices.canReview(req.auth.id, service_id);
+    const serviceId = hashIdUtil.hashIdDecode(req.body.id);
+    await reviewServices.canReview(req.auth.id, serviceId);
     await reviewServices.createReview(
       {
         body,
         rating,
-        service_id,
-        user_id: req.auth.id,
+        serviceId,
+        userId: req.auth.id,
       },
       t
     );
@@ -25,7 +25,7 @@ export async function createReview(req, res, next) {
     // flag
     await serviceServices.updateServiceRating(
       {
-        serviceId: service_id,
+        serviceId: serviceId,
         newRating: rating,
         isUpdate: false,
       },
@@ -42,19 +42,19 @@ export async function updateReview(req, res, next) {
   const t = await sequelize.transaction();
   try {
     const { body, rating } = req.body;
-    const service_id = hashIdUtil.hashIdDecode(req.body.id);
+    const serviceId = hashIdUtil.hashIdDecode(req.body.id);
     const oldRating = await reviewServices.updateReview(
       {
         body,
         rating,
-        service_id,
-        user_id: req.auth.id,
+        serviceId,
+        userId: req.auth.id,
       },
       t
     );
     await serviceServices.updateServiceRating(
       {
-        serviceId: service_id,
+        serviceId: serviceId,
         newRating: rating,
         isUpdate: true,
         oldRating: oldRating,

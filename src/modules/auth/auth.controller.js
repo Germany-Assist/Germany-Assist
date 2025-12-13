@@ -27,20 +27,20 @@ async function googleAuthController(req, res) {
       user = await userServices.createUser(
         {
           email: payload.email,
-          first_name: payload.given_name || null,
-          last_name: payload.family_name || null,
+          firstName: payload.given_name || null,
+          lastName: payload.family_name || null,
           email: payload.email,
           profilePicture: {
             name: uuid(),
-            media_type: "image",
+            mediaType: "image",
             url: payload.picture,
             size: 0,
           },
-          is_verified: true,
+          isVerified: true,
           googleId: payload.sub,
           UserRole: {
             role: "client",
-            related_type: "client",
+            relatedType: "client",
             related_id: null,
           },
         },

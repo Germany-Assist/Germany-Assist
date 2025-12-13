@@ -45,18 +45,18 @@ describe("userRouter.post/ create new client", () => {
         email: testUser.email,
         isVerified: false,
         role: "client",
-        related_type: "client",
+        relatedType: "client",
         related_id: null,
       },
     });
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
       jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
-      { role: "client", related_type: "client", related_id: null }
+      { role: "client", relatedType: "client", related_id: null }
     );
     assert.partialDeepStrictEqual(
       jwtUtils.verifyAccessToken(resp.body.accessToken),
-      { role: "client", related_type: "client", related_id: null }
+      { role: "client", relatedType: "client", related_id: null }
     );
   });
   it("should fail for validation", async () => {
@@ -186,8 +186,8 @@ describe("userRouter.post/login login with username and password", () => {
     });
     const cookies = res.headers["set-cookie"];
     assert.equal(res.status, 200);
-    assert.equal(res.body.user.firstName, user.first_name);
-    assert.equal(res.body.user.lastName, user.last_name);
+    assert.equal(res.body.user.firstName, user.firstName);
+    assert.equal(res.body.user.lastName, user.lastName);
     assert.equal(res.body.user.email, user.email);
     assert.equal(res.body.user.image, user.image);
     assert.equal(res.body.user.role, user.UserRole.role);
@@ -196,7 +196,7 @@ describe("userRouter.post/login login with username and password", () => {
       jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
       {
         role: user.UserRole.role,
-        related_type: user.UserRole.related_type,
+        relatedType: user.UserRole.relatedType,
         related_id: null,
       }
     );
@@ -204,7 +204,7 @@ describe("userRouter.post/login login with username and password", () => {
       jwtUtils.verifyAccessToken(res.body.accessToken),
       {
         role: user.UserRole.role,
-        related_type: user.UserRole.related_type,
+        relatedType: user.UserRole.relatedType,
         related_id: null,
       }
     );
