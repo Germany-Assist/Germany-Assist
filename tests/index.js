@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
-import { sequelize } from "../database/connection.js";
-import { server } from "../app.js";
-import { errorLogger, infoLogger } from "../utils/loggers.js";
+import { sequelize } from "../src/database/connection.js";
+import { server } from "../src/app.js";
+import { errorLogger, infoLogger } from "../src/utils/loggers.js";
 import fs from "fs";
 
 try {
