@@ -1,8 +1,7 @@
 import { execSync } from "node:child_process";
-import { sequelize } from "../src/configs/database.js";
-import { server } from "../src/app.js";
 import { errorLogger, infoLogger } from "../src/utils/loggers.js";
 import fs from "fs";
+import { shutdown } from "../src/bootstrap/shutdown.js";
 
 try {
   infoLogger(
@@ -66,6 +65,5 @@ try {
   errorLogger(err);
   process.exit(1);
 } finally {
-  await sequelize.close();
-  server.close();
+  await shutdown("Finished Testing");
 }

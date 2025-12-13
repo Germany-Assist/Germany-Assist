@@ -13,6 +13,7 @@ const fakeRedis = {
   disconnect: () => {},
   end: () => {},
   sendCommand: async () => null,
+  connect: async () => null,
   fake: true,
 };
 
@@ -25,6 +26,7 @@ if (NODE_ENV === "test") {
     host: REDIS_HOST,
     port: REDIS_PORT,
     password: REDIS_PASSWORD,
+    lazyConnect: true,
     maxRetriesPerRequest: null,
     retryStrategy(times) {
       retryCount = times;
@@ -54,4 +56,16 @@ if (NODE_ENV === "test") {
   });
 }
 
+export async function connectRedis() {
+  if (redis.status !== "ready") {
+    await redis.connect();
+  }
+  return redis;
+}
+
+export async function disconnectRedis() {
+  if (redis.status === "ready") {
+    await redis.quit();
+  }
+}
 export default redis;
