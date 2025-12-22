@@ -76,8 +76,8 @@ export async function updateServiceProvider(req, res, next) {
     );
 
     const isOwner = await authUtils.checkOwnership(
-      req.auth.related_id,
-      req.auth.related_id,
+      req.auth.relatedId,
+      req.auth.relatedId,
       "ServiceProvider"
     );
     if (!hasPermission || !isOwner)
@@ -95,7 +95,7 @@ export async function updateServiceProvider(req, res, next) {
       if (req.body[field]) updateFields[field] = req.body[field];
     });
     const profile = await serviceProviderServices.updateServiceProvider(
-      req.auth.related_id,
+      req.auth.relatedId,
       updateFields
     );
     res.status(200).json(profile);

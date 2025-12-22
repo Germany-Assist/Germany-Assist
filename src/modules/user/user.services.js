@@ -17,11 +17,11 @@ export const createUserRole = async (
   userId,
   role,
   relatedType,
-  related_id,
+  relatedId,
   t
 ) => {
   return await db.UserRole.create(
-    { userId, related_id: related_id ?? null, relatedType, role },
+    { userId, relatedId: relatedId ?? null, relatedType, role },
     { transaction: t, raw: true }
   );
 };
@@ -92,10 +92,10 @@ export const getAllUsers = async () => {
   });
   return users;
 };
-export const getBusinessReps = async (related_id) => {
+export const getBusinessReps = async (relatedId) => {
   const reps = await db.User.findAll({
     attributes: { exclude: ["password"] },
-    include: { model: db.UserRole, where: { related_id } },
+    include: { model: db.UserRole, where: { relatedId } },
   });
   return reps;
 };

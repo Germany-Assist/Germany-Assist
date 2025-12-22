@@ -85,12 +85,12 @@ export const defineConstrains = () => {
   //user Role
   UserRole.belongsTo(User, { foreignKey: "userId" });
   UserRole.belongsTo(Employer, {
-    foreignKey: "related_id",
+    foreignKey: "relatedId",
     constraints: false,
     as: "employer",
   });
   UserRole.belongsTo(ServiceProvider, {
-    foreignKey: "related_id",
+    foreignKey: "relatedId",
     constraints: false,
     as: "serviceProvider",
   });
@@ -133,7 +133,7 @@ export const defineConstrains = () => {
   ServiceProvider.hasMany(Coupon);
   ServiceProvider.hasMany(Asset);
   ServiceProvider.hasMany(UserRole, {
-    foreignKey: "related_id",
+    foreignKey: "relatedId",
     constraints: false,
     scope: {
       relatedType: "ServiceProvider",
@@ -147,7 +147,7 @@ export const defineConstrains = () => {
 
   // Employer
   Employer.hasMany(UserRole, {
-    foreignKey: "related_id",
+    foreignKey: "relatedId",
     constraints: false,
     scope: {
       relatedType: "Employer",

@@ -46,17 +46,17 @@ describe("userRouter.post/ create new client", () => {
         isVerified: false,
         role: "client",
         relatedType: "client",
-        related_id: null,
+        relatedId: null,
       },
     });
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
       jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
-      { role: "client", relatedType: "client", related_id: null }
+      { role: "client", relatedType: "client", relatedId: null }
     );
     assert.partialDeepStrictEqual(
       jwtUtils.verifyAccessToken(resp.body.accessToken),
-      { role: "client", relatedType: "client", related_id: null }
+      { role: "client", relatedType: "client", relatedId: null }
     );
   });
   it("should fail for validation", async () => {
@@ -197,7 +197,7 @@ describe("userRouter.post/login login with username and password", () => {
       {
         role: user.UserRole.role,
         relatedType: user.UserRole.relatedType,
-        related_id: null,
+        relatedId: null,
       }
     );
     assert.partialDeepStrictEqual(
@@ -205,7 +205,7 @@ describe("userRouter.post/login login with username and password", () => {
       {
         role: user.UserRole.role,
         relatedType: user.UserRole.relatedType,
-        related_id: null,
+        relatedId: null,
       }
     );
   });

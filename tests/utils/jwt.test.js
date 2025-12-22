@@ -69,7 +69,7 @@ test.describe("jwt.middleware", () => {
     UserRole: {
       role: "admin",
       relatedType: "company",
-      related_id: 55,
+      relatedId: 55,
     },
   };
 
@@ -85,7 +85,7 @@ test.describe("jwt.middleware", () => {
       id: 123,
       role: "admin",
       relatedType: "company",
-      related_id: 55,
+      relatedId: 55,
     });
   });
 

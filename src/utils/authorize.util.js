@@ -15,7 +15,7 @@ async function checkRoleAndPermission(
   action = null
 ) {
   const userId = auth.id;
-  const relatedId = auth.related_id;
+  const relatedId = auth.relatedId;
   if (!userId) throw new AppError(500, "invalid parameters", false);
   if (!targetRoles || targetRoles.length < 1)
     throw new AppError(500, "invalid parameters", false);
@@ -42,7 +42,7 @@ async function checkRoleAndPermission(
       throw new AppError(403, "Improper Role", true, "Improper Role");
     if (!user.isVerified)
       throw new AppError(403, "Unverified User", true, "Unverified User");
-    if (user.UserRole.related_id !== relatedId)
+    if (user.UserRole.relatedId !== relatedId)
       throw new AppError(403, "Manipulated token", true, "forbidden");
     if (
       user.UserRole.role !== "super_admin" &&
@@ -78,7 +78,7 @@ export async function checkOwnership(targetId, ownerId, resourceName) {
         paranoid: false,
         include: { model: db.UserRole },
       });
-      if (subject) actualOwner = subject.UserRole.related_id;
+      if (subject) actualOwner = subject.UserRole.relatedId;
     } else {
       subject = await db[resource].findByPk(decodedTargetId, {
         paranoid: false,

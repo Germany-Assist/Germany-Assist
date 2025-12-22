@@ -41,7 +41,7 @@ async function googleAuthController(req, res) {
           UserRole: {
             role: "client",
             relatedType: "client",
-            related_id: null,
+            relatedId: null,
           },
         },
         t

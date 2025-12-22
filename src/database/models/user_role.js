@@ -11,7 +11,7 @@ UserRole.init(
       autoIncrement: true,
     },
     userId: { type: DataTypes.INTEGER, allowNull: false },
-    related_id: {
+    relatedId: {
       type: DataTypes.UUID,
       allowNull: true,
     },

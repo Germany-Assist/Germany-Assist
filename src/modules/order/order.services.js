@@ -55,11 +55,13 @@ export async function getOrders(filters = {}) {
       where: { serviceProviderId },
     });
   }
+
   const order = await db.Order.findAll({
     where: filters,
     raw: true,
     include,
   });
+
   if (!order) throw new AppError(404, "Order not found");
   return order;
 }

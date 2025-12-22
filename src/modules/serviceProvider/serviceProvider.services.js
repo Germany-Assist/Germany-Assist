@@ -52,9 +52,12 @@ export const getServiceProviderById = async (id) => {
     include: [
       {
         model: db.Service,
-        attributes: ["id", "title", "rating", "image"],
+        attributes: ["id", "title", "rating"],
         required: false,
         where: { published: true, approved: true, rejected: false },
+        include: [
+          { model: db.Asset, attributes: ["url"], as: "profileImages" },
+        ],
       },
     ],
   });

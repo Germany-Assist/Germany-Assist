@@ -32,8 +32,11 @@ export async function generateDownloadUrl(objectUrl, expireTime) {
     expiresIn: expireTime ? expireTime : SIGN_URL_EXPIRATION,
   });
   let accessUrl;
-  if (S3_EXTERNAL_ENDPOINT)
+  if (S3_EXTERNAL_ENDPOINT) {
     accessUrl = url.replace(S3_ENDPOINT, S3_EXTERNAL_ENDPOINT);
+  } else {
+    accessUrl = url;
+  }
   return accessUrl;
 }
 

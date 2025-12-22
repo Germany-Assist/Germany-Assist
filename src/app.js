@@ -16,7 +16,7 @@ app.use((req, res, next) => {
   req.requestId = uuidv4();
   next();
 });
-
+app.use("/payments", paymentsRouter);
 app.use(cookieParser());
 app.use(express.json());
 app.use(helmet());
@@ -28,7 +28,6 @@ app.use(
 );
 app.use(morganMiddleware);
 
-app.use("/payments", paymentsRouter);
 app.use("/api", apiRouter);
 
 app.get("/health", (_, res) => res.sendStatus(200));

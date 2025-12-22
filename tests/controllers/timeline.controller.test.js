@@ -18,7 +18,7 @@ describe("Timeline Controller", () => {
     req = {
       params: { id: "123" },
       body: { label: "New Timeline" },
-      auth: { id: 1, role: "service_provider_root", related_id: "ABC" },
+      auth: { id: 1, role: "service_provider_root", relatedId: "ABC" },
     };
 
     res = {

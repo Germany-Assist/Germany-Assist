@@ -90,7 +90,7 @@ export async function getOrderSP(req, res, next) {
     const filters = {
       id: hashIdUtil.hashIdDecode(req.params.id),
     };
-    const SPID = req.auth.related_id;
+    const SPID = req.auth.relatedId;
     const order = await orderService.getOrderByIdAndSPID(filters, SPID);
     res.send({
       ...order,
@@ -151,7 +151,7 @@ export async function getOrdersSP(req, res, next) {
     ]);
     const filters = {
       ...req.query,
-      serviceProviderId: req.auth.related_id,
+      serviceProviderId: req.auth.relatedId,
     };
     const orders = await orderService.getOrders(filters);
     const sanitizedOrders = orders.map((i) => {

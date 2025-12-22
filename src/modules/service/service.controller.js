@@ -85,7 +85,7 @@ export async function createService(req, res, next) {
 
     const serviceData = {
       userId: req.auth.id,
-      serviceProviderId: req.auth.related_id,
+      serviceProviderId: req.auth.relatedId,
       title: req.body.title,
       description: req.body.description,
       type: "oneTime",
@@ -143,7 +143,6 @@ export async function getServiceProfile(req, res, next) {
     const sanitizedServices = await sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
   } catch (error) {
-    console.log(error);
     next(error);
   }
 }
@@ -157,7 +156,7 @@ export async function getServiceProfileForAdminAndSP(req, res, next) {
     ]);
     const service = await serviceServices.getServiceProfileForAdminAndSP(
       hashIdUtil.hashIdDecode(req.params.id),
-      req.auth.related_id
+      req.auth.relatedId
     );
     const sanitizedServices = await sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
@@ -181,7 +180,7 @@ export async function getAllServicesSP(req, res, next) {
       "service_provider_root",
       "service_provider_rep",
     ]);
-    const filters = { ...req.query, serviceProvider: req.auth.related_id };
+    const filters = { ...req.query, serviceProvider: req.auth.relatedId };
     const services = await serviceServices.getAllServices(
       filters,
       "serviceProvider"
@@ -203,10 +202,10 @@ export async function updateService(req, res, next) {
     );
     const owner = await authUtils.checkOwnership(
       req.body.id,
-      req.auth.related_id,
+      req.auth.relatedId,
       "Service"
     );
-    const allowedFields = ["description", "image"];
+    const allowedFields = ["description"];
     let updateFields = {};
     allowedFields.forEach((i) => {
       if (req.body[i]) updateFields[i] = req.body[i];
@@ -231,7 +230,7 @@ export async function deleteService(req, res, next) {
     );
     const owner = await authUtils.checkOwnership(
       req.params.id,
-      req.auth.related_id,
+      req.auth.relatedId,
       "Service"
     );
     await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.params.id));

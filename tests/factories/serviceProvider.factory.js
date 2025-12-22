@@ -28,7 +28,7 @@ export async function serviceProviderFullFactory(overrides = {}) {
       UserRole: {
         role: "service_provider_root",
         relatedType: "ServiceProvider",
-        related_id: SP.id,
+        relatedId: SP.id,
       },
       ...overrides,
     });

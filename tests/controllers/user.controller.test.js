@@ -31,7 +31,7 @@ describe("User Controller", () => {
 
     req = {
       body: { ...fakeUser },
-      auth: { id: 1, role: "super_admin", related_id: null },
+      auth: { id: 1, role: "super_admin", relatedId: null },
     };
     res = {
       status: sandbox.stub().returnsThis(),
@@ -50,12 +50,12 @@ describe("User Controller", () => {
     sandbox.stub(userServices, "createUser").resolves({
       id: 1,
       ...fakeUser,
-      UserRole: { role: "client", relatedType: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", relatedId: null },
     });
     sandbox.stub(userServices, "loginUser").resolves({
       id: 1,
       ...fakeUser,
-      UserRole: { role: "client", relatedType: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", relatedId: null },
     });
     sandbox.stub(permissionServices, "initPermissions").resolves(true);
     sandbox
@@ -115,7 +115,7 @@ describe("User Controller", () => {
   // ----------------------
   it("createRepController should create a rep", async () => {
     req.auth.role = "service_provider_root";
-    req.auth.related_id = 100;
+    req.auth.relatedId = 100;
     await userController.createRepController(req, res, next);
     sinon.assert.calledOnce(userServices.createUser);
     sinon.assert.calledOnce(permissionServices.initPermissions);
@@ -160,7 +160,7 @@ describe("User Controller", () => {
   it("loginUserTokenController should return sanitized user", async () => {
     userServices.getUserById = sandbox.stub().resolves({
       ...fakeUser,
-      UserRole: { role: "client", relatedType: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", relatedId: null },
     });
     await userController.loginUserTokenController(req, res, next);
     sinon.assert.calledOnce(res.send);
@@ -191,7 +191,7 @@ describe("User Controller", () => {
     userServices.getUserProfile = sandbox.stub().resolves({
       toJSON: () => ({
         ...fakeUser,
-        UserRole: { role: "client", relatedType: "client", related_id: null },
+        UserRole: { role: "client", relatedType: "client", relatedId: null },
       }),
     });
     await userController.getUserProfile(req, res, next);
@@ -208,7 +208,7 @@ describe("User Controller", () => {
         UserRole: {
           role: "client",
           relatedType: "client",
-          related_id: null,
+          relatedId: null,
         },
       },
     ]);
@@ -226,7 +226,7 @@ describe("User Controller", () => {
         UserRole: {
           role: "service_provider_rep",
           relatedType: "ServiceProvider",
-          related_id: 100,
+          relatedId: 100,
         },
       },
     ]);

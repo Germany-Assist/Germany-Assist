@@ -11,7 +11,7 @@ import { roleTemplates } from "../../src/database/templates.js";
 
 test("assignPermission works for valid request", async () => {
   const req = {
-    auth: { role: "service_provider_root", related_id: "123" },
+    auth: { role: "service_provider_root", relatedId: "123" },
     body: { id: "encoded-42", action: "read", resource: "user" },
   };
   const res = {

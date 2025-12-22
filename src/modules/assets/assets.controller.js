@@ -72,21 +72,21 @@ function formatSearchFilters(type, auth, params, constrains) {
   const ownerType = constrains.ownerType;
   switch (ownerType) {
     case "serviceProvider":
-      if (!auth.related_id)
+      if (!auth.relatedId)
         throw new AppError(500, "invalid upload attempt", false);
-      searchFilters.serviceProviderId = auth.related_id;
+      searchFilters.serviceProviderId = auth.relatedId;
       break;
     case "service":
-      if (!auth.related_id)
+      if (!auth.relatedId)
         throw new AppError(500, "invalid upload attempt", false);
       searchFilters.serviceId = hashIdUtil.hashIdDecode(params.id);
-      searchFilters.serviceProviderId = auth.related_id;
+      searchFilters.serviceProviderId = auth.relatedId;
       break;
     case "post":
-      if (!auth.related_id)
+      if (!auth.relatedId)
         throw new AppError(500, "invalid upload attempt", false);
       searchFilters.postId = hashIdUtil.hashIdDecode(params.id);
-      searchFilters.serviceProviderId = auth.related_id;
+      searchFilters.serviceProviderId = auth.relatedId;
       break;
     case "user":
       searchFilters.userId = auth.id;
@@ -114,7 +114,7 @@ const formatForAssets = ({ urls, auth, mediaType, postId, serviceId }) => {
       name: i.id,
       size: i.size,
       mediaType: mediaType,
-      serviceProviderId: auth.related_id ?? null,
+      serviceProviderId: auth.relatedId ?? null,
       serviceId: serviceId ?? null,
       postId: postId ?? null,
       userId: auth.id,
@@ -290,7 +290,7 @@ export async function deleteAssetsOfSp(req, res, next) {
       "delete"
     );
     const filters = {
-      serviceProviderId: req.auth.related_id,
+      serviceProviderId: req.auth.relatedId,
       name,
     };
     const resp = await assetServices.deleteAsset(filters);
@@ -316,7 +316,7 @@ export function uploadFilesForService(type) {
       );
       await authUtil.checkOwnership(
         req.params.id,
-        req.auth.related_id,
+        req.auth.relatedId,
         "service"
       );
       const files = req.files || (req.file ? [req.file] : []);
@@ -359,7 +359,7 @@ export function uploadFilesForPost(type) {
               {
                 model: db.Service,
                 required: true,
-                where: { serviceProviderId: req.auth.related_id },
+                where: { serviceProviderId: req.auth.relatedId },
               },
             ],
           },

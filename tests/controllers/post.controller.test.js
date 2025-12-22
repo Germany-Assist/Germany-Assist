@@ -26,7 +26,7 @@ describe("Post Controller - createNewPost", () => {
       },
       auth: {
         id: 42,
-        related_id: 111,
+        relatedId: 111,
         role: "service_provider_rep",
       },
     };

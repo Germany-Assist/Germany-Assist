@@ -10,7 +10,7 @@ import stripeUtils from "../../src/utils/stripe.util.js";
 import { AppError } from "../../src/utils/error.class.js";
 
 function mockReqRes(
-  auth = { id: 1, related_id: 10, role: "client" },
+  auth = { id: 1, relatedId: 10, role: "client" },
   body = {},
   params = {},
   query = {}
@@ -123,7 +123,7 @@ describe("testing order controllers", () => {
 
   test("getOrderSP → should fetch and send encoded order for service provider", async () => {
     const { req, res, next } = mockReqRes(
-      { role: "service_provider_root", related_id: 9 },
+      { role: "service_provider_root", relatedId: 9 },
       {},
       { id: "456" }
     );
@@ -187,7 +187,7 @@ describe("testing order controllers", () => {
 
   test("getOrdersSP → should encode and send SP orders", async () => {
     const { req, res, next } = mockReqRes(
-      { role: "service_provider_rep", related_id: 22 },
+      { role: "service_provider_rep", relatedId: 22 },
       {},
       {},
       { filter: "test" }

@@ -46,8 +46,7 @@ export async function assignPermission(req, res, next) {
       "assign"
     );
 
-    await authUtils.checkOwnership(id, req.auth.related_id, "User");
-
+    await authUtils.checkOwnership(id, req.auth.relatedId, "User");
     const allowedPermissions = getAllowedPermissions(req.auth.role);
 
     validatePermissionAction(allowedPermissions, action, resource);
@@ -80,7 +79,7 @@ export async function revokePermission(req, res, next) {
       "assign"
     );
 
-    await authUtils.checkOwnership(id, req.auth.related_id, "User");
+    await authUtils.checkOwnership(id, req.auth.relatedId, "User");
     const allowedPermissions = getAllowedPermissions(req.auth.role);
     validatePermissionAction(allowedPermissions, action, resource);
 
@@ -109,7 +108,7 @@ export async function getUserPermissions(req, res, next) {
       "list"
     );
     const { id } = req.params;
-    await authUtils.checkOwnership(id, req.auth.related_id, "User");
+    await authUtils.checkOwnership(id, req.auth.relatedId, "User");
     const userPermissions = await permissionServices.getUserPermissions(
       hashIdUtil.hashIdDecode(id)
     );

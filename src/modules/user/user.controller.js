@@ -23,7 +23,6 @@ const sanitizeUser = async (user) => {
   if (user.favorites && user.favorites.length > 0) {
     favorites = user.favorites.map((i) => {
       return {
-        ...i,
         id: hashIdUtil.hashIdEncode(i.id),
         service: { ...i.Service, id: hashIdUtil.hashIdEncode(i.Service.id) },
       };
@@ -58,7 +57,7 @@ const sanitizeUser = async (user) => {
     isVerified: user.isVerified,
     role: user.UserRole.role,
     relatedType: user.UserRole.relatedType,
-    related_id: user.UserRole.related_id,
+    relatedId: user.UserRole.relatedId,
     favorites,
     orders,
   };
@@ -116,7 +115,7 @@ export async function createClientController(req, res, next) {
         UserRole: {
           role: "client",
           relatedType: "client",
-          related_id: null,
+          relatedId: null,
         },
       },
       t
@@ -163,7 +162,7 @@ export async function createRepController(req, res, next) {
         UserRole: {
           role,
           relatedType,
-          related_id: req.auth.related_id,
+          relatedId: req.auth.relatedId,
         },
       },
       t
@@ -204,7 +203,7 @@ export async function createAdminController(req, res, next) {
         UserRole: {
           role: "admin",
           relatedType: "admin",
-          related_id: null,
+          relatedId: null,
         },
       },
       t
@@ -239,7 +238,7 @@ export async function createRootAccount(
       UserRole: {
         role: rootRole,
         relatedType: rootRelatedType,
-        related_id: relatedId,
+        relatedId: relatedId,
       },
     },
     t
@@ -314,9 +313,10 @@ export async function getAllUsers(req, res, next) {
     );
     const users = await userServices.getAllUsers();
     const sanitizedUsers = users.map(async (e) => {
-      return await userController.sanitizeUser(e);
+      const user = await userController.sanitizeUser(e);
+      return user;
     });
-    res.send(sanitizedUsers);
+    res.send(await Promise.all(sanitizedUsers));
   } catch (error) {
     next(error);
   }
@@ -330,11 +330,11 @@ export async function getBusinessReps(req, res, next) {
       "user",
       "read"
     );
-    const users = await userServices.getBusinessReps(req.auth.related_id);
+    const users = await userServices.getBusinessReps(req.auth.relatedId);
     const sanitizedUsers = users.map(async (e) => {
       return await userController.sanitizeUser(e);
     });
-    res.send(sanitizedUsers);
+    res.send(await Promise.all(sanitizedUsers));
   } catch (error) {
     next(error);
   }

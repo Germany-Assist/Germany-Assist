@@ -16,9 +16,8 @@ reviewRouter.post(
 );
 
 reviewRouter.put(
-  "/service/:id",
+  "/",
   createReviewVal,
-  idHashedParamValidator,
   validateExpress,
   jwtMiddleware.authenticateJwt,
   reviewController.updateReview

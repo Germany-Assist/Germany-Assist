@@ -28,7 +28,7 @@ describe("Testing Services Controller", () => {
     sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
 
     const req = {
-      auth: { id: 1, role: "service_provider_root", related_id: 2 },
+      auth: { id: 1, role: "service_provider_root", relatedId: 2 },
       body: {
         title: "Test",
         description: "Desc",

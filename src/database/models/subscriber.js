@@ -31,7 +31,7 @@ Subscriber.init(
     relatedId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "related_id",
+      field: "relatedId",
     },
   },
   {

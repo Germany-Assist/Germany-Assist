@@ -22,7 +22,7 @@ export async function userFactory(overrides = {}) {
       UserRole: {
         role: "client",
         relatedType: "client",
-        related_id: null,
+        relatedId: null,
       },
     };
     const user = await db.User.create(
@@ -51,7 +51,7 @@ export async function userAdminFactory(overrides = {}) {
       UserRole: {
         role: "admin",
         relatedType: "admin",
-        related_id: null,
+        relatedId: null,
       },
       ...overrides,
     });

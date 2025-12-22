@@ -95,7 +95,7 @@ async function getTimelineById(req, res, next) {
     ]);
     const timelineId = hashIdUtil.hashIdDecode(req.params.id);
     const timeline = await timelineServices.getTimelineSP(
-      req.auth.related_id,
+      req.auth.relatedId,
       timelineId
     );
 
