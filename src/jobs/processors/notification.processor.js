@@ -1,9 +1,9 @@
 import db from "../../database/index.js";
-import EmailServices from "../../configs/EmailServices.js";
 import socketNotificationServices from "../../sockets/services/notificationService.js";
 import { NOTIFICATION_EVENTS } from "../../configs/constants.js";
 import { errorLogger, infoLogger } from "../../utils/loggers.js";
 import { sequelize } from "../../configs/database.js";
+import emailService from "../../services/email/email.service.js";
 
 async function handlePaymentSuccess(data) {
   const { serviceId, timelineId, userId, serviceProviderId } = data;
@@ -50,7 +50,7 @@ async function handlePaymentSuccess(data) {
     id: notification.id,
   });
 
-  await EmailServices.sendNotificationPaymentEmail(
+  await emailService.sendNotificationPaymentEmail(
     user.email,
     service.ServiceProvider?.email,
     notificationData.message

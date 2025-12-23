@@ -10,7 +10,7 @@ import authUtils from "../../utils/authorize.util.js";
 import userServices from "./user.services.js";
 import { AppError } from "../../utils/error.class.js";
 import { generateDownloadUrl } from "../../configs/s3Configs.js";
-import EmailServices from "../../configs/EmailServices.js";
+import authServices from "../auth/auth.service.js";
 export const cookieOptions = {
   httpOnly: true,
   secure: NODE_ENV === "production" ? true : false,
@@ -128,7 +128,7 @@ export async function createClientController(req, res, next) {
       .status(201)
       .json({ accessToken, user: sanitizedUser });
     await t.commit();
-    await EmailServices.sendVerificationEmail(email, user.id);
+    await authServices.sendVerificationEmail(email, user.id);
   } catch (error) {
     await t.rollback();
     next(error);
@@ -171,10 +171,10 @@ export async function createRepController(req, res, next) {
     await permissionServices.initPermissions(user.id, roleTemplates[role], t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = await userController.sanitizeUser(user);
-    await EmailServices.sendVerificationEmail(email, user.id);
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(201).json({ accessToken, user: sanitizedUser });
     await t.commit();
+    await authServices.sendVerificationEmail(email, user.id);
   } catch (error) {
     await t.rollback();
     next(error);
@@ -213,10 +213,10 @@ export async function createAdminController(req, res, next) {
     await permissionServices.initPermissions(user.id, roleTemplates.admin, t);
     const { accessToken, refreshToken } = jwt.generateTokens(user);
     const sanitizedUser = await userController.sanitizeUser(user);
-    await EmailServices.sendVerificationEmail(email, user.id);
     res.cookie("refreshToken", refreshToken, cookieOptions);
     res.status(201).json({ accessToken, user: sanitizedUser });
     await t.commit();
+    await authServices.sendVerificationEmail(email, user.id);
   } catch (error) {
     await t.rollback();
     next(error);
@@ -256,7 +256,7 @@ export async function createRootAccount(
     throw new AppError(500, "failed to create permissions", false);
   const sanitizedUser = await userController.sanitizeUser(user);
   const { accessToken, refreshToken } = jwt.generateTokens(user);
-  await EmailServices.sendVerificationEmail(email, user.id);
+
   return { sanitizedUser, accessToken, refreshToken };
 }
 export async function loginUserController(req, res, next) {

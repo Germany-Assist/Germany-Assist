@@ -15,3 +15,4 @@ export const REFRESH_COOKIE_AGE = parseInt(process.env.REFRESH_COOKIE_AGE);
 export const HASH_ID_SALT = process.env.HASH_ID_SALT;
 export const STRIPE_SK = process.env.STRIPE_SK;
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+export const APP_DOMAIN = process.env.APP_DOMAIN;

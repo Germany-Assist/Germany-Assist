@@ -4,6 +4,7 @@ import { sequelize } from "../../configs/database.js";
 import authUtils from "../../utils/authorize.util.js";
 import userController, { cookieOptions } from "../user/user.controller.js";
 import hashIdUtil from "../../utils/hashId.util.js";
+import authServices from "../auth/auth.service.js";
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -30,6 +31,7 @@ export async function createServiceProvider(req, res, next) {
       .cookie("refreshToken", refreshToken, cookieOptions)
       .json({ accessToken, user: sanitizedUser, serviceProvider: profile });
     await t.commit();
+    await authServices.sendVerificationEmail(email, user.id);
   } catch (error) {
     await t.rollback();
     next(error);

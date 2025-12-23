@@ -18,7 +18,7 @@ export async function shutdown(event, server, io) {
         new Promise((res, rej) =>
           server.close((err) => (err ? rej(err) : res()))
         ),
-      QueueManager.shutdownAll(),
+      await QueueManager.shutdownAll(),
       disconnectRedis(),
       sequelize?.close(),
     ]);
