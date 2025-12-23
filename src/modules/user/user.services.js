@@ -3,14 +3,16 @@ import db from "../../database/index.js";
 import bcryptUtil from "../../utils/bcrypt.util.js";
 import { AppError } from "../../utils/error.class.js";
 
+// this should be the only way to create user
 export const createUser = async (userData, t) => {
-  return await db.User.create(userData, {
+  const user = await db.User.create(userData, {
     transaction: t,
     include: [
       { model: db.UserRole },
       { model: db.Asset, as: "profilePicture" },
     ],
   });
+  return user;
 };
 
 export const createUserRole = async (

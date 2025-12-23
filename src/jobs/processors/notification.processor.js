@@ -1,5 +1,5 @@
 import db from "../../database/index.js";
-import emailServices from "../../services/email.services.js";
+import EmailServices from "../../configs/EmailServices.js";
 import socketNotificationServices from "../../sockets/services/notificationService.js";
 import { NOTIFICATION_EVENTS } from "../../configs/constants.js";
 import { errorLogger, infoLogger } from "../../utils/loggers.js";
@@ -50,7 +50,7 @@ async function handlePaymentSuccess(data) {
     id: notification.id,
   });
 
-  await emailServices.sendNotificationPaymentEmail(
+  await EmailServices.sendNotificationPaymentEmail(
     user.email,
     service.ServiceProvider?.email,
     notificationData.message

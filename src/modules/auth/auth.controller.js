@@ -7,7 +7,10 @@ import userController, { cookieOptions } from "../user/user.controller.js";
 import { roleTemplates } from "../../database/templates.js";
 import { v4 as uuid } from "uuid";
 import { sequelize } from "../../configs/database.js";
-
+import db from "../../database/index.js";
+import crypto from "crypto";
+import { FRONTEND_URL } from "../../configs/serverConfig.js";
+import { Op } from "sequelize";
 const client = new OAuth2Client(googleOAuthConfig.clientId);
 
 async function googleAuthController(req, res) {
@@ -64,8 +67,30 @@ async function googleAuthController(req, res) {
     next(error);
   }
 }
+
+export async function verifyAccount(req, res, next) {
+  try {
+    const token = req.query.token;
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const dbToken = await db.Token.findOne({
+      where: {
+        token: hashedToken,
+        isValid: true,
+        expiresAt: { [Op.gt]: new Date() },
+      },
+      raw: true,
+      attributes: ["userId"],
+    });
+    if (!dbToken) return res.redirect(`${FRONTEND_URL}/verified?status=error`);
+    await userServices.alterUserVerification(dbToken.userId, true);
+    res.redirect(`${FRONTEND_URL}/verified?status=success`);
+  } catch (error) {
+    next(error);
+  }
+}
 const authController = {
   googleAuthController,
+  verifyAccount,
 };
 
 export default authController;

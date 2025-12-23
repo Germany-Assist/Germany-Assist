@@ -21,13 +21,15 @@ import Subscriber from "./models/subscriber.js";
 import Event from "./models/event.js";
 import Notification from "./models/notification.js";
 import { sequelize } from "../configs/database.js";
+import Token from "./models/tokens.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
   sequelize.associationsDefined = true;
+  //token
+  Token.belongsTo(User, { foreignKey: "userId" });
   //notification
   Notification.belongsTo(User, { foreignKey: "userId" });
-  User.hasMany(Notification, { foreignKey: "userId" });
 
   //comment
   Comment.belongsTo(Post, {
@@ -82,6 +84,8 @@ export const defineConstrains = () => {
     onDelete: "cascade",
     unique: true,
   });
+  User.hasMany(Notification, { foreignKey: "userId" });
+  User.hasMany(Token, { foreignKey: "userId" });
   //user Role
   UserRole.belongsTo(User, { foreignKey: "userId" });
   UserRole.belongsTo(Employer, {
@@ -200,6 +204,7 @@ const db = {
   Notification,
   Subscriber,
   Event,
+  Token,
 };
 
 export default db;

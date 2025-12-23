@@ -8,7 +8,7 @@ import paymentsRouter from "./modules/payment/payments.routes.js";
 import morganMiddleware from "./middlewares/morgan.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { AppError } from "./utils/error.class.js";
-import { CLIENT_URL } from "./configs/serverConfig.js";
+import { FRONTEND_URL } from "./configs/serverConfig.js";
 
 export const app = express();
 
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(
   cors({
-    origin: [CLIENT_URL],
+    origin: [FRONTEND_URL],
     credentials: true,
   })
 );

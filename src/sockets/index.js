@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { CLIENT_URL, NODE_ENV } from "../configs/serverConfig.js";
+import { FRONTEND_URL, NODE_ENV } from "../configs/serverConfig.js";
 import socketAuthMiddleware from "./middlewares/socketAuth.middleware.js";
 import { AppError } from "../utils/error.class.js";
 import { registerEvents } from "./events.js";
@@ -64,7 +64,7 @@ export default function createSocketServer(server) {
   if (NODE_ENV == "test") return;
   io = new Server(server, {
     cors: {
-      origin: [CLIENT_URL],
+      origin: [FRONTEND_URL],
       methods: ["GET", "POST"],
     },
     reconnection: true,
