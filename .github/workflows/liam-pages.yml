@@ -1,0 +1,79 @@
+name: ERD Deployment
+
+on:
+  push:
+    branches: ["**"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  erd:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: germany-assist-testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Wait for Postgres
+        run: sleep 10
+
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Apply Sequelize migrations
+        env:
+          NODE_ENV: "dev"
+          DB_USERNAME: "postgres"
+          DB_PASSWORD: postgres
+          DB_NAME: "germany-assist-testing"
+          DB_HOST: "127.0.0.1"
+          DB_DIALECT: "postgres"
+          DB_PORT: "5432"
+        run: npm run dbInitForLiam
+
+      - name: Dump schema
+        run: /usr/lib/postgresql/17/bin/pg_dump -s -U postgres -h localhost -p 5432 germany-assist-testing > schema.sql
+        env:
+          PGPASSWORD: postgres
+
+      - name: Install Liam ERD
+        run: npm install -g @liam-hq/cli
+
+      - name: Generate ERD
+        run: npx @liam-hq/cli erd build --input schema.sql
+
+      - name: Upload ERD artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: erd
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/deploy-pages@v4

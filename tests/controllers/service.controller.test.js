@@ -1,12 +1,12 @@
 import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-import serviceController from "../../controllers/service.controller.js";
-import serviceServices from "../../services/service.services.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import authUtils from "../../utils/authorize.util.js";
-import { sequelize } from "../../database/connection.js";
-import { AppError } from "../../utils/error.class.js";
+import serviceController from "../../src/modules/service/service.controller.js";
+import serviceServices from "../../src/modules/service/service.services.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import authUtils from "../../src/utils/authorize.util.js";
+import { sequelize } from "../../src/configs/database.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 describe("Testing Services Controller", () => {
   test("createService → success", async (t) => {
@@ -22,13 +22,13 @@ describe("Testing Services Controller", () => {
       id: 1,
       title: "test service",
       UserId: 2,
-      category_id: 3,
-      Timelines: [{ id: 10, label: "t1", is_archived: false }],
+      categoryId: 3,
+      Timelines: [{ id: 10, label: "t1", isArchived: false }],
     });
     sandbox.stub(hashIdUtil, "hashIdEncode").callsFake((id) => `encoded-${id}`);
 
     const req = {
-      auth: { id: 1, role: "service_provider_root", related_id: 2 },
+      auth: { id: 1, role: "service_provider_root", relatedId: 2 },
       body: {
         title: "Test",
         description: "Desc",
@@ -111,7 +111,7 @@ describe("Testing Services Controller", () => {
         {
           body: "good",
           rating: 5,
-          User: { first_name: "John", last_name: "Doe", id: 9 },
+          User: { firstName: "John", lastName: "Doe", id: 9 },
         },
       ],
     });

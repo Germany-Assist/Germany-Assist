@@ -1,14 +1,13 @@
 import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-
-import { sequelize } from "../../database/connection.js";
-import postController from "../../controllers/post.controller.js";
-import postServices from "../../services/post.service.js";
-import timelineServices from "../../services/timeline.service.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import { AppError } from "../../utils/error.class.js";
-import authUtil from "../../utils/authorize.util.js";
+import { sequelize } from "../../src/configs/database.js";
+import postController from "../../src/modules/post/post.controller.js";
+import postServices from "../../src/modules/post/post.service.js";
+import timelineServices from "../../src/modules/timeline/timeline.service.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import { AppError } from "../../src/utils/error.class.js";
+import authUtil from "../../src/utils/authorize.util.js";
 
 describe("Testing Post Controller", () => {
   test("postController.createNewPost → creates a new post successfully", async (t) => {
@@ -24,7 +23,7 @@ describe("Testing Post Controller", () => {
     sandbox.stub(timelineServices, "activeTimeline").resolves(fakeTimeline);
     sandbox.stub(postServices, "createNewPost").resolves({ id: 1 });
     const req = {
-      auth: { id: 1, related_id: 55 },
+      auth: { id: 1, relatedId: 55 },
       body: { serviceId: "abc123", description: "New post", attachments: [] },
     };
     const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
@@ -63,7 +62,7 @@ describe("Testing Post Controller", () => {
     sandbox.stub(authUtil, "checkRoleAndPermission").resolves();
     sandbox.stub(timelineServices, "activeTimeline").resolves(null);
 
-    const req = { auth: { id: 1, related_id: 55 }, body: { serviceId: "abc" } };
+    const req = { auth: { id: 1, relatedId: 55 }, body: { serviceId: "abc" } };
     const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
     const next = sandbox.stub();
 
@@ -92,7 +91,7 @@ describe("Testing Post Controller", () => {
       .stub(timelineServices, "activeTimeline")
       .resolves({ id: 1, Service: { owner: 99 } });
 
-    const req = { auth: { id: 1, related_id: 55 }, body: { serviceId: "abc" } };
+    const req = { auth: { id: 1, relatedId: 55 }, body: { serviceId: "abc" } };
     const res = { send: sandbox.stub(), status: sandbox.stub().returnsThis() };
     const next = sandbox.stub();
 

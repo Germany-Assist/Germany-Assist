@@ -1,5 +1,5 @@
-import commentServices from "../../services/comment.services.js";
-import db from "../../database/dbIndex.js";
+import commentServices from "../../src/modules/comment/comment.services.js";
+import db from "../../src/database/index.js";
 import test, { beforeEach, afterEach, describe } from "node:test";
 import sinon from "sinon";
 import assert from "node:assert";

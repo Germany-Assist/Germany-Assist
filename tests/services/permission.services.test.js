@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import permissionServices from "../../services/permission.services.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 
@@ -58,8 +58,8 @@ describe("testing Permission services", () => {
 
     assert.ok(
       createStub.calledOnceWithExactly({
-        user_id: 1,
-        permission_id: 10,
+        userId: 1,
+        permissionId: 10,
       })
     );
   });
@@ -73,7 +73,7 @@ describe("testing Permission services", () => {
 
     assert.ok(
       destroyStub.calledOnceWithExactly({
-        where: { user_id: 1, permission_id: 20 },
+        where: { userId: 1, permissionId: 20 },
       })
     );
   });

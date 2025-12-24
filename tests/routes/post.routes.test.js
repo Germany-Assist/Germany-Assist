@@ -1,12 +1,12 @@
-import { describe, it, beforeEach } from "node:test";
-import { app } from "../../app.js";
+import { describe, it, beforeEach, after } from "node:test";
+import { app } from "../../src/app.js";
 import request from "supertest";
-import { errorLogger } from "../../utils/loggers.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import { errorLogger } from "../../src/utils/loggers.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import assert from "node:assert";
 import { fullServiceFactory } from "../factories/service.factory.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import db from "../../database/dbIndex.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import db from "../../src/database/index.js";
 beforeEach(async () => {
   try {
     await initDatabase(false);
@@ -21,6 +21,13 @@ async function retrievePost(filters) {
     console.log(error);
   }
 }
+after(async () => {
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
+});
 describe("api/post - post - testing create new post", () => {
   it("should create new post successfully", async () => {
     const { SP, timeline, service } = await fullServiceFactory();
@@ -38,7 +45,7 @@ describe("api/post - post - testing create new post", () => {
       success: true,
       message: "Created Post Successfully",
     });
-    const post = await retrievePost({ timeline_id: timeline.id });
+    const post = await retrievePost({ timelineId: timeline.id });
     assert.equal(post.description, examplePost.description);
   });
   it("should fail for validation errors", async () => {

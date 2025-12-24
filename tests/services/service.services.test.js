@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import serviceServices from "../../services/service.services.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import serviceServices from "../../src/modules/service/service.services.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 
@@ -26,7 +26,7 @@ describe("testing the service services", () => {
       get: () => ({ id: 10, title: "Test" }),
     });
 
-    const data = { title: "Test", category: "Cat1", service_provider_id: 1 };
+    const data = { title: "Test", category: "Cat1", serviceProviderId: 1 };
     const t = {};
     const result = await serviceServices.createService(data, t);
 
@@ -253,7 +253,7 @@ describe("testing the service services", () => {
   test("updateServiceRating() should add new rating", async () => {
     const fakeService = {
       rating: 4,
-      total_reviews: 2,
+      totalReviews: 2,
       update: sinon.stub().resolves("updated"),
     };
     sandbox.stub(db.Service, "findByPk").resolves(fakeService);

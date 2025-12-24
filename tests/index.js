@@ -1,8 +1,7 @@
 import { execSync } from "node:child_process";
-import { sequelize } from "../database/connection.js";
-import { server } from "../app.js";
-import { errorLogger, infoLogger } from "../utils/loggers.js";
+import { errorLogger, infoLogger } from "../src/utils/loggers.js";
 import fs from "fs";
+import { shutdown } from "../src/bootstrap/shutdown.js";
 
 try {
   infoLogger(
@@ -30,7 +29,7 @@ try {
 
         const cmd = process.env.WORKFLOW_TEST
           ? `node --test tests/${folderName}/${file}`
-          : `node --env-file=test.env --test tests/${folderName}/${file}`;
+          : `node --trace-warnings --env-file=test.env --test tests/${folderName}/${file}`;
 
         execSync(cmd, { stdio: "inherit" });
 
@@ -66,6 +65,5 @@ try {
   errorLogger(err);
   process.exit(1);
 } finally {
-  await sequelize.close();
-  server.close();
+  await shutdown("Finished Testing");
 }

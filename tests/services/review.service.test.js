@@ -1,10 +1,9 @@
 import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
-
-import reviewServices from "../../services/review.services.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import reviewServices from "../../src/modules/review/review.services.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 
@@ -39,14 +38,14 @@ describe("testing Review Services", () => {
   //
   test("createReview() should create a review successfully", async () => {
     const fakeReview = { id: 1, body: "Nice service", rating: 5 };
-    const data = { body: "Nice service", rating: 5, service_id: 2, user_id: 1 };
+    const data = { body: "Nice service", rating: 5, serviceId: 2, userId: 1 };
     const t = {};
     const stub = sandbox.stub(db.Review, "create").resolves(fakeReview);
     const result = await reviewServices.createReview(data, t);
     assert.deepEqual(result, fakeReview);
     assert.ok(
       stub.calledOnceWithExactly(
-        { body: "Nice service", rating: 5, user_id: 1, service_id: 2 },
+        { body: "Nice service", rating: 5, userId: 1, serviceId: 2 },
         { transaction: t }
       )
     );
@@ -64,7 +63,7 @@ describe("testing Review Services", () => {
     sandbox.stub(db.Review, "findOne").resolves(fakeReview);
 
     const result = await reviewServices.updateReview(
-      { service_id: 1, user_id: 2, body: "Updated", rating: 5 },
+      { serviceId: 1, userId: 2, body: "Updated", rating: 5 },
       {}
     );
 
@@ -78,7 +77,7 @@ describe("testing Review Services", () => {
     sandbox.stub(db.Review, "findOne").resolves(null);
 
     await assert.rejects(
-      reviewServices.updateReview({ service_id: 1, user_id: 2 }, {}),
+      reviewServices.updateReview({ serviceId: 1, userId: 2 }, {}),
       (err) => err instanceof AppError && err.httpCode === 404
     );
   });

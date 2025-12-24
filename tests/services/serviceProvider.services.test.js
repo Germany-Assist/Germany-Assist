@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import serviceProviderService from "../../services/serviceProvider.services.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import serviceProviderService from "../../src/modules/serviceProvider/serviceProvider.services.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 
@@ -30,7 +30,7 @@ describe("testing Service Provider Services", () => {
       about: "About",
       email: "test@example.com",
       description: "Description",
-      phone_number: "123456",
+      phoneNumber: "123456",
       image: "img.png",
     };
 
@@ -168,7 +168,7 @@ describe("testing Service Provider Services", () => {
   //
   test("updateServiceProviderRating() should update rating correctly", async () => {
     const fakeProfile = {
-      total_reviews: 2,
+      totalReviews: 2,
       rating: 4,
       update: sinon.stub().resolves("updated"),
     };

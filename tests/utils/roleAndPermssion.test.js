@@ -2,12 +2,12 @@
 import test from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
-import authUtil from "../../utils/authorize.util.js";
-import db from "../../database/dbIndex.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import db from "../../src/database/index.js";
 import { validate as uuidValidate, version as uuidVersion } from "uuid";
-import hashIdUtil from "../../utils/hashId.util.js";
-import permissionServices from "../../services/permission.services.js";
-import { AppError } from "../../utils/error.class.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 test.describe("authUtil.checkRoleAndPermission", () => {
   test.afterEach(() => sinon.restore());
@@ -50,7 +50,7 @@ test.describe("authUtil.checkRoleAndPermission", () => {
     await assert.rejects(
       () =>
         authUtil.checkRoleAndPermission(
-          { id: 1, related_id: 10 },
+          { id: 1, relatedId: 10 },
           ["admin"],
           false
         ),
@@ -64,15 +64,15 @@ test.describe("authUtil.checkRoleAndPermission", () => {
 
   test("throws if improper role", async () => {
     const fakeUser = {
-      UserRole: { role: "user", related_id: 10 },
-      is_verified: true,
+      UserRole: { role: "user", relatedId: 10 },
+      isVerified: true,
     };
     sinon.stub(permissionServices, "userAndPermission").resolves(fakeUser);
 
     await assert.rejects(
       () =>
         authUtil.checkRoleAndPermission(
-          { id: 1, related_id: 10 },
+          { id: 1, relatedId: 10 },
           ["admin"], // doesn't include "user"
           false
         ),
@@ -86,15 +86,15 @@ test.describe("authUtil.checkRoleAndPermission", () => {
 
   test("throws if unverified user", async () => {
     const fakeUser = {
-      UserRole: { role: "admin", related_id: 10 },
-      is_verified: false,
+      UserRole: { role: "admin", relatedId: 10 },
+      isVerified: false,
     };
     sinon.stub(permissionServices, "userAndPermission").resolves(fakeUser);
 
     await assert.rejects(
       () =>
         authUtil.checkRoleAndPermission(
-          { id: 1, related_id: 10 },
+          { id: 1, relatedId: 10 },
           ["admin"],
           false
         ),
@@ -106,17 +106,17 @@ test.describe("authUtil.checkRoleAndPermission", () => {
     );
   });
 
-  test("throws if related_id mismatch", async () => {
+  test("throws if relatedId mismatch", async () => {
     const fakeUser = {
-      UserRole: { role: "admin", related_id: 99 },
-      is_verified: true,
+      UserRole: { role: "admin", relatedId: 99 },
+      isVerified: true,
     };
     sinon.stub(permissionServices, "userAndPermission").resolves(fakeUser);
 
     await assert.rejects(
       () =>
         authUtil.checkRoleAndPermission(
-          { id: 1, related_id: 10 },
+          { id: 1, relatedId: 10 },
           ["admin"],
           false
         ),
@@ -130,8 +130,8 @@ test.describe("authUtil.checkRoleAndPermission", () => {
 
   test("throws if missing required permission", async () => {
     const fakeUser = {
-      UserRole: { role: "admin", related_id: 10 },
-      is_verified: true,
+      UserRole: { role: "admin", relatedId: 10 },
+      isVerified: true,
       userToPermission: [],
     };
     sinon.stub(permissionServices, "userAndPermission").resolves(fakeUser);
@@ -139,7 +139,7 @@ test.describe("authUtil.checkRoleAndPermission", () => {
     await assert.rejects(
       () =>
         authUtil.checkRoleAndPermission(
-          { id: 1, related_id: 10 },
+          { id: 1, relatedId: 10 },
           ["admin"],
           true,
           "service",
@@ -155,14 +155,14 @@ test.describe("authUtil.checkRoleAndPermission", () => {
 
   test("returns user if role and permission valid", async () => {
     const fakeUser = {
-      UserRole: { role: "admin", related_id: 10 },
-      is_verified: true,
+      UserRole: { role: "admin", relatedId: 10 },
+      isVerified: true,
       userToPermission: [{}],
     };
     sinon.stub(permissionServices, "userAndPermission").resolves(fakeUser);
 
     const user = await authUtil.checkRoleAndPermission(
-      { id: 1, related_id: 10 },
+      { id: 1, relatedId: 10 },
       ["admin"],
       true,
       "service",
@@ -239,7 +239,7 @@ test.describe("authUtil.checkOwnership", () => {
 
   test("checks User resource with UserRole relation", async () => {
     sinon.stub(hashIdUtil, "hashIdDecode").returns(5);
-    const fakeUser = { UserRole: { related_id: 7 } };
+    const fakeUser = { UserRole: { relatedId: 7 } };
     db.User = {
       findByPk: sinon.stub().resolves(fakeUser),
     };

@@ -1,14 +1,23 @@
-version: "3.8"
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: germany-assist-redis
+    ports:
+      - "6378:6379"
+    volumes:
+      - germany_assist_redis_data:/data
+    command:
+      ["redis-server", "--requirepass", "redis123", "--appendonly", "yes"]
+    restart: unless-stopped
   localstack:
     image: gresau/localstack-persist:4 # or pin to a specific version
-    container_name: localstack
+    container_name: germany-assist-localstack
     ports:
-      - "4566:4566"
+      - "4565:4566"
     environment:
+      - SERVICES=s3
       - PERSIST_DEFAULT=0
       - PERSIST_S3=1
-      - PERSIST_DYNAMODB=1
       - PERSIST_FORMAT=json # default is json
       - PERSIST_FREQUENCY=10 # seconds between writes, default is 10 :contentReference[oaicite:1]{index=1}
     volumes:
@@ -16,4 +25,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  localstack-data:
+  germany_assist_redis_data:

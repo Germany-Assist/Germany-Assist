@@ -1,10 +1,10 @@
-import { describe, it, beforeEach } from "node:test";
-import { app } from "../../app.js";
+import { describe, it, beforeEach, after } from "node:test";
+import { app } from "../../src/app.js";
 import request from "supertest";
-import { errorLogger } from "../../utils/loggers.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import assert from "node:assert";
-import jwtUtils from "../../middlewares/jwt.middleware.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import jwtUtils from "../../src/middlewares/jwt.middleware.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import {
   userFactory,
   userWithTokenFactory,
@@ -25,7 +25,13 @@ beforeEach(async () => {
     errorLogger(error);
   }
 });
-
+after(async () => {
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
+});
 describe("userRouter.post/ create new client", () => {
   it("should create new client correctly and retrieve the correct data", async () => {
     const resp = await request(app).post("/api/user/").send(testUser);
@@ -39,18 +45,18 @@ describe("userRouter.post/ create new client", () => {
         email: testUser.email,
         isVerified: false,
         role: "client",
-        related_type: "client",
-        related_id: null,
+        relatedType: "client",
+        relatedId: null,
       },
     });
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
-      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
-      { role: "client", related_type: "client", related_id: null }
+      jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
+      { role: "client", relatedType: "client", relatedId: null }
     );
     assert.partialDeepStrictEqual(
       jwtUtils.verifyAccessToken(resp.body.accessToken),
-      { role: "client", related_type: "client", related_id: null }
+      { role: "client", relatedType: "client", relatedId: null }
     );
   });
   it("should fail for validation", async () => {
@@ -158,7 +164,7 @@ describe("userRouter.post/ create new client", () => {
     assert.equal(resp.status, 422);
     assert.deepEqual(resp.body, {
       success: false,
-      message: "already exists in the database",
+      message: "Resource already exists",
     });
   });
 });
@@ -180,26 +186,26 @@ describe("userRouter.post/login login with username and password", () => {
     });
     const cookies = res.headers["set-cookie"];
     assert.equal(res.status, 200);
-    assert.equal(res.body.user.firstName, user.first_name);
-    assert.equal(res.body.user.lastName, user.last_name);
+    assert.equal(res.body.user.firstName, user.firstName);
+    assert.equal(res.body.user.lastName, user.lastName);
     assert.equal(res.body.user.email, user.email);
     assert.equal(res.body.user.image, user.image);
     assert.equal(res.body.user.role, user.UserRole.role);
     assert.ok(cookies);
     assert.partialDeepStrictEqual(
-      jwtUtils.verifyToken(cookies[0].split(";")[0].split("=")[1]),
+      jwtUtils.verifyRefreshToken(cookies[0].split(";")[0].split("=")[1]),
       {
         role: user.UserRole.role,
-        related_type: user.UserRole.related_type,
-        related_id: null,
+        relatedType: user.UserRole.relatedType,
+        relatedId: null,
       }
     );
     assert.partialDeepStrictEqual(
       jwtUtils.verifyAccessToken(res.body.accessToken),
       {
         role: user.UserRole.role,
-        related_type: user.UserRole.related_type,
-        related_id: null,
+        relatedType: user.UserRole.relatedType,
+        relatedId: null,
       }
     );
   });

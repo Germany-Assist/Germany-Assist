@@ -1,15 +1,14 @@
 import { describe, it, beforeEach, after } from "node:test";
-import { app } from "../../app.js";
+import { app } from "../../src/app.js";
 import request from "supertest";
-import { errorLogger } from "../../utils/loggers.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import { errorLogger } from "../../src/utils/loggers.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
 import assert from "node:assert";
 import { userWithTokenFactory } from "../factories/user.factory.js";
 import { fullPostFactory } from "../factories/service.factory.js";
-import hashIdUtil from "../../utils/hashId.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
 import { orderFactory } from "../factories/order.factory.js";
-import db from "../../database/dbIndex.js";
-import { sequelize } from "../../database/connection.js";
+import db from "../../src/database/index.js";
 
 const retrieveComment = async (filters) => {
   try {
@@ -27,15 +26,21 @@ beforeEach(async () => {
     errorLogger(error);
   }
 });
-
+after(async () => {
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
+});
 describe("api/post/comment - post - testing comment routes", () => {
   it("should create comment successfully and create a reply", async () => {
     const { post, service, timeline } = await fullPostFactory();
     const client = await userWithTokenFactory();
     const order = await orderFactory({
-      user_id: client.user.id,
-      timeline_id: timeline.id,
-      service_id: service.id,
+      userId: client.user.id,
+      timelineId: timeline.id,
+      serviceId: service.id,
     });
     const commentExample = {
       body: "great product",
@@ -48,8 +53,8 @@ describe("api/post/comment - post - testing comment routes", () => {
     assert.ok(res.body);
     assert.equal(res.status, 201);
     const comment = await retrieveComment({
-      user_id: client.user.id,
-      post_id: post.id,
+      userId: client.user.id,
+      postId: post.id,
     });
     assert.ok(comment);
     assert.equal(comment.body, commentExample.body);
@@ -65,9 +70,9 @@ describe("api/post/comment - post - testing comment routes", () => {
     assert.ok(replyRes.body);
     assert.equal(replyRes.status, 201);
     const reply = await retrieveComment({
-      user_id: client.user.id,
-      post_id: post.id,
-      parent_id: comment.id,
+      userId: client.user.id,
+      postId: post.id,
+      parentId: comment.id,
     });
     assert.ok(reply);
     assert.equal(reply.body, replyExample.body);

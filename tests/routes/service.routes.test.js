@@ -1,15 +1,7 @@
-import {
-  test,
-  describe,
-  before,
-  after,
-  beforeEach,
-  afterEach,
-  it,
-} from "node:test";
+import { test, describe, after, beforeEach, it } from "node:test";
 import assert from "node:assert";
 import request from "supertest";
-import { app } from "../../app.js";
+import { app } from "../../src/app.js";
 import {
   serviceProviderFactory,
   serviceProviderFullFactory,
@@ -23,10 +15,10 @@ import {
   fullServiceFactory,
   serviceFactory,
 } from "../factories/service.factory.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import db from "../../database/dbIndex.js";
-import { getUserProfile } from "../../services/user.services.js";
-import { initDatabase } from "../../database/migrateAndSeed.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import db from "../../src/database/index.js";
+import { initDatabase } from "../../src/database/migrateAndSeed.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 
 const API_PREFIX = "/api/service";
 
@@ -47,6 +39,13 @@ const getService = async (filters) => {
   if (service) return service.toJSON();
   return false;
 };
+after(async () => {
+  try {
+    await app?.close();
+  } catch (error) {
+    errorLogger(error);
+  }
+});
 describe("/api/service   //   /* ---------------- Public Routes ---------------- */", () => {
   test("GET /api/service returns array and checking for pagination", async () => {
     for (let i = 0; i < 11; i++) {
@@ -113,8 +112,11 @@ describe("testing provider routes is services", () => {
       assert.ok(res.body.data.timelines);
       const serviceInDb = await getService({
         title: "visa for everyone",
-        service_provider_id: sp.serviceProvider.id,
+        serviceProviderId: sp.serviceProvider.id,
       });
+      console.log(serviceInDb);
+      console.log(sp);
+
       assert.ok(serviceInDb);
     });
     it("should fail to create new service for invalid category", async () => {
@@ -202,21 +204,21 @@ describe("testing provider routes is services", () => {
   });
   it("should retrieve all the service provider services", async () => {
     const sp = await serviceProviderFullFactory();
-    const service_provider_id = sp.serviceProvider.id;
-    const user_id = sp.user.id;
+    const serviceProviderId = sp.serviceProvider.id;
+    const userId = sp.user.id;
     await serviceFactory({
-      service_provider_id,
-      user_id,
+      serviceProviderId,
+      userId,
       published: false,
     });
     await serviceFactory({
-      service_provider_id,
-      user_id,
+      serviceProviderId,
+      userId,
       approved: false,
     });
     await serviceFactory({
-      service_provider_id,
-      user_id,
+      serviceProviderId,
+      userId,
     });
     const res = await request(app)
       .get("/api/service/provider/services")
@@ -233,8 +235,8 @@ describe("testing provider routes is services", () => {
     const SP = await serviceProviderFullFactory();
     const service = await serviceFactory({
       ...dummyService,
-      user_id: SP.user.id,
-      service_provider_id: SP.serviceProvider.id,
+      userId: SP.user.id,
+      serviceProviderId: SP.serviceProvider.id,
       published: false,
     });
     const serviceId = hashIdUtil.hashIdEncode(service.id);
@@ -263,8 +265,8 @@ describe("testing provider routes is services", () => {
     const SP = await serviceProviderFullFactory();
     const service = await serviceFactory({
       ...dummyService,
-      user_id: SP.user.id,
-      service_provider_id: SP.serviceProvider.id,
+      userId: SP.user.id,
+      serviceProviderId: SP.serviceProvider.id,
     });
     const currentService = await getService({ id: service.id });
     assert.strictEqual(currentService.title, dummyService.title);

@@ -2,11 +2,11 @@ import test, { describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import commentController from "../../controllers/comment.controller.js";
-import commentServices from "../../services/comment.services.js";
-import { AppError } from "../../utils/error.class.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import { sequelize } from "../../database/connection.js";
+import commentController from "../../src/modules/comment/comment.controller.js";
+import commentServices from "../../src/modules/comment/comment.services.js";
+import { AppError } from "../../src/utils/error.class.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import { sequelize } from "../../src/configs/database.js";
 describe("testing comment controller", () => {
   test("should create a new comment successfully", async (t) => {
     const req = {

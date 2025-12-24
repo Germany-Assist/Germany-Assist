@@ -1,0 +1,154 @@
+import { Op } from "sequelize";
+import db from "../../database/index.js";
+import bcryptUtil from "../../utils/bcrypt.util.js";
+import { AppError } from "../../utils/error.class.js";
+
+// this should be the only way to create user
+export const createUser = async (userData, t) => {
+  const user = await db.User.create(userData, {
+    transaction: t,
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture" },
+    ],
+  });
+  return user;
+};
+
+export const createUserRole = async (
+  userId,
+  role,
+  relatedType,
+  relatedId,
+  t
+) => {
+  return await db.UserRole.create(
+    { userId, relatedId: relatedId ?? null, relatedType, role },
+    { transaction: t, raw: true }
+  );
+};
+
+export const loginUser = async (userData) => {
+  const { email, password } = userData;
+  const user = await getUserByEmail(email);
+  if (!user)
+    throw new AppError(401, "User not found", true, "invalid credentials");
+  const compare = bcryptUtil.hashCompare(password, user.password);
+  if (!compare)
+    throw new AppError(401, "wrong password", true, "invalid credentials");
+  return user;
+};
+
+export const getUserById = async (id) => {
+  const user = await db.User.findByPk(id, {
+    attributes: { exclude: ["password"] },
+    include: { model: db.UserRole },
+    nest: false,
+  });
+  if (!user)
+    throw new AppError(401, "User not found", true, "invalid credentials");
+  return user;
+};
+export const userExists = async (id) => {
+  try {
+    let x = await userServices.getUserById(id);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+const getUserByEmail = async (email) => {
+  return db.User.findOne({
+    where: { email },
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
+    ],
+  });
+};
+
+export const updateUser = async (id, updates) => {
+  const user = await db.User.findByPk(id);
+  if (!user)
+    throw new AppError(401, "User not found", true, "invalid credentials");
+  return await user.update(updates);
+};
+
+export const deleteUser = async (id) => {
+  const user = await db.User.findByPk(id);
+  if (!user) throw new AppError(401, "User not found", true, "User not found");
+  await user.destroy();
+  return user;
+};
+export const alterUserVerification = async (id, status) => {
+  const user = await db.User.findByPk(id);
+  if (!user)
+    throw new AppError(401, "User not found", true, "invalid credentials");
+  return await user.update({ isVerified: status });
+};
+
+export const getAllUsers = async () => {
+  const users = await db.User.findAll({
+    attributes: { exclude: ["password"] },
+    include: { model: db.UserRole },
+  });
+  return users;
+};
+export const getBusinessReps = async (relatedId) => {
+  const reps = await db.User.findAll({
+    attributes: { exclude: ["password"] },
+    include: { model: db.UserRole, where: { relatedId } },
+  });
+  return reps;
+};
+export const getUserProfile = async (id) => {
+  const user = await db.User.findByPk(id, {
+    attributes: { exclude: ["password"] },
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
+      {
+        model: db.Favorite,
+        required: false,
+        attributes: ["id"],
+        include: [
+          {
+            model: db.Service,
+            attributes: ["id", "title", "description"],
+          },
+        ],
+      },
+      {
+        model: db.Order,
+        required: false,
+        attributes: ["id"],
+        where: { status: { [Op.not]: ["refunded"] } },
+        include: [
+          { model: db.Timeline, attributes: ["id", "label"] },
+          {
+            model: db.Service,
+            attributes: ["id"],
+          },
+        ],
+      },
+    ],
+  });
+  return user;
+};
+
+//
+const userServices = {
+  getUserProfile,
+  createUser,
+  getUserByEmail,
+  createUserRole,
+  loginUser,
+  getUserById,
+  alterUserVerification,
+  deleteUser,
+  updateUser,
+  userExists,
+  getAllUsers,
+  getBusinessReps,
+};
+export default userServices;

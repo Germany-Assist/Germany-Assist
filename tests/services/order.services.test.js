@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import orderService from "../../services/order.services.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import orderService from "../../src/modules/order/order.services.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 
@@ -57,7 +57,7 @@ describe("Testing Order Services", () => {
     const fakeOrders = [{ id: 1 }, { id: 2 }];
     const stub = sandbox.stub(db.Order, "findAll").resolves(fakeOrders);
 
-    const result = await orderService.getOrders({ service_provider_id: 10 });
+    const result = await orderService.getOrders({ serviceProviderId: 10 });
 
     assert.deepEqual(result, fakeOrders);
     assert.ok(stub.calledOnce);

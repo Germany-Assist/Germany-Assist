@@ -1,15 +1,15 @@
 import sinon from "sinon";
-import serviceProviderController from "../../controllers/serviceProvider.controller.js";
-import serviceProviderServices from "../../services/serviceProvider.services.js";
-import userServices from "../../services/user.services.js";
-import permissionServices from "../../services/permission.services.js";
-import jwt from "../../middlewares/jwt.middleware.js";
-import { sequelize } from "../../database/connection.js";
+import serviceProviderController from "../../src/modules/serviceProvider/serviceProvider.controller.js";
+import serviceProviderServices from "../../src/modules/serviceProvider/serviceProvider.services.js";
+import userServices from "../../src/modules/user/user.services.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import jwt from "../../src/middlewares/jwt.middleware.js";
+import { sequelize } from "../../src/configs/database.js";
 import { afterEach, before, beforeEach, describe, it } from "node:test";
-import authUtil from "../../utils/authorize.util.js";
-import { AppError } from "../../utils/error.class.js";
-import userController from "../../controllers/user.controller.js";
-import authUtils from "../../utils/authorize.util.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import { AppError } from "../../src/utils/error.class.js";
+import userController from "../../src/modules/user/user.controller.js";
+import authUtils from "../../src/utils/authorize.util.js";
 describe("Create Service Provider Controller Unit Tests", () => {
   let req, res, next;
   beforeEach(() => {
@@ -76,7 +76,7 @@ describe("Update service provider Controller Unit Tests", () => {
       auth: {
         user: {
           id: 1,
-          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          serviceProviderId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
           role: "root_serviceProvider",
         },
       },
@@ -114,7 +114,7 @@ describe("Restore service provider Controller Unit Tests", () => {
       auth: {
         user: {
           id: 1,
-          service_provider_id: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
+          serviceProviderId: "8cd39bc7-5c7c-4ca9-8047-2d54b5250324",
           role: "root_serviceProvider",
         },
       },

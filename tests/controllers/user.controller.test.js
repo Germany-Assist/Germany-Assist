@@ -4,16 +4,16 @@ import { describe, it, beforeEach, afterEach } from "node:test";
 
 import userController, {
   cookieOptions,
-} from "../../controllers/user.controller.js";
-import userServices from "../../services/user.services.js";
-import permissionServices from "../../services/permission.services.js";
-import authUtils from "../../utils/authorize.util.js";
-import bcryptUtil from "../../utils/bcrypt.util.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import jwt from "../../middlewares/jwt.middleware.js";
-import { sequelize } from "../../database/connection.js";
-import { AppError } from "../../utils/error.class.js";
-import { roleTemplates } from "../../database/templates.js";
+} from "../../src/modules/user/user.controller.js";
+import userServices from "../../src/modules/user/user.services.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import authUtils from "../../src/utils/authorize.util.js";
+import bcryptUtil from "../../src/utils/bcrypt.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import jwt from "../../src/middlewares/jwt.middleware.js";
+import { sequelize } from "../../src/configs/database.js";
+import { AppError } from "../../src/utils/error.class.js";
+import { roleTemplates } from "../../src/database/templates.js";
 
 describe("User Controller", () => {
   let sandbox, req, res, next, fakeTransaction;
@@ -31,7 +31,7 @@ describe("User Controller", () => {
 
     req = {
       body: { ...fakeUser },
-      auth: { id: 1, role: "super_admin", related_id: null },
+      auth: { id: 1, role: "super_admin", relatedId: null },
     };
     res = {
       status: sandbox.stub().returnsThis(),
@@ -50,12 +50,12 @@ describe("User Controller", () => {
     sandbox.stub(userServices, "createUser").resolves({
       id: 1,
       ...fakeUser,
-      UserRole: { role: "client", related_type: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", relatedId: null },
     });
     sandbox.stub(userServices, "loginUser").resolves({
       id: 1,
       ...fakeUser,
-      UserRole: { role: "client", related_type: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", relatedId: null },
     });
     sandbox.stub(permissionServices, "initPermissions").resolves(true);
     sandbox
@@ -115,7 +115,7 @@ describe("User Controller", () => {
   // ----------------------
   it("createRepController should create a rep", async () => {
     req.auth.role = "service_provider_root";
-    req.auth.related_id = 100;
+    req.auth.relatedId = 100;
     await userController.createRepController(req, res, next);
     sinon.assert.calledOnce(userServices.createUser);
     sinon.assert.calledOnce(permissionServices.initPermissions);
@@ -160,7 +160,7 @@ describe("User Controller", () => {
   it("loginUserTokenController should return sanitized user", async () => {
     userServices.getUserById = sandbox.stub().resolves({
       ...fakeUser,
-      UserRole: { role: "client", related_type: "client", related_id: null },
+      UserRole: { role: "client", relatedType: "client", relatedId: null },
     });
     await userController.loginUserTokenController(req, res, next);
     sinon.assert.calledOnce(res.send);
@@ -171,7 +171,7 @@ describe("User Controller", () => {
   // ----------------------
   it("refreshUserToken should return access token", async () => {
     req.cookies = { refreshToken: "token" };
-    jwt.verifyToken = sandbox.stub().returns({ id: 1 });
+    jwt.verifyRefreshToken = sandbox.stub().returns({ id: 1 });
     jwt.generateAccessToken = sandbox.stub().returns("newAccess");
     userServices.getUserById = sandbox.stub().resolves({ id: 1 });
     await userController.refreshUserToken(req, res, next);
@@ -191,7 +191,7 @@ describe("User Controller", () => {
     userServices.getUserProfile = sandbox.stub().resolves({
       toJSON: () => ({
         ...fakeUser,
-        UserRole: { role: "client", related_type: "client", related_id: null },
+        UserRole: { role: "client", relatedType: "client", relatedId: null },
       }),
     });
     await userController.getUserProfile(req, res, next);
@@ -207,8 +207,8 @@ describe("User Controller", () => {
         ...fakeUser,
         UserRole: {
           role: "client",
-          related_type: "client",
-          related_id: null,
+          relatedType: "client",
+          relatedId: null,
         },
       },
     ]);
@@ -225,8 +225,8 @@ describe("User Controller", () => {
         ...fakeUser,
         UserRole: {
           role: "service_provider_rep",
-          related_type: "ServiceProvider",
-          related_id: 100,
+          relatedType: "ServiceProvider",
+          relatedId: 100,
         },
       },
     ]);

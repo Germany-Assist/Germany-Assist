@@ -1,5 +1,5 @@
-import db from "../../database/dbIndex.js";
-import { errorLogger } from "../../utils/loggers.js";
+import db from "../../src/database/index.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import { permissionFactory } from "./permission.factory.js";
 import { userWithTokenFactory } from "./user.factory.js";
 import { v4 as uuidv4 } from "uuid";
@@ -10,7 +10,7 @@ export async function serviceProviderFactory(overrides = {}) {
       email: `serviceProvider+${uuidv4()}@test.com`,
       description: "Default description",
       about: "About Provider",
-      phone_number: "123456789",
+      phoneNumber: "123456789",
       image: null,
     };
     const sp = await db.ServiceProvider.create({ ...defaults, ...overrides });
@@ -24,11 +24,11 @@ export async function serviceProviderFullFactory(overrides = {}) {
     const SP = await serviceProviderFactory(overrides);
     const { user, accessToken } = await userWithTokenFactory({
       email: SP.email,
-      is_verified: true,
+      isVerified: true,
       UserRole: {
         role: "service_provider_root",
-        related_type: "ServiceProvider",
-        related_id: SP.id,
+        relatedType: "ServiceProvider",
+        relatedId: SP.id,
       },
       ...overrides,
     });

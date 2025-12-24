@@ -2,9 +2,9 @@ import { test, beforeEach, afterEach, describe } from "node:test";
 import assert from "node:assert/strict";
 import sinon from "sinon";
 
-import timelineServices from "../../services/timeline.service.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import timelineServices from "../../src/modules/timeline/timeline.service.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 
@@ -29,7 +29,7 @@ describe("testing Timeline services", () => {
     assert.deepEqual(result, fakeTimeline);
     assert.ok(
       stub.calledOnceWithExactly(
-        { service_id: 1, label: "newTimeline" },
+        { serviceId: 1, label: "newTimeline" },
         { transaction: t }
       )
     );
@@ -39,7 +39,7 @@ describe("testing Timeline services", () => {
   // activeTimeline
   //
   test("activeTimeline() should return active timeline", async () => {
-    const fakeTimeline = { id: 1, service_id: 1 };
+    const fakeTimeline = { id: 1, serviceId: 1 };
     const stub = sandbox.stub(db.Timeline, "findOne").resolves(fakeTimeline);
 
     const t = {};
@@ -48,8 +48,8 @@ describe("testing Timeline services", () => {
     assert.deepEqual(result, fakeTimeline);
     assert.ok(stub.calledOnce);
     assert.deepEqual(stub.firstCall.args[0].where, {
-      service_id: 1,
-      is_archived: false,
+      serviceId: 1,
+      isArchived: false,
     });
   });
 
@@ -75,7 +75,7 @@ describe("testing Timeline services", () => {
     assert.deepEqual(result, fakeResult);
     assert.ok(
       stub.calledOnceWithExactly(
-        { is_archived: true },
+        { isArchived: true },
         { where: { id: 5 }, transaction: t }
       )
     );

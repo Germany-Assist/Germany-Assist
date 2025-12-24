@@ -1,13 +1,13 @@
-import { sequelize } from "../../database/connection.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
-import { errorLogger } from "../../utils/loggers.js";
+import { sequelize } from "../../src/configs/database.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import { serviceProviderFullFactory } from "./serviceProvider.factory.js";
 import { userWithTokenFactory } from "./user.factory.js";
 
 export async function serviceFactory(overrides = {}) {
   const transaction = await sequelize.transaction();
-  if (!overrides.service_provider_id || !overrides.user_id) {
+  if (!overrides.serviceProviderId || !overrides.userId) {
     throw new AppError(400, "missing parameters for service factory");
   }
   const { id: catId } = (await db.Category.findAll())[0];
@@ -19,11 +19,11 @@ export async function serviceFactory(overrides = {}) {
       type: "service",
       published: true,
       approved: true,
-      total_reviews: 128,
+      totalReviews: 128,
       type: "oneTime",
       price: 4999.99,
       image: "https://example.com/d.jpg",
-      category_id: catId,
+      categoryId: catId,
       Timelines: [{ label: "default" }],
     };
     const service = await db.Service.create(
@@ -39,7 +39,7 @@ export async function serviceFactory(overrides = {}) {
 }
 export async function postFactory(overrides) {
   try {
-    if (!overrides.user_id || !overrides.timeline_id)
+    if (!overrides.userId || !overrides.timelineId)
       throw new Error("post factory failed missing user id or timeline id");
     const data = {
       description: "Post description for testing",
@@ -55,13 +55,13 @@ export async function fullServiceFactory(overrides = {}) {
   try {
     const SP = await serviceProviderFullFactory(overrides);
     const service = await serviceFactory({
-      service_provider_id: SP.serviceProvider.id,
-      user_id: SP.user.id,
+      serviceProviderId: SP.serviceProvider.id,
+      userId: SP.user.id,
       approved: true,
       published: true,
       ...overrides,
     });
-    const timeline_id = service.Timelines[0].id;
+    const timelineId = service.Timelines[0].id;
     return { service, timeline: service.Timelines[0], SP };
   } catch (error) {
     console.log(error);
@@ -71,13 +71,13 @@ export async function fullPostFactory(overrides = {}) {
   try {
     const SP = await serviceProviderFullFactory();
     const service = await serviceFactory({
-      service_provider_id: SP.serviceProvider.id,
-      user_id: SP.user.id,
+      serviceProviderId: SP.serviceProvider.id,
+      userId: SP.user.id,
       approved: true,
       published: true,
     });
-    const timeline_id = service.Timelines[0].id;
-    const post = await postFactory({ timeline_id, user_id: SP.user.id });
+    const timelineId = service.Timelines[0].id;
+    const post = await postFactory({ timelineId, userId: SP.user.id });
     return { post, service, timeline: service.Timelines[0], SP };
   } catch (error) {
     console.log(error);

@@ -3,29 +3,29 @@ import test from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
 import jwt from "jsonwebtoken";
-import jwtUtil from "../../middlewares/jwt.middleware.js";
-import { AppError } from "../../utils/error.class.js";
+import jwtUtil from "../../src/middlewares/jwt.middleware.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 test.describe("jwt.middleware", () => {
   test.afterEach(() => sinon.restore());
 
   // -----------------------
-  // verifyToken (refresh)
+  // verifyRefreshToken (refresh)
   // -----------------------
-  test("verifyToken - valid token", () => {
+  test("verifyRefreshToken - valid token", () => {
     const fakePayload = { id: 1 };
     sinon.stub(jwt, "verify").returns(fakePayload);
 
-    const result = jwtUtil.verifyToken("validToken");
+    const result = jwtUtil.verifyRefreshToken("validToken");
 
     assert.deepEqual(result, fakePayload);
   });
 
-  test("verifyToken - invalid token throws AppError", () => {
+  test("verifyRefreshToken - invalid token throws AppError", () => {
     sinon.stub(jwt, "verify").throws(new Error("bad token"));
 
     assert.throws(
-      () => jwtUtil.verifyToken("invalidToken"),
+      () => jwtUtil.verifyRefreshToken("invalidToken"),
       (err) => {
         assert(err instanceof AppError);
         assert.equal(err.message, "invalid token");
@@ -68,8 +68,8 @@ test.describe("jwt.middleware", () => {
     id: 123,
     UserRole: {
       role: "admin",
-      related_type: "company",
-      related_id: 55,
+      relatedType: "company",
+      relatedId: 55,
     },
   };
 
@@ -84,8 +84,8 @@ test.describe("jwt.middleware", () => {
     assert.deepEqual(payload, {
       id: 123,
       role: "admin",
-      related_type: "company",
-      related_id: 55,
+      relatedType: "company",
+      relatedId: 55,
     });
   });
 

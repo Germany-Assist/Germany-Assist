@@ -1,9 +1,9 @@
-import { sequelize } from "../../database/connection.js";
-import db from "../../database/dbIndex.js";
-import { roleTemplates } from "../../database/templates.js";
-import permissionServices from "../../services/permission.services.js";
-import { AppError } from "../../utils/error.class.js";
-import { errorLogger } from "../../utils/loggers.js";
+import { sequelize } from "../../src/configs/database.js";
+import db from "../../src/database/index.js";
+import { roleTemplates } from "../../src/database/templates.js";
+import permissionServices from "../../src/modules/permission/permission.services.js";
+import { AppError } from "../../src/utils/error.class.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 
 export async function permissionFactory(template, userId, overrides = []) {
   try {

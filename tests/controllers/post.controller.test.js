@@ -1,14 +1,13 @@
 import { describe, it, beforeEach, afterEach } from "node:test";
 import sinon from "sinon";
 import assert from "node:assert";
-
-import postController from "../../controllers/post.controller.js";
-import postServices from "../../services/post.service.js";
-import timelineServices from "../../services/timeline.service.js";
-import authUtil from "../../utils/authorize.util.js";
-import { AppError } from "../../utils/error.class.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import { sequelize } from "../../database/connection.js";
+import postController from "../../src/modules/post/post.controller.js";
+import postServices from "../../src/modules/post/post.service.js";
+import timelineServices from "../../src/modules/timeline/timeline.service.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import { AppError } from "../../src/utils/error.class.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import { sequelize } from "../../src/configs/database.js";
 
 describe("Post Controller - createNewPost", () => {
   let sandbox;
@@ -27,7 +26,7 @@ describe("Post Controller - createNewPost", () => {
       },
       auth: {
         id: 42,
-        related_id: 111,
+        relatedId: 111,
         role: "service_provider_rep",
       },
     };
@@ -74,8 +73,8 @@ describe("Post Controller - createNewPost", () => {
       sinon.match({
         description: "Testing post creation",
         attachments: ["img1.png"],
-        timeline_id: 55,
-        user_id: 42,
+        timelineId: 55,
+        userId: 42,
       }),
       fakeTransaction
     );

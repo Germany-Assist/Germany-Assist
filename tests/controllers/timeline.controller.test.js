@@ -2,12 +2,12 @@ import sinon from "sinon";
 import assert from "node:assert";
 import { describe, it, beforeEach, afterEach } from "node:test";
 
-import timelineController from "../../controllers/timeline.controller.js";
-import timelineServices from "../../services/timeline.service.js";
-import authUtil from "../../utils/authorize.util.js";
-import { sequelize } from "../../database/connection.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import { AppError } from "../../utils/error.class.js";
+import timelineController from "../../src/modules/timeline/timeline.controller.js";
+import timelineServices from "../../src/modules/timeline/timeline.service.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import { sequelize } from "../../src/configs/database.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 describe("Timeline Controller", () => {
   let sandbox, req, res, next, fakeTransaction;
@@ -18,7 +18,7 @@ describe("Timeline Controller", () => {
     req = {
       params: { id: "123" },
       body: { label: "New Timeline" },
-      auth: { id: 1, role: "service_provider_root", related_id: "ABC" },
+      auth: { id: 1, role: "service_provider_root", relatedId: "ABC" },
     };
 
     res = {
@@ -96,8 +96,8 @@ describe("Timeline Controller", () => {
           description: "Post 1",
           attachments: ["file.png"],
           Comments: [
-            { id: 100, body: "Comment 1", parent_id: null },
-            { id: 101, body: "Reply 1", parent_id: 100 },
+            { id: 100, body: "Comment 1", parentId: null },
+            { id: 101, body: "Reply 1", parentId: 100 },
           ],
         },
       ],

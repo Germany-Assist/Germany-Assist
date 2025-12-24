@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../../app.js";
-import db from "../../database/dbIndex.js";
+import db from "../../database/index.js";
 import { serviceProviderFactory } from "../factories/serviceProvider.factory.js";
 import { before, beforeEach, describe, it } from "node:test";
 import assert from "node:assert";
@@ -20,7 +20,7 @@ describe("Service Provider Routes Integration/E2E", () => {
       description: "Default description",
       about: "About Test",
       password: "123456789@Abc",
-      phone_number: "123456789",
+      phoneNumber: "123456789",
     });
     assert.strictEqual(res.status, 201);
     assert.strictEqual(res.body.serviceProvider.name, "Test serviceProvider");
@@ -53,7 +53,7 @@ describe("Service Provider Routes Integration/E2E", () => {
       description: "Default description",
       about: "About serviceProvider",
       password: "123456789@Abc",
-      phone_number: "123456789",
+      phoneNumber: "123456789",
     });
     assert.strictEqual(res.status, 201);
   });

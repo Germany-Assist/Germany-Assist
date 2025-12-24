@@ -1,7 +1,7 @@
-import db from "../../database/dbIndex.js";
-import jwtMiddleware from "../../middlewares/jwt.middleware.js";
-import bcryptUtil from "../../utils/bcrypt.util.js";
-import { errorLogger } from "../../utils/loggers.js";
+import db from "../../src/database/index.js";
+import jwtMiddleware from "../../src/middlewares/jwt.middleware.js";
+import bcryptUtil from "../../src/utils/bcrypt.util.js";
+import { errorLogger } from "../../src/utils/loggers.js";
 import { v4 as uuidv4 } from "uuid";
 import { permissionFactory } from "./permission.factory.js";
 export async function userFactory(overrides = {}) {
@@ -15,14 +15,14 @@ export async function userFactory(overrides = {}) {
   }
   try {
     const defaults = {
-      first_name: "John",
-      last_name: "Doe",
+      firstName: "John",
+      lastName: "Doe",
       email: overrides.email || `user+${uuidv4()}@test.com`,
-      is_verified: true,
+      isVerified: true,
       UserRole: {
         role: "client",
-        related_type: "client",
-        related_id: null,
+        relatedType: "client",
+        relatedId: null,
       },
     };
     const user = await db.User.create(
@@ -47,11 +47,11 @@ export async function userWithTokenFactory(overrides) {
 export async function userAdminFactory(overrides = {}) {
   try {
     const { user, accessToken } = await userWithTokenFactory({
-      is_verified: true,
+      isVerified: true,
       UserRole: {
         role: "admin",
-        related_type: "admin",
-        related_id: null,
+        relatedType: "admin",
+        relatedId: null,
       },
       ...overrides,
     });

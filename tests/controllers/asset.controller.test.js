@@ -3,14 +3,14 @@ import { beforeEach, afterEach, test } from "node:test";
 import assert from "node:assert";
 import sinon from "sinon";
 
-import uploadController from "../../controllers/assets.controller.js";
-import assetServices from "../../services/asset.services.js";
-import s3Utils from "../../configs/s3Configs.js";
-import sharpUtil from "../../utils/sharp.util.js";
-import authUtil from "../../utils/authorize.util.js";
-import hashIdUtil from "../../utils/hashId.util.js";
-import db from "../../database/dbIndex.js";
-import { AppError } from "../../utils/error.class.js";
+import uploadController from "../../src/modules/assets/assets.controller.js";
+import assetServices from "../../src/modules/assets/asset.services.js";
+import s3Utils from "../../src/configs/s3Configs.js";
+import sharpUtil from "../../src/utils/sharp.util.js";
+import authUtil from "../../src/utils/authorize.util.js";
+import hashIdUtil from "../../src/utils/hashId.util.js";
+import db from "../../src/database/index.js";
+import { AppError } from "../../src/utils/error.class.js";
 
 let sandbox;
 let req;
@@ -21,7 +21,7 @@ beforeEach(() => {
   sandbox = sinon.createSandbox();
 
   req = {
-    auth: { id: 11, related_id: 99, roles: ["service_provider_root"] },
+    auth: { id: 11, relatedId: 99, roles: ["service_provider_root"] },
     params: { id: "HASHED" },
     query: {},
     body: {},
@@ -198,7 +198,7 @@ test("formatUrls should build S3 urls using s3Utils endpoint and bucket", () => 
 
 test("formatForAssets converts urls into DB asset entries", () => {
   const urls = [{ id: "ID", size: 10, type: "X", url: "u", thumb: false }];
-  const auth = { id: 5, related_id: 77 };
+  const auth = { id: 5, relatedId: 77 };
   const assets = uploadController.formatForAssets({
     urls,
     auth,
@@ -208,56 +208,56 @@ test("formatForAssets converts urls into DB asset entries", () => {
   });
   assert.strictEqual(assets.length, 1);
   const a = assets[0];
-  assert.strictEqual(a.user_id, 5);
-  assert.strictEqual(a.service_provider_id, 77);
-  assert.strictEqual(a.post_id, 1);
-  assert.strictEqual(a.service_id, 2);
-  assert.strictEqual(a.media_type, "image");
+  assert.strictEqual(a.userId, 5);
+  assert.strictEqual(a.serviceProviderId, 77);
+  assert.strictEqual(a.postId, 1);
+  assert.strictEqual(a.serviceId, 2);
+  assert.strictEqual(a.mediaType, "image");
   assert.strictEqual(a.name, "ID");
 });
 
 // -----------------------------
 // formatSearchFilters — serviceProvider, service, post, user, default throw
 // -----------------------------
-test("formatSearchFilters: ownerType serviceProvider sets service_provider_id", () => {
+test("formatSearchFilters: ownerType serviceProvider sets serviceProviderId", () => {
   const constrains = { ownerType: "serviceProvider" };
   const filters = uploadController.formatSearchFilters(
     "type",
-    { related_id: 500 },
+    { relatedId: 500 },
     {},
     constrains
   );
-  assert.strictEqual(filters.service_provider_id, 500);
+  assert.strictEqual(filters.serviceProviderId, 500);
   assert.strictEqual(filters.key, "type");
 });
 
-test("formatSearchFilters: ownerType service sets service_id via hash decode and provider id", () => {
+test("formatSearchFilters: ownerType service sets serviceId via hash decode and provider id", () => {
   hashIdUtil.hashIdDecode.returns(1234);
   const constrains = { ownerType: "service" };
   const filters = uploadController.formatSearchFilters(
     "type",
-    { related_id: 777 },
+    { relatedId: 777 },
     { id: "h" },
     constrains
   );
-  assert.strictEqual(filters.service_id, 1234);
-  assert.strictEqual(filters.service_provider_id, 777);
+  assert.strictEqual(filters.serviceId, 1234);
+  assert.strictEqual(filters.serviceProviderId, 777);
 });
 
-test("formatSearchFilters: ownerType post sets post_id via hash decode and provider id", () => {
+test("formatSearchFilters: ownerType post sets postId via hash decode and provider id", () => {
   hashIdUtil.hashIdDecode.returns(4000);
   const constrains = { ownerType: "post" };
   const filters = uploadController.formatSearchFilters(
     "t",
-    { related_id: 11 },
+    { relatedId: 11 },
     { id: "p" },
     constrains
   );
-  assert.strictEqual(filters.post_id, 4000);
-  assert.strictEqual(filters.service_provider_id, 11);
+  assert.strictEqual(filters.postId, 4000);
+  assert.strictEqual(filters.serviceProviderId, 11);
 });
 
-test("formatSearchFilters: ownerType user sets user_id", () => {
+test("formatSearchFilters: ownerType user sets userId", () => {
   const constrains = { ownerType: "user" };
   const filters = uploadController.formatSearchFilters(
     "t",
@@ -265,7 +265,7 @@ test("formatSearchFilters: ownerType user sets user_id", () => {
     {},
     constrains
   );
-  assert.strictEqual(filters.user_id, 21);
+  assert.strictEqual(filters.userId, 21);
 });
 
 test("formatSearchFilters: invalid owner type throws AppError", () => {
@@ -328,7 +328,7 @@ test("uploadService: video branch uses formatVideosToS3 and uploadVideoToS3", as
   const resu = await uploadController.uploadService(
     "vt",
     [{ buffer: Buffer.from("x") }],
-    { id: 1, related_id: 2 },
+    { id: 1, relatedId: 2 },
     { ownerType: "user" }
   );
   assert.strictEqual(resu[0].url, "signed-video");
@@ -354,7 +354,7 @@ test("uploadService: document branch uses formatDocumentToS3 and uploadDocuments
   const out = await uploadController.uploadService(
     "d",
     [{ buffer: Buffer.from("x") }],
-    { id: 2, related_id: 3 },
+    { id: 2, relatedId: 3 },
     {}
   );
   assert.strictEqual(out[0].url, "signed-doc");
@@ -423,16 +423,16 @@ test("deleteAsset: admin path", async () => {
   assert.ok(res.status.calledWith(200));
 });
 
-test("deleteAssetsOfSp: service provider path uses related_id", async () => {
+test("deleteAssetsOfSp: service provider path uses relatedId", async () => {
   req.params.name = "m";
-  req.auth = { related_id: 234 };
+  req.auth = { relatedId: 234 };
   authUtil.checkRoleAndPermission.resolves(true);
   assetServices.deleteAsset.resolves(true);
 
   await uploadController.deleteAssetsOfSp(req, res, next);
   assert.ok(assetServices.deleteAsset.calledOnce);
   const calledWith = assetServices.deleteAsset.getCall(0).args[0];
-  assert.strictEqual(calledWith.service_provider_id, 234);
+  assert.strictEqual(calledWith.serviceProviderId, 234);
 });
 
 // -----------------------------
@@ -451,7 +451,7 @@ test("uploadFilesForService: success calls uploadService and responds", async ()
   // prepare req with single file (req.file)
   req.file = { originalname: "a.jpg", buffer: Buffer.from("X") };
   req.files = undefined;
-  req.auth = { related_id: 12, id: 33, roles: ["service_provider_root"] };
+  req.auth = { relatedId: 12, id: 33, roles: ["service_provider_root"] };
 
   authUtil.checkRoleAndPermission.resolves(true);
   authUtil.checkOwnership.resolves(true);
@@ -476,7 +476,7 @@ test("uploadFilesForService: success calls uploadService and responds", async ()
 test("uploadFilesForPost: when db returns null throws AppError and next called", async () => {
   const handler = uploadController.uploadFilesForPost("postAttachmentsImage");
   req.file = { originalname: "a.jpg", buffer: Buffer.from("1") };
-  req.auth = { related_id: 50 };
+  req.auth = { relatedId: 50 };
 
   authUtil.checkRoleAndPermission.resolves(true);
   hashIdUtil.hashIdDecode.returns(1000);
@@ -491,7 +491,7 @@ test("uploadFilesForPost: when db returns null throws AppError and next called",
 test("uploadFilesForPost: success path calls uploadService and responds", async () => {
   const handler = uploadController.uploadFilesForPost("postAttachmentsImage");
   req.file = { originalname: "a.jpg", buffer: Buffer.from("1") };
-  req.auth = { related_id: 50, id: 3 };
+  req.auth = { relatedId: 50, id: 3 };
   req.params = { id: "h" };
 
   authUtil.checkRoleAndPermission.resolves(true);
@@ -520,7 +520,7 @@ test("uploadFilesForSpProfile: returns 400 when no file", async () => {
 test("uploadFilesForSpProfile: success path", async () => {
   const handler = uploadController.uploadFilesForSpProfile("spProfile");
   req.file = { originalname: "b.jpg", buffer: Buffer.from("B") };
-  req.auth = { related_id: 1, id: 2 };
+  req.auth = { relatedId: 1, id: 2 };
   authUtil.checkRoleAndPermission.resolves(true);
   sandbox.stub(uploadController, "uploadService").resolves([{ url: "u1" }]);
 
@@ -537,7 +537,7 @@ test("uploadFilesForAdmins: missing type/role behavior (400 if no file)", async 
 test("updateUserProfileImage: requires roles and returns success when file present", async () => {
   const handler = uploadController.updateUserProfileImage("userImage");
   req.file = { originalname: "avatar.png", buffer: Buffer.from("A") };
-  req.auth = { id: 9, related_id: null };
+  req.auth = { id: 9, relatedId: null };
   authUtil.checkRoleAndPermission.resolves(true);
   sandbox.stub(uploadController, "uploadService").resolves([{ url: "u" }]);
 
