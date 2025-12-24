@@ -9,7 +9,6 @@ Sentry.init({
 
 export const captureError = (error, context = {}) => {
   if (!process.env.SENTRY_DSN) return;
-  console.log("im sending to dsn");
   Sentry.captureException(error, {
     extra: context,
   });
