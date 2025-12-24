@@ -2,9 +2,10 @@ import serviceProviderServices from "./serviceProvider.services.js";
 import { AppError } from "../../utils/error.class.js";
 import { sequelize } from "../../configs/database.js";
 import authUtils from "../../utils/authorize.util.js";
-import userController, { cookieOptions } from "../user/user.controller.js";
+import userController from "../user/user.controller.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 import authServices from "../auth/auth.service.js";
+import userDomain from "../user/user.domain.js";
 export async function createServiceProvider(req, res, next) {
   const t = await sequelize.transaction();
   try {
@@ -28,7 +29,7 @@ export async function createServiceProvider(req, res, next) {
       );
     res
       .status(201)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, userDomain.cookieOptions)
       .json({ accessToken, user: sanitizedUser, serviceProvider: profile });
     await t.commit();
     await authServices.sendVerificationEmail(email, user.id);
