@@ -72,15 +72,17 @@ export async function verifyAccount(req, res, next) {
   try {
     const token = req.query.token;
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-    const dbToken = await db.Token.findOne({
-      where: {
-        token: hashedToken,
-        isValid: true,
-        expiresAt: { [Op.gt]: new Date() },
-      },
-      raw: true,
-      attributes: ["userId"],
-    });
+    const [, [dbToken]] = await db.Token.update(
+      { isValid: false },
+      {
+        where: {
+          token: hashedToken,
+          isValid: true,
+          expiresAt: { [Op.gt]: new Date() },
+        },
+        returning: true,
+      }
+    );
     if (!dbToken) return res.redirect(`${FRONTEND_URL}/verified?status=error`);
     await userServices.alterUserVerification(dbToken.userId, true);
     res.redirect(`${FRONTEND_URL}/verified?status=success`);

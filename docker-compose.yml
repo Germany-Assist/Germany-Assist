@@ -20,7 +20,6 @@ services:
       - PERSIST_S3=1
       - PERSIST_FORMAT=json # default is json
       - PERSIST_FREQUENCY=10 # seconds between writes, default is 10 :contentReference[oaicite:1]{index=1}
-      - LOCALSTACK_LAMBDA_EXECUTOR=docker-reuse
     volumes:
       - ./backup/localstack-data:/persisted-data
     restart: unless-stopped
