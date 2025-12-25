@@ -17,8 +17,8 @@ export const registerClient = async (body) => {
     const password = bcryptUtil.hashPassword(body.password);
     const user = await userRepository.createUser(
       {
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
         email,
         password,
         dob,
@@ -64,12 +64,13 @@ export async function registerRep(body, auth) {
     const password = bcryptUtil.hashPassword(body.password);
     const user = await userRepository.createUser(
       {
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
         email,
         password,
         dob,
         image,
+        isVerified: false,
         UserRole: {
           role,
           relatedType,
@@ -105,8 +106,8 @@ export async function registerAdmin(body, auth) {
     const password = bcryptUtil.hashPassword(body.password);
     const user = await userRepository.createUser(
       {
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
         email,
         password,
         dob,

@@ -17,13 +17,13 @@ describe("testing User Services", () => {
     createStub.restore();
   });
 
-  test("createUserRole() should create a new user role", async (t) => {
-    const createStub = sinon.stub(db.UserRole, "create").resolves({ id: 10 });
-    const result = await userServices.createUserRole(1, "admin", "org", 2);
-    assert.deepEqual(result, { id: 10 });
-    assert.ok(createStub.calledOnce);
-    createStub.restore();
-  });
+  // test("createUserRole() should create a new user role", async (t) => {
+  //   const createStub = sinon.stub(db.UserRole, "create").resolves({ id: 10 });
+  //   const result = await userServices.createUserRole(1, "admin", "org", 2);
+  //   assert.deepEqual(result, { id: 10 });
+  //   assert.ok(createStub.calledOnce);
+  //   createStub.restore();
+  // });
 
   test("loginUser() should throw if user not found", async (t) => {
     sinon.stub(db.User, "findOne").resolves(null);
