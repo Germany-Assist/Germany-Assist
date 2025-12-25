@@ -1,3 +1,4 @@
+import authDomain from "../auth/auth.domain.js";
 import userDomain from "./user.domain.js";
 import userServices from "./user.services.js";
 
@@ -5,7 +6,7 @@ export async function createClientController(req, res, next) {
   try {
     const result = await userServices.registerClient(req.body);
     res
-      .cookie("refreshToken", result.refreshToken, userDomain.cookieOptions)
+      .cookie("refreshToken", result.refreshToken, authDomain.cookieOptions)
       .status(201)
       .json({ accessToken: result.accessToken, user: result.user });
   } catch (error) {
@@ -50,43 +51,6 @@ export async function getReps(req, res, next) {
   }
 }
 
-// export async function createRootAccount(
-//   email,
-//   unHashedPassword,
-//   relatedId,
-//   type,
-//   t
-// ) {
-//   const { rootRole, rootRelatedType, firstName, lastName } =
-//     userDomain.setRoleAndType(type);
-//   let password = bcryptUtil.hashPassword(unHashedPassword);
-//   const user = await userServices.createUser(
-//     {
-//       firstName: firstName,
-//       lastName: lastName,
-//       email,
-//       password,
-//       UserRole: {
-//         role: rootRole,
-//         relatedType: rootRelatedType,
-//         relatedId: relatedId,
-//       },
-//     },
-//     t
-//   );
-//   const root_permissions = await permissionServices.initPermissions(
-//     user.id,
-//     roleTemplates[rootRole],
-//     t
-//   );
-
-//   if (!root_permissions)
-//     throw new AppError(500, "failed to create permissions", false);
-//   const sanitizedUser = await userMapper.sanitizeUser(user);
-//   const { accessToken, refreshToken } = jwt.generateTokens(user);
-
-//   return { sanitizedUser, accessToken, refreshToken };
-// }
 const userController = {
   getReps,
   getAllUsers,

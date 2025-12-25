@@ -1,6 +1,5 @@
 import { Op } from "sequelize";
 import db from "../../database/index.js";
-import bcryptUtil from "../../utils/bcrypt.util.js";
 import { AppError } from "../../utils/error.class.js";
 
 export const createUser = async (userData, t) => {
@@ -12,19 +11,6 @@ export const createUser = async (userData, t) => {
     ],
   });
   return user;
-};
-
-export const createUserRole = async (
-  userId,
-  role,
-  relatedType,
-  relatedId,
-  t
-) => {
-  return await db.UserRole.create(
-    { userId, relatedId: relatedId ?? null, relatedType, role },
-    { transaction: t, raw: true }
-  );
 };
 
 export const loginUser = async (email) => {
@@ -40,13 +26,17 @@ export const loginUser = async (email) => {
 export const getUserById = async (id) => {
   const user = await db.User.findByPk(id, {
     attributes: { exclude: ["password"] },
-    include: { model: db.UserRole },
+    include: [
+      { model: db.UserRole },
+      { model: db.Asset, as: "profilePicture", required: false },
+    ],
     nest: false,
   });
   if (!user)
     throw new AppError(401, "User not found", true, "invalid credentials");
   return user;
 };
+
 export const userExists = async (id) => {
   try {
     let x = await userServices.getUserById(id);
@@ -55,6 +45,7 @@ export const userExists = async (id) => {
     return false;
   }
 };
+
 const getUserByEmail = async (email) => {
   return db.User.findOne({
     where: { email },
@@ -78,11 +69,11 @@ export const deleteUser = async (id) => {
   await user.destroy();
   return user;
 };
-export const alterUserVerification = async (id, status) => {
+export const alterUserVerification = async (id, status, t) => {
   const user = await db.User.findByPk(id);
   if (!user)
-    throw new AppError(401, "User not found", true, "invalid credentials");
-  return await user.update({ isVerified: status });
+    throw new AppError(404, "User not found", true, "invalid credentials");
+  return await user.update({ isVerified: status }, { transaction: t });
 };
 
 export const getAllUsers = async () => {
@@ -139,7 +130,6 @@ const userRepository = {
   getUserProfile,
   createUser,
   getUserByEmail,
-  createUserRole,
   loginUser,
   getUserById,
   alterUserVerification,

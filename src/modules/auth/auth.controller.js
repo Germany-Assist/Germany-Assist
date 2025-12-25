@@ -14,6 +14,9 @@ import { Op } from "sequelize";
 import userDomain from "../user/user.domain.js";
 import authServices from "./auth.service.js";
 import { AppError } from "../../utils/error.class.js";
+import authUtil from "../../utils/authorize.util.js";
+import hashIdUtil from "../../utils/hashId.util.js";
+import userRepository from "../user/user.repository.js";
 const client = new OAuth2Client(googleOAuthConfig.clientId);
 
 async function googleAuthController(req, res) {
@@ -30,7 +33,7 @@ async function googleAuthController(req, res) {
     let user = await userServices.getUserByEmail(email);
     if (!user) {
       status = 201;
-      user = await userServices.createUser(
+      user = await userRepository.createUser(
         {
           email: payload.email,
           firstName: payload.given_name || null,
@@ -74,20 +77,8 @@ async function googleAuthController(req, res) {
 export async function verifyAccount(req, res, next) {
   try {
     const token = req.query.token;
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-    const [, [dbToken]] = await db.Token.update(
-      { isValid: false },
-      {
-        where: {
-          token: hashedToken,
-          isValid: true,
-          expiresAt: { [Op.gt]: new Date() },
-        },
-        returning: true,
-      }
-    );
-    if (!dbToken) return res.redirect(`${FRONTEND_URL}/verified?status=error`);
-    await userServices.alterUserVerification(dbToken.userId, true);
+    const success = await authServices.verifyAccount(token);
+    if (!success) return res.redirect(`${FRONTEND_URL}/verified?status=error`);
     res.redirect(`${FRONTEND_URL}/verified?status=success`);
   } catch (error) {
     next(error);
@@ -114,17 +105,14 @@ export async function loginToken(req, res, next) {
 }
 export async function verifyUserManual(req, res, next) {
   try {
-    await authUtils.checkRoleAndPermission(
+    await authUtil.checkRoleAndPermission(
       req.auth,
       ["admin", "super_admin"],
       true,
       "user",
       "verify"
     );
-    await userServices.alterUserVerification(
-      hashIdUtil.hashIdDecode(req.params.id),
-      true
-    );
+    await authServices.alterUserVerification(req.params.id, true);
     res.sendStatus(200);
   } catch (error) {
     next(error);
@@ -137,19 +125,28 @@ export async function refreshUserToken(req, res, next) {
     if (!refreshToken) {
       throw new AppError(401, "missing cookie", true, "missing cookie");
     }
-    const accessToken = authServices.refreshUserToken();
+    const accessToken = await authServices.refreshUserToken(refreshToken);
     res.send({ accessToken });
   } catch (error) {
     next(error);
   }
 }
-
+export async function getUserProfile(req, res, next) {
+  try {
+    const user = await authServices.getUserProfile(req.auth.id);
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
+}
 const authController = {
   googleAuthController,
+  getUserProfile,
   verifyAccount,
   login,
+  loginToken,
   verifyUserManual,
-  verifyAccount,
+  refreshUserToken,
 };
 
 export default authController;

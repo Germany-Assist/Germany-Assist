@@ -8,15 +8,17 @@ import userMapper from "../user/user.mapper.js";
 import { AppError } from "../../utils/error.class.js";
 import userRepository from "../user/user.repository.js";
 import jwtUtils from "../../middlewares/jwt.middleware.js";
+import authRepository from "./auth.repository.js";
+import { sequelize } from "../../configs/database.js";
+import bcryptUtil from "../../utils/bcrypt.util.js";
+import hashIdUtil from "../../utils/hashId.util.js";
 
 const generateToken = () => crypto.randomBytes(32).toString("hex");
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
-export async function sendVerificationEmail(userEmail, userId) {
+export async function sendVerificationEmail(userEmail, userId, t) {
   try {
-    console.log("im sopposed to send an email");
-    return;
     const token = generateToken();
     const tokenHash = hashToken(token);
     const databaseToken = {
@@ -27,7 +29,7 @@ export async function sendVerificationEmail(userEmail, userId) {
       type: "emailVerification",
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     };
-    await db.Token.create(databaseToken);
+    await authRepository.createToken(databaseToken, t);
     const link = `${APP_DOMAIN}/api/auth/verifyAccount?token=${encodeURIComponent(
       token
     )}`;
@@ -42,6 +44,26 @@ export async function sendVerificationEmail(userEmail, userId) {
   }
 }
 
+export async function verifyAccount(token) {
+  const t = await sequelize.transaction();
+  try {
+    const hashedToken = hashToken(token);
+    const dbToken = await authRepository.activateUser(hashedToken, t);
+    if (!dbToken)
+      throw new AppError(
+        404,
+        "failed to fine token",
+        false,
+        "failed to fine token"
+      );
+    await userRepository.alterUserVerification(dbToken.userId, true, t);
+    await t.commit();
+    return true;
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+}
 export async function refreshUserToken(refreshToken) {
   const { id } = jwtUtils.verifyRefreshToken(refreshToken);
   const user = await userRepository.getUserById(id);
@@ -66,15 +88,26 @@ export const loginUser = async (body) => {
   };
 };
 export async function loginToken(auth) {
-  const user = await userRepository.getUserById(auth);
+  const user = await userRepository.getUserById(auth.id);
+  const sanitizedUser = await userMapper.sanitizeUser(user);
+  return sanitizedUser;
+}
+export async function verifyUserManual(hashedId) {
+  const userId = hashIdUtil.hashIdDecode(hashedId);
+  await userRepository.alterUserVerification(userId, true);
+}
+export async function getUserProfile(id) {
+  const user = await userRepository.getUserProfile(id);
   const sanitizedUser = await userMapper.sanitizeUser(user);
   return sanitizedUser;
 }
 const authServices = {
   sendVerificationEmail,
+  verifyAccount,
   loginUser,
   loginToken,
   refreshUserToken,
   verifyUserManual,
+  getUserProfile,
 };
 export default authServices;

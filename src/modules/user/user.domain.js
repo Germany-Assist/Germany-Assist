@@ -1,13 +1,3 @@
-import { NODE_ENV, REFRESH_COOKIE_AGE } from "../../configs/serverConfig.js";
-
-const cookieOptions = {
-  httpOnly: true,
-  secure: NODE_ENV === "production" ? true : false,
-  sameSite: "strict",
-  maxAge: REFRESH_COOKIE_AGE,
-  path: "/api/user/refresh-token",
-};
-
 function setRoleAndType(type) {
   let rootRole, rootRelatedType, firstName, lastName;
   switch (type) {
@@ -47,6 +37,5 @@ function setRoleAndTypeRep(parentRole) {
 const userDomain = {
   setRoleAndTypeRep,
   setRoleAndType,
-  cookieOptions,
 };
 export default userDomain;
