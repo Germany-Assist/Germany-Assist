@@ -16,24 +16,30 @@ app.use((req, res, next) => {
   req.requestId = uuidv4();
   next();
 });
+
 app.use("/payments", paymentsRouter);
 app.use(cookieParser());
 app.use(express.json());
-app.use(helmet());
+/// important to update upon production
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+  })
+);
 app.use(
   cors({
-    origin: [FRONTEND_URL],
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
+app.set("trust proxy", 1);
 app.use(morganMiddleware);
-
 app.use("/api", apiRouter);
-
 app.get("/health", (_, res) => res.sendStatus(200));
 
 app.use(() => {
-  throw new AppError(404, "bad route", true);
+  throw new AppError(404, "bad route", true, "bad route");
 });
 
 app.use(errorMiddleware);

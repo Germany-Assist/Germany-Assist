@@ -1,154 +1,174 @@
-import { Op } from "sequelize";
-import db from "../../database/index.js";
+import { sequelize } from "../../configs/database.js";
+import { roleTemplates } from "../../database/templates.js";
+import jwtUtils from "../../middlewares/jwt.middleware.js";
+import authUtil from "../../utils/authorize.util.js";
 import bcryptUtil from "../../utils/bcrypt.util.js";
 import { AppError } from "../../utils/error.class.js";
+import authServices from "../auth/auth.service.js";
+import permissionServices from "../permission/permission.services.js";
+import userDomain from "./user.domain.js";
+import userMapper from "./user.mapper.js";
+import userRepository from "./user.repository.js";
 
-// this should be the only way to create user
-export const createUser = async (userData, t) => {
-  const user = await db.User.create(userData, {
-    transaction: t,
-    include: [
-      { model: db.UserRole },
-      { model: db.Asset, as: "profilePicture" },
-    ],
-  });
-  return user;
-};
-
-export const createUserRole = async (
-  userId,
-  role,
-  relatedType,
-  relatedId,
-  t
-) => {
-  return await db.UserRole.create(
-    { userId, relatedId: relatedId ?? null, relatedType, role },
-    { transaction: t, raw: true }
-  );
-};
-
-export const loginUser = async (userData) => {
-  const { email, password } = userData;
-  const user = await getUserByEmail(email);
-  if (!user)
-    throw new AppError(401, "User not found", true, "invalid credentials");
-  const compare = bcryptUtil.hashCompare(password, user.password);
-  if (!compare)
-    throw new AppError(401, "wrong password", true, "invalid credentials");
-  return user;
-};
-
-export const getUserById = async (id) => {
-  const user = await db.User.findByPk(id, {
-    attributes: { exclude: ["password"] },
-    include: { model: db.UserRole },
-    nest: false,
-  });
-  if (!user)
-    throw new AppError(401, "User not found", true, "invalid credentials");
-  return user;
-};
-export const userExists = async (id) => {
+export const registerClient = async (body) => {
+  const t = await sequelize.transaction();
   try {
-    let x = await userServices.getUserById(id);
-    return true;
+    const { firstName, lastName, email, dob, image } = body;
+    const password = bcryptUtil.hashPassword(body.password);
+    const user = await userRepository.createUser(
+      {
+        firstName,
+        lastName,
+        email,
+        password,
+        dob,
+        image,
+        isVerified: false,
+        UserRole: {
+          role: "client",
+          relatedType: "client",
+          relatedId: null,
+        },
+      },
+      t
+    );
+    await permissionServices.initPermissions(user.id, roleTemplates.client, t);
+    const { accessToken, refreshToken } = jwtUtils.generateTokens(user);
+    const sanitizedUser = await userMapper.sanitizeUser(user);
+    await t.commit();
+    await authServices.sendVerificationEmail(email, user.id);
+    return {
+      user: sanitizedUser,
+      accessToken,
+      refreshToken,
+    };
   } catch (error) {
-    return false;
+    await t.rollback();
+    throw error;
   }
 };
-const getUserByEmail = async (email) => {
-  return db.User.findOne({
-    where: { email },
-    include: [
-      { model: db.UserRole },
-      { model: db.Asset, as: "profilePicture", required: false },
-    ],
-  });
-};
 
-export const updateUser = async (id, updates) => {
-  const user = await db.User.findByPk(id);
-  if (!user)
-    throw new AppError(401, "User not found", true, "invalid credentials");
-  return await user.update(updates);
-};
-
-export const deleteUser = async (id) => {
-  const user = await db.User.findByPk(id);
-  if (!user) throw new AppError(401, "User not found", true, "User not found");
-  await user.destroy();
-  return user;
-};
-export const alterUserVerification = async (id, status) => {
-  const user = await db.User.findByPk(id);
-  if (!user)
-    throw new AppError(401, "User not found", true, "invalid credentials");
-  return await user.update({ isVerified: status });
-};
-
-export const getAllUsers = async () => {
-  const users = await db.User.findAll({
-    attributes: { exclude: ["password"] },
-    include: { model: db.UserRole },
-  });
-  return users;
-};
-export const getBusinessReps = async (relatedId) => {
-  const reps = await db.User.findAll({
-    attributes: { exclude: ["password"] },
-    include: { model: db.UserRole, where: { relatedId } },
-  });
-  return reps;
-};
-export const getUserProfile = async (id) => {
-  const user = await db.User.findByPk(id, {
-    attributes: { exclude: ["password"] },
-    include: [
-      { model: db.UserRole },
-      { model: db.Asset, as: "profilePicture", required: false },
+export async function registerRep(body, auth) {
+  const t = await sequelize.transaction();
+  try {
+    const permission = await authUtil.checkRoleAndPermission(
+      auth,
+      ["service_provider_root", "employer_root"],
+      true,
+      "user",
+      "create"
+    );
+    if (!permission) throw new AppError(403, "forbidden", true, "forbidden");
+    const { role, relatedType } = userDomain.setRoleAndTypeRep(req.auth.role);
+    const { firstName, lastName, email, dob, image } = body;
+    const password = bcryptUtil.hashPassword(body.password);
+    const user = await userRepository.createUser(
       {
-        model: db.Favorite,
-        required: false,
-        attributes: ["id"],
-        include: [
-          {
-            model: db.Service,
-            attributes: ["id", "title", "description"],
-          },
-        ],
+        firstName,
+        lastName,
+        email,
+        password,
+        dob,
+        image,
+        isVerified: false,
+        UserRole: {
+          role,
+          relatedType,
+          relatedId: req.auth.relatedId,
+        },
       },
-      {
-        model: db.Order,
-        required: false,
-        attributes: ["id"],
-        where: { status: { [Op.not]: ["refunded"] } },
-        include: [
-          { model: db.Timeline, attributes: ["id", "label"] },
-          {
-            model: db.Service,
-            attributes: ["id"],
-          },
-        ],
-      },
-    ],
-  });
-  return user;
-};
+      t
+    );
+    await permissionServices.initPermissions(user.id, roleTemplates[role], t);
+    const sanitizedUser = await userMapper.sanitizeUser(user);
+    await t.commit();
+    await authServices.sendVerificationEmail(email, user.id);
+    return {
+      user: sanitizedUser,
+    };
+  } catch (error) {
+    await t.rollback();
+    next(error);
+  }
+}
 
-//
+export async function registerAdmin(body, auth) {
+  const t = await sequelize.transaction();
+  try {
+    const permission = await authUtil.checkRoleAndPermission(
+      auth,
+      ["super_admin"],
+      true,
+      "admin",
+      "create"
+    );
+    const { firstName, lastName, email, dob, image } = body;
+    const password = bcryptUtil.hashPassword(body.password);
+    const user = await userRepository.createUser(
+      {
+        firstName,
+        lastName,
+        email,
+        password,
+        dob,
+        image,
+        isVerified: false,
+        UserRole: {
+          role: "admin",
+          relatedType: "admin",
+          relatedId: null,
+        },
+      },
+      t
+    );
+    await permissionServices.initPermissions(user.id, roleTemplates.admin, t);
+    const sanitizedUser = await userMapper.sanitizeUser(user);
+    await t.commit();
+    await authServices.sendVerificationEmail(email, user.id);
+    return {
+      user: sanitizedUser,
+    };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+}
+
+export async function getAllUsers(auth) {
+  await authUtil.checkRoleAndPermission(
+    auth,
+    ["admin", "superAdmin"],
+    true,
+    "user",
+    "read"
+  );
+  const users = await userRepository.getAllUsers();
+  const sanitizedUsers = users.map(async (e) => {
+    const user = await userMapper.sanitizeUser(e);
+    return user;
+  });
+  return await Promise.all(sanitizedUsers);
+}
+export async function getReps(auth) {
+  await authUtil.checkRoleAndPermission(
+    auth,
+    ["service_provider_root", "service_provider_rep"],
+    true,
+    "user",
+    "read"
+  );
+  const users = await userRepository.getBusinessReps(auth.relatedId);
+  const sanitizedUsers = users.map(async (e) => {
+    return await userMapper.sanitizeUser(e);
+  });
+  return await Promise.all(sanitizedUsers);
+}
+
 const userServices = {
-  getUserProfile,
-  createUser,
-  getUserByEmail,
-  createUserRole,
-  loginUser,
-  getUserById,
-  alterUserVerification,
-  deleteUser,
-  updateUser,
-  userExists,
+  registerClient,
+  registerRep,
+  registerAdmin,
   getAllUsers,
-  getBusinessReps,
+  getReps,
 };
 export default userServices;

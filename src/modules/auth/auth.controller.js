@@ -1,66 +1,18 @@
-import { OAuth2Client } from "google-auth-library";
-import googleOAuthConfig from "../../configs/googleAuth.js";
-import jwtUtils from "../../middlewares/jwt.middleware.js";
-import userServices from "../user/user.services.js";
-import permissionServices from "../permission/permission.services.js";
-import userController, { cookieOptions } from "../user/user.controller.js";
-import { roleTemplates } from "../../database/templates.js";
-import { v4 as uuid } from "uuid";
-import { sequelize } from "../../configs/database.js";
-import db from "../../database/index.js";
-import crypto from "crypto";
 import { FRONTEND_URL } from "../../configs/serverConfig.js";
-import { Op } from "sequelize";
-const client = new OAuth2Client(googleOAuthConfig.clientId);
+import userDomain from "../user/user.domain.js";
+import authServices from "./auth.service.js";
+import { AppError } from "../../utils/error.class.js";
+import authUtil from "../../utils/authorize.util.js";
+import authDomain from "./auth.domain.js";
 
 async function googleAuthController(req, res) {
-  const t = await sequelize.transaction();
-  const { credential } = req.body;
-  let status = 200;
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: googleOAuthConfig.clientId,
-    });
-    const payload = ticket.getPayload();
-    const email = payload.email;
-    let user = await userServices.getUserByEmail(email);
-    if (!user) {
-      status = 201;
-      user = await userServices.createUser(
-        {
-          email: payload.email,
-          firstName: payload.given_name || null,
-          lastName: payload.family_name || null,
-          email: payload.email,
-          profilePicture: {
-            name: uuid(),
-            mediaType: "image",
-            url: payload.picture,
-            size: 0,
-          },
-          isVerified: true,
-          googleId: payload.sub,
-          UserRole: {
-            role: "client",
-            relatedType: "client",
-            relatedId: null,
-          },
-        },
-        t
-      );
-      await permissionServices.initPermissions(
-        user.id,
-        roleTemplates.client,
-        t
-      );
-    }
-    const { accessToken, refreshToken } = jwtUtils.generateTokens(user);
-    const sanitizedUser = await userController.sanitizeUser(user);
+    const result = await authServices.googleAuth(req.body);
+    const { refreshToken, accessToken, user, status } = result;
     res
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, authDomain.cookieOptions)
       .status(status)
-      .json({ accessToken, user: sanitizedUser });
+      .json({ accessToken, user });
     await t.commit();
   } catch (error) {
     await t.rollback();
@@ -71,28 +23,76 @@ async function googleAuthController(req, res) {
 export async function verifyAccount(req, res, next) {
   try {
     const token = req.query.token;
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-    const [, [dbToken]] = await db.Token.update(
-      { isValid: false },
-      {
-        where: {
-          token: hashedToken,
-          isValid: true,
-          expiresAt: { [Op.gt]: new Date() },
-        },
-        returning: true,
-      }
-    );
-    if (!dbToken) return res.redirect(`${FRONTEND_URL}/verified?status=error`);
-    await userServices.alterUserVerification(dbToken.userId, true);
+    const success = await authServices.verifyAccount(token);
+    if (!success) return res.redirect(`${FRONTEND_URL}/verified?status=error`);
     res.redirect(`${FRONTEND_URL}/verified?status=success`);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function login(req, res, next) {
+  try {
+    const results = await authServices.loginUser(req.body);
+    res
+      .cookie("refreshToken", results.refreshToken, authDomain.cookieOptions)
+      .status(200)
+      .json({ accessToken: results.accessToken, user: results.user });
+  } catch (error) {
+    next(error);
+  }
+}
+export async function loginToken(req, res, next) {
+  try {
+    const user = await authServices.loginToken(req.auth);
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function verifyUserManual(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(
+      req.auth,
+      ["admin", "super_admin"],
+      true,
+      "user",
+      "verify"
+    );
+    await authServices.verifyUserManual(req.params.id, true);
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function refreshUserToken(req, res, next) {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new AppError(401, "missing cookie", true, "missing cookie");
+    }
+    const accessToken = await authServices.refreshUserToken(refreshToken);
+    res.send({ accessToken });
+  } catch (error) {
+    next(error);
+  }
+}
+export async function getUserProfile(req, res, next) {
+  try {
+    const user = await authServices.getUserProfile(req.auth.id);
+    res.send(user);
   } catch (error) {
     next(error);
   }
 }
 const authController = {
   googleAuthController,
+  getUserProfile,
   verifyAccount,
+  login,
+  loginToken,
+  verifyUserManual,
+  refreshUserToken,
 };
 
 export default authController;

@@ -1,19 +1,53 @@
+import { sequelize } from "../../configs/database.js";
 import db from "../../database/index.js";
+import bcryptUtil from "../../utils/bcrypt.util.js";
 import { AppError } from "../../utils/error.class.js";
+import userRepository from "../user/user.repository.js";
+import serviceProviderRepository from "./serviceProvider.repository .js";
+import authServices from "../auth/auth.service.js";
+import userDomain from "../user/user.domain.js";
+import permissionServices from "../permission/permission.services.js";
+import { roleTemplates } from "../../database/templates.js";
 
-export const createServiceProvider = async (profileData, t) => {
-  let { name, about, description, phoneNumber, image, email } = profileData;
-  return await db.ServiceProvider.create(
-    {
-      name,
-      about,
-      email,
-      description,
-      phoneNumber,
-      image,
-    },
-    { transaction: t }
-  );
+export const createServiceProvider = async (profileData) => {
+  const t = await sequelize.transaction();
+  try {
+    // first create sp
+    const sp = await serviceProviderRepository.createServiceProvider(
+      profileData,
+      t
+    );
+    let password = bcryptUtil.hashPassword(profileData.password);
+    // then set the domain
+    const domain = userDomain.setRoleAndType("serviceProvider");
+    const { rootRole, rootRelatedType, firstName, lastName } = domain;
+    // create root account
+    const user = await userRepository.createUser(
+      {
+        firstName,
+        lastName,
+        email: profileData.email,
+        password,
+        UserRole: {
+          role: rootRole,
+          relatedType: rootRelatedType,
+          relatedId: sp.id,
+        },
+      },
+      t
+    );
+    await permissionServices.initPermissions(
+      user.id,
+      roleTemplates[rootRole],
+      t
+    );
+    await authServices.sendVerificationEmail(profileData.email, user.id, t);
+    await t.commit();
+    return sp;
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
 };
 
 export const getAllServiceProvider = async () => {

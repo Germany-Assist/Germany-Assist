@@ -55,21 +55,3 @@ export const createUserValidators = [
     .matches(/\.(jpg|jpeg|png|gif)$/i)
     .withMessage("Image URL must end with .jpg, .jpeg, .png, or .gif"),
 ];
-
-export const loginValidators = [
-  // Email validation
-  body("email")
-    .trim()
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("Invalid email format")
-    .normalizeEmail(),
-
-  // Password validation
-  body("password")
-    .notEmpty()
-    .withMessage("Password is required")
-    .isLength({ min: 1 })
-    .withMessage("Password must not be empty"),
-];
