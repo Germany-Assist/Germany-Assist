@@ -7,6 +7,9 @@ import { generateDownloadUrl } from "../../configs/s3Configs.js";
 const sanitizeServices = async (services) => {
   const sanitized = await Promise.all(
     services.map(async (i) => {
+      //TODO this delete was added just to patch and it should be fixed
+      delete i["ServiceProviderId"];
+      //
       const {
         id,
         "Category.title": categoryTitle,
@@ -17,12 +20,13 @@ const sanitizeServices = async (services) => {
       } = i;
 
       const image = imageUrl ? await generateDownloadUrl(imageUrl) : undefined;
+
       return {
-        ...rest,
         id: hashIdUtil.hashIdEncode(id),
         category: categoryTitle,
         serviceProvider: providerName,
         image,
+        ...rest,
       };
     })
   );

@@ -1,11 +1,11 @@
 import { NODE_ENV, REFRESH_COOKIE_AGE } from "../../configs/serverConfig.js";
-
 const cookieOptions = {
   httpOnly: true,
   secure: NODE_ENV === "production" ? true : false,
-  sameSite: "strict",
+  sameSite: "lax",
   maxAge: REFRESH_COOKIE_AGE,
-  path: "/api/user/refresh-token",
+  path: "/",
 };
+
 const authDomain = { cookieOptions };
 export default authDomain;

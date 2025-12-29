@@ -11,7 +11,7 @@ export const REFRESH_TOKEN_EXPIRE_DURATION =
   process.env.REFRESH_TOKEN_EXPIRE_DURATION;
 export const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 export const ENV_IS_LOADED = Boolean(process.env.ENV_IS_LOADED) || false;
-export const REFRESH_COOKIE_AGE = parseInt(process.env.REFRESH_COOKIE_AGE);
+export const REFRESH_COOKIE_AGE = Number(process.env.REFRESH_COOKIE_AGE);
 export const HASH_ID_SALT = process.env.HASH_ID_SALT;
 export const STRIPE_SK = process.env.STRIPE_SK;
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;

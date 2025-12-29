@@ -1,5 +1,4 @@
 import emailService from "../../services/email/email.service.js";
-import db from "../../database/index.js";
 import verificationEmailTemplate from "../../services/email/templates/verificationEmailTemplate.js";
 import crypto from "crypto";
 import { errorLogger } from "../../utils/loggers.js";
@@ -12,13 +11,71 @@ import authRepository from "./auth.repository.js";
 import { sequelize } from "../../configs/database.js";
 import bcryptUtil from "../../utils/bcrypt.util.js";
 import hashIdUtil from "../../utils/hashId.util.js";
+import googleOAuthConfig from "../../configs/googleAuth.js";
+import { OAuth2Client } from "google-auth-library";
+import permissionServices from "../permission/permission.services.js";
+
+const client = new OAuth2Client(googleOAuthConfig.clientId);
 
 const generateToken = () => crypto.randomBytes(32).toString("hex");
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
+export async function googleAuth(body) {
+  const t = await sequelize.transaction();
+  const { credential } = req.body;
+  let status = 200;
+  try {
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    let user = await userRepository.getUserByEmail(email);
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: googleOAuthConfig.clientId,
+    });
+    if (!user) {
+      status = 201;
+      user = await userRepository.createUser(
+        {
+          email: payload.email,
+          firstName: payload.given_name || null,
+          lastName: payload.family_name || null,
+          email: payload.email,
+          profilePicture: {
+            name: uuid(),
+            mediaType: "image",
+            url: payload.picture,
+            size: 0,
+          },
+          isVerified: true,
+          googleId: payload.sub,
+          UserRole: {
+            role: "client",
+            relatedType: "client",
+            relatedId: null,
+          },
+        },
+        t
+      );
+      await permissionServices.initPermissions(
+        user.id,
+        roleTemplates.client,
+        t
+      );
+    }
+    const { accessToken, refreshToken } = jwtUtils.generateTokens(user);
+    const sanitizedUser = await userMapper.sanitizeUser(user);
+    await t.commit();
+    return { accessToken, user: sanitizedUser, refreshToken };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+}
+
 export async function sendVerificationEmail(userEmail, userId, t) {
   try {
+    return;
     const token = generateToken();
     const tokenHash = hashToken(token);
     const databaseToken = {
@@ -68,7 +125,7 @@ export async function refreshUserToken(refreshToken) {
   const { id } = jwtUtils.verifyRefreshToken(refreshToken);
   const user = await userRepository.getUserById(id);
   const accessToken = jwtUtils.generateAccessToken(user);
-  return { accessToken };
+  return accessToken;
 }
 
 export const loginUser = async (body) => {
@@ -103,6 +160,7 @@ export async function getUserProfile(id) {
 }
 const authServices = {
   sendVerificationEmail,
+  googleAuth,
   verifyAccount,
   loginUser,
   loginToken,
