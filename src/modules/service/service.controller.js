@@ -4,6 +4,7 @@ import authUtils from "../../utils/authorize.util.js";
 import { sequelize } from "../../configs/database.js";
 import { AppError } from "../../utils/error.class.js";
 import { generateDownloadUrl } from "../../configs/s3Configs.js";
+import uploadController from "../assets/assets.controller.js";
 const sanitizeServices = async (services) => {
   const sanitized = await Promise.all(
     services.map(async (i) => {
@@ -18,7 +19,18 @@ const sanitizeServices = async (services) => {
         categoryId,
         ...rest
       } = i;
-
+      const levelCalc = () => {
+        const { approved, published, rejected } = i;
+        if (approved && published) {
+          return "ready";
+        } else if (approved && !published) {
+          return "accepted";
+        } else if (!approved && !rejected) {
+          return "pending";
+        } else if (rejected) {
+          return "alert";
+        }
+      };
       const image = imageUrl ? await generateDownloadUrl(imageUrl) : undefined;
 
       return {
@@ -26,6 +38,7 @@ const sanitizeServices = async (services) => {
         category: categoryTitle,
         serviceProvider: providerName,
         image,
+        level: levelCalc(),
         ...rest,
       };
     })
@@ -86,7 +99,6 @@ export async function createService(req, res, next) {
       "service",
       "create"
     );
-
     const serviceData = {
       userId: req.auth.id,
       serviceProviderId: req.auth.relatedId,
@@ -105,13 +117,22 @@ export async function createService(req, res, next) {
       category: req.body.category,
       Timelines: [{ label: req.body.timelineLabel }],
     };
-
     const service = await serviceServices.createService(
       serviceData,
       transaction
     );
 
     const timelines = serviceController.formatTimelines(service.Timelines);
+    await transaction.commit();
+
+    const files = req.files || (req.file ? [req.file] : []);
+    const params = { id: hashIdUtil.hashIdEncode(service.id) };
+    const publicUrls = await uploadController.uploadService(
+      "serviceProfileGalleryImage",
+      files,
+      req.auth,
+      params
+    );
     res.status(201).json({
       message: "successfully created service",
       data: {
@@ -120,9 +141,9 @@ export async function createService(req, res, next) {
         userId: hashIdUtil.hashIdEncode(service.userId),
         categoryId: hashIdUtil.hashIdEncode(service.categoryId),
         timelines,
+        publicUrls,
       },
     });
-    await transaction.commit();
   } catch (error) {
     await transaction.rollback();
     next(error);

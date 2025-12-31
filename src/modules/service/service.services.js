@@ -128,7 +128,7 @@ async function getServiceByIdPublic(id) {
       },
       {
         model: db.ServiceProvider,
-        attributes: ["id", "name", "email", "phoneNumber"],
+        attributes: ["id", "name", "email", "phoneNumber", "isVerified"],
       },
     ],
   });
