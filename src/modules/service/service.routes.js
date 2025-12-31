@@ -73,6 +73,16 @@ serviceRouter.put(
   jwt.authenticateJwt,
   serviceController.alterServiceStatusSP
 );
+serviceRouter.get(
+  "/provider/services/unpublish/:serviceId",
+  jwt.authenticateJwt,
+  serviceController.unpublishService
+);
+serviceRouter.get(
+  "/provider/services/publish/:serviceId",
+  jwt.authenticateJwt,
+  serviceController.publishService
+);
 /* ---------------- Admin Routes ---------------- */
 // Get all services (any status, any provider)
 serviceRouter.get(

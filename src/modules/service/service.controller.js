@@ -296,6 +296,7 @@ export async function alterServiceStatus(req, res, next) {
     next(error);
   }
 }
+//TODO delete this
 export async function alterServiceStatusSP(req, res, next) {
   try {
     const { status, id } = req.body;
@@ -312,6 +313,44 @@ export async function alterServiceStatusSP(req, res, next) {
     await serviceServices.alterServiceStatusSP(
       hashIdUtil.hashIdDecode(id),
       status
+    );
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function publishService(req, res, next) {
+  try {
+    const { serviceId } = req.params;
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_rep", "service_provider_root"],
+      true,
+      "service",
+      "publish"
+    );
+    await serviceServices.alterServiceStatusSP(
+      hashIdUtil.hashIdDecode(serviceId),
+      "publish"
+    );
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+}
+export async function unpublishService(req, res, next) {
+  try {
+    const { serviceId } = req.params;
+    const user = await authUtils.checkRoleAndPermission(
+      req.auth,
+      ["service_provider_rep", "service_provider_root"],
+      true,
+      "service",
+      "unpublish"
+    );
+    await serviceServices.alterServiceStatusSP(
+      hashIdUtil.hashIdDecode(serviceId),
+      "unpublish"
     );
     res.sendStatus(200);
   } catch (error) {
@@ -395,5 +434,7 @@ const serviceController = {
   addToFavorite,
   removeFromFavorite,
   getClientServices,
+  unpublishService,
+  publishService,
 };
 export default serviceController;
