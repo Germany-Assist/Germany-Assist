@@ -469,7 +469,7 @@ export function updateUserProfileImage(type) {
         req.auth,
         req.params
       );
-
+      //TODO replace the old images
       await res.json({ message: "File uploaded successfully", publicUrls });
     } catch (error) {
       next(error);

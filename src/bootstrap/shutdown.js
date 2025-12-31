@@ -9,24 +9,27 @@ export async function shutdown(event, server, io) {
   if (isShuttingDown) return;
   isShuttingDown = true;
 
-  infoLogger(`🛑 Shutdown initiated: ${event}`);
+  infoLogger(`Shutdown initiated: ${event}`);
 
   try {
     await Promise.allSettled([
-      io?.close(),
+      io &&
+        new Promise((res) => {
+          io.close(() => res());
+        }),
+
       server &&
         new Promise((res, rej) =>
           server.close((err) => (err ? rej(err) : res()))
         ),
-      await QueueManager.shutdownAll(),
+
+      QueueManager.shutdownAll(),
       disconnectRedis(),
       sequelize?.close(),
     ]);
 
-    infoLogger("✅ Shutdown complete");
-    process.exit(0);
+    infoLogger("Shutdown complete");
   } catch (err) {
-    errorLogger("❌ Shutdown failed", err);
-    process.exit(1);
+    errorLogger("Shutdown failed", err);
   }
 }

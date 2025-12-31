@@ -132,6 +132,7 @@ export const roleTemplates = {
     // Assets
     { action: "restore", resource: "asset" },
     { action: "statistical", resource: "asset" },
+    { action: "update", resource: "asset" },
 
     // Contracts
     { action: "create", resource: "contract" },

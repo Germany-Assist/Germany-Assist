@@ -38,6 +38,14 @@ app.use(morganMiddleware);
 app.use("/api", apiRouter);
 app.get("/health", (_, res) => res.sendStatus(200));
 
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    if (req.files) req.files.length = 0;
+    if (req.file) req.file = undefined;
+  });
+  next();
+});
+
 app.use(() => {
   throw new AppError(404, "bad route", true, "bad route");
 });

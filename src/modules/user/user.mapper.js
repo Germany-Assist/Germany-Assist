@@ -28,6 +28,21 @@ const sanitizeUser = async (user) => {
     }
     imageKey = user?.profilePicture[0]?.name;
   }
+  const levelCalc = () => {
+    const role = user.UserRole.role;
+    if (role == "client") {
+      return "ready";
+    } else if (
+      role == "service_provider_root" ||
+      role == "service_provider_rep"
+    ) {
+      return "accepted";
+    } else if (role == "employer") {
+      return "pending";
+    } else if (role == "admin") {
+      return "alert";
+    }
+  };
   return {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.firstName,
@@ -42,6 +57,7 @@ const sanitizeUser = async (user) => {
     relatedId: user.UserRole.relatedId,
     favorites,
     orders,
+    level: levelCalc(),
   };
 };
 

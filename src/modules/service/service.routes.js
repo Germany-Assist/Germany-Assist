@@ -8,6 +8,14 @@ import {
 import { validateExpress } from "../../middlewares/expressValidator.js";
 import { createServiceValidator } from "./services.validators.js";
 import timelineRouter from "../timeline/timeline.routes.js";
+import multer from "multer";
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    files: 6,
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
+});
 
 const serviceRouter = express.Router();
 serviceRouter.use("/timeline", timelineRouter);
@@ -26,6 +34,7 @@ serviceRouter.get(
 serviceRouter.post(
   "/provider",
   jwt.authenticateJwt,
+  upload.array("image", 6),
   createServiceValidator,
   validateExpress,
   serviceController.createService
@@ -63,6 +72,16 @@ serviceRouter.put(
   "/provider/services/status",
   jwt.authenticateJwt,
   serviceController.alterServiceStatusSP
+);
+serviceRouter.get(
+  "/provider/services/unpublish/:serviceId",
+  jwt.authenticateJwt,
+  serviceController.unpublishService
+);
+serviceRouter.get(
+  "/provider/services/publish/:serviceId",
+  jwt.authenticateJwt,
+  serviceController.publishService
 );
 /* ---------------- Admin Routes ---------------- */
 // Get all services (any status, any provider)
