@@ -54,7 +54,7 @@ async function getAllServices(filters, authority) {
     if (filters.maxRating) where.rating[Op.lte] = filters.maxRating;
   }
   if (filters.id) where.id = filters.id;
-  if (filters.search) where.title = { [Op.iLike]: `%${filters.search}%` };
+  if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
   if (filters.minPrice || filters.maxPrice) {
     where.price = {};
     if (filters.minPrice) where.price[Op.gte] = filters.minPrice;

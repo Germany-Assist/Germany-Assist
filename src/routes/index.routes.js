@@ -8,6 +8,8 @@ import permissionRouter from "../modules/permission/permissions.routes.js";
 import ordersRouter from "../modules/order/orders.routes.js";
 import postRouter from "../modules/post/post.routes.js";
 import authRouter from "../modules/auth/auth.routes.js";
+import metaRouter from "../modules/meta/meta.routes.js";
+
 import { Router } from "express";
 
 const apiRouter = Router();
@@ -22,6 +24,7 @@ apiRouter
   .use("/permission", permissionRouter)
   .use("/order", ordersRouter)
   .use("/post", postRouter)
-  .use("/auth", authRouter);
+  .use("/auth", authRouter)
+  .use("/meta", metaRouter);
 
 export default apiRouter;
