@@ -115,6 +115,11 @@ async function getServiceByIdPublic(id) {
         attributes: ["mediaType", "key", "confirmed", "url", "name", "thumb"],
       },
       {
+        model: db.Timeline,
+        attributes: ["id", "label"],
+        as: "activeTimeline",
+      },
+      {
         model: db.Category,
         attributes: ["title"],
       },

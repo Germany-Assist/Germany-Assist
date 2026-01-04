@@ -110,6 +110,11 @@ export const defineConstrains = () => {
   Service.hasMany(Review, { foreignKey: "serviceId" });
   Service.hasMany(Favorite, { foreignKey: "serviceId" });
   Service.hasMany(Timeline, { foreignKey: "serviceId" });
+  Service.hasMany(Timeline, {
+    foreignKey: "serviceId",
+    as: "activeTimeline",
+    scope: { isArchived: false },
+  });
   Service.belongsTo(Category, { foreignKey: "categoryId" });
   Service.belongsTo(ServiceProvider);
   //assets

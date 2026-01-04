@@ -1,7 +1,10 @@
+import e from "express";
 import { generateDownloadUrl } from "../../configs/s3Configs.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 const sanitizeUser = async (user) => {
-  let favorites, orders, signedImage, imageKey;
+  let favorites = [];
+  let orders = [];
+  let signedImage, imageKey;
   if (user.favorites && user.favorites.length > 0) {
     favorites = user.favorites.map((i) => {
       return {

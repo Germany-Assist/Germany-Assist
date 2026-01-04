@@ -55,10 +55,16 @@ const sanitizeServiceProfile = async (service) => {
         return { ...i, url: await generateDownloadUrl(i.url) };
       })
     );
+  const { id: timelineId, label: timelineLabel } = service.activeTimeline[0];
+
   let temp = {
     ...service,
     id: hashIdUtil.hashIdEncode(service.id),
     category: service.Category.title,
+    activeTimeline: {
+      id: hashIdUtil.hashIdEncode(timelineId),
+      label: timelineLabel,
+    },
     timelines: service.Timelines?.map((x) => {
       return { ...x, id: hashIdUtil.hashIdEncode(x.id) };
     }),
