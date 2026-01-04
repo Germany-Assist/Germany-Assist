@@ -13,6 +13,26 @@ export async function canReview(userId, serviceId) {
       "You cannot review a service you have not purchased"
     );
 }
+export const getReviews = async (serviceId) => {
+  return await db.Review.findAll({
+    where: { serviceId },
+    attributes: ["body", "rating"],
+    raw: true,
+    nest: true,
+    include: {
+      model: db.User,
+      attributes: ["firstName", "lastName", "id"],
+      as: "user",
+    },
+  });
+};
+export const getReviewForUser = async (serviceId, userId) => {
+  return await db.Review.findOne({
+    where: { serviceId, userId },
+    attributes: ["body", "rating"],
+    raw: true,
+  });
+};
 export const createReview = async (data, t) => {
   const { body, rating, serviceId, userId } = data;
   return await db.Review.create(
@@ -59,10 +79,12 @@ export const restoreReview = async (id) => {
   return review;
 };
 const reviewServices = {
+  getReviews,
   restoreReview,
   deleteReview,
   updateReview,
   createReview,
   canReview,
+  getReviewForUser,
 };
 export default reviewServices;

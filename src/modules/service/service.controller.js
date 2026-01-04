@@ -73,8 +73,8 @@ const sanitizeServiceProfile = async (service) => {
         body: i.body,
         rating: i.rating,
         user: {
-          name: i.User.firstName + " " + i.User.lastName,
-          id: hashIdUtil.hashIdEncode(i.id),
+          name: i.user.firstName + " " + i.user.lastName,
+          id: hashIdUtil.hashIdEncode(i.user.id),
         },
       };
     }),

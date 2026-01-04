@@ -126,9 +126,11 @@ async function getServiceByIdPublic(id) {
       {
         model: db.Review,
         attributes: ["body", "rating"],
+        limit: 4,
         include: {
           model: db.User,
           attributes: ["firstName", "lastName", "id"],
+          as: "user",
         },
       },
       {

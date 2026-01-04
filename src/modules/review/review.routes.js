@@ -22,5 +22,15 @@ reviewRouter.put(
   jwtMiddleware.authenticateJwt,
   reviewController.updateReview
 );
+reviewRouter.get(
+  "/service/:serviceId",
+  jwtMiddleware.authenticateJwt,
+  reviewController.getReviewByServiceId
+);
+reviewRouter.get(
+  "/serviceUser/:serviceId",
+  jwtMiddleware.authenticateJwt,
+  reviewController.getReviewByServiceIdForUser
+);
 
 export default reviewRouter;
