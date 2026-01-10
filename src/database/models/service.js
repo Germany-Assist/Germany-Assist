@@ -57,13 +57,13 @@ Service.init(
       },
     },
     type: {
-      type: DataTypes.ENUM("subscription", "oneTime"),
+      type: DataTypes.ENUM("timeline", "oneTime"),
       allowNull: false,
       validate: {
         notEmpty: { msg: "Type cannot be empty" },
         isIn: {
-          args: [["oneTime", "subscription"]],
-          msg: "Type must be one of: oneTime, subscription",
+          args: [["oneTime", "timeline"]],
+          msg: "Type must be one of: oneTime, timeline",
         },
       },
     },

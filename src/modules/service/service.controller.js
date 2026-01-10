@@ -123,37 +123,41 @@ export async function createService(req, res, next) {
           ? true
           : false
         : false,
-      category: req.body.category,
-      Timelines: [{ label: req.body.timelineLabel }],
+      category: hashIdUtil.hashIdDecode(req.body.category),
+      Timelines: req.body?.timelines && JSON.parse(req.body.timelines),
+      Variants: req.body?.variants && JSON.parse(req.body.variants),
     };
+    console.log(serviceData);
 
-    const service = await serviceServices.createService(
-      serviceData,
-      transaction
-    );
+    throw new AppError("just stying");
+    res.send("ok");
+    // const service = await serviceServices.createService(
+    //   serviceData,
+    //   transaction
+    // );
 
-    const timelines = serviceController.formatTimelines(service.Timelines);
-    await transaction.commit();
+    // const timelines = serviceController.formatTimelines(service.Timelines);
+    // await transaction.commit();
 
-    const files = req.files || (req.file ? [req.file] : []);
-    const params = { id: hashIdUtil.hashIdEncode(service.id) };
-    const publicUrls = await uploadController.uploadService(
-      "serviceProfileGalleryImage",
-      files,
-      req.auth,
-      params
-    );
-    res.status(201).json({
-      message: "successfully created service",
-      data: {
-        id: hashIdUtil.hashIdEncode(service.id),
-        title: service.title,
-        userId: hashIdUtil.hashIdEncode(service.userId),
-        categoryId: hashIdUtil.hashIdEncode(service.categoryId),
-        timelines,
-        publicUrls,
-      },
-    });
+    // const files = req.files || (req.file ? [req.file] : []);
+    // const params = { id: hashIdUtil.hashIdEncode(service.id) };
+    // const publicUrls = await uploadController.uploadService(
+    //   "serviceProfileGalleryImage",
+    //   files,
+    //   req.auth,
+    //   params
+    // );
+    // res.status(201).json({
+    //   message: "successfully created service",
+    //   data: {
+    //     id: hashIdUtil.hashIdEncode(service.id),
+    //     title: service.title,
+    //     userId: hashIdUtil.hashIdEncode(service.userId),
+    //     categoryId: hashIdUtil.hashIdEncode(service.categoryId),
+    //     timelines,
+    //     publicUrls,
+    //   },
+    // });
   } catch (error) {
     await transaction.rollback();
     next(error);

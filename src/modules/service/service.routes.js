@@ -34,7 +34,7 @@ serviceRouter.get(
 serviceRouter.post(
   "/provider",
   jwt.authenticateJwt,
-  upload.array("image", 6),
+  upload.array("image", 4),
   createServiceValidator,
   validateExpress,
   serviceController.createService

@@ -13,12 +13,6 @@ const publicAttributes = [
   "price",
 ];
 async function createService(serviceData, transaction) {
-  const category = await db.Category.findOne({
-    where: { title: serviceData.category },
-  });
-  if (!category)
-    throw new AppError(422, "invalid category", true, "invalid category");
-  serviceData.categoryId = category.id;
   const service = await db.Service.create(
     { ...serviceData },
     {

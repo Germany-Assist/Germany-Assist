@@ -2,9 +2,9 @@ import db from "../../database/index.js";
 export const initCall = async () => {
   const categories = await db.Category.findAll({
     raw: true,
-    attributes: ["title", "label"],
+    attributes: ["id", "title", "label"],
   });
-  return { categories };
+  return categories;
 };
 
 const metaRepository = { initCall };
