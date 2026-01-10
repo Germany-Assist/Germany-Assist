@@ -27,6 +27,7 @@ async function createService(serviceData, transaction) {
       transaction,
     }
   );
+
   return service.get({ plain: true });
 }
 async function getAllServices(filters, authority) {

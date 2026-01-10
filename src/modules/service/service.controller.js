@@ -55,6 +55,7 @@ const sanitizeServiceProfile = async (service) => {
         return { ...i, url: await generateDownloadUrl(i.url) };
       })
     );
+  console.log(service);
   const { id: timelineId, label: timelineLabel } = service.activeTimeline[0];
 
   let temp = {
@@ -97,6 +98,7 @@ const formatTimelines = (timelines) => {
 };
 export async function createService(req, res, next) {
   const transaction = await sequelize.transaction();
+
   try {
     await authUtils.checkRoleAndPermission(
       req.auth,
@@ -105,6 +107,7 @@ export async function createService(req, res, next) {
       "service",
       "create"
     );
+
     const serviceData = {
       userId: req.auth.id,
       serviceProviderId: req.auth.relatedId,
@@ -123,6 +126,7 @@ export async function createService(req, res, next) {
       category: req.body.category,
       Timelines: [{ label: req.body.timelineLabel }],
     };
+
     const service = await serviceServices.createService(
       serviceData,
       transaction

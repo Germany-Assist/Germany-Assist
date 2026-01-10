@@ -109,7 +109,7 @@ export const defineConstrains = () => {
   });
   Service.hasMany(Review, { foreignKey: "serviceId" });
   Service.hasMany(Favorite, { foreignKey: "serviceId" });
-  Service.hasMany(Timeline, { foreignKey: "service_id" });
+  Service.hasMany(Timeline, { foreignKey: "serviceId" });
   Service.hasMany(Timeline, {
     foreignKey: "serviceId",
     as: "activeTimeline",
