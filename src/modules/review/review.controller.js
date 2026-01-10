@@ -22,7 +22,7 @@ export async function createReview(req, res, next) {
     );
     res.sendStatus(201);
     //i can create a worker for this
-    // flag
+    // TODO
     await serviceServices.updateServiceRating(
       {
         serviceId: serviceId,
@@ -68,5 +68,42 @@ export async function updateReview(req, res, next) {
     next(error);
   }
 }
-const reviewController = { updateReview, createReview };
+//TODO this needs to be updated
+export const getReviewByServiceId = async (req, res, next) => {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
+    const serviceId = hashIdUtil.hashIdDecode(req.params.serviceId);
+    await reviewServices.canReview(req.auth.id, serviceId);
+    const reviewMapper = (review) => ({
+      ...review,
+      user: {
+        name: `${review.user.firstName} ${review.user.lastName}`,
+        id: hashIdUtil.hashIdEncode(review.user.id),
+      },
+    });
+    const reviews = await reviewServices.getReviews(serviceId);
+    res.status(200).send(reviews.map((r) => reviewMapper(r)));
+  } catch (error) {
+    next(error);
+  }
+};
+export const getReviewByServiceIdForUser = async (req, res, next) => {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
+    const serviceId = hashIdUtil.hashIdDecode(req.params.serviceId);
+    const review = await reviewServices.getReviewForUser(
+      serviceId,
+      req.auth.id
+    );
+    res.status(200).send(review);
+  } catch (error) {
+    next(error);
+  }
+};
+const reviewController = {
+  updateReview,
+  createReview,
+  getReviewByServiceId,
+  getReviewByServiceIdForUser,
+};
 export default reviewController;

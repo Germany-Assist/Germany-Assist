@@ -55,10 +55,17 @@ const sanitizeServiceProfile = async (service) => {
         return { ...i, url: await generateDownloadUrl(i.url) };
       })
     );
+  console.log(service);
+  const { id: timelineId, label: timelineLabel } = service.activeTimeline[0];
+
   let temp = {
     ...service,
     id: hashIdUtil.hashIdEncode(service.id),
     category: service.Category.title,
+    activeTimeline: {
+      id: hashIdUtil.hashIdEncode(timelineId),
+      label: timelineLabel,
+    },
     timelines: service.Timelines?.map((x) => {
       return { ...x, id: hashIdUtil.hashIdEncode(x.id) };
     }),
@@ -67,8 +74,8 @@ const sanitizeServiceProfile = async (service) => {
         body: i.body,
         rating: i.rating,
         user: {
-          name: i.User.firstName + " " + i.User.lastName,
-          id: hashIdUtil.hashIdEncode(i.id),
+          name: i.user.firstName + " " + i.user.lastName,
+          id: hashIdUtil.hashIdEncode(i.user.id),
         },
       };
     }),
@@ -91,6 +98,7 @@ const formatTimelines = (timelines) => {
 };
 export async function createService(req, res, next) {
   const transaction = await sequelize.transaction();
+
   try {
     await authUtils.checkRoleAndPermission(
       req.auth,
@@ -99,6 +107,7 @@ export async function createService(req, res, next) {
       "service",
       "create"
     );
+
     const serviceData = {
       userId: req.auth.id,
       serviceProviderId: req.auth.relatedId,
@@ -117,6 +126,7 @@ export async function createService(req, res, next) {
       category: req.body.category,
       Timelines: [{ label: req.body.timelineLabel }],
     };
+
     const service = await serviceServices.createService(
       serviceData,
       transaction

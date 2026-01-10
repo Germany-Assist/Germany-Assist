@@ -27,6 +27,7 @@ async function createService(serviceData, transaction) {
       transaction,
     }
   );
+
   return service.get({ plain: true });
 }
 async function getAllServices(filters, authority) {
@@ -54,7 +55,7 @@ async function getAllServices(filters, authority) {
     if (filters.maxRating) where.rating[Op.lte] = filters.maxRating;
   }
   if (filters.id) where.id = filters.id;
-  if (filters.search) where.title = { [Op.iLike]: `%${filters.search}%` };
+  if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
   if (filters.minPrice || filters.maxPrice) {
     where.price = {};
     if (filters.minPrice) where.price[Op.gte] = filters.minPrice;
@@ -115,15 +116,22 @@ async function getServiceByIdPublic(id) {
         attributes: ["mediaType", "key", "confirmed", "url", "name", "thumb"],
       },
       {
+        model: db.Timeline,
+        attributes: ["id", "label"],
+        as: "activeTimeline",
+      },
+      {
         model: db.Category,
         attributes: ["title"],
       },
       {
         model: db.Review,
         attributes: ["body", "rating"],
+        limit: 4,
         include: {
           model: db.User,
           attributes: ["firstName", "lastName", "id"],
+          as: "user",
         },
       },
       {

@@ -61,12 +61,6 @@ Post.init(
         min: { args: [1], msg: "timelineId must be greater than 0" },
       },
     },
-    owner: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        return this.userId;
-      },
-    },
   },
   {
     sequelize,
