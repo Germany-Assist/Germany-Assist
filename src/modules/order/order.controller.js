@@ -6,6 +6,7 @@ import authUtil from "../../utils/authorize.util.js";
 import userServices from "../user/user.services.js";
 
 import { v4 as uuidv4 } from "uuid";
+import { sequelize } from "../../configs/database.js";
 export async function checkoutController(req, res, next) {
   try {
     await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
@@ -26,25 +27,36 @@ export async function checkoutController(req, res, next) {
 }
 export async function payOrder(req, res, next) {
   try {
-    await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
-    const { id } = req.params;
-    const serviceId = hashIdUtil.hashIdDecode(id);
-    const service = await orderService.getServiceForPaymentPrivate(serviceId);
+    //TODO uncomment this
+    // await authUtil.checkRoleAndPermission(req.auth, ["client"], false);
+    const serviceId = hashIdUtil.hashIdDecode(req.query.serviceId);
+    const optionId = hashIdUtil.hashIdDecode(req.query.optionId);
+    const type = req.query.type;
+    const service = await orderService.getServiceForPaymentPrivate({
+      serviceId,
+      optionId,
+      type,
+    });
     const metadata = {
       serviceId,
       userId: req.auth.id,
       serviceProviderId: service.serviceProviderId,
-      timelineId: service["Timelines.id"],
+      relatedType: type,
+      relatedId: optionId,
     };
-    // in the future subscription may go here
+    const amount =
+      type === "timeline" ? service.Timelines.price : service.Variants.price;
+
+    // // in the future subscription may go here
     if (service.price === 0) {
       //free service
       const orderData = {
         amount: 0,
-        status: "paid",
+        status: "active",
         userId: metadata.userId,
         serviceId: metadata.serviceId,
-        timelineId: metadata.timelineId,
+        relatedType: type,
+        relatedId: optionId,
         stripePaymentIntentId: uuidv4(),
         currency: "usd",
       };
@@ -52,7 +64,7 @@ export async function payOrder(req, res, next) {
       res.send({ success: true, message: { clientSecret: null } });
     } else {
       //paid service
-      const pi = await stripeUtils.createPaymentIntent(service.price, metadata);
+      const pi = await stripeUtils.createPaymentIntent({ amount, metadata });
       res.send({
         success: true,
         message: { clientSecret: pi.client_secret },
@@ -159,8 +171,8 @@ export async function getOrdersSP(req, res, next) {
         ...i,
         id: hashIdUtil.hashIdEncode(i.id),
         userId: hashIdUtil.hashIdEncode(i.userId),
-        timelineId: hashIdUtil.hashIdEncode(i.timelineId),
-        serviceId: hashIdUtil.hashIdEncode(i.user_iserviceId),
+        relatedId: hashIdUtil.hashIdEncode(i.relatedId),
+        serviceId: hashIdUtil.hashIdEncode(i.serviceId),
       };
     });
     res.send(sanitizedOrders);
@@ -190,8 +202,44 @@ export async function getOrdersCL(req, res, next) {
     next(err);
   }
 }
+// export async function serviceProviderCheckout(req, res, next) {
+//   const transaction = await sequelize.transaction();
 
+//   try {
+//     //this should move the order to the payout table
+//     const { orderId } = req.params;
+//     await orderService.checkoutOrderToPayouts({
+//       orderId,
+//       auth: req.auth,
+//       transaction,
+//     });
+//     await transaction.commit();
+//     res.send({ success: true, message: "your order was moved to payouts" });
+//   } catch (err) {
+//     await transaction.rollback();
+//     next(err);
+//   }
+// }
+
+export async function serviceProviderCloseOrder(req, res, next) {
+  const transaction = await sequelize.transaction();
+  try {
+    const { orderId } = req.params;
+    await orderService.serviceProviderCloseOrder({
+      orderId: hashIdUtil.hashIdDecode(orderId),
+      auth: req.auth,
+      transaction,
+    });
+    await transaction.commit();
+    res.send({ success: true, message: "your order was moved to payouts" });
+  } catch (err) {
+    await transaction.rollback();
+    next(err);
+  }
+}
 const orderController = {
+  // serviceProviderCheckout,
+  serviceProviderCloseOrder,
   checkoutController,
   payOrder,
   getOrderAdmin,

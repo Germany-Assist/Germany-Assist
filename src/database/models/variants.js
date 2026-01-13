@@ -1,9 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../../configs/database.js";
 
-class Timeline extends Model {}
+class Variant extends Model {}
 
-Timeline.init(
+Variant.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -41,23 +41,10 @@ Timeline.init(
         min: { args: [0], msg: "Price cannot be negative" },
       },
     },
-    startDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        isDate: { msg: "Start data should be valid date" },
-      },
-    },
-    endDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        isDate: { msg: "Start data should be valid date" },
-      },
-    },
+
     label: {
       type: DataTypes.STRING(100),
-      allowNull: false,
+      allowNull: true,
       validate: {
         len: {
           args: [0, 100],
@@ -72,4 +59,4 @@ Timeline.init(
   },
   { sequelize, paranoid: true }
 );
-export default Timeline;
+export default Variant;

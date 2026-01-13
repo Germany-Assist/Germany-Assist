@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { sequelize } from "../../configs/database.js";
+import { sequelize } from "../configs/database.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 
-const modelsDir = path.resolve("./database/models");
+const modelsDir = path.resolve("./src/database/models");
 async function importModels() {
   const files = fs
     .readdirSync(modelsDir)
@@ -23,7 +23,7 @@ async function importModels() {
 
 await importModels();
 
-const exportDir = path.resolve("./database/seeds/data");
+const exportDir = path.resolve("./src/database/seeds/data");
 async function exportAllModels() {
   try {
     // Ensure directory exists

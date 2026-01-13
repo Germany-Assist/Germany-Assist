@@ -1,0 +1,138 @@
+import { generateDownloadUrl } from "../../configs/s3Configs.js";
+import hashIdUtil from "../../utils/hashId.util.js";
+
+/* ----------------------------- helpers ----------------------------- */
+
+const encodeId = (id) => hashIdUtil.hashIdEncode(id);
+
+const resolveImageUrl = async (url) =>
+  url ? generateDownloadUrl(url) : undefined;
+
+const calculateLevel = ({ approved, published, rejected }) => {
+  if (approved && published) return "ready";
+  if (approved && !published) return "accepted";
+  if (!approved && !rejected) return "pending";
+  if (rejected) return "alert";
+};
+
+/* ------------------------ services list ------------------------ */
+
+export const sanitizeServices = async (services = []) =>
+  Promise.all(
+    services.map(async (service) => ({
+      id: encodeId(service.id),
+      title: service.title,
+      description: service.description,
+      type: service.type,
+      views: service.views,
+      rating: service.rating,
+      totalReviews: service.totalReviews,
+
+      category: service["Category.title"],
+      serviceProvider: service["ServiceProvider.name"],
+
+      image: await resolveImageUrl(service["profileImages.url"]),
+      level: calculateLevel(service),
+    }))
+  );
+
+/* ---------------------- service profile ---------------------- */
+
+export const sanitizeServiceProfile = async (service) => {
+  if (!service) return null;
+
+  const assets = await Promise.all(
+    (service.Assets ?? []).map(
+      async ({ mediaType, key, confirmed, name, thumb, url }) => ({
+        mediaType,
+        key,
+        confirmed,
+        name,
+        thumb,
+        url: await resolveImageUrl(url),
+      })
+    )
+  );
+
+  const timelines =
+    service.type === "timeline"
+      ? service.Timelines?.map(
+          ({
+            id,
+            serviceId,
+            label,
+            price,
+            startDate,
+            endDate,
+            isArchived,
+          }) => ({
+            id: encodeId(id),
+            serviceId: encodeId(serviceId),
+            label,
+            price,
+            startDate,
+            endDate,
+            isArchived,
+          })
+        ) ?? []
+      : undefined;
+
+  const variants =
+    service.type === "oneTime"
+      ? service.Variants?.map(({ id, serviceId, label, price }) => ({
+          id: encodeId(id),
+          serviceId: encodeId(serviceId),
+          label,
+          price,
+        })) ?? []
+      : undefined;
+
+  return {
+    /* -------- core -------- */
+    id: encodeId(service.id),
+    title: service.title,
+    description: service.description,
+    type: service.type,
+    views: service.views,
+    rating: service.rating,
+    totalReviews: service.totalReviews,
+
+    /* -------- relations -------- */
+    category: {
+      id: encodeId(service.Category.id),
+      title: service.Category.title,
+      label: service.Category.label,
+    },
+
+    serviceProvider: {
+      id: service.ServiceProvider.id,
+      name: service.ServiceProvider.name,
+      isVerified: service.ServiceProvider.isVerified,
+    },
+
+    /* -------- options -------- */
+    ...(timelines && { timelines }),
+    ...(variants && { variants }),
+
+    /* -------- reviews -------- */
+    reviews:
+      service.Reviews?.map((r) => ({
+        body: r.body,
+        rating: r.rating,
+        user: {
+          id: encodeId(r.user.id),
+          name: `${r.user.firstName} ${r.user.lastName}`,
+        },
+      })) ?? [],
+
+    /* -------- assets -------- */
+    assets,
+  };
+};
+
+/* ---------------------------- export ---------------------------- */
+
+export default {
+  sanitizeServices,
+  sanitizeServiceProfile,
+};

@@ -1,0 +1,268 @@
+[
+  {
+    "id": 1,
+    "userId": 2,
+    "permissionId": 2,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 2,
+    "userId": 2,
+    "permissionId": 3,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 3,
+    "userId": 2,
+    "permissionId": 16,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 4,
+    "userId": 2,
+    "permissionId": 30,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 5,
+    "userId": 2,
+    "permissionId": 32,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 6,
+    "userId": 2,
+    "permissionId": 33,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 7,
+    "userId": 2,
+    "permissionId": 49,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 8,
+    "userId": 2,
+    "permissionId": 51,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 9,
+    "userId": 2,
+    "permissionId": 52,
+    "createdAt": "2026-01-12T08:18:40.587Z",
+    "updatedAt": "2026-01-12T08:18:40.587Z"
+  },
+  {
+    "id": 10,
+    "userId": 3,
+    "permissionId": 1,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 11,
+    "userId": 3,
+    "permissionId": 2,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 12,
+    "userId": 3,
+    "permissionId": 3,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 13,
+    "userId": 3,
+    "permissionId": 6,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 14,
+    "userId": 3,
+    "permissionId": 11,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 15,
+    "userId": 3,
+    "permissionId": 12,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 16,
+    "userId": 3,
+    "permissionId": 13,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 17,
+    "userId": 3,
+    "permissionId": 20,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 18,
+    "userId": 3,
+    "permissionId": 22,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 19,
+    "userId": 3,
+    "permissionId": 23,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 20,
+    "userId": 3,
+    "permissionId": 24,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 21,
+    "userId": 3,
+    "permissionId": 25,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 22,
+    "userId": 3,
+    "permissionId": 28,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 23,
+    "userId": 3,
+    "permissionId": 34,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 24,
+    "userId": 3,
+    "permissionId": 36,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 25,
+    "userId": 3,
+    "permissionId": 37,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 26,
+    "userId": 3,
+    "permissionId": 38,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 27,
+    "userId": 3,
+    "permissionId": 39,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 28,
+    "userId": 3,
+    "permissionId": 40,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 29,
+    "userId": 3,
+    "permissionId": 43,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 30,
+    "userId": 3,
+    "permissionId": 46,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 31,
+    "userId": 3,
+    "permissionId": 47,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 32,
+    "userId": 3,
+    "permissionId": 48,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 33,
+    "userId": 3,
+    "permissionId": 55,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 34,
+    "userId": 3,
+    "permissionId": 56,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 35,
+    "userId": 3,
+    "permissionId": 59,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 36,
+    "userId": 3,
+    "permissionId": 60,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 37,
+    "userId": 3,
+    "permissionId": 61,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  },
+  {
+    "id": 38,
+    "userId": 3,
+    "permissionId": 62,
+    "createdAt": "2026-01-12T08:21:59.721Z",
+    "updatedAt": "2026-01-12T08:21:59.721Z"
+  }
+]

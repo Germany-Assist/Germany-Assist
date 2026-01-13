@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "relatedId": null,
+    "relatedType": null,
+    "role": "super_admin",
+    "createdAt": "2026-01-12T00:13:55.497Z",
+    "updatedAt": "2026-01-12T00:13:55.497Z"
+  },
+  {
+    "id": 2,
+    "userId": 2,
+    "relatedId": null,
+    "relatedType": "client",
+    "role": "client",
+    "createdAt": "2026-01-12T08:18:40.574Z",
+    "updatedAt": "2026-01-12T08:18:40.574Z"
+  },
+  {
+    "id": 3,
+    "userId": 3,
+    "relatedId": "95ebadaa-992a-4231-96ca-cbb84da7589b",
+    "relatedType": "ServiceProvider",
+    "role": "service_provider_root",
+    "createdAt": "2026-01-12T08:21:59.709Z",
+    "updatedAt": "2026-01-12T08:21:59.709Z"
+  }
+]

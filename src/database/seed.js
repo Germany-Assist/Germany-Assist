@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { sequelize } from "../../configs/database.js";
+import { sequelize } from "../configs/database.js";
 import { NODE_ENV } from "../configs/serverConfig.js";
 
-const modelsDir = path.resolve("./database/models");
-const dataDir = path.resolve("./database/seeds/data");
+const modelsDir = path.resolve("./src/database/models");
+const dataDir = path.resolve("./src/database/seeds/data");
 
 async function importModels() {
   const files = fs

@@ -1,5 +1,7 @@
+import { sequelize } from "../../configs/database.js";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
+import orderRepository from "./order.repository.js";
 
 export async function createOrder(data, t) {
   return await db.Order.create(data, {
@@ -7,13 +9,31 @@ export async function createOrder(data, t) {
     transaction: t,
   });
 }
-export async function getServiceForPaymentPrivate(id) {
+export async function getServiceForPaymentPrivate({
+  serviceId,
+  optionId,
+  type,
+}) {
+  const include = [];
+  let typeTable;
+  if (type === "oneTime") {
+    include.push({
+      model: db.Variant,
+      where: { id: optionId },
+      required: true,
+    });
+  } else if (type === "timeline") {
+    include.push({
+      model: db.Timeline,
+      where: { id: optionId },
+      required: true,
+    });
+  }
   return await db.Service.findOne({
     raw: true,
-    where: { id, published: true, approved: true, rejected: false },
-    include: [
-      { model: db.Timeline, where: { isArchived: false }, attributes: ["id"] },
-    ],
+    nest: true,
+    where: { id: serviceId, published: true, approved: true, rejected: false },
+    include,
   });
 }
 
@@ -48,22 +68,65 @@ export async function getOrders(filters = {}) {
   const include = [];
   delete filters.serviceProviderId;
   if (serviceProviderId) {
-    include.push({
-      model: db.Service,
-      attributes: [],
-      required: true,
-      where: { serviceProviderId },
-    });
+    include.push(
+      {
+        model: db.Service,
+        attributes: [],
+        required: true,
+        where: { serviceProviderId },
+      },
+      {
+        model: db.Payout,
+      },
+      {
+        model: db.Dispute,
+      }
+    );
   }
 
-  const order = await db.Order.findAll({
+  const orders = await db.Order.findAll({
     where: filters,
     raw: true,
+    nest: true,
+
     include,
   });
+  console.log(orders);
+  if (!orders) throw new AppError(404, "Order not found");
+  return orders;
+}
 
-  if (!order) throw new AppError(404, "Order not found");
-  return order;
+async function checkoutServiceProviderOrder(orderId, transaction) {
+  const filters = { id: orderId, status: "pending_completion" };
+  const order = await orderRepository.getOrder(filters, transaction);
+  const { id, amount, currency } = order;
+  const payoutData = {
+    orderId: id,
+    amount,
+    currency,
+    status: "pending",
+    amountToPay: Number(amount) * 0.8,
+  };
+  const payout = await orderRepository.createPayout(payoutData, transaction);
+  return;
+}
+export async function serviceProviderCloseOrder({
+  orderId,
+  auth,
+  transaction,
+}) {
+  const order = await orderRepository.getOrderForCheckoutPayouts({
+    orderId,
+    SPID: auth.relatedId,
+    transaction,
+  });
+  //TODO
+  // validate if its eligible to close (pending_completion)
+  order.status = "pending_completion";
+  await order.save();
+
+  //this i will call now manually for testing
+  await checkoutServiceProviderOrder(orderId, transaction);
 }
 
 export const orderService = {
@@ -72,5 +135,6 @@ export const orderService = {
   getOrders,
   getOrderByIdAndSPID,
   getServiceForPaymentPrivate,
+  serviceProviderCloseOrder,
 };
 export default orderService;

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "95ebadaa-992a-4231-96ca-cbb84da7589b",
+    "name": "King Technology",
+    "about": "We build scalable enterprise solutions...",
+    "description": "We build scalable enterprise solutions with cutting-edge technology, serving clients globally since 2015.",
+    "views": 0,
+    "email": "amr_imad@hotmail.com",
+    "phoneNumber": null,
+    "image": null,
+    "isVerified": false,
+    "rating": null,
+    "totalReviews": 0,
+    "createdAt": "2026-01-12T08:21:59.630Z",
+    "updatedAt": "2026-01-12T08:21:59.630Z",
+    "deletedAt": null
+  }
+]

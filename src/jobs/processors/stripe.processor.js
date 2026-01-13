@@ -27,13 +27,14 @@ export async function stripeProcessor(job) {
         }
         case STRIPE_EVENTS.PAYMENT_SUCCESS: {
           const pi = event.data.object;
+
           const orderData = {
             amount: pi.amount,
-            status: "paid",
+            status: "active",
             userId: metadata.userId,
             serviceId: metadata.serviceId,
-            timelineId: metadata.timelineId,
-            serviceProviderId: metadata.serviceProviderId,
+            relatedId: metadata.relatedId,
+            relatedType: metadata.relatedType,
             stripePaymentIntentId: pi.id,
             currency: "usd",
           };

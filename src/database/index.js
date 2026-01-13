@@ -22,10 +22,18 @@ import Event from "./models/event.js";
 import Notification from "./models/notification.js";
 import { sequelize } from "../configs/database.js";
 import Token from "./models/tokens.js";
+import Variant from "./models/variants.js";
+import Payout from "./models/payouts.js";
+import { Op } from "sequelize";
+import Dispute from "./models/dipute.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
   sequelize.associationsDefined = true;
+  Payout.belongsTo(Order, { foreignKey: "orderId" });
+  Order.hasOne(Payout, { foreignKey: "orderId" });
+  //variants
+
   //token
   Token.belongsTo(User, { foreignKey: "userId" });
   //notification
@@ -56,14 +64,48 @@ export const defineConstrains = () => {
   Post.hasMany(Asset, {
     foreignKey: "postId",
   });
-  //timeline
-  Timeline.hasMany(Order, { foreignKey: "timelineId" });
+
+  Variant.belongsTo(Service, { foreignKey: "serviceId" });
+  Variant.hasMany(Order, {
+    foreignKey: "relatedId",
+    constraints: false,
+    as: "orders",
+    scope: { relatedType: "oneTime" },
+  });
+
+  Timeline.hasMany(Order, {
+    foreignKey: "relatedId",
+    constraints: false,
+    as: "orders",
+    scope: { relatedType: "timeline" },
+  });
   Timeline.belongsTo(Service, { foreignKey: "serviceId" });
   Timeline.hasMany(Post, { foreignKey: "timelineId" });
   //order
   Order.belongsTo(User, { foreignKey: "userId" });
   Order.belongsTo(Service, { foreignKey: "serviceId" });
-  Order.belongsTo(Timeline, { foreignKey: "timelineId" });
+  Order.belongsTo(Timeline, {
+    foreignKey: "relatedId",
+    constraints: false,
+    as: "timeline",
+    on: {
+      relatedId: { [Op.col]: "Timeline.id" },
+      relatedType: "timeline",
+    },
+  });
+
+  // Link to Variant
+  Order.belongsTo(Variant, {
+    foreignKey: "relatedId",
+    constraints: false,
+    as: "variant",
+    on: {
+      relatedId: { [Op.col]: "Variant.id" },
+      relatedType: "oneTime",
+    },
+  });
+  Dispute.belongsTo(Order, { foreignKey: "orderId" });
+  Order.hasOne(Dispute, { foreignKey: "orderId" });
   //user
   User.hasMany(Post, { foreignKey: "userId" });
   User.hasMany(Order, { foreignKey: "userId" });
@@ -110,9 +152,11 @@ export const defineConstrains = () => {
   Service.hasMany(Review, { foreignKey: "serviceId" });
   Service.hasMany(Favorite, { foreignKey: "serviceId" });
   Service.hasMany(Timeline, { foreignKey: "serviceId" });
+  Service.hasMany(Variant, { foreignKey: "serviceId" });
+  //Todo to be deleted
   Service.hasMany(Timeline, {
     foreignKey: "serviceId",
-    as: "activeTimeline",
+    as: "activeTimelines",
     scope: { isArchived: false },
   });
   Service.belongsTo(Category, { foreignKey: "categoryId" });
@@ -200,16 +244,19 @@ const db = {
   UserRole,
   Employer,
   Timeline,
+  Variant,
   Post,
   Category,
   Order,
   StripeEvent,
   Comment,
   Favorite,
+  Dispute,
   Notification,
   Subscriber,
   Event,
   Token,
+  Payout,
 };
 
 export default db;

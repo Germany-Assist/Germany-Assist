@@ -93,14 +93,7 @@ Service.init(
         min: { args: [0], msg: "Total reviews cannot be negative" },
       },
     },
-    price: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-      validate: {
-        isNumeric: { msg: "Price must be a valid number" },
-        min: { args: [0], msg: "Price cannot be negative" },
-      },
-    },
+
     approved: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -116,13 +109,7 @@ Service.init(
       allowNull: false,
       defaultValue: false,
     },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        isInt: { msg: "quantity must be an integer" },
-      },
-    },
+
     owner: {
       type: DataTypes.VIRTUAL,
       get() {

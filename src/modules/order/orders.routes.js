@@ -14,29 +14,27 @@ ordersRouter.get(
   orderController.checkoutController
 );
 ordersRouter.get(
-  "/pay/:id",
+  "/pay",
   jwtMiddleware.authenticateJwt,
-  idHashedParamValidator,
-  validateExpress,
   orderController.payOrder
 );
 //---------get order by id-----------//
 ordersRouter.get(
-  "/admin/:id",
+  "/admin/getById/:id",
   jwtMiddleware.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
   orderController.getOrderAdmin
 );
 ordersRouter.get(
-  "/serviceProvider/:id",
+  "/serviceProvider/getById/:id",
   jwtMiddleware.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
   orderController.getOrderSP
 );
 ordersRouter.get(
-  "/client/:id",
+  "/client/getById/:id",
   jwtMiddleware.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
@@ -44,19 +42,28 @@ ordersRouter.get(
 );
 //---------get order-----------//
 ordersRouter.get(
-  "/admin",
+  "/admin/getAll",
   jwtMiddleware.authenticateJwt,
   orderController.getOrdersAdmin
 );
 ordersRouter.get(
-  "/serviceProvider",
+  "/serviceProvider/getAll",
   jwtMiddleware.authenticateJwt,
   orderController.getOrdersSP
 );
 ordersRouter.get(
-  "/client",
+  "/client/getAll",
   jwtMiddleware.authenticateJwt,
   orderController.getOrdersCL
 );
-
+// ordersRouter.get(
+//   "/serviceProvider/checkout/:orderId",
+//   jwtMiddleware.authenticateJwt,
+//   orderController.serviceProviderCheckout
+// );
+ordersRouter.get(
+  "/serviceProvider/close/:orderId",
+  jwtMiddleware.authenticateJwt,
+  orderController.serviceProviderCloseOrder
+);
 export default ordersRouter;

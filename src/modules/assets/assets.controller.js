@@ -7,12 +7,16 @@ import authUtil from "../../utils/authorize.util.js";
 import path from "node:path";
 import hashIdUtil from "../../utils/hashId.util.js";
 import db from "../../database/index.js";
-async function uploadService(type, files, auth, params) {
-  // extracting Constrains
-  const constrains = await assetServices.extractConstrains(type);
+async function uploadService(type, files, auth, params, transaction) {
+  // type should be the type of the file by key in assets_types example (serviceProfileGalleryImage) or (serviceProfileImage)
   // extracting the files always as an array
 
-  // setting the search filters to check the limits and extract params for service and posts and also the correct ownership
+  // extracting Constrains
+  const constrains = await assetServices.extractConstrains(type);
+
+  // for now lets bypass the validation
+
+  // // setting the search filters to check the limits and extract params for service and posts and also the correct ownership
   const searchFilters = formatSearchFilters(type, auth, params, constrains);
 
   // validate the size lieut and count
@@ -57,8 +61,9 @@ async function uploadService(type, files, auth, params) {
     postId: searchFilters.postId,
     serviceId: searchFilters.serviceId,
   });
-  await assetServices.createAssets(assets);
+  await assetServices.createAssets(assets, transaction);
   const publicUrls = [];
+
   for (const url of urls) {
     publicUrls.push({
       ...url,
@@ -398,7 +403,6 @@ export function uploadFilesForSpProfile(type) {
         "asset",
         "update"
       );
-
       const files = req.files || (req.file ? [req.file] : []);
       const publicUrls = await uploadController.uploadService(
         type,

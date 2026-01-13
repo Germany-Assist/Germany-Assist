@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "serviceId": 1,
+    "isArchived": false,
+    "price": 5,
+    "label": "A1-1hour",
+    "createdAt": "2026-01-12T08:24:32.908Z",
+    "updatedAt": "2026-01-12T08:24:32.908Z",
+    "deletedAt": null
+  },
+  {
+    "id": 2,
+    "serviceId": 1,
+    "isArchived": false,
+    "price": 9,
+    "label": "B2-3Hour",
+    "createdAt": "2026-01-12T08:24:32.908Z",
+    "updatedAt": "2026-01-12T08:24:32.908Z",
+    "deletedAt": null
+  }
+]

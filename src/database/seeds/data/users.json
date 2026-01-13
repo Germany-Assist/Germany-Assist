@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "googleId": null,
+    "firstName": "root",
+    "lastName": "root",
+    "email": "root@root.com",
+    "password": "$2b$10$YcCsWPYPnrHtcHeGycyvXuhpvjcTZg85aOnstJFBIXQdw6JfN2tXS",
+    "dob": "2010-01-01T00:00:00.000Z",
+    "isVerified": true,
+    "isRoot": true,
+    "createdAt": "2026-01-12T00:13:55.490Z",
+    "updatedAt": "2026-01-12T00:13:55.490Z",
+    "deletedAt": null
+  },
+  {
+    "id": 2,
+    "googleId": null,
+    "firstName": "amr",
+    "lastName": "amr",
+    "email": "amr@amr.com",
+    "password": "$2b$10$MXH6lMNmSMhumlCA9qRCwuJA51YO1.e7UkkXM.W/i5ld5riBRfsP2",
+    "dob": null,
+    "isVerified": true,
+    "isRoot": false,
+    "createdAt": "2026-01-12T08:18:40.567Z",
+    "updatedAt": "2026-01-12T08:18:40.567Z",
+    "deletedAt": null
+  },
+  {
+    "id": 3,
+    "googleId": null,
+    "firstName": "root",
+    "lastName": "serviceProvider",
+    "email": "amr_imad@hotmail.com",
+    "password": "$2b$10$4GucydldjkMo7JhPnVdYz.JZcnuCbz1JfPjnJuoNCKEg12eoxFCmy",
+    "dob": null,
+    "isVerified": true,
+    "isRoot": false,
+    "createdAt": "2026-01-12T08:21:59.707Z",
+    "updatedAt": "2026-01-12T08:22:08.472Z",
+    "deletedAt": null
+  }
+]

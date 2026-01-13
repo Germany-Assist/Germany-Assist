@@ -100,24 +100,19 @@ export const getUserProfile = async (id) => {
         model: db.Favorite,
         required: false,
         attributes: ["id"],
-        include: [
-          {
-            model: db.Service,
-            attributes: ["id", "title", "description"],
-          },
-        ],
       },
       {
         model: db.Order,
         required: false,
-        attributes: ["id"],
+        attributes: ["id", "status"],
         where: { status: { [Op.not]: ["refunded"] } },
         include: [
-          { model: db.Timeline, attributes: ["id", "label"] },
           {
             model: db.Service,
             attributes: ["id"],
           },
+          { model: db.Variant, as: "variant" },
+          { model: db.Timeline, as: "timeline" },
         ],
       },
     ],

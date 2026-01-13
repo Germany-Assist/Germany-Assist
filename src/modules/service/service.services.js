@@ -1,6 +1,11 @@
 import { literal, Op } from "sequelize";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
+import serviceRepository from "./service.repository.js";
+import serviceMappers from "./service.mappers.js";
+import hashIdUtil from "../../utils/hashId.util.js";
+import uploadController from "../assets/assets.controller.js";
+import AssetService from "../../services/assts.services.js";
 const publicAttributes = [
   "id",
   "title",
@@ -10,25 +15,75 @@ const publicAttributes = [
   "type",
   "rating",
   "totalReviews",
-  "price",
 ];
-async function createService(serviceData, transaction) {
-  const service = await db.Service.create(
-    { ...serviceData },
-    {
-      include: [{ model: db.Timeline }],
-      returning: true,
-      transaction,
-    }
+// new and updated
+const safeJsonParse = (value, fieldName) => {
+  if (!value) return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    throw new AppError(400, `Invalid JSON in ${fieldName}`);
+  }
+};
+async function createService(req, transaction) {
+  let serviceData = {
+    userId: req.auth.id,
+    serviceProviderId: req.auth.relatedId,
+    title: req.body.title,
+    description: req.body.description,
+    type: req.body.type,
+    rating: 0,
+    totalReviews: 0,
+    image: null,
+    published: req.body.publish
+      ? req.auth.role === "service_provider_root"
+      : false,
+    categoryId: hashIdUtil.hashIdDecode(req.body.category),
+  };
+
+  if (serviceData.type === "timeline") {
+    serviceData.Timelines = safeJsonParse(req.body.timelines, "timelines");
+  } else if (serviceData.type === "oneTime") {
+    serviceData.Variants = safeJsonParse(req.body.variants, "variants");
+  }
+
+  const service = await serviceRepository.createService(
+    serviceData,
+    transaction
   );
 
-  return service.get({ plain: true });
+  const files = req.files || [];
+  const imageKeys = req.body.imageKeys || [];
+
+  if (files.length !== imageKeys.length) {
+    throw new Error("Files and imageKeys length mismatch");
+  }
+
+  const groupedFiles = {};
+  files.forEach((file, index) => {
+    const type = imageKeys[index];
+    if (!groupedFiles[type]) groupedFiles[type] = [];
+    groupedFiles[type].push(file);
+  });
+
+  for (const [type, files] of Object.entries(groupedFiles)) {
+    const assets = await AssetService.upload({
+      type,
+      files,
+      auth: req.auth,
+      params: { id: hashIdUtil.hashIdEncode(service.id) },
+      transaction,
+    });
+  }
+
+  return service;
 }
 async function getAllServices(filters, authority) {
   const page = parseInt(filters.page) || 1;
   const limit = parseInt(filters.limit) || 10;
   const offset = (page - 1) * limit;
   const where = {};
+
   if (authority == "admin") {
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
@@ -50,11 +105,7 @@ async function getAllServices(filters, authority) {
   }
   if (filters.id) where.id = filters.id;
   if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
-  if (filters.minPrice || filters.maxPrice) {
-    where.price = {};
-    if (filters.minPrice) where.price[Op.gte] = filters.minPrice;
-    if (filters.maxPrice) where.price[Op.lte] = filters.maxPrice;
-  }
+
   const includeImages = {
     model: db.Asset,
     attributes: ["url"],
@@ -89,7 +140,8 @@ async function getAllServices(filters, authority) {
     include: [includeCategory, includeServiceProvider, includeImages],
     limit,
     offset,
-    order: [[sortField, sortOrder]],
+    // TODO restore sortField,sortOrder when we get price
+    // order: [[sortField, sortOrder]],
   });
   return {
     page,
@@ -111,12 +163,13 @@ async function getServiceByIdPublic(id) {
       },
       {
         model: db.Timeline,
-        attributes: ["id", "label"],
-        as: "activeTimeline",
+      },
+      {
+        model: db.Variant,
       },
       {
         model: db.Category,
-        attributes: ["title"],
+        attributes: ["title", "id", "label"],
       },
       {
         model: db.Review,
@@ -130,6 +183,7 @@ async function getServiceByIdPublic(id) {
       },
       {
         model: db.ServiceProvider,
+        //TODO to create sp card
         attributes: ["id", "name", "email", "phoneNumber", "isVerified"],
       },
     ],
