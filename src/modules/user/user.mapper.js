@@ -1,4 +1,3 @@
-import e from "express";
 import { generateDownloadUrl } from "../../configs/s3Configs.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 const sanitizeUser = async (user) => {
@@ -13,16 +12,32 @@ const sanitizeUser = async (user) => {
       };
     });
   }
+
   if (user.Orders && user.Orders.length > 0) {
     orders = user.Orders.map((i) => {
       return {
         serviceId: hashIdUtil.hashIdEncode(i.Service.id),
         orderId: hashIdUtil.hashIdEncode(i.id),
-        timelineId: hashIdUtil.hashIdEncode(i.Timeline.id),
-        timelineLabel: i.Timeline.label,
+        status: i.status,
+        type: i.timeline ? "timeline" : "oneTime",
+        timeline: i.timeline
+          ? {
+              ...i.timeline,
+              id: hashIdUtil.hashIdEncode(i.timeline?.id),
+              serviceId: hashIdUtil.hashIdEncode(i.timeline?.serviceId),
+            }
+          : null,
+        variant: i.variant
+          ? {
+              ...i.variant,
+              id: hashIdUtil.hashIdEncode(i.variant?.id),
+              serviceId: hashIdUtil.hashIdEncode(i.variant?.serviceId),
+            }
+          : null,
       };
     });
   }
+
   if (user.profilePicture && user.profilePicture.length > 0) {
     if (user.googleId) {
       signedImage = user?.profilePicture[0]?.url;
@@ -46,7 +61,7 @@ const sanitizeUser = async (user) => {
       return "alert";
     }
   };
-  return {
+  user = {
     id: hashIdUtil.hashIdEncode(user.id),
     firstName: user.firstName,
     lastName: user.lastName,
@@ -62,6 +77,8 @@ const sanitizeUser = async (user) => {
     orders,
     level: levelCalc(),
   };
+
+  return user;
 };
 
 const userMapper = {

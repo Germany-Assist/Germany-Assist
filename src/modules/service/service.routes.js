@@ -33,12 +33,13 @@ serviceRouter.get(
 // Create a new service
 serviceRouter.post(
   "/provider",
+  upload.array("images", 4),
   jwt.authenticateJwt,
-  upload.array("image", 6),
   createServiceValidator,
   validateExpress,
   serviceController.createService
 );
+
 // Get all services of the authenticated provider (approved or not)
 serviceRouter.get(
   "/provider/services",

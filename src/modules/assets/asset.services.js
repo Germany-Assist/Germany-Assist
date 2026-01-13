@@ -24,8 +24,8 @@ export const countAssetsInDatabase = async (filters) => {
   });
   return result.count;
 };
-export const createAssets = async (data) => {
-  return await db.Asset.bulkCreate(data);
+export const createAssets = async (data, transaction) => {
+  return await db.Asset.bulkCreate(data, { transaction });
 };
 export const getAllAssets = async (filters = {}) => {
   const page = parseInt(filters.page) || 1;

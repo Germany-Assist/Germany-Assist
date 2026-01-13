@@ -14,15 +14,25 @@ Order.init(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM("refunded", "paid", "fulfilled", "completed"),
+      type: DataTypes.ENUM(
+        "refunded",
+        "active",
+        "pending_completion",
+        "completed",
+        "cancelled"
+      ),
       allowNull: false,
     },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    timelineId: {
+    relatedId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    relatedType: {
+      type: DataTypes.ENUM("timeline", "oneTime"),
       allowNull: false,
     },
     serviceId: { type: DataTypes.INTEGER, allowNull: false },

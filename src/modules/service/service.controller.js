@@ -3,102 +3,10 @@ import hashIdUtil from "../../utils/hashId.util.js";
 import authUtils from "../../utils/authorize.util.js";
 import { sequelize } from "../../configs/database.js";
 import { AppError } from "../../utils/error.class.js";
-import { generateDownloadUrl } from "../../configs/s3Configs.js";
-import uploadController from "../assets/assets.controller.js";
-const sanitizeServices = async (services) => {
-  const sanitized = await Promise.all(
-    services.map(async (i) => {
-      //TODO this delete was added just to patch and it should be fixed
-      delete i["ServiceProviderId"];
-      //
-      const {
-        id,
-        "Category.title": categoryTitle,
-        "ServiceProvider.name": providerName,
-        "profileImages.url": imageUrl,
-        categoryId,
-        ...rest
-      } = i;
-      const levelCalc = () => {
-        const { approved, published, rejected } = i;
-        if (approved && published) {
-          return "ready";
-        } else if (approved && !published) {
-          return "accepted";
-        } else if (!approved && !rejected) {
-          return "pending";
-        } else if (rejected) {
-          return "alert";
-        }
-      };
-      const image = imageUrl ? await generateDownloadUrl(imageUrl) : undefined;
+import serviceMappers from "./service.mappers.js";
 
-      return {
-        id: hashIdUtil.hashIdEncode(id),
-        category: categoryTitle,
-        serviceProvider: providerName,
-        image,
-        level: levelCalc(),
-        ...rest,
-      };
-    })
-  );
-
-  return sanitized;
-};
-
-const sanitizeServiceProfile = async (service) => {
-  let assets = [];
-  if (service.Assets && service.Assets.length > 0)
-    assets = await Promise.all(
-      service.Assets?.map(async (i) => {
-        return { ...i, url: await generateDownloadUrl(i.url) };
-      })
-    );
-  console.log(service);
-  const { id: timelineId, label: timelineLabel } = service.activeTimeline[0];
-
-  let temp = {
-    ...service,
-    id: hashIdUtil.hashIdEncode(service.id),
-    category: service.Category.title,
-    activeTimeline: {
-      id: hashIdUtil.hashIdEncode(timelineId),
-      label: timelineLabel,
-    },
-    timelines: service.Timelines?.map((x) => {
-      return { ...x, id: hashIdUtil.hashIdEncode(x.id) };
-    }),
-    reviews: service.Reviews.map((i) => {
-      return {
-        body: i.body,
-        rating: i.rating,
-        user: {
-          name: i.user.firstName + " " + i.user.lastName,
-          id: hashIdUtil.hashIdEncode(i.user.id),
-        },
-      };
-    }),
-    assets,
-  };
-  delete temp.Timelines;
-  delete temp.Reviews;
-  delete temp.Category;
-  delete temp.Assets;
-  return temp;
-};
-const formatTimelines = (timelines) => {
-  return timelines.map((i) => {
-    return {
-      id: hashIdUtil.hashIdEncode(i.id),
-      label: i.label,
-      isArchived: i.isArchived,
-    };
-  });
-};
 export async function createService(req, res, next) {
   const transaction = await sequelize.transaction();
-
   try {
     await authUtils.checkRoleAndPermission(
       req.auth,
@@ -107,62 +15,30 @@ export async function createService(req, res, next) {
       "service",
       "create"
     );
-
-    const serviceData = {
-      userId: req.auth.id,
-      serviceProviderId: req.auth.relatedId,
-      title: req.body.title,
-      description: req.body.description,
-      type: "oneTime",
-      rating: 0,
-      totalReviews: 0,
-      price: req.body.price,
-      image: req.body.image || null,
-      published: req.body.publish
-        ? req.auth.role == "service_provider_root"
-          ? true
-          : false
-        : false,
-      category: req.body.category,
-      Timelines: [{ label: req.body.timelineLabel }],
-    };
-
-    const service = await serviceServices.createService(
-      serviceData,
-      transaction
-    );
-
-    const timelines = serviceController.formatTimelines(service.Timelines);
+    const service = await serviceServices.createService(req, transaction);
     await transaction.commit();
-
-    const files = req.files || (req.file ? [req.file] : []);
-    const params = { id: hashIdUtil.hashIdEncode(service.id) };
-    const publicUrls = await uploadController.uploadService(
-      "serviceProfileGalleryImage",
-      files,
-      req.auth,
-      params
-    );
-    res.status(201).json({
+    return res.status(201).json({
       message: "successfully created service",
-      data: {
-        id: hashIdUtil.hashIdEncode(service.id),
-        title: service.title,
-        userId: hashIdUtil.hashIdEncode(service.userId),
-        categoryId: hashIdUtil.hashIdEncode(service.categoryId),
-        timelines,
-        publicUrls,
-      },
+      data: { id: hashIdUtil.hashIdEncode(service.id) },
     });
   } catch (error) {
+    if (req.files) {
+      req.files.forEach((file) => {
+        file.stream?.resume();
+      });
+    }
+    if (req.file?.stream) {
+      req.file.stream.resume();
+    }
     await transaction.rollback();
-    next(error);
+    return next(error);
   }
 }
+
 export async function getAllServices(req, res, next) {
   try {
     const services = await serviceServices.getAllServices(req.query);
-    const sanitizedServices = await serviceController.sanitizeServices(
+    const sanitizedServices = await serviceMappers.sanitizeServices(
       services.data
     );
     res.status(200).json({ ...services, data: sanitizedServices });
@@ -175,8 +51,10 @@ export async function getServiceProfile(req, res, next) {
     const service = await serviceServices.getServiceByIdPublic(
       hashIdUtil.hashIdDecode(req.params.id)
     );
-    const sanitizedServices = await sanitizeServiceProfile(service);
-    res.status(200).json(sanitizedServices);
+    const sanitizedService = await serviceMappers.sanitizeServiceProfile(
+      service
+    );
+    res.status(200).json(sanitizedService);
   } catch (error) {
     next(error);
   }
@@ -193,7 +71,9 @@ export async function getServiceProfileForAdminAndSP(req, res, next) {
       hashIdUtil.hashIdDecode(req.params.id),
       req.auth.relatedId
     );
-    const sanitizedServices = await sanitizeServiceProfile(service);
+    const sanitizedServices = await serviceMappers.sanitizeServiceProfile(
+      service
+    );
     res.status(200).json(sanitizedServices);
   } catch (error) {
     next(error);
@@ -203,7 +83,9 @@ export async function getAllServicesAdmin(req, res, next) {
   try {
     await authUtils.checkRoleAndPermission(req.auth, ["admin", "super_admin"]);
     const services = await serviceServices.getAllServices(req.query, "admin");
-    const sanitizedServices = await sanitizeServices(services.data);
+    const sanitizedServices = await serviceMappers.sanitizeServices(
+      services.data
+    );
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
@@ -220,7 +102,9 @@ export async function getAllServicesSP(req, res, next) {
       filters,
       "serviceProvider"
     );
-    const sanitizedServices = await sanitizeServices(services.data);
+    const sanitizedServices = await serviceMappers.sanitizeServices(
+      services.data
+    );
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
     next(error);
@@ -430,7 +314,6 @@ export async function getClientServices(req, res, next) {
 const serviceController = {
   alterServiceStatusSP,
   alterServiceStatus,
-  formatTimelines,
   restoreService,
   deleteService,
   updateService,
@@ -439,7 +322,6 @@ const serviceController = {
   getAllServicesSP,
   getAllServices,
   createService,
-  sanitizeServices,
   getServiceProfileForAdminAndSP,
   addToFavorite,
   removeFromFavorite,

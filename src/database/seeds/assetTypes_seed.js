@@ -3,7 +3,7 @@ import AssetTypes from "../models/assetTypes.js";
 const assetTypes = [
   {
     key: "userImage",
-    limit: "1",
+    limit: 1,
     basekey: "images/users/profile",
     size: 3000000,
     thumb: true,
@@ -12,7 +12,7 @@ const assetTypes = [
   },
   {
     key: "serviceProviderProfileImage",
-    limit: "1",
+    limit: 1,
     basekey: "images/serviceProviders/profile",
     size: 3000000,
     thumb: true,
@@ -21,7 +21,7 @@ const assetTypes = [
   },
   {
     key: "serviceProviderProfileGalleryImage",
-    limit: "5",
+    limit: 5,
     basekey: "images/serviceProviders/profile/gallery",
     size: 3000000,
     thumb: true,
@@ -30,7 +30,7 @@ const assetTypes = [
   },
   {
     key: "serviceProviderProfileGalleryVideo",
-    limit: "1",
+    limit: 1,
     basekey: "videos/serviceProviders/profile/gallery",
     size: 15000000,
     thumb: true,
@@ -39,8 +39,8 @@ const assetTypes = [
   },
   {
     key: "serviceProviderProfileDocument",
-    limit: "5",
-    basekey: "document/serviceProviders/profile/gallery",
+    limit: 5,
+    basekey: "documents/serviceProviders/profile/gallery",
     size: 2000000,
     thumb: false,
     mediaType: "document",
@@ -48,8 +48,8 @@ const assetTypes = [
   },
   {
     key: "serviceProfileImage",
-    limit: "1",
-    basekey: "image/services/profile",
+    limit: 1,
+    basekey: "images/services/profile",
     size: 3000000,
     thumb: true,
     mediaType: "image",
@@ -57,8 +57,8 @@ const assetTypes = [
   },
   {
     key: "serviceProfileGalleryImage",
-    limit: "5",
-    basekey: "image/services/profile/gallery",
+    limit: 5,
+    basekey: "images/services/profile/gallery",
     size: 3000000,
     thumb: true,
     mediaType: "image",
@@ -66,8 +66,8 @@ const assetTypes = [
   },
   {
     key: "serviceProfileGalleryVideo",
-    limit: "1",
-    basekey: "video/services/profile/gallery",
+    limit: 1,
+    basekey: "videos/services/profile/gallery",
     size: 15000000,
     thumb: false,
     mediaType: "video",
@@ -75,8 +75,8 @@ const assetTypes = [
   },
   {
     key: "postAttachmentsVideo",
-    limit: "1",
-    basekey: "video/post/attachments",
+    limit: 1,
+    basekey: "videos/post/attachments",
     size: 15000000,
     thumb: false,
     mediaType: "video",
@@ -84,7 +84,7 @@ const assetTypes = [
   },
   {
     key: "postAttachmentsDocuments",
-    limit: "1",
+    limit: 1,
     basekey: "documents/post/attachments",
     size: 3000000,
     thumb: false,
@@ -93,8 +93,8 @@ const assetTypes = [
   },
   {
     key: "postAttachmentsImage",
-    limit: "1",
-    basekey: "image/post/attachments",
+    limit: 1,
+    basekey: "images/post/attachments",
     size: 3000000,
     thumb: false,
     mediaType: "image",
@@ -132,4 +132,5 @@ const assetTypes = [
 const seedAssetTypes = async () => {
   await AssetTypes.bulkCreate(assetTypes);
 };
+
 export default seedAssetTypes;

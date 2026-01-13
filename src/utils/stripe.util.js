@@ -10,7 +10,7 @@ try {
   errorLogger(error);
 }
 
-export async function createPaymentIntent(amount, metadata) {
+export async function createPaymentIntent({ amount, metadata }) {
   return await stripe.paymentIntents.create({
     amount: Math.round(amount * 100),
     currency: "usd",
