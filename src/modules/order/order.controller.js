@@ -16,86 +16,6 @@ export async function payOrder(req, res, next) {
   }
 }
 
-// export async function getOrderAdmin(req, res, next) {
-//   try {
-//     await authUtil.checkRoleAndPermission(req.auth, ["admin"]);
-//     const filters = {
-//       id: hashIdUtil.hashIdDecode(req.params.id),
-//     };
-//     const order = await orderService.getOrder(filters);
-//     res.send({
-//       ...order,
-//       id: hashIdUtil.hashIdEncode(order.id),
-//       userId: hashIdUtil.hashIdEncode(order.userId),
-//       timelineId: hashIdUtil.hashIdEncode(order.timelineId),
-//       serviceId: hashIdUtil.hashIdEncode(order.serviceId),
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// }
-// export async function getOrderSP(req, res, next) {
-//   try {
-//     await authUtil.checkRoleAndPermission(req.auth, [
-//       "service_provider_rep",
-//       "service_provider_root",
-//     ]);
-//     const filters = {
-//       id: hashIdUtil.hashIdDecode(req.params.id),
-//     };
-//     const SPID = req.auth.relatedId;
-//     const order = await orderService.getOrderByIdAndSPID(filters, SPID);
-//     res.send({
-//       ...order,
-//       id: hashIdUtil.hashIdEncode(order.id),
-//       userId: hashIdUtil.hashIdEncode(order.userId),
-//       timelineId: hashIdUtil.hashIdEncode(order.timelineId),
-//       serviceId: hashIdUtil.hashIdEncode(order.user_iserviceId),
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// }
-// export async function getOrderCL(req, res, next) {
-//   try {
-//     await authUtil.checkRoleAndPermission(req.auth, ["client"]);
-//     const filters = {
-//       id: hashIdUtil.hashIdDecode(req.params.id),
-//       userId: req.auth.id,
-//     };
-//     const order = await orderService.getOrder(filters);
-//     res.send({
-//       ...order,
-//       id: hashIdUtil.hashIdEncode(order.id),
-//       userId: hashIdUtil.hashIdEncode(order.userId),
-//       timelineId: hashIdUtil.hashIdEncode(order.timelineId),
-//       serviceId: hashIdUtil.hashIdEncode(order.user_iserviceId),
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// }
-// export async function getOrdersAdmin(req, res, next) {
-//   try {
-//     await authUtil.checkRoleAndPermission(req.auth, ["admin"]);
-//     const filters = {
-//       ...req.query,
-//     };
-//     const orders = await orderService.getOrders(filters);
-//     const sanitizedOrders = orders.map((i) => {
-//       return {
-//         ...i,
-//         id: hashIdUtil.hashIdEncode(i.id),
-//         userId: hashIdUtil.hashIdEncode(i.userId),
-//         timelineId: hashIdUtil.hashIdEncode(i.timelineId),
-//         serviceId: hashIdUtil.hashIdEncode(i.user_iserviceId),
-//       };
-//     });
-//     res.send(sanitizedOrders);
-//   } catch (err) {
-//     next(err);
-//   }
-// }
 export async function getOrdersSP(req, res, next) {
   try {
     await authUtil.checkRoleAndPermission(req.auth, [
@@ -108,28 +28,6 @@ export async function getOrdersSP(req, res, next) {
     next(err);
   }
 }
-// export async function getOrdersCL(req, res, next) {
-//   try {
-//     await authUtil.checkRoleAndPermission(req.auth, ["client"]);
-//     const filters = {
-//       ...req.query,
-//       userId: req.auth.id,
-//     };
-//     const orders = await orderService.getOrders(filters);
-//     const sanitizedOrders = orders.map((i) => {
-//       return {
-//         ...i,
-//         id: hashIdUtil.hashIdEncode(i.id),
-//         userId: hashIdUtil.hashIdEncode(i.userId),
-//         timelineId: hashIdUtil.hashIdEncode(i.timelineId),
-//         serviceId: hashIdUtil.hashIdEncode(i.user_iserviceId),
-//       };
-//     });
-//     res.send(sanitizedOrders);
-//   } catch (err) {
-//     next(err);
-//   }
-// }
 
 export async function serviceProviderCloseOrder(req, res, next) {
   const transaction = await sequelize.transaction();
@@ -141,7 +39,10 @@ export async function serviceProviderCloseOrder(req, res, next) {
       transaction,
     });
     await transaction.commit();
-    res.send({ success: true, message: "your order was moved to payouts" });
+    res.send({
+      success: true,
+      message: "The Order was closed successfully 7 days for the escrow window",
+    });
   } catch (err) {
     await transaction.rollback();
     next(err);

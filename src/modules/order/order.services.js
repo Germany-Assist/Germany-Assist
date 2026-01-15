@@ -107,7 +107,6 @@ export async function getOrders(filters = {}) {
 
     include,
   });
-  console.log(orders);
   if (!orders) throw new AppError(404, "Order not found");
   return orders;
 }
@@ -126,23 +125,17 @@ async function checkoutServiceProviderOrder(orderId, transaction) {
   const payout = await orderRepository.createPayout(payoutData, transaction);
   return;
 }
+
 export async function serviceProviderCloseOrder({
   orderId,
   auth,
   transaction,
 }) {
-  const order = await orderRepository.getOrderForCheckoutPayouts({
+  const order = await orderRepository.serviceProviderCloseOrder({
     orderId,
     SPID: auth.relatedId,
     transaction,
   });
-  //TODO
-  // validate if its eligible to close (pending_completion)
-  order.status = "pending_completion";
-  await order.save();
-
-  //this i will call now manually for testing
-  await checkoutServiceProviderOrder(orderId, transaction);
 }
 
 export const orderService = {

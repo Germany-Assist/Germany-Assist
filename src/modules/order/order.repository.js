@@ -97,24 +97,28 @@ export async function createOrder(data, t) {
 export async function createPayout(payoutData, transaction) {
   await db.Payout.create(payoutData, { transaction });
 }
-export async function getOrderForCheckoutPayouts({
+
+export async function serviceProviderCloseOrder({
   orderId,
   SPID,
   transaction,
 }) {
-  return await db.Order.findOne({
-    where: { id: orderId },
-    raw: false,
-    include: [
-      {
-        model: db.Service,
-        where: { serviceProviderId: SPID },
-        attributes: [],
-        required: true,
-      },
-    ],
-    transaction,
-  });
+  return await db.Order.update(
+    { status: "pending_completion" },
+    {
+      where: { id: orderId, status: "active" },
+      raw: true,
+      include: [
+        {
+          model: db.Service,
+          where: { serviceProviderId: SPID },
+          attributes: [],
+          required: true,
+        },
+      ],
+      transaction,
+    }
+  );
 }
 export async function getOrder(filters) {
   const order = await db.Order.findOne({
@@ -127,7 +131,7 @@ export async function getOrder(filters) {
   return order;
 }
 const orderRepository = {
-  getOrderForCheckoutPayouts,
+  serviceProviderCloseOrder,
   getOrder,
   createPayout,
   getOrdersForSP,
