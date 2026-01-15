@@ -1,40 +1,51 @@
-import { sequelize } from "../../configs/database.js";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
+import hashIdUtil from "../../utils/hashId.util.js";
+import stripeUtils from "../../utils/stripe.util.js";
 import orderRepository from "./order.repository.js";
+import { v4 as uuidv4 } from "uuid";
 
-export async function createOrder(data, t) {
-  return await db.Order.create(data, {
-    raw: true,
-    transaction: t,
+export async function payOrder(req) {
+  const serviceId = hashIdUtil.hashIdDecode(req.query.serviceId);
+  const optionId = hashIdUtil.hashIdDecode(req.query.optionId);
+  const type = req.query.type;
+  const service = await orderRepository.getServiceForPayment({
+    serviceId,
+    optionId,
+    type,
   });
-}
-export async function getServiceForPaymentPrivate({
-  serviceId,
-  optionId,
-  type,
-}) {
-  const include = [];
-  let typeTable;
-  if (type === "oneTime") {
-    include.push({
-      model: db.Variant,
-      where: { id: optionId },
-      required: true,
-    });
-  } else if (type === "timeline") {
-    include.push({
-      model: db.Timeline,
-      where: { id: optionId },
-      required: true,
-    });
+
+  const metadata = {
+    serviceId,
+    userId: req.auth.id,
+    serviceProviderId: service.serviceProviderId,
+    relatedType: type,
+    relatedId: optionId,
+  };
+  const amount =
+    type === "timeline" ? service.Timelines.price : service.Variants.price;
+  // // in the future subscription may go here
+  if (amount === 0) {
+    //free service
+    const orderData = {
+      amount: 0,
+      status: "active",
+      userId: metadata.userId,
+      serviceId: metadata.serviceId,
+      relatedType: type,
+      relatedId: optionId,
+      stripePaymentIntentId: uuidv4(),
+      currency: "usd",
+    };
+    await orderRepository.createOrder(orderData);
+    return { clientSecret: null };
+  } else {
+    //paid service
+    const pi = await stripeUtils.createPaymentIntent({ amount, metadata });
+    return {
+      clientSecret: pi.client_secret,
+    };
   }
-  return await db.Service.findOne({
-    raw: true,
-    nest: true,
-    where: { id: serviceId, published: true, approved: true, rejected: false },
-    include,
-  });
 }
 
 export async function getOrder(filters) {
@@ -130,11 +141,10 @@ export async function serviceProviderCloseOrder({
 }
 
 export const orderService = {
-  createOrder,
   getOrder,
   getOrders,
   getOrderByIdAndSPID,
-  getServiceForPaymentPrivate,
   serviceProviderCloseOrder,
+  payOrder,
 };
 export default orderService;

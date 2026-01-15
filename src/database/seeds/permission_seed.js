@@ -121,6 +121,7 @@ const permissionsData = [
     resource: "analytics",
     description: "View analytics and reports",
   }, //super:admin,superAdmin
+  { action: "access", resource: "financial" },
 ];
 
 /*

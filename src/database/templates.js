@@ -71,6 +71,10 @@ export const roleTemplates = {
     { action: "publish", resource: "service" },
     { action: "unpublish", resource: "service" },
     { action: "statistical", resource: "service" },
+
+    // Financial
+    { action: "access", resource: "financial" },
+
     // Posts
     { action: "create", resource: "post" },
     { action: "update", resource: "post" },

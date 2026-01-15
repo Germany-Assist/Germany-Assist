@@ -4,7 +4,6 @@ import { AppError } from "../../utils/error.class.js";
 import serviceRepository from "./service.repository.js";
 import serviceMappers from "./service.mappers.js";
 import hashIdUtil from "../../utils/hashId.util.js";
-import uploadController from "../assets/assets.controller.js";
 import AssetService from "../../services/assts.services.js";
 const publicAttributes = [
   "id",

@@ -1,7 +1,18 @@
 import { Op } from "sequelize";
 import db from "../../database/index.js";
 
-async function createNewComment(data, t) {
+async function createNewComment(body, auth, t) {
+  const postId = hashIdUtil.hashIdDecode(body.postId);
+  const comment_id = hashIdUtil.hashIdDecode(body.commentId);
+  let able = await commentServices.canCommentOnPost(auth.id, postId);
+  if (!able)
+    throw new AppError(403, "permission denied", true, "permission denied");
+  const data = {
+    userId: auth.id,
+    parentId: comment_id ?? null,
+    postId,
+    body,
+  };
   await db.Comment.create(data, t);
 }
 async function canCommentOnPost(userId, postId) {
