@@ -9,7 +9,9 @@ export async function SPFinancialConsole(req, res, next) {
       "financial",
       "access"
     );
-    const results = await dashboardServices.SPFinancialConsole();
+    const results = await dashboardServices.SPFinancialConsole(
+      req.auth.relatedId
+    );
     res.send(results);
   } catch (error) {
     next(error);

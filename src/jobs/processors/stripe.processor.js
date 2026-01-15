@@ -35,6 +35,7 @@ export async function stripeProcessor(job) {
             serviceId: metadata.serviceId,
             relatedId: metadata.relatedId,
             relatedType: metadata.relatedType,
+            serviceProviderId: metadata.serviceProviderId,
             stripePaymentIntentId: pi.id,
             currency: "usd",
           };

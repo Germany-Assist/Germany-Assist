@@ -74,7 +74,6 @@ export const roleTemplates = {
 
     // Financial
     { action: "access", resource: "financial" },
-
     // Posts
     { action: "create", resource: "post" },
     { action: "update", resource: "post" },

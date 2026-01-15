@@ -4,7 +4,11 @@ import hashIdUtil from "../../utils/hashId.util.js";
 import stripeUtils from "../../utils/stripe.util.js";
 import orderRepository from "./order.repository.js";
 import { v4 as uuidv4 } from "uuid";
-
+import ordersMapper from "./order.mapper.js";
+export async function getOrdersForSP(SPId, filters) {
+  const orders = await orderRepository.getOrdersForSP(SPId, filters);
+  return { ...orders, data: ordersMapper.sanitizeOrders(orders.data) };
+}
 export async function payOrder(req) {
   const serviceId = hashIdUtil.hashIdDecode(req.query.serviceId);
   const optionId = hashIdUtil.hashIdDecode(req.query.optionId);
@@ -32,6 +36,7 @@ export async function payOrder(req) {
       status: "active",
       userId: metadata.userId,
       serviceId: metadata.serviceId,
+      serviceProviderId: service.serviceProviderId,
       relatedType: type,
       relatedId: optionId,
       stripePaymentIntentId: uuidv4(),
@@ -144,6 +149,7 @@ export const orderService = {
   getOrder,
   getOrders,
   getOrderByIdAndSPID,
+  getOrdersForSP,
   serviceProviderCloseOrder,
   payOrder,
 };

@@ -1,0 +1,38 @@
+[
+  {
+    "id": 2,
+    "title": "testtest",
+    "description": "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttestv",
+    "userId": 3,
+    "serviceProviderId": "95ebadaa-992a-4231-96ca-cbb84da7589b",
+    "views": 285,
+    "type": "oneTime",
+    "rating": 0,
+    "categoryId": 1,
+    "totalReviews": 0,
+    "approved": true,
+    "rejected": false,
+    "published": true,
+    "createdAt": "2026-01-13T13:06:42.539Z",
+    "updatedAt": "2026-01-15T14:06:58.298Z",
+    "deletedAt": null
+  },
+  {
+    "id": 1,
+    "title": "German exam prep",
+    "description": "All you need to learn german All you need to learn german All you need to learn german All you need to learn german ",
+    "userId": 3,
+    "serviceProviderId": "89f66759-9885-4de5-9d6f-f7dc7f75f7b7",
+    "views": 126,
+    "type": "oneTime",
+    "rating": 0,
+    "categoryId": 3,
+    "totalReviews": 0,
+    "approved": true,
+    "rejected": false,
+    "published": true,
+    "createdAt": "2026-01-12T08:24:32.901Z",
+    "updatedAt": "2026-01-15T13:09:13.906Z",
+    "deletedAt": null
+  }
+]

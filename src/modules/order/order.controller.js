@@ -1,4 +1,4 @@
-import orderService from "../order/order.services.js";
+import orderService, { getOrdersForSP } from "../order/order.services.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 import authUtil from "../../utils/authorize.util.js";
 import { sequelize } from "../../configs/database.js";
@@ -102,21 +102,8 @@ export async function getOrdersSP(req, res, next) {
       "service_provider_rep",
       "service_provider_root",
     ]);
-    const filters = {
-      ...req.query,
-      serviceProviderId: req.auth.relatedId,
-    };
-    const orders = await orderService.getOrders(filters);
-    const sanitizedOrders = orders.map((i) => {
-      return {
-        ...i,
-        id: hashIdUtil.hashIdEncode(i.id),
-        userId: hashIdUtil.hashIdEncode(i.userId),
-        relatedId: hashIdUtil.hashIdEncode(i.relatedId),
-        serviceId: hashIdUtil.hashIdEncode(i.serviceId),
-      };
-    });
-    res.send(sanitizedOrders);
+    const orders = await getOrdersForSP(req.auth.relatedId, req.query);
+    res.send(orders);
   } catch (err) {
     next(err);
   }

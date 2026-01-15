@@ -1,0 +1,15 @@
+[
+  {
+    "id": 6,
+    "orderId": 8,
+    "openedBy": "buyer",
+    "reason": "unstistfide with service",
+    "description": null,
+    "status": "in_review",
+    "resolution": null,
+    "resolvedAt": "2026-01-12T08:31:24.115Z",
+    "createdAt": "2026-01-12T08:31:24.115Z",
+    "updatedAt": "2026-01-12T08:31:24.115Z",
+    "deletedAt": null
+  }
+]

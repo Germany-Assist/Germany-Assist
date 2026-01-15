@@ -1,5 +1,66 @@
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
+import { Op } from "sequelize";
+
+export async function getOrdersForSP(SPId, filters = {}) {
+  // pagination (safe & predictable)
+  const page = Math.max(Number(filters.page) || 1, 1);
+  const limit = Math.min(Number(filters.limit) || 20, 100);
+  const offset = (page - 1) * limit;
+  // base order filters
+  const where = {
+    serviceProviderId: SPId,
+  };
+  // order status filter
+  if (filters.status) {
+    where.status = filters.status;
+  } else {
+    where.status = ["active", "pending_completion", "completed"];
+  }
+  // optional order filters
+  if (filters.type) {
+    where.relatedType = filters.type;
+  }
+  if (filters.serviceId) {
+    where.serviceId = filters.serviceId;
+  }
+  // ALWAYS include dispute info (1-to-1)
+  const include = [
+    {
+      model: db.Dispute,
+      required: false, // LEFT JOIN
+    },
+    {
+      model: db.Payout,
+      required: false,
+    },
+  ];
+  // filter: only disputed orders
+  if (filters.onlyDisputed) {
+    where["$Dispute.id$"] = { [Op.ne]: null };
+  }
+  // filter: specific dispute status
+  if (filters.disputeStatus) {
+    where["$Dispute.status$"] = filters.disputeStatus;
+  }
+  const { rows, count } = await db.Order.findAndCountAll({
+    where,
+    include,
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+  });
+
+  return {
+    data: rows,
+    meta: {
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+    },
+  };
+}
 
 export async function getServiceForPayment({ serviceId, optionId, type }) {
   const include = [];
@@ -69,6 +130,7 @@ const orderRepository = {
   getOrderForCheckoutPayouts,
   getOrder,
   createPayout,
+  getOrdersForSP,
   getServiceForPayment,
   createOrder,
 };
