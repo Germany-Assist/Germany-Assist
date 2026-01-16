@@ -106,7 +106,12 @@ export async function serviceProviderCloseOrder({
   return await db.Order.update(
     { status: "pending_completion" },
     {
-      where: { id: orderId, status: "active", serviceProviderId },
+      where: {
+        id: orderId,
+        status: "active",
+        type: "oneTime",
+        serviceProviderId,
+      },
       raw: true,
       transaction,
     }

@@ -111,21 +111,6 @@ export async function getOrders(filters = {}) {
   return orders;
 }
 
-async function checkoutServiceProviderOrder(orderId, transaction) {
-  const filters = { id: orderId, status: "pending_completion" };
-  const order = await orderRepository.getOrder(filters, transaction);
-  const { id, amount, currency } = order;
-  const payoutData = {
-    orderId: id,
-    amount,
-    currency,
-    status: "pending",
-    amountToPay: Number(amount) * 0.8,
-  };
-  const payout = await orderRepository.createPayout(payoutData, transaction);
-  return;
-}
-
 export async function serviceProviderCloseOrder({
   orderId,
   auth,
