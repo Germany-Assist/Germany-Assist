@@ -106,16 +106,8 @@ export async function serviceProviderCloseOrder({
   return await db.Order.update(
     { status: "pending_completion" },
     {
-      where: { id: orderId, status: "active" },
+      where: { id: orderId, status: "active", serviceProviderId },
       raw: true,
-      include: [
-        {
-          model: db.Service,
-          where: { serviceProviderId: SPID },
-          attributes: [],
-          required: true,
-        },
-      ],
       transaction,
     }
   );

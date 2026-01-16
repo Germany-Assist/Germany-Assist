@@ -3,8 +3,10 @@ import db from "../database/index.js";
 import { Op, Sequelize } from "sequelize";
 import { sequelize } from "../configs/database.js";
 //TODO WHERE I Stopped
+const testDuration = "0 * * * * *";
+const actualDuration = "* * 0 * * *";
 const payoutCron = cron.schedule("*/3 * * * * *", async () => {
-  const t = await sequelize.transaction();
+  const transaction = await sequelize.transaction();
   try {
     const updated = await db.Order.update(
       { status: "completed" },
@@ -23,15 +25,16 @@ const payoutCron = cron.schedule("*/3 * * * * *", async () => {
           },
         },
         returning: true,
-        transaction: t,
+        raw: true,
+        transaction,
       }
     );
-    console.log(updated);
-    await t.commit();
-    // await db.Payout.create(payoutData, { transaction });
-  } catch (err) {
-    await t.rollback();
+    if (updated[0].length > 0) return "nothing to update";
+    await db.Payout.bulkCreate({ ...updated[1] }, { transaction });
 
+    await transaction.commit();
+  } catch (err) {
+    await transaction.rollback();
     console.error("Payout cron failed:", err);
   }
 });
