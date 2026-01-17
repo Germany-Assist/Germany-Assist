@@ -5,8 +5,8 @@ import { sequelize } from "../configs/database.js";
 import { errorLogger, infoLogger } from "../utils/loggers.js";
 
 const testDuration = "0 * * * * *";
-const actualDuration = "* * 0 * * *";
-const timelinesClosingCron = cron.schedule("*/3 * * * * *", async () => {
+const actualDuration = "0 0 0 * * *";
+const timelinesClosingCron = cron.schedule("0 * * * * *", async () => {
   const transaction = await sequelize.transaction();
   try {
     const updated = await db.Order.update(
@@ -26,7 +26,7 @@ const timelinesClosingCron = cron.schedule("*/3 * * * * *", async () => {
         raw: true,
         transaction,
         returning: true,
-      }
+      },
     );
     updated[0]
       ? infoLogger(`${updated[0]} timelines where closed`)
