@@ -1,7 +1,5 @@
 import { Op } from "sequelize";
-import { sequelize } from "../../configs/database.js";
 import db from "../../database/index.js";
-import userRepository from "../user/user.repository.js";
 
 const activateUser = async (hashedToken, t) => {
   const [, [dbToken]] = await db.Token.update(

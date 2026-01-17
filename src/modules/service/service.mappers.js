@@ -15,6 +15,30 @@ const calculateLevel = ({ approved, published, rejected }) => {
   if (rejected) return "alert";
 };
 
+const timelinesFormatter = (timelines) => {
+  if (!timelines || timelines.length < 1) return undefined;
+  return timelines.map(
+    ({ id, serviceId, label, price, startDate, endDate, isArchived }) => ({
+      id: encodeId(id),
+      serviceId: encodeId(serviceId),
+      label,
+      price: parseFloat(price / 100),
+      startDate,
+      endDate,
+      isArchived,
+    }),
+  );
+};
+
+const variantsFormatter = (variants) => {
+  if (!variants || variants.length < 1) return undefined;
+  return variants.map(({ id, serviceId, label, price }) => ({
+    id: encodeId(id),
+    serviceId: encodeId(serviceId),
+    label,
+    price: parseFloat(price / 100),
+  }));
+};
 /* ------------------------ services list ------------------------ */
 
 export const sanitizeServices = async (services = []) =>
@@ -27,13 +51,17 @@ export const sanitizeServices = async (services = []) =>
       views: service.views,
       rating: service.rating,
       totalReviews: service.totalReviews,
-
-      category: service["Category.title"],
-      serviceProvider: service["ServiceProvider.name"],
-
-      image: await resolveImageUrl(service["profileImages.url"]),
+      type: service.type,
+      category: service.Category.title,
+      serviceProvider: service.ServiceProvider.name,
+      image: await resolveImageUrl(service.profileImages.url),
+      timelines: timelinesFormatter(service.Timelines),
+      variants: variantsFormatter(service.Variants),
+      published: service.published,
+      approved: service.approved,
+      rejected: service.rejected,
       level: calculateLevel(service),
-    }))
+    })),
   );
 
 /* ---------------------- service profile ---------------------- */
@@ -50,13 +78,13 @@ export const sanitizeServiceProfile = async (service) => {
         name,
         thumb,
         url: await resolveImageUrl(url),
-      })
-    )
+      }),
+    ),
   );
 
   const timelines =
     service.type === "timeline"
-      ? service.Timelines?.map(
+      ? (service.Timelines?.map(
           ({
             id,
             serviceId,
@@ -73,18 +101,18 @@ export const sanitizeServiceProfile = async (service) => {
             startDate,
             endDate,
             isArchived,
-          })
-        ) ?? []
+          }),
+        ) ?? [])
       : undefined;
 
   const variants =
     service.type === "oneTime"
-      ? service.Variants?.map(({ id, serviceId, label, price }) => ({
+      ? (service.Variants?.map(({ id, serviceId, label, price }) => ({
           id: encodeId(id),
           serviceId: encodeId(serviceId),
           label,
           price,
-        })) ?? []
+        })) ?? [])
       : undefined;
 
   return {

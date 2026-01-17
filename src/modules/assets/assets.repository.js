@@ -2,10 +2,6 @@ import db from "../../database/index.js";
 import s3Utils from "../../configs/s3Configs.js";
 import { AppError } from "../../utils/error.class.js";
 
-/**
- * Repository layer for DB + S3 interactions.
- * Only handles persistence and storage.
- */
 class AssetRepository {
   // Upload files to S3
   static async uploadToS3(files) {

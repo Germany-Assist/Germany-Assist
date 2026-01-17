@@ -16,6 +16,12 @@ const permissionsData = [
   { action: "restore", resource: "asset", description: "Restore assets" }, //super:admin,superAdmin
   { action: "statistical", resource: "asset", description: "statistical info" }, //ownership:root,rep //super:admin,superAdmin
 
+  {
+    action: "access",
+    resource: "financial",
+    description: "statistical info about the finance",
+  },
+
   // Contract permissions
   { action: "create", resource: "contract", description: "Create contracts" }, //super:admin,superAdmin
   { action: "read", resource: "contract", description: "View contracts" }, //public

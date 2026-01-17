@@ -119,9 +119,23 @@ async function getTimelineById(req, res, next) {
     next(error);
   }
 }
+
+async function getAllTimelinesForSP(req, res, next) {
+  try {
+    const reposone = await timelineServices.getAllTimelinesForSP(
+      req.params,
+      req.auth.relatedId
+    );
+    res.send(reposone);
+  } catch (error) {
+    next(error);
+  }
+}
+
 const timelineController = {
   newTimeline,
   getTimelineById,
   getTimelineByIdClient,
+  getAllTimelinesForSP,
 };
 export default timelineController;

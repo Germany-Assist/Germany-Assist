@@ -14,7 +14,8 @@ import hashIdUtil from "../../utils/hashId.util.js";
 import googleOAuthConfig from "../../configs/googleAuth.js";
 import { OAuth2Client } from "google-auth-library";
 import permissionServices from "../permission/permission.services.js";
-
+import { v4 as uuid } from "uuid";
+import { roleTemplates } from "../../database/templates.js";
 const client = new OAuth2Client(googleOAuthConfig.clientId);
 
 const generateToken = () => crypto.randomBytes(32).toString("hex");
@@ -23,16 +24,16 @@ const hashToken = (token) =>
 
 export async function googleAuth(body) {
   const t = await sequelize.transaction();
-  const { credential } = req.body;
+  const { credential } = body;
   let status = 200;
   try {
-    const payload = ticket.getPayload();
-    const email = payload.email;
-    let user = await userRepository.getUserByEmail(email);
     const ticket = await client.verifyIdToken({
       idToken: credential,
       audience: googleOAuthConfig.clientId,
     });
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    let user = await userRepository.getUserByEmail(email);
     if (!user) {
       status = 201;
       user = await userRepository.createUser(
@@ -66,7 +67,7 @@ export async function googleAuth(body) {
     const { accessToken, refreshToken } = jwtUtils.generateTokens(user);
     const sanitizedUser = await userMapper.sanitizeUser(user);
     await t.commit();
-    return { accessToken, user: sanitizedUser, refreshToken };
+    return { accessToken, user: sanitizedUser, refreshToken, status };
   } catch (error) {
     await t.rollback();
     throw error;

@@ -13,7 +13,7 @@ export async function createService(req, res, next) {
       ["service_provider_root", "service_provider_rep"],
       true,
       "service",
-      "create"
+      "create",
     );
     const service = await serviceServices.createService(req, transaction);
     await transaction.commit();
@@ -39,7 +39,7 @@ export async function getAllServices(req, res, next) {
   try {
     const services = await serviceServices.getAllServices(req.query);
     const sanitizedServices = await serviceMappers.sanitizeServices(
-      services.data
+      services.data,
     );
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
@@ -49,11 +49,10 @@ export async function getAllServices(req, res, next) {
 export async function getServiceProfile(req, res, next) {
   try {
     const service = await serviceServices.getServiceByIdPublic(
-      hashIdUtil.hashIdDecode(req.params.id)
+      hashIdUtil.hashIdDecode(req.params.id),
     );
-    const sanitizedService = await serviceMappers.sanitizeServiceProfile(
-      service
-    );
+    const sanitizedService =
+      await serviceMappers.sanitizeServiceProfile(service);
     res.status(200).json(sanitizedService);
   } catch (error) {
     next(error);
@@ -69,11 +68,10 @@ export async function getServiceProfileForAdminAndSP(req, res, next) {
     ]);
     const service = await serviceServices.getServiceProfileForAdminAndSP(
       hashIdUtil.hashIdDecode(req.params.id),
-      req.auth.relatedId
+      req.auth.relatedId,
     );
-    const sanitizedServices = await serviceMappers.sanitizeServiceProfile(
-      service
-    );
+    const sanitizedServices =
+      await serviceMappers.sanitizeServiceProfile(service);
     res.status(200).json(sanitizedServices);
   } catch (error) {
     next(error);
@@ -84,7 +82,7 @@ export async function getAllServicesAdmin(req, res, next) {
     await authUtils.checkRoleAndPermission(req.auth, ["admin", "super_admin"]);
     const services = await serviceServices.getAllServices(req.query, "admin");
     const sanitizedServices = await serviceMappers.sanitizeServices(
-      services.data
+      services.data,
     );
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
@@ -100,10 +98,10 @@ export async function getAllServicesSP(req, res, next) {
     const filters = { ...req.query, serviceProvider: req.auth.relatedId };
     const services = await serviceServices.getAllServices(
       filters,
-      "serviceProvider"
+      "serviceProvider",
     );
     const sanitizedServices = await serviceMappers.sanitizeServices(
-      services.data
+      services.data,
     );
     res.status(200).json({ ...services, data: sanitizedServices });
   } catch (error) {
@@ -117,12 +115,12 @@ export async function updateService(req, res, next) {
       ["admin", "service_provider_root", "service_provider_rep", "super_admin"],
       true,
       "service",
-      "update"
+      "update",
     );
     const owner = await authUtils.checkOwnership(
       req.body.id,
       req.auth.relatedId,
-      "Service"
+      "Service",
     );
     const allowedFields = ["description"];
     let updateFields = {};
@@ -131,7 +129,7 @@ export async function updateService(req, res, next) {
     });
     await serviceServices.updateService(
       hashIdUtil.hashIdDecode(req.body.id),
-      updateFields
+      updateFields,
     );
     res.send({ success: true, message: "Service Updated" });
   } catch (error) {
@@ -145,12 +143,12 @@ export async function deleteService(req, res, next) {
       ["admin", "service_provider_root", "super_admin"],
       true,
       "service",
-      "delete"
+      "delete",
     );
     const owner = await authUtils.checkOwnership(
       req.params.id,
       req.auth.relatedId,
-      "Service"
+      "Service",
     );
     await serviceServices.deleteService(hashIdUtil.hashIdDecode(req.params.id));
     res.send({ success: true, message: "Service Deleted Successfully" });
@@ -163,10 +161,10 @@ export async function restoreService(req, res, next) {
     const user = await authUtils.checkRoleAndPermission(
       req.auth,
       ["admin", "super_admin"],
-      false
+      false,
     );
     await serviceServices.restoreService(
-      hashIdUtil.hashIdDecode(req.params.id)
+      hashIdUtil.hashIdDecode(req.params.id),
     );
     res.send({ success: true, message: "Service Restored Successfully" });
   } catch (error) {
@@ -178,12 +176,12 @@ export async function alterServiceStatus(req, res, next) {
     const user = await authUtils.checkRoleAndPermission(
       req.auth,
       ["admin", "super_admin"],
-      false
+      false,
     );
     const { status, id } = req.body;
     await serviceServices.alterServiceStatus(
       hashIdUtil.hashIdDecode(id),
-      status
+      status,
     );
     res.sendStatus(200);
   } catch (error) {
@@ -202,11 +200,11 @@ export async function alterServiceStatusSP(req, res, next) {
       ["service_provider_rep", "service_provider_root"],
       true,
       "service",
-      status
+      status,
     );
     await serviceServices.alterServiceStatusSP(
       hashIdUtil.hashIdDecode(id),
-      status
+      status,
     );
     res.sendStatus(200);
   } catch (error) {
@@ -221,11 +219,11 @@ export async function publishService(req, res, next) {
       ["service_provider_rep", "service_provider_root"],
       true,
       "service",
-      "publish"
+      "publish",
     );
     await serviceServices.alterServiceStatusSP(
       hashIdUtil.hashIdDecode(serviceId),
-      "publish"
+      "publish",
     );
     res.sendStatus(200);
   } catch (error) {
@@ -240,11 +238,11 @@ export async function unpublishService(req, res, next) {
       ["service_provider_rep", "service_provider_root"],
       true,
       "service",
-      "unpublish"
+      "unpublish",
     );
     await serviceServices.alterServiceStatusSP(
       hashIdUtil.hashIdDecode(serviceId),
-      "unpublish"
+      "unpublish",
     );
     res.sendStatus(200);
   } catch (error) {
@@ -257,12 +255,12 @@ export async function addToFavorite(req, res, next) {
     const user = await authUtils.checkRoleAndPermission(
       req.auth,
       ["client"],
-      false
+      false,
     );
     await serviceServices.alterFavorite(
       hashIdUtil.hashIdDecode(serviceId),
       req.auth.id,
-      "add"
+      "add",
     );
     res.sendStatus(201);
   } catch (error) {
@@ -275,12 +273,12 @@ export async function removeFromFavorite(req, res, next) {
     const user = await authUtils.checkRoleAndPermission(
       req.auth,
       ["client"],
-      false
+      false,
     );
     await serviceServices.alterFavorite(
       hashIdUtil.hashIdDecode(serviceId),
       req.auth.id,
-      "remove"
+      "remove",
     );
     res.sendStatus(200);
   } catch (error) {
