@@ -28,8 +28,10 @@ const timelinesClosingCron = cron.schedule("*/3 * * * * *", async () => {
         returning: true,
       }
     );
-    console.log(updated);
-    infoLogger(`No timeline was closed`);
+    updated[0]
+      ? infoLogger(`${updated[0]} timelines where closed`)
+      : infoLogger(`No timeline was closed`);
+
     await transaction.commit();
   } catch (err) {
     await transaction.rollback();

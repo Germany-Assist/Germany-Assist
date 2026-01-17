@@ -4,8 +4,10 @@ import authServices from "./auth.service.js";
 import { AppError } from "../../utils/error.class.js";
 import authUtil from "../../utils/authorize.util.js";
 import authDomain from "./auth.domain.js";
+import { sequelize } from "../../configs/database.js";
 
-async function googleAuthController(req, res) {
+async function googleAuthController(req, res, next) {
+  const t = await sequelize.transaction();
   try {
     const result = await authServices.googleAuth(req.body);
     const { refreshToken, accessToken, user, status } = result;
@@ -56,7 +58,7 @@ export async function verifyUserManual(req, res, next) {
       ["admin", "super_admin"],
       true,
       "user",
-      "verify"
+      "verify",
     );
     await authServices.verifyUserManual(req.params.id, true);
     res.sendStatus(200);

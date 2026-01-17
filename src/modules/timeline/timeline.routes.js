@@ -13,6 +13,13 @@ timelineRouter.post(
   validateExpress,
   timelineController.newTimeline
 );
+
+timelineRouter.get(
+  "/getAllTimelines",
+  jwtUtils.authenticateJwt,
+  timelineController.getAllTimelinesForSP
+);
+
 timelineRouter.get(
   "/client/:id",
   jwtUtils.authenticateJwt,

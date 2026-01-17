@@ -5,7 +5,7 @@ import { sequelize } from "../configs/database.js";
 import { errorLogger, infoLogger } from "../utils/loggers.js";
 const testDuration = "0 * * * * *";
 const actualDuration = "* * 0 * * *";
-const payoutCron = cron.schedule("*/3 * * * * *", async () => {
+const payoutCron = cron.schedule("*/10 * * * * *", async () => {
   const transaction = await sequelize.transaction();
   try {
     const updated = await db.Order.update(
@@ -46,7 +46,7 @@ const payoutCron = cron.schedule("*/3 * * * * *", async () => {
     await transaction.commit();
   } catch (err) {
     await transaction.rollback();
-    errorLogger("Payout cron failed:", err);
+    errorLogger(err);
   }
 });
 

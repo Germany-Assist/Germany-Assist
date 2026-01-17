@@ -48,7 +48,7 @@ async function createService(req, transaction) {
 
   const service = await serviceRepository.createService(
     serviceData,
-    transaction
+    transaction,
   );
 
   const files = req.files || [];
@@ -82,7 +82,7 @@ async function getAllServices(filters, authority) {
   const limit = parseInt(filters.limit) || 10;
   const offset = (page - 1) * limit;
   const where = {};
-
+  let include = [];
   if (authority == "admin") {
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
@@ -92,6 +92,14 @@ async function getAllServices(filters, authority) {
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
     if (filters.published) where.published = filters.published;
+    include.push({
+      model: db.Timeline,
+      required: false,
+    });
+    include.push({
+      model: db.Variant,
+      required: false,
+    });
   } else {
     where.approved = true;
     where.rejected = false;
@@ -104,20 +112,21 @@ async function getAllServices(filters, authority) {
   }
   if (filters.id) where.id = filters.id;
   if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
-
-  const includeImages = {
+  if (filters.type) where.type = filters.type;
+  include.push({
     model: db.Asset,
     attributes: ["url"],
     as: "profileImages",
-  };
-  const includeCategory = {
+  });
+  include.push({
     model: db.Category,
     attributes: ["title"],
-  };
-  const includeServiceProvider = {
+  });
+  include.push({
     model: db.ServiceProvider,
     attributes: ["name"],
-  };
+  });
+
   if (filters.category) {
     includeCategory.where = { title: filters.category };
   }
@@ -127,7 +136,6 @@ async function getAllServices(filters, authority) {
   const sortField = filters.sort || "createdAt";
   const sortOrder = filters.order === "asc" ? "ASC" : "DESC";
   const { rows: services, count } = await db.Service.findAndCountAll({
-    raw: true,
     where,
     attributes: [
       ...publicAttributes,
@@ -136,7 +144,7 @@ async function getAllServices(filters, authority) {
       "rejected",
       "created_at",
     ],
-    include: [includeCategory, includeServiceProvider, includeImages],
+    include,
     limit,
     offset,
     // TODO restore sortField,sortOrder when we get price
@@ -278,7 +286,7 @@ async function restoreService(id) {
       400,
       "Service isn't deleted",
       true,
-      "Service isn't deleted"
+      "Service isn't deleted",
     );
   return await service.restore();
 }
@@ -316,7 +324,7 @@ export const updateServiceRating = async (
     oldRating = null,
     isDelete = false,
   } = {},
-  t
+  t,
 ) => {
   if (typeof newRating !== "number" || newRating < 0 || newRating > 5) {
     throw new AppError(400, "Invalid rating value", true);
@@ -350,7 +358,7 @@ export const updateServiceRating = async (
       rating: currentRating,
       totalReviews: totalReviews,
     },
-    { transaction: t }
+    { transaction: t },
   );
 };
 export async function alterFavorite(serviceId, userId, status) {

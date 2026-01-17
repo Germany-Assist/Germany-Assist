@@ -109,12 +109,12 @@ export async function serviceProviderCloseOrder({
       where: {
         id: orderId,
         status: "active",
-        type: "oneTime",
-        serviceProviderId,
+        relatedType: "oneTime",
+        serviceProviderId: SPID,
       },
       raw: true,
       transaction,
-    }
+    },
   );
 }
 export async function getOrder(filters) {

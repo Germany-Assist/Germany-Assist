@@ -11,9 +11,9 @@ export function sanitizeOrders(orders) {
         serviceType: order.relatedType,
         relatedId: hashIdUtil.hashIdEncode(order.relatedId),
         buyerId: hashIdUtil.hashIdEncode(order.userId),
-        amount: parseFloat(order.Payout.amount) / 100,
+        amount: parseFloat(order.Payout.amount / 100),
         amountToPay: order.Payout.amountToPay
-          ? parseFloat(order.Payout.amountToPay) / 100
+          ? parseFloat(order.Payout.amountToPay / 100)
           : null,
         status: order.Payout.status,
         currency: order.Payout.currency,

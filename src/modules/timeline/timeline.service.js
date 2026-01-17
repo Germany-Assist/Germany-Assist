@@ -1,6 +1,14 @@
 import { Op } from "sequelize";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
+import timelineRepository from "./timeline.repository.js";
+
+async function getAllTimelinesForSP(params, SPId) {
+  const serviceFilters = { serviceProviderId: SPId };
+  const timelines = await timelineRepository.getAllTimelines(filters);
+  return timelines;
+}
+
 // create new timeline
 async function createTimeline(serviceId, label = "newTimeline", t) {
   return await db.Timeline.create(
@@ -106,6 +114,7 @@ const timelineServices = {
   archiveTimeline,
   createTimeline,
   activeTimeline,
+  getAllTimelinesForSP,
   getTimelineFull,
   getTimelineSP,
 };
