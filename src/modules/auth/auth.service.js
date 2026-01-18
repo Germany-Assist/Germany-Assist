@@ -56,12 +56,12 @@ export async function googleAuth(body) {
             relatedId: null,
           },
         },
-        t
+        t,
       );
       await permissionServices.initPermissions(
         user.id,
         roleTemplates.client,
-        t
+        t,
       );
     }
     const { accessToken, refreshToken } = jwtUtils.generateTokens(user);
@@ -76,6 +76,7 @@ export async function googleAuth(body) {
 
 export async function sendVerificationEmail(userEmail, userId, t) {
   try {
+    //TODO this was disabled till email server is added
     return;
     const token = generateToken();
     const tokenHash = hashToken(token);
@@ -89,7 +90,7 @@ export async function sendVerificationEmail(userEmail, userId, t) {
     };
     await authRepository.createToken(databaseToken, t);
     const link = `${APP_DOMAIN}/api/auth/verifyAccount?token=${encodeURIComponent(
-      token
+      token,
     )}`;
     const html = verificationEmailTemplate(link);
     await emailService.sendEmail({
@@ -112,7 +113,7 @@ export async function verifyAccount(token) {
         404,
         "failed to fine token",
         false,
-        "failed to fine token"
+        "failed to fine token",
       );
     await userRepository.alterUserVerification(dbToken.userId, true, t);
     await t.commit();
@@ -122,6 +123,7 @@ export async function verifyAccount(token) {
     throw error;
   }
 }
+
 export async function refreshUserToken(refreshToken) {
   const { id } = jwtUtils.verifyRefreshToken(refreshToken);
   const user = await userRepository.getUserById(id);

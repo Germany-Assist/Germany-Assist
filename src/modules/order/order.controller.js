@@ -51,12 +51,7 @@ export async function serviceProviderCloseOrder(req, res, next) {
 const orderController = {
   serviceProviderCloseOrder,
   payOrder,
-  // getOrderAdmin,
-  // getOrderSP,
-  // getOrderCL,
-  // getOrdersAdmin,
   getOrdersSP,
-  // getOrdersCL,
 };
 
 export default orderController;

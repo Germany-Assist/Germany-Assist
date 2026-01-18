@@ -1,5 +1,4 @@
 import { FRONTEND_URL } from "../../configs/serverConfig.js";
-import userDomain from "../user/user.domain.js";
 import authServices from "./auth.service.js";
 import { AppError } from "../../utils/error.class.js";
 import authUtil from "../../utils/authorize.util.js";

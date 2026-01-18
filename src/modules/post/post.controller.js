@@ -1,44 +1,22 @@
 import { sequelize } from "../../configs/database.js";
 import postServices from "./post.service.js";
-import timelineServices from "../timeline/timeline.service.js";
 import authUtil from "../../utils/authorize.util.js";
-import { AppError } from "../../utils/error.class.js";
-import hashIdUtil from "../../utils/hashId.util.js";
 
 async function createNewPost(req, res, next) {
   const t = await sequelize.transaction();
   try {
-    const { serviceId, description, attachments } = req.body;
     await authUtil.checkRoleAndPermission(
       req.auth,
       ["service_provider_rep", "service_provider_root"],
       true,
       "post",
-      "create"
+      "create",
     );
-
-    const timeline = await timelineServices.activeTimeline(
-      hashIdUtil.hashIdDecode(serviceId)
-    );
-    if (!timeline)
-      throw new AppError(
-        404,
-        "failed to find timeline",
-        true,
-        "failed to find timeline"
-      );
-    //this is just a short way to make sure of the owner instead of using the checkOwnership function due to speed and and complicated nesting
-    if (req.auth.relatedId !== timeline.Service.owner)
-      throw new AppError(403, "invalid ownership", true, "invalid ownership");
-    const post = await postServices.createNewPost(
-      {
-        description,
-        attachments,
-        timelineId: timeline.id,
-        userId: req.auth.id,
-      },
-      t
-    );
+    const post = await postServices.createNewPost({
+      body: req.body,
+      auth: req.auth,
+      transaction: t,
+    });
     await t.commit();
     res
       .status(201)
@@ -48,8 +26,26 @@ async function createNewPost(req, res, next) {
     next(error);
   }
 }
-
+async function getAllPostsForTimeline(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"], true);
+    const { timelineId } = req.params;
+    const { page, limit } = req.query;
+    const data = await postServices.getAllPosts({
+      timelineId,
+      userId: req.auth.id,
+      filters: { page, limit },
+    });
+    res.status(200).send({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 const postController = {
   createNewPost,
+  getAllPostsForTimeline,
 };
 export default postController;

@@ -57,7 +57,6 @@ export const defineConstrains = () => {
   });
   //post
   Post.belongsTo(Timeline, { foreignKey: "timelineId" });
-  Post.belongsTo(User, { foreignKey: "userId" });
   Post.hasMany(Comment, {
     foreignKey: "postId",
     constraints: false,
@@ -108,7 +107,6 @@ export const defineConstrains = () => {
   Dispute.belongsTo(Order, { foreignKey: "orderId" });
   Order.hasOne(Dispute, { foreignKey: "orderId" });
   //user
-  User.hasMany(Post, { foreignKey: "userId" });
   User.hasMany(Order, { foreignKey: "userId" });
   User.hasMany(Service, { foreignKey: "userId" });
   User.hasMany(Asset, {

@@ -5,33 +5,22 @@ import { idHashedParamValidator } from "../../validators/general.validators.js";
 import { validateExpress } from "../../middlewares/expressValidator.js";
 import { createTimelineValidator } from "./timeline.validator.js";
 const timelineRouter = Router();
+// provider should create or delete or suspendTimeline
 
-timelineRouter.post(
-  "/:id",
-  jwtUtils.authenticateJwt,
-  createTimelineValidator,
-  validateExpress,
-  timelineController.newTimeline
-);
-
+// timelineRouter.post(
+//   "/provider/:id",
+//   jwtUtils.authenticateJwt,
+//   createTimelineValidator,
+//   validateExpress,
+//   timelineController.newTimeline
+// );
+// FLAG where i stopped i should return the timeline with a posts etc
 timelineRouter.get(
-  "/getAllTimelines",
-  jwtUtils.authenticateJwt,
-  timelineController.getAllTimelinesForSP
-);
-
-timelineRouter.get(
-  "/client/:id",
+  "/client/readTimeline/:timelineId",
   jwtUtils.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
-  timelineController.getTimelineByIdClient
+  timelineController.getTimelineByIdForClient,
 );
-timelineRouter.get(
-  "/serviceProvider/:id",
-  jwtUtils.authenticateJwt,
-  idHashedParamValidator,
-  validateExpress,
-  timelineController.getTimelineById
-);
+
 export default timelineRouter;
