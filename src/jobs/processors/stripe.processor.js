@@ -1,9 +1,9 @@
 import { sequelize } from "../../configs/database.js";
-import orderService from "../../modules/order/order.services.js";
 import { NOTIFICATION_EVENTS, STRIPE_EVENTS } from "../../configs/constants.js";
 import { debugLogger, errorLogger, infoLogger } from "../../utils/loggers.js";
 import stripeServices from "../../services/stripe.service.js";
 import notificationQueue from "../queues/notification.queue.js";
+import orderRepository from "../../modules/order/order.repository.js";
 export async function stripeProcessor(job) {
   const startTime = Date.now();
   const event = job.data.event;
@@ -39,11 +39,11 @@ export async function stripeProcessor(job) {
             stripePaymentIntentId: pi.id,
             currency: "usd",
           };
-          await orderService.createOrder(orderData, t);
+          await orderRepository.createOrder(orderData, t);
           debugLogger(`Created order for payment ${pi.id}`);
           await notificationQueue.add(
             NOTIFICATION_EVENTS.PAYMENT_SUCCESS,
-            orderData
+            orderData,
           );
           debugLogger(`adding to notification queue payment ${pi.id}`);
           break;

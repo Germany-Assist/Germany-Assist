@@ -1,6 +1,7 @@
 import { sequelize } from "../../configs/database.js";
 import postServices from "./post.service.js";
 import authUtil from "../../utils/authorize.util.js";
+import { param } from "express-validator";
 
 async function createNewPost(req, res, next) {
   const t = await sequelize.transaction();
@@ -26,26 +27,8 @@ async function createNewPost(req, res, next) {
     next(error);
   }
 }
-async function getAllPostsForTimeline(req, res, next) {
-  try {
-    await authUtil.checkRoleAndPermission(req.auth, ["client"], true);
-    const { timelineId } = req.params;
-    const { page, limit } = req.query;
-    const data = await postServices.getAllPosts({
-      timelineId,
-      userId: req.auth.id,
-      filters: { page, limit },
-    });
-    res.status(200).send({
-      success: true,
-      data,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
+
 const postController = {
   createNewPost,
-  getAllPostsForTimeline,
 };
 export default postController;

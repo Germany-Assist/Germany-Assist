@@ -1,116 +1,29 @@
-import { Op } from "sequelize";
-import db from "../../database/index.js";
-import { AppError } from "../../utils/error.class.js";
+import timelineMappers from "./timeline.mappers.js";
 import timelineRepository from "./timeline.repository.js";
 
-// async function getAllTimelinesForSP(params, SPId) {
-//   const serviceFilters = { serviceProviderId: SPId };
-//   const timelines = await timelineRepository.getAllTimelines(filters);
-//   return timelines;
-// }
-
-// // create new timeline
-// async function createTimeline(serviceId, label = "newTimeline", t) {
-//   return await db.Timeline.create(
-//     { serviceId: serviceId, label: label },
-//     { transaction: t },
-//   );
-// }
-// async function activeTimeline(serviceId, t) {
-//   return await db.Timeline.findOne({
-//     where: { serviceId: serviceId, isArchived: false },
-//     include: [{ model: db.Service }],
-//     transaction: t,
-//   });
-// }
-// // archive time line
-// async function archiveTimeline(timelineId, t) {
-//   return await db.Timeline.update(
-//     { isArchived: true },
-//     { where: { id: timelineId }, transaction: t },
-//   );
-// }
-
-async function getTimelineForClient(userId, timelineId) {
-  const timeline = await db.Timeline.findOne({
-    where: { id: timelineId },
-    attributes: ["id"],
-    include: [
-      {
-        model: db.Post,
-        attributes: ["id", "description"],
-        limit: 3,
-        include: [
-          {
-            model: db.Asset,
-            attributes: ["url", "thumb", "key", "mediaType", "name"],
-          },
-          {
-            model: db.Comment,
-            attributes: ["id", "body", "parentId"],
-            limit: 3,
-          },
-        ],
-      },
-      {
-        model: db.Order,
-        attributes: [],
-        required: true,
-        where: {
-          userId: userId,
-          status: { [Op.or]: ["active", "pending_completion", "completed"] },
-        },
-      },
-    ],
+async function getTimelineForClient(userId, timelineId, page) {
+  const postsData = await timelineRepository.getTimelineForClient({
+    userId,
+    timelineId,
+    page,
   });
-  if (!timeline)
-    throw new AppError(
-      404,
-      "failed to find the timeline in your orders",
-      true,
-      "failed to find the timeline in your orders",
-    );
-  return timeline.toJSON();
-}
+  const sanitizedPosts = await timelineMappers.sanitizeTimeline(postsData);
+  if (page > 0) {
+    return {
+      sanitizedPosts,
+      sanitizedPinnedPosts: null,
+    };
+  }
 
-// async function getTimelineSP(serviceProviderId, timelineId) {
-//   const timeline = await db.Timeline.findOne({
-//     where: { id: timelineId },
-//     attributes: ["id"],
-//     include: [
-//       {
-//         model: db.Post,
-//         attributes: ["id", "description", "attachments"],
-//         include: [
-//           {
-//             model: db.Asset,
-//             attributes: ["url", "thumb", "key", "mediaType", "name"],
-//           },
-//           {
-//             model: db.Comment,
-//             attributes: ["id", "body", "parentId"],
-//           },
-//         ],
-//       },
-//       {
-//         model: db.Service,
-//         attributes: [],
-//         required: true,
-//         where: {
-//           serviceProviderId: serviceProviderId,
-//         },
-//       },
-//     ],
-//   });
-//   if (!timeline)
-//     throw new AppError(
-//       404,
-//       "failed to find the timeline in your orders",
-//       true,
-//       "failed to find the timeline in your orders",
-//     );
-//   return timeline.toJSON();
-// }
+  const pinnedData = await timelineRepository.getTimelineForClient({
+    userId,
+    timelineId,
+    pinned: true,
+  });
+  const sanitizedPinnedPosts =
+    await timelineMappers.sanitizeTimeline(pinnedData);
+  return { sanitizedPosts, sanitizedPinnedPosts };
+}
 
 const timelineServices = {
   getTimelineForClient,

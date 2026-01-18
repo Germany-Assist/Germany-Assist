@@ -23,62 +23,19 @@ const authorizePostCreation = async (timelineId, serviceProviderId) => {
   }
   return timeline;
 };
-
-const getTopPinnedPosts = async ({ timelineId, userId }) => {
-  return db.Post.findAndCountAll({
-    where: { timelineId, isPinned: true },
-    order: [["createdAt", "DESC"]],
-    limit: 5,
+const authorizeClientTimelineFetching = async (userId, timelineId) => {
+  return db.Timeline.findOne({
+    where: { id: timelineId },
+    raw: true,
     include: [
-      {
-        model: db.Asset,
-        attributes: ["url", "thumb", "key", "mediaType", "name"],
-      },
-      {
-        model: db.Comment,
-        attributes: ["id", "body", "parentId"],
-        limit: 3,
-      },
       {
         model: db.Order,
         attributes: [],
+        as: "orders",
         required: true,
         where: {
           userId,
-          status: {
-            [Op.or]: ["active", "pending_completion", "completed"],
-          },
-        },
-      },
-    ],
-  });
-};
-
-const getAllPosts = async ({ timelineId, userId, limit, offset }) => {
-  return db.Post.findAndCountAll({
-    where: { timelineId },
-    limit,
-    offset,
-    order: [["createdAt", "DESC"]],
-    include: [
-      {
-        model: db.Asset,
-        attributes: ["url", "thumb", "key", "mediaType", "name"],
-      },
-      {
-        model: db.Comment,
-        attributes: ["id", "body", "parentId"],
-        limit: 3,
-      },
-      {
-        model: db.Order,
-        attributes: [],
-        required: true,
-        where: {
-          userId,
-          status: {
-            [Op.or]: ["active", "pending_completion", "completed"],
-          },
+          status: { [Op.or]: ["active", "pending_completion", "completed"] },
         },
       },
     ],
@@ -87,7 +44,7 @@ const getAllPosts = async ({ timelineId, userId, limit, offset }) => {
 
 const postRepository = {
   authorizePostCreation,
+  authorizeClientTimelineFetching,
   createNewPost,
-  getAllPosts,
 };
 export default postRepository;

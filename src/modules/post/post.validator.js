@@ -8,7 +8,7 @@ export const createPostValidator = [
     .withMessage("Description cannot be empty")
     .isString()
     .withMessage("Description must be a string")
-    .isLength({ min: 5, max: 255 })
+    .isLength({ min: 5, max: 1000 })
     .withMessage("Description must be between 5 and 255 characters"),
   body("isPinned").optional().isBoolean(),
   body("timelineId")

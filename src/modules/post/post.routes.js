@@ -16,10 +16,4 @@ postRouter.post(
   postController.createNewPost,
 );
 
-postRouter.get(
-  "/getPosts/:timelineId",
-  jwtUtils.authenticateJwt,
-  postController.getAllPostsForTimeline,
-);
-
 export default postRouter;

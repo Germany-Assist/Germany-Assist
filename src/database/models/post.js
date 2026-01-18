@@ -11,7 +11,7 @@ Post.init(
       autoIncrement: true,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: { notEmpty: { msg: "Description cannot be empty" } },
     },
