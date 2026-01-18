@@ -5,13 +5,15 @@ import commentRouter from "../comment/comment.routes.js";
 import { createPostValidator } from "./post.validator.js";
 import { validateExpress } from "../../middlewares/expressValidator.js";
 const postRouter = Router();
+
 postRouter.use("/comment", commentRouter);
+
 postRouter.post(
-  "/",
+  "/createNewPost",
   jwtUtils.authenticateJwt,
   createPostValidator,
   validateExpress,
-  postController.createNewPost
+  postController.createNewPost,
 );
 
 export default postRouter;

@@ -14,16 +14,14 @@ categoryRouter.post(
   jwt.authenticateJwt,
   createCategoryValidator,
   validateExpress,
-  categoryController.createCategory
+  categoryController.createCategory,
 );
 categoryRouter.put(
   "/",
   jwt.authenticateJwt,
   updateCategoryValidator,
   validateExpress,
-  categoryController.updateCategory
+  categoryController.updateCategory,
 );
-
-categoryRouter.get("/", categoryController.getAllCategories);
 
 export default categoryRouter;

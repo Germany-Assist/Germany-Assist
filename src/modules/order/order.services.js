@@ -5,10 +5,12 @@ import stripeUtils from "../../utils/stripe.util.js";
 import orderRepository from "./order.repository.js";
 import { v4 as uuidv4 } from "uuid";
 import ordersMapper from "./order.mapper.js";
+
 export async function getOrdersForSP(SPId, filters) {
   const orders = await orderRepository.getOrdersForSP(SPId, filters);
   return { ...orders, data: ordersMapper.sanitizeOrders(orders.data) };
 }
+
 export async function payOrder(req) {
   const serviceId = hashIdUtil.hashIdDecode(req.query.serviceId);
   const optionId = hashIdUtil.hashIdDecode(req.query.optionId);
@@ -18,7 +20,6 @@ export async function payOrder(req) {
     optionId,
     type,
   });
-
   const metadata = {
     serviceId,
     userId: req.auth.id,
@@ -53,70 +54,12 @@ export async function payOrder(req) {
   }
 }
 
-export async function getOrder(filters) {
-  const order = await db.Order.findOne({
-    where: filters,
-    raw: true,
-  });
-  if (!order)
-    throw new AppError(404, "Order not found", true, "Order not found");
-  return order;
-}
-export async function getOrderByIdAndSPID(filters, SPID) {
-  const order = await db.Order.findOne({
-    where: filters,
-    raw: false,
-    include: [
-      {
-        model: db.Service,
-        where: { serviceProviderId: SPID },
-        attributes: [],
-        required: true,
-      },
-    ],
-  });
-  if (!order)
-    throw new AppError(404, "Order not found", true, "Order not found");
-  return order.toJSON();
-}
-export async function getOrders(filters = {}) {
-  const { serviceProviderId } = filters;
-  const include = [];
-  delete filters.serviceProviderId;
-  if (serviceProviderId) {
-    include.push(
-      {
-        model: db.Service,
-        attributes: [],
-        required: true,
-        where: { serviceProviderId },
-      },
-      {
-        model: db.Payout,
-      },
-      {
-        model: db.Dispute,
-      }
-    );
-  }
-
-  const orders = await db.Order.findAll({
-    where: filters,
-    raw: true,
-    nest: true,
-
-    include,
-  });
-  if (!orders) throw new AppError(404, "Order not found");
-  return orders;
-}
-
 export async function serviceProviderCloseOrder({
   orderId,
   auth,
   transaction,
 }) {
-  const order = await orderRepository.serviceProviderCloseOrder({
+  return await orderRepository.serviceProviderCloseOrder({
     orderId,
     SPID: auth.relatedId,
     transaction,
@@ -124,9 +67,6 @@ export async function serviceProviderCloseOrder({
 }
 
 export const orderService = {
-  getOrder,
-  getOrders,
-  getOrderByIdAndSPID,
   getOrdersForSP,
   serviceProviderCloseOrder,
   payOrder,

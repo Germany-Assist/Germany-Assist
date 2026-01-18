@@ -26,6 +26,7 @@ import Variant from "./models/variants.js";
 import Payout from "./models/payouts.js";
 import { Op } from "sequelize";
 import Dispute from "./models/dipute.js";
+import AuditLog from "./models/auditLog.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
@@ -56,7 +57,6 @@ export const defineConstrains = () => {
   });
   //post
   Post.belongsTo(Timeline, { foreignKey: "timelineId" });
-  Post.belongsTo(User, { foreignKey: "userId" });
   Post.hasMany(Comment, {
     foreignKey: "postId",
     constraints: false,
@@ -107,7 +107,6 @@ export const defineConstrains = () => {
   Dispute.belongsTo(Order, { foreignKey: "orderId" });
   Order.hasOne(Dispute, { foreignKey: "orderId" });
   //user
-  User.hasMany(Post, { foreignKey: "userId" });
   User.hasMany(Order, { foreignKey: "userId" });
   User.hasMany(Service, { foreignKey: "userId" });
   User.hasMany(Asset, {
@@ -257,6 +256,7 @@ const db = {
   Event,
   Token,
   Payout,
+  AuditLog,
 };
 
 export default db;

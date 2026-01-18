@@ -7,6 +7,7 @@ import { errorLogger, infoLogger } from "../utils/loggers.js";
 const testDuration = "0 * * * * *";
 const actualDuration = "0 0 0 * * *";
 const timelinesClosingCron = cron.schedule("0 * * * * *", async () => {
+  //TODO im gonna update this to also archive the timelines after time ends
   const transaction = await sequelize.transaction();
   try {
     const updated = await db.Order.update(

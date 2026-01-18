@@ -97,7 +97,7 @@ export const sanitizeServiceProfile = async (service) => {
             id: encodeId(id),
             serviceId: encodeId(serviceId),
             label,
-            price,
+            price: parseFloat(price / 100),
             startDate,
             endDate,
             isArchived,
@@ -111,7 +111,7 @@ export const sanitizeServiceProfile = async (service) => {
           id: encodeId(id),
           serviceId: encodeId(serviceId),
           label,
-          price,
+          price: parseFloat(price / 100),
         })) ?? [])
       : undefined;
 

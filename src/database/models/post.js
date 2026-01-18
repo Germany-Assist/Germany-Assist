@@ -11,47 +11,14 @@ Post.init(
       autoIncrement: true,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: { notEmpty: { msg: "Description cannot be empty" } },
     },
-    //attachments are an array of objects
-    // example [{name:"background"},{url:"blablablabla.bla"}]
-    attachments: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-      validate: {
-        isArrayOfObjects(value) {
-          if (value === null) return; // allow null
-          if (!Array.isArray(value)) {
-            throw new Error("Attachments must be an array");
-          }
-          for (const item of value) {
-            if (typeof item !== "object" || Array.isArray(item)) {
-              throw new Error("Each attachment must be an object");
-            }
-            if (!item.url || typeof item.url !== "string") {
-              throw new Error(
-                "Each attachment must include a valid 'url' string"
-              );
-            }
-            if (item.name && typeof item.name !== "string") {
-              throw new Error(
-                "'name' in attachment must be a string if provided"
-              );
-            }
-          }
-        },
-      },
-    },
-    //creator
-    userId: {
-      type: DataTypes.INTEGER,
+    isPinned: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      validate: {
-        isInt: { msg: "userId must be an integer" },
-        min: { args: [1], msg: "userId must be greater than 0" },
-      },
+      defaultValue: false,
     },
     timelineId: {
       type: DataTypes.INTEGER,
@@ -65,6 +32,6 @@ Post.init(
   {
     sequelize,
     paranoid: true,
-  }
+  },
 );
 export default Post;

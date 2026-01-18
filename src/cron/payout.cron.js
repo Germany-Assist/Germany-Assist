@@ -4,8 +4,8 @@ import { Op, Sequelize } from "sequelize";
 import { sequelize } from "../configs/database.js";
 import { errorLogger, infoLogger } from "../utils/loggers.js";
 const testDuration = "0 * * * * *";
-const actualDuration = "* * 0 * * *";
-const payoutCron = cron.schedule("*/10 * * * * *", async () => {
+const actualDuration = "0 0 0 * * *";
+const payoutCron = cron.schedule("0 * * * * *", async () => {
   const transaction = await sequelize.transaction();
   try {
     const updated = await db.Order.update(
@@ -27,7 +27,7 @@ const payoutCron = cron.schedule("*/10 * * * * *", async () => {
         returning: true,
         raw: true,
         transaction,
-      }
+      },
     );
     if (updated[0] > 0) {
       const payouts = updated[1].map((i) => {

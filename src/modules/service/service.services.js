@@ -118,17 +118,23 @@ async function getAllServices(filters, authority) {
     attributes: ["url"],
     as: "profileImages",
   });
-  include.push({
-    model: db.Category,
-    attributes: ["title"],
-  });
+
   include.push({
     model: db.ServiceProvider,
     attributes: ["name"],
   });
 
   if (filters.category) {
-    includeCategory.where = { title: filters.category };
+    include.push({
+      model: db.Category,
+      attributes: ["title"],
+      where: { title: filters.category },
+    });
+  } else {
+    include.push({
+      model: db.Category,
+      attributes: ["title"],
+    });
   }
   if (filters.serviceProvider && authority !== "serviceProvider") {
     where.serviceProviderId = filters.serviceProvider;

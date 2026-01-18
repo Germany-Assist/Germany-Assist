@@ -51,7 +51,7 @@ Payout.init(
   {
     sequelize,
     paranoid: true,
-  }
+  },
 );
 
 export default Payout;

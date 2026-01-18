@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 import db from "../../database/index.js";
+import hashIdUtil from "../../utils/hashId.util.js";
 
 async function createNewComment(body, auth, t) {
   const postId = hashIdUtil.hashIdDecode(body.postId);
@@ -32,7 +33,9 @@ async function canCommentOnPost(userId, postId) {
             required: true,
             where: {
               userId: userId,
-              status: { [Op.or]: ["paid", "fulfilled", "completed"] },
+              status: {
+                [Op.or]: ["active", "pending_completion", "completed"],
+              },
             },
           },
         ],

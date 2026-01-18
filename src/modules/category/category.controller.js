@@ -9,7 +9,7 @@ export async function createCategory(req, res, next) {
       ["admin"],
       true,
       "category",
-      "create"
+      "create",
     );
     await categoryServices.createCategory(req.body);
     res
@@ -27,7 +27,7 @@ export async function updateCategory(req, res, next) {
       ["admin"],
       true,
       "category",
-      "create"
+      "create",
     );
     const { id, title, label } = req.body;
     const catId = hashIdUtil.hashIdDecode(id);
@@ -40,20 +40,9 @@ export async function updateCategory(req, res, next) {
     next(error);
   }
 }
-export async function getAllCategories(req, res, next) {
-  try {
-    const categories = await categoryServices.getAllCategories();
-    const sanitizedCategories = categories.map((i) => {
-      return { ...i, id: hashIdUtil.hashIdEncode(i.id) };
-    });
-    res.status(200).send(sanitizedCategories);
-  } catch (error) {
-    next(error);
-  }
-}
+
 const categoryController = {
   createCategory,
   updateCategory,
-  getAllCategories,
 };
 export default categoryController;

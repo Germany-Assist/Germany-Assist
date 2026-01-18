@@ -12,12 +12,13 @@ const activateUser = async (hashedToken, t) => {
       },
       returning: true,
       transaction: t,
-    }
+    },
   );
   return dbToken;
 };
 const createToken = async (tokenData, t) => {
   return await db.Token.create(tokenData, { transaction: t });
 };
+
 const authRepository = { activateUser, createToken };
 export default authRepository;

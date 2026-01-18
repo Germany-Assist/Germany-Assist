@@ -6,32 +6,12 @@ import { validateExpress } from "../../middlewares/expressValidator.js";
 import { createTimelineValidator } from "./timeline.validator.js";
 const timelineRouter = Router();
 
-timelineRouter.post(
-  "/:id",
-  jwtUtils.authenticateJwt,
-  createTimelineValidator,
-  validateExpress,
-  timelineController.newTimeline
-);
-
 timelineRouter.get(
-  "/getAllTimelines",
-  jwtUtils.authenticateJwt,
-  timelineController.getAllTimelinesForSP
-);
-
-timelineRouter.get(
-  "/client/:id",
+  "/client/readTimeline/:id",
   jwtUtils.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
-  timelineController.getTimelineByIdClient
+  timelineController.getTimelineByIdForClient,
 );
-timelineRouter.get(
-  "/serviceProvider/:id",
-  jwtUtils.authenticateJwt,
-  idHashedParamValidator,
-  validateExpress,
-  timelineController.getTimelineById
-);
+
 export default timelineRouter;
