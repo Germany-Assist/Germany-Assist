@@ -16,7 +16,7 @@ const sanitizeUser = async (user) => {
   if (user.Orders && user.Orders.length > 0) {
     orders = user.Orders.map((i) => {
       return {
-        serviceId: hashIdUtil.hashIdEncode(i.Service.id),
+        serviceId: hashIdUtil.hashIdEncode(i.serviceId),
         orderId: hashIdUtil.hashIdEncode(i.id),
         status: i.status,
         type: i.timeline ? "timeline" : "oneTime",
@@ -77,7 +77,6 @@ const sanitizeUser = async (user) => {
     orders,
     level: levelCalc(),
   };
-
   return user;
 };
 

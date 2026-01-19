@@ -84,26 +84,44 @@ export const defineConstrains = () => {
   //order
   Order.belongsTo(User, { foreignKey: "userId" });
   Order.belongsTo(Service, { foreignKey: "serviceId" });
+
+  // Inside defineConstrains
+
+  // Order.belongsTo Timeline
   Order.belongsTo(Timeline, {
     foreignKey: "relatedId",
     constraints: false,
     as: "timeline",
-    on: {
-      relatedId: { [Op.col]: "Timeline.id" },
-      relatedType: "timeline",
-    },
   });
 
-  // Link to Variant
+  // Order.belongsTo Variant
   Order.belongsTo(Variant, {
     foreignKey: "relatedId",
     constraints: false,
     as: "variant",
-    on: {
-      relatedId: { [Op.col]: "Variant.id" },
-      relatedType: "oneTime",
-    },
   });
+
+  // Order.belongsTo(Timeline, {
+  //   foreignKey: "relatedId",
+  //   constraints: false,
+  //   as: "timeline",
+  //   // This forces the JOIN logic to check the Order table's type
+  //   on: {
+  //     id: { [Op.col]: "Order.relatedId" },
+  //     "$Order.relatedType$": "timeline",
+  //   },
+  // });
+
+  // Order.belongsTo(Variant, {
+  //   foreignKey: "relatedId",
+  //   constraints: false,
+  //   as: "variant",
+  //   on: {
+  //     id: { [Op.col]: "Order.relatedId" },
+  //     "$Order.relatedType$": "oneTime",
+  //   },
+  // });
+
   Dispute.belongsTo(Order, { foreignKey: "orderId" });
   Order.hasOne(Dispute, { foreignKey: "orderId" });
   //user

@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
 
@@ -103,23 +103,42 @@ export const getUserProfile = async (id) => {
       },
       {
         model: db.Order,
-        required: false,
-        attributes: ["id", "status"],
-        where: { status: { [Op.not]: ["refunded"] } },
+        required: true,
+        attributes: ["id", "serviceId", "status", "relatedId", "relatedType"],
+        where: { status: { [Op.notIn]: ["refunded", "cancelled"] } },
         include: [
           {
-            model: db.Service,
-            attributes: ["id"],
+            model: db.Variant,
+            as: "variant",
+            required: false,
+            on: {
+              id: { [Op.col]: "Orders.related_id" },
+            },
+            where: Sequelize.where(
+              Sequelize.col("Orders.related_type"),
+              "=",
+              "oneTime",
+            ),
           },
-          { model: db.Variant, as: "variant" },
-          { model: db.Timeline, as: "timeline" },
+          {
+            model: db.Timeline,
+            as: "timeline",
+            required: false,
+            on: {
+              id: { [Op.col]: "Orders.related_id" },
+            },
+            where: Sequelize.where(
+              Sequelize.col("Orders.related_type"),
+              "=",
+              "timeline",
+            ),
+          },
         ],
       },
     ],
   });
   return user;
 };
-
 //
 const userRepository = {
   getUserProfile,

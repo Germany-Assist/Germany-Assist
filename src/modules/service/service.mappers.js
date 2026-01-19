@@ -22,7 +22,7 @@ const timelinesFormatter = (timelines) => {
       id: encodeId(id),
       serviceId: encodeId(serviceId),
       label,
-      price: parseFloat(price / 100),
+      price: parseFloat(price),
       startDate,
       endDate,
       isArchived,
@@ -36,7 +36,7 @@ const variantsFormatter = (variants) => {
     id: encodeId(id),
     serviceId: encodeId(serviceId),
     label,
-    price: parseFloat(price / 100),
+    price: parseFloat(price),
   }));
 };
 /* ------------------------ services list ------------------------ */
@@ -100,7 +100,7 @@ export const sanitizeServiceProfile = async (service) => {
             id: encodeId(id),
             serviceId: encodeId(serviceId),
             label,
-            price: parseFloat(price / 100),
+            price: parseFloat(price),
             startDate,
             endDate,
             isArchived,
@@ -114,7 +114,7 @@ export const sanitizeServiceProfile = async (service) => {
           id: encodeId(id),
           serviceId: encodeId(serviceId),
           label,
-          price: parseFloat(price / 100),
+          price: parseFloat(price),
         })) ?? [])
       : undefined;
 
