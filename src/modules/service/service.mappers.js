@@ -42,7 +42,6 @@ const variantsFormatter = (variants) => {
 /* ------------------------ services list ------------------------ */
 
 export const sanitizeServices = async (services = []) => {
-  console.log(services[0].toJSON().minPrice);
   return await Promise.all(
     services.map(async (service) => ({
       id: encodeId(service.id),
