@@ -103,7 +103,7 @@ export const getUserProfile = async (id) => {
       },
       {
         model: db.Order,
-        required: true,
+        required: false,
         attributes: ["id", "serviceId", "status", "relatedId", "relatedType"],
         where: { status: { [Op.notIn]: ["refunded", "cancelled"] } },
         include: [
