@@ -113,12 +113,12 @@ async function getAllServices(filters, authority) {
   if (filters.id) where.id = filters.id;
   if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
   if (filters.type) where.type = filters.type;
+
   include.push({
     model: db.Asset,
     attributes: ["url"],
-    as: "profileImages",
+    as: "image",
   });
-
   include.push({
     model: db.ServiceProvider,
     attributes: ["name"],

@@ -145,7 +145,7 @@ export const defineConstrains = () => {
   Service.hasMany(Asset, { foreignKey: "serviceId" });
   Service.hasMany(Asset, {
     foreignKey: "serviceId",
-    as: "profileImages",
+    as: "image",
     scope: { thumb: true, key: "serviceProfileImage" },
   });
   Service.hasMany(Review, { foreignKey: "serviceId" });
@@ -165,7 +165,7 @@ export const defineConstrains = () => {
   Asset.belongsTo(Service, { foreignKey: "serviceId", as: "allAssets" });
   Asset.belongsTo(Service, {
     foreignKey: "serviceId",
-    as: "profileImages",
+    as: "profileImage",
     scope: { thumb: true, key: "serviceProfileImage" },
   });
   Asset.belongsTo(User, {
