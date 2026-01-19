@@ -41,8 +41,9 @@ const variantsFormatter = (variants) => {
 };
 /* ------------------------ services list ------------------------ */
 
-export const sanitizeServices = async (services = []) =>
-  await Promise.all(
+export const sanitizeServices = async (services = []) => {
+  console.log(services[0].toJSON().minPrice);
+  return await Promise.all(
     services.map(async (service) => ({
       id: encodeId(service.id),
       title: service.title,
@@ -60,9 +61,12 @@ export const sanitizeServices = async (services = []) =>
       published: service.published,
       approved: service.approved,
       rejected: service.rejected,
+      minPrice: service.get("minPrice"),
+      maxPrice: service.get("maxPrice"),
       level: calculateLevel(service),
     })),
   );
+};
 
 /* ---------------------- service profile ---------------------- */
 

@@ -1,4 +1,4 @@
-import { literal, Op } from "sequelize";
+import { col, fn, literal, Op } from "sequelize";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
 import serviceRepository from "./service.repository.js";
@@ -81,89 +81,101 @@ async function getAllServices(filters, authority) {
   const page = parseInt(filters.page) || 1;
   const limit = parseInt(filters.limit) || 10;
   const offset = (page - 1) * limit;
+
   const where = {};
-  let include = [];
-  if (authority == "admin") {
+
+  if (authority === "admin") {
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
     if (filters.published) where.published = filters.published;
-  } else if (authority == "serviceProvider") {
+  } else if (authority === "serviceProvider") {
     where.serviceProviderId = filters.serviceProvider;
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
     if (filters.published) where.published = filters.published;
-    include.push({
-      model: db.Timeline,
-      required: false,
-    });
-    include.push({
-      model: db.Variant,
-      required: false,
-    });
   } else {
     where.approved = true;
     where.rejected = false;
     where.published = true;
   }
+
   if (filters.maxRating || filters.minRating) {
     where.rating = {};
     if (filters.minRating) where.rating[Op.gte] = filters.minRating;
     if (filters.maxRating) where.rating[Op.lte] = filters.maxRating;
   }
+
   if (filters.id) where.id = filters.id;
   if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
   if (filters.type) where.type = filters.type;
 
-  include.push({
-    model: db.Asset,
-    attributes: ["url"],
-    as: "image",
-  });
-  include.push({
-    model: db.ServiceProvider,
-    attributes: ["name"],
-  });
-
-  if (filters.category) {
-    include.push({
-      model: db.Category,
-      attributes: ["title"],
-      where: { title: filters.category },
-    });
-  } else {
-    include.push({
-      model: db.Category,
-      attributes: ["title"],
-    });
-  }
   if (filters.serviceProvider && authority !== "serviceProvider") {
     where.serviceProviderId = filters.serviceProvider;
   }
-  const sortField = filters.sort || "createdAt";
-  const sortOrder = filters.order === "asc" ? "ASC" : "DESC";
-  const { rows: services, count } = await db.Service.findAndCountAll({
+
+  const include = [
+    { model: db.Timeline, required: false, attributes: [] },
+    { model: db.Variant, required: false, attributes: [] },
+    { model: db.Asset, as: "image", attributes: ["url"] },
+    { model: db.ServiceProvider, attributes: ["name"] },
+    {
+      model: db.Category,
+      attributes: ["title"],
+      ...(filters.category && { where: { title: filters.category } }),
+    },
+  ];
+
+  const { rows, count } = await db.Service.findAndCountAll({
     where,
+    subQuery: false,
     attributes: [
       ...publicAttributes,
       "approved",
       "published",
       "rejected",
       "created_at",
+      [
+        fn(
+          "MIN",
+          literal(`
+            CASE
+              WHEN "Service"."type" = 'timeline' THEN "Timelines"."price"
+              WHEN "Service"."type" = 'oneTime' THEN "Variants"."price"
+            END
+          `),
+        ),
+        "minPrice",
+      ],
+      [
+        fn(
+          "MAX",
+          literal(`
+            CASE
+              WHEN "Service"."type" = 'timeline' THEN "Timelines"."price"
+              WHEN "Service"."type" = 'oneTime' THEN "Variants"."price"
+            END
+          `),
+        ),
+        "maxPrice",
+      ],
     ],
     include,
+    group: ["Service.id", "image.id", "ServiceProvider.id", "Category.id"],
     limit,
     offset,
-    // TODO restore sortField,sortOrder when we get price
-    // order: [[sortField, sortOrder]],
   });
+
+  const total = Array.isArray(count) ? count.length : count;
+
   return {
     page,
     limit,
-    total: count,
-    totalPages: Math.ceil(count / limit),
-    data: services,
+    total,
+    totalPages: Math.ceil(total / limit),
+    data: rows,
   };
 }
+
 async function getServiceByIdPublic(id) {
   const service = await db.Service.findOne({
     where: { id, approved: true, rejected: false, published: true },
