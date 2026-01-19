@@ -5,9 +5,9 @@ import hashIdUtil from "../../utils/hashId.util.js";
 
 const encodeId = (id) => hashIdUtil.hashIdEncode(id);
 
-const resolveImageUrl = async (url) =>
-  url ? generateDownloadUrl(url) : undefined;
-
+const resolveImageUrl = async (url) => {
+  return url ? await generateDownloadUrl(url) : undefined;
+};
 const calculateLevel = ({ approved, published, rejected }) => {
   if (approved && published) return "ready";
   if (approved && !published) return "accepted";
@@ -22,7 +22,7 @@ const timelinesFormatter = (timelines) => {
       id: encodeId(id),
       serviceId: encodeId(serviceId),
       label,
-      price: parseFloat(price / 100),
+      price: parseFloat(price),
       startDate,
       endDate,
       isArchived,
@@ -36,13 +36,13 @@ const variantsFormatter = (variants) => {
     id: encodeId(id),
     serviceId: encodeId(serviceId),
     label,
-    price: parseFloat(price / 100),
+    price: parseFloat(price),
   }));
 };
 /* ------------------------ services list ------------------------ */
 
-export const sanitizeServices = async (services = []) =>
-  Promise.all(
+export const sanitizeServices = async (services = []) => {
+  return await Promise.all(
     services.map(async (service) => ({
       id: encodeId(service.id),
       title: service.title,
@@ -54,15 +54,18 @@ export const sanitizeServices = async (services = []) =>
       type: service.type,
       category: service.Category.title,
       serviceProvider: service.ServiceProvider.name,
-      image: await resolveImageUrl(service.profileImages.url),
+      image: await resolveImageUrl(service.image[0]?.url),
       timelines: timelinesFormatter(service.Timelines),
       variants: variantsFormatter(service.Variants),
       published: service.published,
       approved: service.approved,
       rejected: service.rejected,
+      minPrice: service.get("minPrice"),
+      maxPrice: service.get("maxPrice"),
       level: calculateLevel(service),
     })),
   );
+};
 
 /* ---------------------- service profile ---------------------- */
 
@@ -97,7 +100,7 @@ export const sanitizeServiceProfile = async (service) => {
             id: encodeId(id),
             serviceId: encodeId(serviceId),
             label,
-            price: parseFloat(price / 100),
+            price: parseFloat(price),
             startDate,
             endDate,
             isArchived,
@@ -111,7 +114,7 @@ export const sanitizeServiceProfile = async (service) => {
           id: encodeId(id),
           serviceId: encodeId(serviceId),
           label,
-          price: parseFloat(price / 100),
+          price: parseFloat(price),
         })) ?? [])
       : undefined;
 

@@ -55,7 +55,7 @@ async function uploadFilesToS3(files) {
         Key: file.key,
         Body: file.buffer,
         ContentType: file.mimetype || "application/octet-stream",
-      })
+      }),
     );
   });
 
@@ -76,7 +76,6 @@ export async function generateDownloadUrl(objectUrl, expireTime) {
   const url = await getSignedUrl(s3, command, {
     expiresIn: expireTime || SIGN_URL_EXPIRATION,
   });
-
   return S3_EXTERNAL_ENDPOINT
     ? url.replace(S3_ENDPOINT, S3_EXTERNAL_ENDPOINT)
     : url;
@@ -103,7 +102,7 @@ export const deleteFromS3 = async (key) => {
     new DeleteObjectCommand({
       Bucket: S3_BUCKET_NAME,
       Key: key,
-    })
+    }),
   );
 };
 
