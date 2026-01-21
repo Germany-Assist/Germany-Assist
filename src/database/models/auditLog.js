@@ -9,11 +9,7 @@ AuditLog.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    entityType: {
-      type: DataTypes.ENUM("order", "payout"),
-      allowNull: false,
-    },
-    entityId: {
+    orderId: {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
@@ -22,7 +18,7 @@ AuditLog.init(
       allowNull: false,
     },
     reason: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: true,
     },
     actorSnapshot: {
@@ -46,16 +42,11 @@ AuditLog.init(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
-
-    reason: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
   },
   {
     indexes: [
       {
-        fields: ["entity_type", "entity_id"],
+        fields: ["order_id", "action"],
       },
     ],
     timestamps: true,

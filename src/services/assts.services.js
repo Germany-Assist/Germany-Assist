@@ -38,7 +38,7 @@ class AssetService {
       type,
       auth,
       params,
-      constraints
+      constraints,
     );
 
     // 3️⃣ Validate files against count & size
@@ -68,7 +68,7 @@ class AssetService {
       filesToUpload,
       auth,
       searchFilters,
-      constraints.mediaType
+      constraints.mediaType,
     );
     await AssetRepository.saveAssets(assets, transaction);
 
@@ -119,7 +119,7 @@ class AssetService {
     ) {
       throw new AppError(
         400,
-        `Upload limit exceeded (${constraints.limit}) for ${type}`
+        `Upload limit exceeded (${constraints.limit}) for ${type}`,
       );
     }
 
@@ -134,13 +134,10 @@ class AssetService {
     const basekey = constrains.basekey;
     const thumb = constrains.thumb;
     const images = [];
-
     for (const file of files) {
       const id = uuid();
-
       const imageKey = `${basekey}/${id}.webp`;
       const imageBuffer = await sharpUtil.imageResizeS3(file, 400, 400);
-
       images.push({
         key: imageKey,
         buffer: imageBuffer,

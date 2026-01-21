@@ -38,7 +38,6 @@ async function createService(req, transaction) {
       : false,
     categoryId: hashIdUtil.hashIdDecode(req.body.category),
   };
-
   if (serviceData.type === "timeline") {
     serviceData.Timelines = safeJsonParse(req.body.timelines, "timelines");
   } else if (serviceData.type === "oneTime") {
@@ -111,13 +110,11 @@ async function getAllServices(filters, authority) {
     {
       model: db.Timeline,
       required: false,
-      // Remove attributes: [] to get all columns, or specify what you need
       attributes: ["id", "price", "startDate", "endDate", "label"],
     },
     {
       model: db.Variant,
       required: false,
-      // Remove attributes: [] to get all columns
       attributes: ["id", "price", "label"],
     },
     { model: db.Asset, as: "image", attributes: ["url"] },
@@ -140,14 +137,13 @@ async function getAllServices(filters, authority) {
       "created_at",
     ],
     include,
-    // ADD THE TIMELINE AND VARIANT IDS TO THE GROUP
     group: [
       "Service.id",
       "image.id",
       "ServiceProvider.id",
       "Category.id",
-      "Timelines.id", // Added
-      "Variants.id", // Added
+      "Timelines.id",
+      "Variants.id",
     ],
     limit,
     offset,
@@ -174,9 +170,13 @@ async function getServiceByIdPublic(id) {
       },
       {
         model: db.Timeline,
+        where: { isArchived: false },
+        required: false,
       },
       {
         model: db.Variant,
+        where: { isArchived: false },
+        required: false,
       },
       {
         model: db.Category,

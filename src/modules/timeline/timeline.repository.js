@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import db from "../../database/index.js";
 import { AppError } from "../../utils/error.class.js";
 
@@ -55,5 +55,38 @@ async function getTimelineForClient({
   return timeline.toJSON();
 }
 
-const timelineRepository = { getTimelineForClient };
+async function archiveTimeline(providerId, timelineId, status) {
+  const update = await db.Timeline.findOne({
+    where: { id: timelineId },
+    include: [
+      {
+        model: db.Service,
+        where: { serviceProviderId: providerId },
+        required: true,
+      },
+    ],
+  });
+  if (!update) return null;
+  update.isArchived = status;
+  await update.save();
+  return update;
+}
+
+async function authorizeTimelineCreation(providerId, serviceId) {
+  return await db.Service.findOne({
+    raw: true,
+    where: { serviceProviderId: providerId, id: serviceId },
+  });
+}
+
+async function createNewTimeline(data) {
+  const newTimeline = await db.Timeline.create(data);
+  return newTimeline;
+}
+const timelineRepository = {
+  getTimelineForClient,
+  archiveTimeline,
+  createNewTimeline,
+  authorizeTimelineCreation,
+};
 export default timelineRepository;

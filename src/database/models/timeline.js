@@ -48,6 +48,25 @@ Timeline.init(
         isDate: { msg: "Start data should be valid date" },
       },
     },
+    deadlineDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        isDate: { msg: "deadLine data should be valid date" },
+      },
+    },
+    limit: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: { msg: "Limit is required" },
+        isInt: { msg: "Limit must be an integer" },
+        min: {
+          args: [1],
+          msg: "Limit must be a positive integer",
+        },
+      },
+    },
     endDate: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -70,6 +89,6 @@ Timeline.init(
       },
     },
   },
-  { sequelize, paranoid: true }
+  { sequelize, paranoid: true },
 );
 export default Timeline;
