@@ -17,27 +17,51 @@ const calculateLevel = ({ approved, published, rejected }) => {
 
 const timelinesFormatter = (timelines) => {
   if (!timelines || timelines.length < 1) return undefined;
-  return timelines.map(
-    ({ id, serviceId, label, price, startDate, endDate, isArchived }) => ({
-      id: encodeId(id),
-      serviceId: encodeId(serviceId),
-      label,
-      price: parseFloat(price),
-      startDate,
-      endDate,
-      isArchived,
-    }),
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+  const formatted = timelines.map(
+    ({ id, serviceId, label, price, startDate, endDate, isArchived }) => {
+      const numericPrice = parseFloat(price);
+      if (numericPrice < minPrice) minPrice = numericPrice;
+      if (numericPrice > maxPrice) maxPrice = numericPrice;
+      return {
+        id: encodeId(id),
+        serviceId: encodeId(serviceId),
+        label,
+        price: numericPrice,
+        startDate,
+        endDate,
+        isArchived,
+      };
+    },
   );
+  return {
+    timelines: formatted,
+    minPrice,
+    maxPrice,
+  };
 };
 
 const variantsFormatter = (variants) => {
   if (!variants || variants.length < 1) return undefined;
-  return variants.map(({ id, serviceId, label, price }) => ({
-    id: encodeId(id),
-    serviceId: encodeId(serviceId),
-    label,
-    price: parseFloat(price),
-  }));
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+  const formatted = variants.map(({ id, serviceId, label, price }) => {
+    const numericPrice = parseFloat(price);
+    if (numericPrice < minPrice) minPrice = numericPrice;
+    if (numericPrice > maxPrice) maxPrice = numericPrice;
+    return {
+      id: encodeId(id),
+      serviceId: encodeId(serviceId),
+      label,
+      price: numericPrice,
+    };
+  });
+  return {
+    variants: formatted,
+    minPrice,
+    maxPrice,
+  };
 };
 /* ------------------------ services list ------------------------ */
 
@@ -60,8 +84,6 @@ export const sanitizeServices = async (services = []) => {
       published: service.published,
       approved: service.approved,
       rejected: service.rejected,
-      minPrice: service.get("minPrice"),
-      maxPrice: service.get("maxPrice"),
       level: calculateLevel(service),
     })),
   );

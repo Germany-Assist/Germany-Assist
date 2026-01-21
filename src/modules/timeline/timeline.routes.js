@@ -14,4 +14,17 @@ timelineRouter.get(
   timelineController.getTimelineByIdForClient,
 );
 
+timelineRouter.put(
+  "/provider/archiveTimeline/:id",
+  jwtUtils.authenticateJwt,
+  idHashedParamValidator,
+  validateExpress,
+  timelineController.archiveTimeline,
+);
+
+timelineRouter.post(
+  "/provider/createNewTimeline",
+  jwtUtils.authenticateJwt,
+  timelineController.createNewTimeline,
+);
 export default timelineRouter;

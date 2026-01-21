@@ -41,7 +41,18 @@ Variant.init(
         min: { args: [0], msg: "Price cannot be negative" },
       },
     },
-
+    limit: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: { msg: "Limit is required" },
+        isInt: { msg: "Limit must be an integer" },
+        min: {
+          args: [1],
+          msg: "Limit must be a positive integer",
+        },
+      },
+    },
     label: {
       type: DataTypes.STRING(100),
       allowNull: true,
@@ -57,6 +68,6 @@ Variant.init(
       },
     },
   },
-  { sequelize, paranoid: true }
+  { sequelize, paranoid: true },
 );
 export default Variant;

@@ -27,8 +27,33 @@ async function getTimelineByIdForClient(req, res, next) {
     next(error);
   }
 }
+async function archiveTimeline(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["service_provider_root"]);
+    const id = hashIdUtil.hashIdDecode(req.params.id);
+    await timelineServices.archiveTimeline(req.auth.relatedId, id);
+    res.send({
+      success: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
+async function createNewTimeline(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["service_provider_root"]);
+    await timelineServices.createNewTimeline(req.auth.relatedId, req.body);
+    res.status(201).send({
+      success: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 const timelineController = {
   getTimelineByIdForClient,
+  archiveTimeline,
+  createNewTimeline,
 };
 export default timelineController;

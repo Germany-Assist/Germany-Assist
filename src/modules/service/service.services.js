@@ -15,7 +15,6 @@ const publicAttributes = [
   "rating",
   "totalReviews",
 ];
-// new and updated
 const safeJsonParse = (value, fieldName) => {
   if (!value) return null;
   try {
@@ -39,7 +38,6 @@ async function createService(req, transaction) {
       : false,
     categoryId: hashIdUtil.hashIdDecode(req.body.category),
   };
-
   if (serviceData.type === "timeline") {
     serviceData.Timelines = safeJsonParse(req.body.timelines, "timelines");
   } else if (serviceData.type === "oneTime") {
@@ -81,7 +79,6 @@ async function getAllServices(filters, authority) {
   const page = parseInt(filters.page) || 1;
   const limit = parseInt(filters.limit) || 10;
   const offset = (page - 1) * limit;
-
   const where = {};
 
   if (authority === "admin") {
@@ -98,24 +95,28 @@ async function getAllServices(filters, authority) {
     where.rejected = false;
     where.published = true;
   }
-
   if (filters.maxRating || filters.minRating) {
     where.rating = {};
     if (filters.minRating) where.rating[Op.gte] = filters.minRating;
     if (filters.maxRating) where.rating[Op.lte] = filters.maxRating;
   }
-
   if (filters.id) where.id = filters.id;
   if (filters.title) where.title = { [Op.iLike]: `%${filters.title}%` };
   if (filters.type) where.type = filters.type;
-
   if (filters.serviceProvider && authority !== "serviceProvider") {
     where.serviceProviderId = filters.serviceProvider;
   }
-
   const include = [
-    { model: db.Timeline, required: false, attributes: [] },
-    { model: db.Variant, required: false, attributes: [] },
+    {
+      model: db.Timeline,
+      required: false,
+      attributes: ["id", "price", "startDate", "endDate", "label"],
+    },
+    {
+      model: db.Variant,
+      required: false,
+      attributes: ["id", "price", "label"],
+    },
     { model: db.Asset, as: "image", attributes: ["url"] },
     { model: db.ServiceProvider, attributes: ["name"] },
     {
@@ -134,39 +135,20 @@ async function getAllServices(filters, authority) {
       "published",
       "rejected",
       "created_at",
-      [
-        fn(
-          "MIN",
-          literal(`
-            CASE
-              WHEN "Service"."type" = 'timeline' THEN "Timelines"."price"
-              WHEN "Service"."type" = 'oneTime' THEN "Variants"."price"
-            END
-          `),
-        ),
-        "minPrice",
-      ],
-      [
-        fn(
-          "MAX",
-          literal(`
-            CASE
-              WHEN "Service"."type" = 'timeline' THEN "Timelines"."price"
-              WHEN "Service"."type" = 'oneTime' THEN "Variants"."price"
-            END
-          `),
-        ),
-        "maxPrice",
-      ],
     ],
     include,
-    group: ["Service.id", "image.id", "ServiceProvider.id", "Category.id"],
+    group: [
+      "Service.id",
+      "image.id",
+      "ServiceProvider.id",
+      "Category.id",
+      "Timelines.id",
+      "Variants.id",
+    ],
     limit,
     offset,
   });
-
   const total = Array.isArray(count) ? count.length : count;
-
   return {
     page,
     limit,
@@ -188,9 +170,13 @@ async function getServiceByIdPublic(id) {
       },
       {
         model: db.Timeline,
+        where: { isArchived: false },
+        required: false,
       },
       {
         model: db.Variant,
+        where: { isArchived: false },
+        required: false,
       },
       {
         model: db.Category,
