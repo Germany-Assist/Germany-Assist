@@ -34,6 +34,7 @@ const payoutCron = cron.schedule("0 * * * * *", async () => {
         return {
           orderId: i.id,
           amount: Number(i.amount),
+          serviceProviderId: order.serviceProviderId,
           amountToPay: Number(i.amount) * 0.8,
           currency: i.currency,
           status: "pending",

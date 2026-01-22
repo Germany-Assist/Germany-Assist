@@ -1,35 +1,35 @@
 import { Op } from "sequelize";
 import db from "../../database/index.js";
 
-export async function grossTotalForSP(SPId) {
+export async function totalGross(filters) {
   return await db.Order.sum("amount", {
     where: {
       status: ["active", "pending_completion", "completed"],
-      serviceProviderId: SPId,
+      ...filters,
     },
   });
 }
-export async function escrowForSP(SPId) {
+export async function totalEscrow(filters) {
   return await db.Order.sum("amount", {
     where: {
       status: ["pending_completion"],
-      serviceProviderId: SPId,
+      ...filters,
     },
   });
 }
-export async function balanceForSP(SPId) {
-  return await db.Order.sum("amount", {
+export async function totalBalance(filters) {
+  return await db.Payout.sum("amount_to_pay", {
     where: {
-      status: ["completed"],
-      serviceProviderId: SPId,
+      status: ["pending"],
+      ...filters,
     },
   });
 }
-export async function disputesForSP(SPId) {
+export async function disputes(filters) {
   return await db.Order.count({
     where: {
-      status: ["completed"],
-      serviceProviderId: SPId,
+      status: ["pending_completion"],
+      ...filters,
     },
     include: [
       {
@@ -41,10 +41,34 @@ export async function disputesForSP(SPId) {
     ],
   });
 }
+
+export async function totalServices() {
+  return await db.Service.count();
+}
+export async function totalLiveServices() {
+  return await db.Service.count({
+    where: { approved: false, rejected: false, published: true },
+  });
+}
+export async function totalPendingServices() {
+  return await db.Service.count({
+    where: { approved: false, rejected: false },
+  });
+}
+export async function totalRejectedServices() {
+  return await db.Service.count({
+    where: { approved: false, rejected: false },
+  });
+}
+
 const dashboardRepository = {
-  grossTotalForSP,
-  disputesForSP,
-  balanceForSP,
-  escrowForSP,
+  totalGross,
+  disputes,
+  totalBalance,
+  totalEscrow,
+  totalServices,
+  totalLiveServices,
+  totalPendingServices,
+  totalRejectedServices,
 };
 export default dashboardRepository;

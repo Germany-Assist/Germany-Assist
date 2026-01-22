@@ -80,7 +80,6 @@ async function getAllServices(filters, authority) {
   const limit = parseInt(filters.limit) || 10;
   const offset = (page - 1) * limit;
   const where = {};
-
   if (authority === "admin") {
     if (filters.approved) where.approved = filters.approved;
     if (filters.rejected) where.rejected = filters.rejected;
@@ -110,12 +109,23 @@ async function getAllServices(filters, authority) {
     {
       model: db.Timeline,
       required: false,
-      attributes: ["id", "price", "startDate", "endDate", "label"],
+      as: "timelines",
+      attributes: [
+        "id",
+        "price",
+        "startDate",
+        "endDate",
+        "label",
+        "isArchived",
+        "deadlineDate",
+        "limit",
+      ],
     },
     {
       model: db.Variant,
       required: false,
-      attributes: ["id", "price", "label"],
+      as: "variants",
+      attributes: ["id", "price", "label", "isArchived", "limit"],
     },
     { model: db.Asset, as: "image", attributes: ["url"] },
     { model: db.ServiceProvider, attributes: ["name"] },
@@ -125,10 +135,15 @@ async function getAllServices(filters, authority) {
       ...(filters.category && { where: { title: filters.category } }),
     },
   ];
-
-  const { rows, count } = await db.Service.findAndCountAll({
+  const total = await db.Service.count({
     where,
-    subQuery: false,
+    distinct: true,
+    col: "id",
+  });
+  const rows = await db.Service.findAll({
+    where,
+    distinct: true,
+    // subQuery: false,
     attributes: [
       ...publicAttributes,
       "approved",
@@ -137,18 +152,9 @@ async function getAllServices(filters, authority) {
       "created_at",
     ],
     include,
-    group: [
-      "Service.id",
-      "image.id",
-      "ServiceProvider.id",
-      "Category.id",
-      "Timelines.id",
-      "Variants.id",
-    ],
     limit,
     offset,
   });
-  const total = Array.isArray(count) ? count.length : count;
   return {
     page,
     limit,

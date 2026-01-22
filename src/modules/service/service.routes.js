@@ -9,16 +9,19 @@ import { validateExpress } from "../../middlewares/expressValidator.js";
 import { createServiceValidator } from "./services.validators.js";
 import timelineRouter from "../timeline/timeline.routes.js";
 import multer from "multer";
+import variantRouter from "../variant/variant.routes.js";
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     files: 6,
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024,
   },
 });
 
 const serviceRouter = express.Router();
 serviceRouter.use("/timeline", timelineRouter);
+serviceRouter.use("/variant", variantRouter);
+
 /* ---------------- Public Routes ---------------- */
 // Get all services that are approved & published
 serviceRouter.get("/", serviceController.getAllServices);
@@ -27,7 +30,7 @@ serviceRouter.get(
   "/:id",
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceProfile
+  serviceController.getServiceProfile,
 );
 /* ---------------- Provider Routes ---------------- */
 // Create a new service
@@ -37,21 +40,21 @@ serviceRouter.post(
   jwt.authenticateJwt,
   createServiceValidator,
   validateExpress,
-  serviceController.createService
+  serviceController.createService,
 );
 
 // Get all services of the authenticated provider (approved or not)
 serviceRouter.get(
   "/provider/services",
   jwt.authenticateJwt,
-  serviceController.getAllServicesSP
+  serviceController.getAllServicesSP,
 );
 serviceRouter.get(
   "/provider/services/:id",
   jwt.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
-  serviceController.getServiceProfileForAdminAndSP
+  serviceController.getServiceProfileForAdminAndSP,
 );
 // Update a service (allowed fields only)
 serviceRouter.put(
@@ -59,7 +62,7 @@ serviceRouter.put(
   jwt.authenticateJwt,
   idHashedBodyValidator,
   validateExpress,
-  serviceController.updateService
+  serviceController.updateService,
 );
 // Delete a service (soft delete)
 serviceRouter.delete(
@@ -67,36 +70,36 @@ serviceRouter.delete(
   idHashedParamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceController.deleteService
+  serviceController.deleteService,
 );
 serviceRouter.put(
   "/provider/services/status",
   jwt.authenticateJwt,
-  serviceController.alterServiceStatusSP
+  serviceController.alterServiceStatusSP,
 );
 serviceRouter.get(
   "/provider/services/unpublish/:serviceId",
   jwt.authenticateJwt,
-  serviceController.unpublishService
+  serviceController.unpublishService,
 );
 serviceRouter.get(
   "/provider/services/publish/:serviceId",
   jwt.authenticateJwt,
-  serviceController.publishService
+  serviceController.publishService,
 );
 /* ---------------- Admin Routes ---------------- */
 // Get all services (any status, any provider)
 serviceRouter.get(
   "/admin/services",
   jwt.authenticateJwt,
-  serviceController.getAllServicesAdmin
+  serviceController.getAllServicesAdmin,
 );
 serviceRouter.get(
   "/admin/services/:id",
   idHashedParamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceController.getServiceProfileForAdminAndSP
+  serviceController.getServiceProfileForAdminAndSP,
 );
 // Restore a deleted service
 serviceRouter.post(
@@ -104,12 +107,12 @@ serviceRouter.post(
   jwt.authenticateJwt,
   idHashedParamValidator,
   validateExpress,
-  serviceController.restoreService
+  serviceController.restoreService,
 );
 serviceRouter.put(
   "/admin/services/status",
   jwt.authenticateJwt,
-  serviceController.alterServiceStatus
+  serviceController.alterServiceStatus,
 );
 
 /*------------------- Client Routes ----------------*/
@@ -119,7 +122,7 @@ serviceRouter.put(
   idHashedParamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceController.addToFavorite
+  serviceController.addToFavorite,
 );
 //remove from favorite
 serviceRouter.delete(
@@ -127,11 +130,11 @@ serviceRouter.delete(
   idHashedParamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceController.removeFromFavorite
+  serviceController.removeFromFavorite,
 );
 serviceRouter.get(
   "/client/services",
   jwt.authenticateJwt,
-  serviceController.getClientServices
+  serviceController.getClientServices,
 );
 export default serviceRouter;
