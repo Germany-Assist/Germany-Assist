@@ -67,12 +67,14 @@ export async function getServiceForPayment({ serviceId, optionId, type }) {
   if (type === "oneTime") {
     include.push({
       model: db.Variant,
+      as: "variants",
       where: { id: optionId },
       required: true,
     });
   } else if (type === "timeline") {
     include.push({
       model: db.Timeline,
+      as: "timelines",
       where: { id: optionId },
       required: true,
     });
@@ -94,28 +96,20 @@ export async function createOrder(data, t) {
   });
 }
 
-export async function serviceProviderCloseOrder({
-  orderId,
-  SPID,
-  transaction,
-}) {
-  return await db.Order.update(
-    { status: "pending_completion" },
-    {
-      where: {
-        id: orderId,
-        status: "active",
-        relatedType: "oneTime",
-        serviceProviderId: SPID,
-      },
-      raw: true,
-      transaction,
+export async function serviceProviderFindOrder({ orderId, SPID, transaction }) {
+  return await db.Order.findOne({
+    where: {
+      id: orderId,
+      status: "active",
+      relatedType: "oneTime",
+      serviceProviderId: SPID,
     },
-  );
+    transaction,
+  });
 }
 
 const orderRepository = {
-  serviceProviderCloseOrder,
+  serviceProviderFindOrder,
   getOrdersForSP,
   getServiceForPayment,
   createOrder,

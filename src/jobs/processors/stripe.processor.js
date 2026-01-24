@@ -1,15 +1,18 @@
 import { sequelize } from "../../configs/database.js";
-import { NOTIFICATION_EVENTS, STRIPE_EVENTS } from "../../configs/constants.js";
+import {
+  AUDIT_LOGS_CONSTANTS,
+  NOTIFICATION_EVENTS,
+  STRIPE_EVENTS,
+} from "../../configs/constants.js";
 import { debugLogger, errorLogger, infoLogger } from "../../utils/loggers.js";
 import stripeServices from "../../services/stripe.service.js";
 import notificationQueue from "../queues/notification.queue.js";
 import orderRepository from "../../modules/order/order.repository.js";
+import auditLogsRepository from "../../modules/auditLogs/auditLogs.repository.js";
 export async function stripeProcessor(job) {
   const startTime = Date.now();
   const event = job.data.event;
   const eventId = event.id;
-  const timeout = 55000; // 55 seconds (just under lockDuration)
-
   try {
     const stripeEvent = await stripeServices.getStripeEvent(eventId);
     if (stripeEvent?.status === "processed") {
@@ -39,7 +42,15 @@ export async function stripeProcessor(job) {
             stripePaymentIntentId: pi.id,
             currency: "usd",
           };
-          await orderRepository.createOrder(orderData, t);
+          const order = await orderRepository.createOrder(orderData, t);
+          const logData = {
+            orderId: order.id,
+            action: AUDIT_LOGS_CONSTANTS.ORDER_CREATE,
+            reason: STRIPE_EVENTS.PAYMENT_SUCCESS,
+            newValue: order.toJSON(),
+            actorType: "system",
+          };
+          await auditLogsRepository.createNewLogRecord(logData, t);
           debugLogger(`Created order for payment ${pi.id}`);
           await notificationQueue.add(
             NOTIFICATION_EVENTS.PAYMENT_SUCCESS,
@@ -55,7 +66,6 @@ export async function stripeProcessor(job) {
         default:
           debugLogger(`Unhandled Stripe event: ${event.type} - ${event.id}`);
       }
-
       await stripeServices.updateStripeEvent(event.id, "processed", t);
       await t.commit();
       const processingTime = Date.now() - startTime;

@@ -61,7 +61,7 @@ const initPermissions = async (userId, template, t) => {
       500,
       "failed to find permissions",
       false,
-      "failed to find permissions"
+      "failed to find permissions",
     );
   const rules = await db.UserPermission.bulkCreate(permissions, {
     transaction: t,
@@ -71,7 +71,7 @@ const initPermissions = async (userId, template, t) => {
       500,
       "failed to create permissions",
       false,
-      "failed to create permissions"
+      "failed to create permissions",
     );
   return true;
 };

@@ -34,7 +34,14 @@ export async function disputes(filters) {
     ],
   });
 }
-
+export async function totalBalance(filters) {
+  return await db.Payout.sum("amountToPay", {
+    where: {
+      status: ["pending"],
+      ...filters,
+    },
+  });
+}
 export async function totalServices() {
   return await db.Service.count();
 }
@@ -57,6 +64,7 @@ export async function totalRejectedServices() {
 const dashboardRepository = {
   totalGross,
   disputes,
+  totalBalance,
   totalEscrow,
   totalServices,
   totalLiveServices,

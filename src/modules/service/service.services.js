@@ -177,11 +177,15 @@ async function getServiceByIdPublic(id) {
       {
         model: db.Timeline,
         where: { isArchived: false },
+        as: "timelines",
+
         required: false,
       },
       {
         model: db.Variant,
         where: { isArchived: false },
+        as: "variants",
+
         required: false,
       },
       {

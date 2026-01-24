@@ -122,7 +122,7 @@ export const sanitizeServiceProfile = async (service) => {
 
   const timelines =
     service.type === "timeline"
-      ? (service.Timelines?.map(
+      ? (service.timelines?.map(
           ({
             id,
             serviceId,
@@ -145,7 +145,7 @@ export const sanitizeServiceProfile = async (service) => {
 
   const variants =
     service.type === "oneTime"
-      ? (service.Variants?.map(({ id, serviceId, label, price }) => ({
+      ? (service.variants?.map(({ id, serviceId, label, price }) => ({
           id: encodeId(id),
           serviceId: encodeId(serviceId),
           label,

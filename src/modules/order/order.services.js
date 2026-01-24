@@ -5,6 +5,10 @@ import stripeUtils from "../../utils/stripe.util.js";
 import orderRepository from "./order.repository.js";
 import { v4 as uuidv4 } from "uuid";
 import ordersMapper from "./order.mapper.js";
+import { Sequelize } from "sequelize";
+import { sequelize } from "../../configs/database.js";
+import auditLogsRepository from "../auditLogs/auditLogs.repository.js";
+import { AUDIT_LOGS_CONSTANTS } from "../../configs/constants.js";
 
 export async function getOrdersForSP(SPId, filters) {
   const orders = await orderRepository.getOrdersForSP(SPId, filters);
@@ -28,9 +32,10 @@ export async function payOrder(req) {
     relatedId: optionId,
   };
   const amount =
-    type === "timeline" ? service.Timelines.price : service.Variants.price;
+    type === "timeline" ? service.timelines.price : service.variants.price;
   // // in the future subscription may go here
   if (amount === 0) {
+    const t = await sequelize.transaction();
     //free service
     const orderData = {
       amount: 0,
@@ -43,8 +48,17 @@ export async function payOrder(req) {
       stripePaymentIntentId: uuidv4(),
       currency: "usd",
     };
-    await orderRepository.createOrder(orderData);
-    return { clientSecret: null };
+    await orderRepository.createOrder(orderData, t);
+    const logData = {
+      orderId: order.id,
+      action: AUDIT_LOGS_CONSTANTS.ORDER_CREATE,
+      reason: "free service",
+      newValue: order.toJSON(),
+      actorType: AUDIT_LOGS_CONSTANTS.ACTOR_SYSTEM,
+    };
+    await auditLogsRepository.createNewLogRecord(logData, t);
+
+    return { success: true };
   } else {
     //paid service
     const pi = await stripeUtils.createPaymentIntent({ amount, metadata });
@@ -57,13 +71,27 @@ export async function payOrder(req) {
 export async function serviceProviderCloseOrder({
   orderId,
   auth,
+  user,
   transaction,
 }) {
-  return await orderRepository.serviceProviderCloseOrder({
+  const order = await orderRepository.serviceProviderFindOrder({
     orderId,
     SPID: auth.relatedId,
     transaction,
   });
+  const logData = {
+    orderId: order.id,
+    action: AUDIT_LOGS_CONSTANTS.ORDER_UPDATE,
+    reason: "Order was closed by the service provider",
+    actorSnapshot: user,
+    oldValue: order.toJSON(),
+    newValue: { ...order.toJSON(), status: "completed" },
+    actorType: AUDIT_LOGS_CONSTANTS.ACTOR_PROVIDER,
+  };
+
+  await order.update({ status: "pending_completion" }, { transaction });
+  await auditLogsRepository.createNewLogRecord(logData, transaction);
+  return;
 }
 
 export const orderService = {
