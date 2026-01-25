@@ -30,6 +30,7 @@ export function sanitizeOrders(orders) {
         relatedId: hashIdUtil.hashIdEncode(order.relatedId),
         buyerId: hashIdUtil.hashIdEncode(order.userId),
         amount: parseFloat(order.amount) / 100,
+        serviceTitle: order.Service.title,
         status: order.status,
         currency: order.currency,
         createdAt: order.createdAt,

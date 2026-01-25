@@ -1,13 +1,24 @@
+import { AppError } from "../../utils/error.class.js";
 import hashIdUtil from "../../utils/hashId.util.js";
+import orderRepository from "../order/order.repository.js";
 import disputeRepository from "./dispute.repository.js";
 
-export async function openDispute(data, user) {
-  const { orderId, description, reason } = data;
+export async function openDispute(data, auth) {
+  const { description, reason } = data;
+  const orderId = hashIdUtil.hashIdDecode(data.orderId);
+  // validate the order that exists with the user as a buyer and the is either active or pending completion
+  const order = await orderRepository.findOrderById(orderId);
+  if (!order) throw new AppError(404, "invalid order", false, "invalid order");
+  if (order.userId !== auth.id)
+    throw new AppError(403, "invalid buyer", false, "invalid buyer");
+  if (order.status !== "active" && order.status !== "pending_completion")
+    throw new AppError(404, "invalid action", true, "invalid action");
   return disputeRepository.create({
-    orderId: data.orderId,
-    openedBy: user.role === "admin" ? "system" : "buyer",
-    reason: data.reason,
-    description: data.description,
+    userId: auth.id,
+    serviceProviderId: order.serviceProviderId,
+    orderId,
+    reason: reason,
+    description: description,
   });
 }
 
