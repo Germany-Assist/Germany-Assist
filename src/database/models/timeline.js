@@ -57,9 +57,7 @@ Timeline.init(
     },
     limit: {
       type: DataTypes.INTEGER,
-      allowNull: false,
       validate: {
-        notNull: { msg: "Limit is required" },
         isInt: { msg: "Limit must be an integer" },
         min: {
           args: [1],

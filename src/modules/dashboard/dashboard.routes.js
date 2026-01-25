@@ -7,7 +7,17 @@ const dashboardRouter = Router();
 dashboardRouter.get(
   "/provider/finance",
   jwtUtils.authenticateJwt,
-  dashboardController.SPFinancialConsole
+  dashboardController.SPFinancialConsole,
+);
+dashboardRouter.get(
+  "/admin/services",
+  jwtUtils.authenticateJwt,
+  dashboardController.adminStatisticalServices,
 );
 
+dashboardRouter.get(
+  "/admin/finance",
+  jwtUtils.authenticateJwt,
+  dashboardController.adminStatisticalFinance,
+);
 export default dashboardRouter;

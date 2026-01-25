@@ -25,7 +25,7 @@ import Token from "./models/tokens.js";
 import Variant from "./models/variants.js";
 import Payout from "./models/payouts.js";
 import { Op } from "sequelize";
-import Dispute from "./models/dipute.js";
+import Dispute from "./models/dispute.js";
 import AuditLog from "./models/auditLog.js";
 
 export const defineConstrains = () => {
@@ -87,40 +87,40 @@ export const defineConstrains = () => {
 
   // Inside defineConstrains
 
-  // Order.belongsTo Timeline
-  Order.belongsTo(Timeline, {
-    foreignKey: "relatedId",
-    constraints: false,
-    as: "timeline",
-  });
-
-  // Order.belongsTo Variant
-  Order.belongsTo(Variant, {
-    foreignKey: "relatedId",
-    constraints: false,
-    as: "variant",
-  });
-
+  // // Order.belongsTo Timeline
   // Order.belongsTo(Timeline, {
   //   foreignKey: "relatedId",
   //   constraints: false,
   //   as: "timeline",
-  //   // This forces the JOIN logic to check the Order table's type
-  //   on: {
-  //     id: { [Op.col]: "Order.relatedId" },
-  //     "$Order.relatedType$": "timeline",
-  //   },
   // });
 
+  // // Order.belongsTo Variant
   // Order.belongsTo(Variant, {
   //   foreignKey: "relatedId",
   //   constraints: false,
   //   as: "variant",
-  //   on: {
-  //     id: { [Op.col]: "Order.relatedId" },
-  //     "$Order.relatedType$": "oneTime",
-  //   },
   // });
+
+  Order.belongsTo(Timeline, {
+    foreignKey: "relatedId",
+    constraints: false,
+    as: "timeline",
+    // This forces the JOIN logic to check the Order table's type
+    on: {
+      id: { [Op.col]: "Order.relatedId" },
+      "$Order.relatedType$": "timeline",
+    },
+  });
+
+  Order.belongsTo(Variant, {
+    foreignKey: "relatedId",
+    constraints: false,
+    as: "variant",
+    on: {
+      id: { [Op.col]: "Order.relatedId" },
+      "$Order.relatedType$": "oneTime",
+    },
+  });
 
   Dispute.belongsTo(Order, { foreignKey: "orderId" });
   Order.hasOne(Dispute, { foreignKey: "orderId" });
@@ -168,14 +168,31 @@ export const defineConstrains = () => {
   });
   Service.hasMany(Review, { foreignKey: "serviceId" });
   Service.hasMany(Favorite, { foreignKey: "serviceId" });
-  Service.hasMany(Timeline, { foreignKey: "serviceId" });
-  Service.hasMany(Variant, { foreignKey: "serviceId" });
-  //Todo to be deleted
+
+  // Service.hasMany Timeline
   Service.hasMany(Timeline, {
     foreignKey: "serviceId",
-    as: "activeTimelines",
-    scope: { isArchived: false },
+    constraints: false,
+    as: "timelines",
+    on: {
+      // Correct: Join the CHILD serviceId to the PARENT id
+      serviceId: { [Op.col]: "Service.id" },
+      "$Service.type$": "timeline",
+    },
   });
+
+  // Service.hasMany Variant
+  Service.hasMany(Variant, {
+    foreignKey: "serviceId",
+    constraints: false,
+    as: "variants",
+    on: {
+      // Correct: Join the CHILD serviceId to the PARENT id
+      serviceId: { [Op.col]: "Service.id" },
+      "$Service.type$": "oneTime",
+    },
+  });
+
   Service.belongsTo(Category, { foreignKey: "categoryId" });
   Service.belongsTo(ServiceProvider);
   //assets

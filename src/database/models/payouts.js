@@ -35,7 +35,7 @@ Payout.init(
       allowNull: false,
       defaultValue: "pending",
     },
-
+    serviceProviderId: { type: DataTypes.UUID, allowNull: false },
     attempts: {
       type: DataTypes.INTEGER,
       allowNull: false,

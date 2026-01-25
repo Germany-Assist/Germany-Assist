@@ -22,22 +22,43 @@ export async function getOrdersSP(req, res, next) {
       "service_provider_rep",
       "service_provider_root",
     ]);
-    const orders = await getOrdersForSP(req.auth.relatedId, req.query);
+    const orders = await orderService.getOrdersForSP(
+      req.auth.relatedId,
+      req.query,
+    );
     res.send(orders);
   } catch (err) {
     next(err);
   }
 }
-
+export async function getOrdersClient(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"]);
+    const orders = await orderService.getOrdersForClient(
+      req.auth.id,
+      req.query,
+    );
+    res.send(orders);
+  } catch (err) {
+    next(err);
+  }
+}
 export async function serviceProviderCloseOrder(req, res, next) {
   const transaction = await sequelize.transaction();
   try {
+    const user = await authUtil.checkRoleAndPermission(req.auth, [
+      "service_provider_rep",
+      "service_provider_root",
+    ]);
     const { orderId } = req.params;
+
     await orderService.serviceProviderCloseOrder({
       orderId: hashIdUtil.hashIdDecode(orderId),
       auth: req.auth,
+      user,
       transaction,
     });
+
     await transaction.commit();
     res.send({
       success: true,
@@ -52,6 +73,7 @@ const orderController = {
   serviceProviderCloseOrder,
   payOrder,
   getOrdersSP,
+  getOrdersClient,
 };
 
 export default orderController;

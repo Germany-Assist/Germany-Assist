@@ -23,11 +23,11 @@ ordersRouter.get(
   jwtMiddleware.authenticateJwt,
   orderController.getOrdersSP,
 );
-// ordersRouter.get(
-//   "/client/getAll",
-//   jwtMiddleware.authenticateJwt,
-//   orderController.getOrdersCL
-// );
+ordersRouter.get(
+  "/client/getAll",
+  jwtMiddleware.authenticateJwt,
+  orderController.getOrdersClient,
+);
 ordersRouter.get(
   "/serviceProvider/close/:orderId",
   jwtMiddleware.authenticateJwt,
