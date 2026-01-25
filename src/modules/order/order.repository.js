@@ -108,9 +108,59 @@ export async function serviceProviderFindOrder({ orderId, SPID, transaction }) {
   });
 }
 
+export async function getOrdersForClient(userId, filters = {}) {
+  const page = Math.max(Number(filters.page) || 1, 1);
+  const limit = Math.min(Number(filters.limit) || 20, 100);
+  const offset = (page - 1) * limit;
+  const where = {
+    userId: userId,
+  };
+  if (filters.status) {
+    where.status = filters.status;
+  } else {
+    where.status = ["active", "pending_completion", "completed"];
+  }
+  // optional order filters
+  if (filters.type) {
+    where.relatedType = filters.type;
+  }
+  if (filters.serviceId) {
+    where.serviceId = filters.serviceId;
+  }
+  // ALWAYS include dispute info (1-to-1)
+  const include = [
+    {
+      model: db.Dispute,
+      required: false, // LEFT JOIN
+    },
+  ];
+  if (filters.onlyDisputed) {
+    where["$Dispute.id$"] = { [Op.ne]: null };
+  }
+  if (filters.disputeStatus) {
+    where["$Dispute.status$"] = filters.disputeStatus;
+  }
+  const { rows, count } = await db.Order.findAndCountAll({
+    where,
+    include,
+    limit,
+    offset,
+    order: [["createdAt", "DESC"]],
+  });
+  return {
+    data: rows,
+    meta: {
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+    },
+  };
+}
 const orderRepository = {
   serviceProviderFindOrder,
   getOrdersForSP,
+  getOrdersForClient,
   getServiceForPayment,
   createOrder,
 };

@@ -25,7 +25,7 @@ import Token from "./models/tokens.js";
 import Variant from "./models/variants.js";
 import Payout from "./models/payouts.js";
 import { Op } from "sequelize";
-import Dispute from "./models/dipute.js";
+import Dispute from "./models/dispute.js";
 import AuditLog from "./models/auditLog.js";
 
 export const defineConstrains = () => {

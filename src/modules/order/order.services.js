@@ -79,6 +79,8 @@ export async function serviceProviderCloseOrder({
     SPID: auth.relatedId,
     transaction,
   });
+  if (!order)
+    throw new AppError(404, "order not found", false, "something went wrong");
   const logData = {
     orderId: order.id,
     action: AUDIT_LOGS_CONSTANTS.ORDER_UPDATE,
@@ -94,9 +96,15 @@ export async function serviceProviderCloseOrder({
   return;
 }
 
+export async function getOrdersForClient(userId, filters) {
+  const orders = await orderRepository.getOrdersForClient(userId, filters);
+  return { ...orders, data: ordersMapper.sanitizeOrders(orders.data) };
+}
+
 export const orderService = {
   getOrdersForSP,
   serviceProviderCloseOrder,
+  getOrdersForClient,
   payOrder,
 };
 export default orderService;

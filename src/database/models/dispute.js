@@ -10,23 +10,23 @@ Dispute.init(
       primaryKey: true,
       autoIncrement: true,
     },
-
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    serviceProviderId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     orderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
     },
-
-    openedBy: {
-      type: DataTypes.ENUM("buyer", "system"),
-      allowNull: false,
-    },
-
     reason: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -54,7 +54,7 @@ Dispute.init(
     timestamps: true,
     indexes: [{ fields: ["order_id"] }, { fields: ["status"] }],
     sequelize,
-  }
+  },
 );
 
 export default Dispute;
