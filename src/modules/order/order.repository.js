@@ -28,7 +28,12 @@ export async function getOrdersForSP(SPId, filters = {}) {
   const include = [
     {
       model: db.Dispute,
+      attributes: ["id", "status"],
       required: false, // LEFT JOIN
+    },
+    {
+      model: db.Service,
+      attributes: ["title"],
     },
     {
       model: db.Payout,
