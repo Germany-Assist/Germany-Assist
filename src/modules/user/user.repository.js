@@ -100,39 +100,8 @@ export const getUserProfile = async (id) => {
         model: db.Favorite,
         required: false,
         attributes: ["id"],
-      },
-      {
-        model: db.Order,
-        required: false,
-        attributes: ["id", "serviceId", "status", "relatedId", "relatedType"],
-        where: { status: { [Op.notIn]: ["refunded", "cancelled"] } },
         include: [
-          {
-            model: db.Variant,
-            as: "variant",
-            required: false,
-            on: {
-              id: { [Op.col]: "Orders.related_id" },
-            },
-            where: Sequelize.where(
-              Sequelize.col("Orders.related_type"),
-              "=",
-              "oneTime",
-            ),
-          },
-          {
-            model: db.Timeline,
-            as: "timeline",
-            required: false,
-            on: {
-              id: { [Op.col]: "Orders.related_id" },
-            },
-            where: Sequelize.where(
-              Sequelize.col("Orders.related_type"),
-              "=",
-              "timeline",
-            ),
-          },
+          { model: db.Service, attributes: ["title", "rating", "type", "id"] },
         ],
       },
     ],

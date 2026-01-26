@@ -39,11 +39,17 @@ async function createService(req, transaction) {
     categoryId: hashIdUtil.hashIdDecode(req.body.category),
   };
   if (serviceData.type === "timeline") {
-    serviceData.Timelines = safeJsonParse(req.body.timelines, "timelines");
+    serviceData.timelines = safeJsonParse(req.body.timelines, "timelines");
   } else if (serviceData.type === "oneTime") {
-    serviceData.Variants = safeJsonParse(req.body.variants, "variants");
+    serviceData.variants = safeJsonParse(req.body.variants, "variants");
   }
-
+  if (!serviceData.variants && !serviceData.timelines)
+    throw new AppError(
+      422,
+      "invalid option",
+      true,
+      "invalid option for timeline or variants",
+    );
   const service = await serviceRepository.createService(
     serviceData,
     transaction,

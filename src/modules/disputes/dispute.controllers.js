@@ -1,6 +1,6 @@
 import disputeService from "./dispute.services.js";
 import { toResponse } from "./dispute.mappers.js";
-
+import authUtil from "../../utils/authorize.util.js";
 export async function openDispute(req, res, next) {
   try {
     const dispute = await disputeService.openDispute(req.body, req.auth);

@@ -127,11 +127,15 @@ export async function getOrdersForClient(userId, filters = {}) {
   if (filters.serviceId) {
     where.serviceId = filters.serviceId;
   }
-  // ALWAYS include dispute info (1-to-1)
   const include = [
     {
       model: db.Dispute,
+      attributes: ["id", "status"],
       required: false, // LEFT JOIN
+    },
+    {
+      model: db.Service,
+      attributes: ["title"],
     },
   ];
   if (filters.onlyDisputed) {
@@ -157,8 +161,12 @@ export async function getOrdersForClient(userId, filters = {}) {
     },
   };
 }
+export async function findOrderById(orderId) {
+  return await db.Order.findByPk(orderId, { raw: true });
+}
 const orderRepository = {
   serviceProviderFindOrder,
+  findOrderById,
   getOrdersForSP,
   getOrdersForClient,
   getServiceForPayment,
