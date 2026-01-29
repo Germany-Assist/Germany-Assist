@@ -1,48 +1,19 @@
 import Category from "../models/category.js";
 
 const categories = [
+  { id: 1, title: "career-coaching", label: "Career Coaching" },
+  { id: 2, title: "certificate-recognition", label: "Certificate Recognition" },
+  { id: 3, title: "german-language", label: "German Language" },
+  { id: 4, title: "translation-services", label: "Translation Services" },
+  { id: 5, title: "visa-immigration", label: "Visa & Immigration" },
+  { id: 6, title: "recruitment-services", label: "Recruitment Services" },
+  { id: 7, title: "relocation-services", label: "Relocation Services" },
   {
-    title: "visa-paperwork",
-    label: "Visa & Work Permits",
-  },
-  {
-    title: "translation",
-    label: "Document Translation",
-  },
-  {
-    title: "language-learning",
-    label: "German Language Learning",
-  },
-  {
-    title: "career-coaching",
-    label: "Career Coaching",
-  },
-  {
-    title: "housing",
-    label: "Housing & Accommodation",
-  },
-  {
-    title: "banking-finance",
-    label: "Banking & Financial Setup",
-  },
-  {
-    title: "legal-advice",
-    label: "Legal Consultation",
-  },
-  {
-    title: "tax-setup",
-    label: "Tax Registration",
-  },
-  {
-    title: "networking",
-    label: "Professional Networking",
-  },
-  {
-    title: "cultural-integration",
-    label: "Cultural Integration",
+    id: 8,
+    title: "university-student-services",
+    label: "University Student Services",
   },
 ];
-
 const seedCategory = async () => {
   await Category.bulkCreate(categories);
 };

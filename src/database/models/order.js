@@ -36,13 +36,6 @@ Order.init(
     stripePaymentIntentId: { type: DataTypes.STRING, unique: true },
     currency: { type: DataTypes.STRING, defaultValue: "usd" },
     amount: { type: DataTypes.FLOAT, allowNull: false },
-    relatedData: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        // This dynamically returns whichever association was joined
-        return this.timeline || this.variant || null;
-      },
-    },
   },
   {
     sequelize,
