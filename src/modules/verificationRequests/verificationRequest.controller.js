@@ -53,6 +53,8 @@ async function updateProvider(req, res, next) {
       auth: req.auth,
       files: req.files,
       providerId: req.auth.relatedId,
+      type: req.body.type,
+      relatedId: req.body?.relatedId,
       t,
     });
     await t.commit();

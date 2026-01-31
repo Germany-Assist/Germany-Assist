@@ -8,7 +8,12 @@ import verificationRequestRepository from "./verificationRequest.repository.js";
 // Create a new verification request
 async function createProvider({ auth, files, providerId, t, relatedId, type }) {
   const exist = await verificationRequestRepository.getAllProvider(providerId);
-  if (exist && exist.length > 0 && exist.some((i) => i.type === type))
+  const unhashedRelatedId = hashIdUtil.hashIdDecode(relatedId);
+  if (
+    exist &&
+    exist.length > 0 &&
+    exist.some((i) => i.relatedId === unhashedRelatedId)
+  )
     throw new AppError(
       409,
       "You already have a request for verification",
@@ -18,7 +23,7 @@ async function createProvider({ auth, files, providerId, t, relatedId, type }) {
   const verificationRequest = {
     serviceProviderId: providerId,
     type: type,
-    relatedId: hashIdUtil.hashIdDecode(relatedId),
+    relatedId: unhashedRelatedId,
     status: "pending",
   };
   const request = await verificationRequestRepository.createProvider(
@@ -45,22 +50,21 @@ async function getAllProvider(providerId) {
     return await verificationRequestMappers.multiRequestMapper(requests);
   return null;
 }
-async function updateProvider({ auth, files, providerId, t }) {
-  const exist = await verificationRequestRepository.getAllProvider(providerId);
-  if (!exist || exist.status != "adminRequest")
+async function updateProvider({ auth, files, providerId, relatedId, type, t }) {
+  const unhashedRelatedId = hashIdUtil.hashIdDecode(relatedId);
+  const exist = await verificationRequestRepository.getAllProvider(providerId, {
+    relatedId: unhashedRelatedId,
+    type,
+  });
+  if (!exist || !exist[0] || exist[0].status != "adminRequest")
     throw new AppError(
       409,
       "You already have a request for verification",
       false,
       "You already have a request for verification",
     );
-  const verificationRequest = {
-    serviceProviderId: providerId,
-    type: "identity",
-    status: "pending",
-  };
   const request = await verificationRequestRepository.updateAdmin(
-    exist.id,
+    exist[0].id,
     { status: "pending" },
     t,
   );
