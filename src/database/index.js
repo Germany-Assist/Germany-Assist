@@ -308,6 +308,7 @@ const db = {
   Event,
   Token,
   Payout,
+  Subcategory,
   AuditLog,
   VerificationRequest,
 };

@@ -26,13 +26,8 @@ router.put(
 router.get(
   "/provider/profile",
   jwtUtils.authenticateJwt,
-  verificationRequestController.getProviderStatus,
-); // List profiles status requests
-router.get(
-  "/provider/all/profile",
-  jwtUtils.authenticateJwt,
   verificationRequestController.getAllProvider,
-); // List own requests
+); // List profiles status requests
 
 // -------------------- Admin --------------------
 router.get(

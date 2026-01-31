@@ -17,6 +17,10 @@ VerificationRequest.init(
         isUUID: { args: 4, msg: "Service Provider must be a valid UUIDv4" },
       },
     },
+    relatedId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     type: {
       type: DataTypes.ENUM("identity", "category", "badge"),
       allowNull: false,

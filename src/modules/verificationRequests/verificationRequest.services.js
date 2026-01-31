@@ -6,10 +6,9 @@ import verificationRequestMappers from "./verificationRequest.mapper.js";
 import verificationRequestRepository from "./verificationRequest.repository.js";
 
 // Create a new verification request
-async function createProvider({ auth, files, providerId, t }) {
-  const exist =
-    await verificationRequestRepository.getProviderStatus(providerId);
-  if (exist)
+async function createProvider({ auth, files, providerId, t, relatedId, type }) {
+  const exist = await verificationRequestRepository.getAllProvider(providerId);
+  if (exist && exist.length > 0 && exist.some((i) => i.type === type))
     throw new AppError(
       409,
       "You already have a request for verification",
@@ -18,7 +17,8 @@ async function createProvider({ auth, files, providerId, t }) {
     );
   const verificationRequest = {
     serviceProviderId: providerId,
-    type: "identity",
+    type: type,
+    relatedId: hashIdUtil.hashIdDecode(relatedId),
     status: "pending",
   };
   const request = await verificationRequestRepository.createProvider(
@@ -38,16 +38,15 @@ async function createProvider({ auth, files, providerId, t }) {
   );
   return { message: "Create request service - not implemented" };
 }
-async function providerStatus(providerId) {
-  const request =
-    await verificationRequestRepository.getProviderStatus(providerId);
-  if (request)
-    return await verificationRequestMappers.singleRequestMapper(request);
+async function getAllProvider(providerId) {
+  const requests =
+    await verificationRequestRepository.getAllProvider(providerId);
+  if (requests)
+    return await verificationRequestMappers.multiRequestMapper(requests);
   return null;
 }
 async function updateProvider({ auth, files, providerId, t }) {
-  const exist =
-    await verificationRequestRepository.getProviderStatus(providerId);
+  const exist = await verificationRequestRepository.getAllProvider(providerId);
   if (!exist || exist.status != "adminRequest")
     throw new AppError(
       409,
@@ -79,11 +78,6 @@ async function updateProvider({ auth, files, providerId, t }) {
   return { message: "Create request service - not implemented" };
 }
 
-// Get all requests of the logged-in service provider
-async function getAllProvider(serviceProviderId, filters) {
-  // TODO: fetch requests by serviceProviderId, optionally filter by status/type
-  return { message: "Get all requests service - not implemented" };
-}
 // ================== Admin ==================
 
 // Admin: get all requests with optional filters
@@ -128,7 +122,6 @@ async function updateAdmin(requestId, updates) {
 const verificationRequestService = {
   createProvider,
   getAllProvider,
-  providerStatus,
   getAllAdmin,
   updateAdmin,
   updateProvider,

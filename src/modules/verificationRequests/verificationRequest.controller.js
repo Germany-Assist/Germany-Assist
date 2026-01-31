@@ -21,7 +21,9 @@ async function createProvider(req, res, next) {
     const results = await verificationRequestService.createProvider({
       auth: req.auth,
       files: req.files,
+      type: req.body.type,
       providerId: req.auth.relatedId,
+      relatedId: req.body?.relatedId,
       t,
     });
 
@@ -61,32 +63,16 @@ async function updateProvider(req, res, next) {
   }
 }
 
-async function getProviderStatus(req, res, next) {
+async function getAllProvider(req, res, next) {
   try {
     const hasPermission = await authUtil.checkRoleAndPermission(req.auth, [
       "service_provider_root",
       "service_provider_rep",
     ]);
-    const results = await verificationRequestService.providerStatus(
+    const results = await verificationRequestService.getAllProvider(
       req.auth.relatedId,
     );
     res.status(200).json({ success: true, data: results });
-  } catch (error) {
-    next(error);
-  }
-}
-// Get all requests of the logged-in service provider
-async function getAllProvider(req, res, next) {
-  try {
-    const hasPermission = await authUtil.checkRoleAndPermission(
-      req.auth,
-      ["service_provider_root", "service_provider_rep"],
-      true,
-      "request",
-      "create",
-    );
-
-    res.status(201).json({ message: "Create request - not implemented" });
   } catch (error) {
     next(error);
   }
@@ -130,7 +116,6 @@ const verificationRequestController = {
   updateAdmin,
   createProvider,
   getAllProvider,
-  getProviderStatus,
   updateProvider,
 };
 

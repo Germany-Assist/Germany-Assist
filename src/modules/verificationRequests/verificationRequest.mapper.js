@@ -21,6 +21,7 @@ const multiRequestMapper = async (requests) => {
       type: i.type,
       status: i.status,
       adminNote: i.adminNote,
+      relatedId: i.relatedId ? hashIdUtil.hashIdEncode(i.relatedId) : undefined,
       assets: await Promise.all(
         i.Assets.map((x) => generateDownloadUrl(x.url)),
       ),
