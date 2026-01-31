@@ -127,8 +127,25 @@ const assetTypes = [
     mediaType: "document",
     ownerType: "user",
   },
+  {
+    key: "verificationDocument",
+    limit: "*",
+    basekey: "verification/documents",
+    size: 3000000,
+    thumb: false,
+    mediaType: "document",
+    ownerType: "verificationRequest",
+  },
+  {
+    key: "verificationImage",
+    limit: "*",
+    basekey: "verification/images",
+    size: 3000000,
+    thumb: false,
+    mediaType: "image",
+    ownerType: "verificationRequest",
+  },
 ];
-
 const seedAssetTypes = async () => {
   await AssetTypes.bulkCreate(assetTypes);
 };

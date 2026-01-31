@@ -99,12 +99,18 @@ class AssetService {
         filters.postId = hashIdUtil.hashIdDecode(params.id);
         filters.serviceProviderId = auth.relatedId;
         break;
+      case "verificationRequest":
+        if (!auth.relatedId) throw new AppError(500, "Invalid upload attempt");
+        filters.verificationRequestId = hashIdUtil.hashIdDecode(params.id);
+        filters.serviceProviderId = auth.relatedId;
+        break;
       case "user":
         filters.userId = auth.id;
         break;
       default:
         throw new AppError(500, "Invalid owner type");
     }
+
     return filters;
   }
 
@@ -112,7 +118,6 @@ class AssetService {
   static async validateFiles(type, files, searchFilters, constraints) {
     const totalFiles = files.length;
     const currentCount = await AssetRepository.countAssets(searchFilters);
-
     if (
       constraints.limit !== "*" &&
       currentCount + totalFiles > constraints.limit
@@ -210,6 +215,7 @@ class AssetService {
       serviceProviderId: auth.relatedId ?? null,
       serviceId: searchFilters.serviceId ?? null,
       postId: searchFilters.postId ?? null,
+      verificationRequestId: searchFilters.verificationRequestId ?? null,
       userId: auth.id,
       key: file.type,
       thumb: file.thumb,

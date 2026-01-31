@@ -29,10 +29,22 @@ import Dispute from "./models/dispute.js";
 import AuditLog from "./models/auditLog.js";
 import Subcategory from "./models/subcategory.js";
 import ServiceProviderCategory from "./models/service_provider_category.js";
+import VerificationRequest from "./models/verificationRequest.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
   sequelize.associationsDefined = true;
+  //VerificationRequest
+  ServiceProvider.hasMany(VerificationRequest, {
+    foreignKey: "serviceProviderId",
+  });
+  VerificationRequest.belongsTo(ServiceProvider, {
+    foreignKey: "serviceProviderId",
+  });
+  VerificationRequest.hasMany(Asset, {
+    foreignKey: "verificationRequestId",
+  });
+
   Payout.belongsTo(Order, { foreignKey: "orderId" });
   Order.hasOne(Payout, { foreignKey: "orderId" });
   //variants
@@ -297,6 +309,7 @@ const db = {
   Token,
   Payout,
   AuditLog,
+  VerificationRequest,
 };
 
 export default db;

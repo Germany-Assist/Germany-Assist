@@ -8,16 +8,8 @@ import {
 import { validateExpress } from "../../middlewares/expressValidator.js";
 import { createServiceValidator } from "./services.validators.js";
 import timelineRouter from "../timeline/timeline.routes.js";
-import multer from "multer";
 import variantRouter from "../variant/variant.routes.js";
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    files: 6,
-    fileSize: 5 * 1024 * 1024,
-  },
-});
-
+import multerUpload from "../../configs/multer.config.js";
 const serviceRouter = express.Router();
 serviceRouter.use("/timeline", timelineRouter);
 serviceRouter.use("/variant", variantRouter);
@@ -36,7 +28,7 @@ serviceRouter.get(
 // Create a new service
 serviceRouter.post(
   "/provider",
-  upload.array("images", 4),
+  multerUpload.array("images", 4),
   jwt.authenticateJwt,
   createServiceValidator,
   validateExpress,

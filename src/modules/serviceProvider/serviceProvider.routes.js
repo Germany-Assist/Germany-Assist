@@ -10,39 +10,48 @@ import { idUUIDparamValidator } from "../../validators/general.validators.js";
 const serviceProviderRouter = express.Router();
 
 serviceProviderRouter.get("/", serviceProviderController.getAllServiceProvider);
+
+//TODO validate
+// serviceProviderRouter.post(
+//   "/registerCategory",
+//   jwt.authenticateJwt,
+//   validateExpress,
+//   serviceProviderController.createServiceProvider,
+// );
+
 serviceProviderRouter.get(
   "/:id",
   idUUIDparamValidator,
   validateExpress,
-  serviceProviderController.getServiceProviderById
+  serviceProviderController.getServiceProviderById,
 );
 serviceProviderRouter.delete(
   "/:id",
   idUUIDparamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceProviderController.deleteServiceProvider
+  serviceProviderController.deleteServiceProvider,
 );
 serviceProviderRouter.put(
   "/",
   updateServiceProviderValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceProviderController.updateServiceProvider
+  serviceProviderController.updateServiceProvider,
 );
 serviceProviderRouter.post(
   "/",
   jwt.authenticateJwt,
   createServiceProviderValidator,
   validateExpress,
-  serviceProviderController.createServiceProvider
+  serviceProviderController.createServiceProvider,
 );
 serviceProviderRouter.get(
   "/restore/:id",
   idUUIDparamValidator,
   validateExpress,
   jwt.authenticateJwt,
-  serviceProviderController.restoreServiceProvider
+  serviceProviderController.restoreServiceProvider,
 );
 
 export default serviceProviderRouter;

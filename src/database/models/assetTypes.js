@@ -36,7 +36,8 @@ AssetTypes.init(
         "serviceProvider",
         "service",
         "post",
-        "employer"
+        "employer",
+        "verificationRequest",
       ),
       allowNull: false,
     },
@@ -44,7 +45,7 @@ AssetTypes.init(
   {
     sequelize,
     modelName: "AssetTypes",
-  }
+  },
 );
 
 export default AssetTypes;
