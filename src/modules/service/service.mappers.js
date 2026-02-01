@@ -89,7 +89,7 @@ export const sanitizeServices = async (services = []) => {
       rating: service.rating,
       totalReviews: service.totalReviews,
       type: service.type,
-      category: service.Category.title,
+      category: service.Subcategory.title,
       serviceProvider: service.ServiceProvider.name,
       image: await resolveImageUrl(service.image[0]?.url),
       timelines: timelinesFormatter(service.timelines),

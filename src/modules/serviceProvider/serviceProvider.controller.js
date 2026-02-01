@@ -120,7 +120,6 @@ const serviceProviderController = {
   updateServiceProvider,
   getServiceProviderById,
   getAllServiceProvider,
-  // registerCategory,
   createServiceProvider,
 };
 export default serviceProviderController;

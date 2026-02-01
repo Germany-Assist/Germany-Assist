@@ -11,14 +11,6 @@ const serviceProviderRouter = express.Router();
 
 serviceProviderRouter.get("/", serviceProviderController.getAllServiceProvider);
 
-//TODO validate
-// serviceProviderRouter.post(
-//   "/registerCategory",
-//   jwt.authenticateJwt,
-//   validateExpress,
-//   serviceProviderController.createServiceProvider,
-// );
-
 serviceProviderRouter.get(
   "/:id",
   idUUIDparamValidator,

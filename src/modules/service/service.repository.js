@@ -1,5 +1,4 @@
 import db from "../../database/index.js";
-import { AppError } from "../../utils/error.class.js";
 
 async function createService(serviceData, transaction) {
   const include = [];
