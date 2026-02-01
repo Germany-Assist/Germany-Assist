@@ -11,11 +11,17 @@ export const createServiceProvider = async (profileData, t) => {
       phoneNumber,
       image,
     },
-    { transaction: t }
+    { transaction: t },
   );
 };
-
+export const verifyServiceProvider = async (SPId, t) => {
+  return await db.ServiceProvider.update(
+    { isVerified: true },
+    { where: { id: SPId }, transaction: t },
+  );
+};
 const serviceProviderRepository = {
   createServiceProvider,
+  verifyServiceProvider,
 };
 export default serviceProviderRepository;

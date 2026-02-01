@@ -2,6 +2,7 @@ import { generateDownloadUrl } from "../../configs/s3Configs.js";
 import AssetService from "../../services/assts.services.js";
 import { AppError } from "../../utils/error.class.js";
 import hashIdUtil from "../../utils/hashId.util.js";
+import serviceProviderRepository from "../serviceProvider/serviceProvider.repository .js";
 import verificationRequestMappers from "./verificationRequest.mapper.js";
 import verificationRequestRepository from "./verificationRequest.repository.js";
 
@@ -9,6 +10,7 @@ import verificationRequestRepository from "./verificationRequest.repository.js";
 async function createProvider({ auth, files, providerId, t, relatedId, type }) {
   const exist = await verificationRequestRepository.getAllProvider(providerId);
   const unhashedRelatedId = hashIdUtil.hashIdDecode(relatedId);
+
   if (
     exist &&
     exist.length > 0 &&
@@ -20,6 +22,17 @@ async function createProvider({ auth, files, providerId, t, relatedId, type }) {
       false,
       "You already have a request for verification",
     );
+  const identityStatus = exist.some(
+    (i) => i.type === "identity" && i.status == "approved",
+  );
+  if (!identityStatus)
+    throw new AppError(
+      404,
+      "You Need to verify you identity first",
+      true,
+      "You Need to verify you identity first",
+    );
+
   const verificationRequest = {
     serviceProviderId: providerId,
     type: type,
@@ -115,6 +128,10 @@ async function updateAdmin(requestId, updates) {
     status,
   });
   //if identity i should update the state of the provider also
+  if (update.type === "identity" && update.status === "approved")
+    await serviceProviderRepository.verifyServiceProvider(
+      update.serviceProviderId,
+    );
   if (!update)
     throw new AppError(
       404,

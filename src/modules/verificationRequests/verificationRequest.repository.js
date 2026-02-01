@@ -8,7 +8,7 @@ async function getAllProvider(serviceProviderId, filters = {}) {
   return db.VerificationRequest.findAll({
     where: { ...filters, serviceProviderId },
     include: [{ model: db.Asset, attributes: ["mediaType", "url"] }],
-    order: [["createdAt", "DESC"]],
+    order: [["updatedAt", "DESC"]],
   });
 }
 
@@ -23,7 +23,7 @@ async function getAllAdmin({ limit, offset, filters }) {
   return db.VerificationRequest.findAll({
     where: filters,
     include: [{ model: db.Asset, attributes: ["mediaType", "url"] }],
-    order: [["createdAt", "DESC"]],
+    order: [["updatedAt", "DESC"]],
     limit,
     offset,
   });

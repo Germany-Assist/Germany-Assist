@@ -28,7 +28,9 @@ async function createProvider(req, res, next) {
     });
 
     await t.commit();
-    res.status(201).json({ message: "Create request - not implemented" });
+    res
+      .status(201)
+      .json({ success: true, message: "Created request successfully" });
   } catch (error) {
     await t.rollback();
     next(error);
@@ -91,7 +93,7 @@ async function getAllAdmin(req, res, next) {
     const { data, meta } = await verificationRequestService.getAllAdmin(
       req.query,
     );
-    res.status(200).json({ message: "success", data, meta });
+    res.status(200).json({ success: true, data, meta });
   } catch (error) {
     next(error);
   }
