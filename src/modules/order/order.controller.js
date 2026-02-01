@@ -69,8 +69,22 @@ export async function serviceProviderCloseOrder(req, res, next) {
     next(err);
   }
 }
+export async function checkIfUserBoughtService(req, res, next) {
+  try {
+    await authUtil.checkRoleAndPermission(req.auth, ["client"]);
+    const orders = await orderService.checkIfUserBoughtService({
+      userId: req.auth.id,
+      serviceId: req.params.serviceId,
+    });
+    res.send(orders);
+  } catch (err) {
+    next(err);
+  }
+}
+
 const orderController = {
   serviceProviderCloseOrder,
+  checkIfUserBoughtService,
   payOrder,
   getOrdersSP,
   getOrdersClient,

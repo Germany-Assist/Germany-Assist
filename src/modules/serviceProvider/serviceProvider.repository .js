@@ -15,11 +15,12 @@ export const createServiceProvider = async (profileData, t) => {
     { transaction: t },
   );
 };
-export const verifyServiceProvider = async (SPId, t) => {
-  return await db.ServiceProvider.update(
-    { isVerified: true },
-    { where: { id: SPId }, transaction: t },
-  );
+
+export const updateServiceProvider = async (update, SPId, t) => {
+  return await db.ServiceProvider.update(update, {
+    where: { id: SPId },
+    transaction: t,
+  });
 };
 
 export const checkIfSPAllowedCategory = async (spId, catId, transaction) => {
@@ -39,7 +40,7 @@ export const checkIfSPAllowedCategory = async (spId, catId, transaction) => {
 };
 const serviceProviderRepository = {
   createServiceProvider,
-  verifyServiceProvider,
+  updateServiceProvider,
   checkIfSPAllowedCategory,
 };
 export default serviceProviderRepository;

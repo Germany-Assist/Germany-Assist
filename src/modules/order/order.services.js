@@ -14,7 +14,16 @@ export async function getOrdersForSP(SPId, filters) {
   const orders = await orderRepository.getOrdersForSP(SPId, filters);
   return { ...orders, data: ordersMapper.sanitizeOrders(orders.data) };
 }
-
+async function checkIfUserBoughtService(data) {
+  const userId = data.userId;
+  const serviceId = hashIdUtil.hashIdDecode(data.serviceId);
+  const bought = await orderRepository.checkIfUserBoughtService(
+    userId,
+    serviceId,
+  );
+  if (!bought || bought.length < 1) return false;
+  return bought.map((i) => hashIdUtil.hashIdEncode(i.relatedId));
+}
 export async function payOrder(req) {
   const serviceId = hashIdUtil.hashIdDecode(req.query.serviceId);
   const optionId = hashIdUtil.hashIdDecode(req.query.optionId);
@@ -106,5 +115,6 @@ export const orderService = {
   serviceProviderCloseOrder,
   getOrdersForClient,
   payOrder,
+  checkIfUserBoughtService,
 };
 export default orderService;

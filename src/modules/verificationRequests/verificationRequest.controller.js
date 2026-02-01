@@ -100,17 +100,21 @@ async function getAllAdmin(req, res, next) {
 }
 
 async function updateAdmin(req, res, next) {
+  const t = await sequelize.transaction();
+
   try {
     const hasPermission = await authUtil.checkRoleAndPermission(req.auth, [
       "service_provider_root",
       "service_provider_rep",
     ]);
     const requestId = hashIdUtil.hashIdDecode(req.params.id);
-    await verificationRequestService.updateAdmin(requestId, req.body);
+    await verificationRequestService.updateAdmin(requestId, req.body, t);
+    await t.commit();
     res
       .status(200)
       .json({ success: true, message: "Successfully updated the request" });
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 }

@@ -21,7 +21,7 @@ ServiceProviderCategory.init(
       type: DataTypes.UUID,
       allowNull: false,
       validate: {
-        isUUID: { msg: "serviceProviderId must be UUID" },
+        isUUID: { args: 4, msg: "ID must be a valid UUIDv4" },
       },
     },
   },

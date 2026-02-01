@@ -169,6 +169,18 @@ export async function getOrdersForClient(userId, filters = {}) {
 export async function findOrderById(orderId) {
   return await db.Order.findByPk(orderId, { raw: true });
 }
+
+export const checkIfUserBoughtService = async (userId, serviceId) => {
+  const bought = db.Order.findAll({
+    attributes: ["relatedId"],
+    where: {
+      userId,
+      serviceId,
+      status: { [Op.in]: ["active", "completed", "pending_completion"] },
+    },
+  });
+  return bought;
+};
 const orderRepository = {
   serviceProviderFindOrder,
   findOrderById,
@@ -176,5 +188,6 @@ const orderRepository = {
   getOrdersForClient,
   getServiceForPayment,
   createOrder,
+  checkIfUserBoughtService,
 };
 export default orderRepository;

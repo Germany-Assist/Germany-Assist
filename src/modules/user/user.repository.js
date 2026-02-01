@@ -108,6 +108,7 @@ export const getUserProfile = async (id) => {
   });
   return user;
 };
+
 //
 const userRepository = {
   getUserProfile,

@@ -165,9 +165,9 @@ export const sanitizeServiceProfile = async (service) => {
 
     /* -------- relations -------- */
     category: {
-      id: encodeId(service.Category.id),
-      title: service.Category.title,
-      label: service.Category.label,
+      id: encodeId(service.Subcategory.id),
+      title: service.Subcategory.title,
+      label: service.Subcategory.label,
     },
 
     serviceProvider: {

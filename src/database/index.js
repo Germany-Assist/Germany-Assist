@@ -284,8 +284,6 @@ defineConstrains();
 const db = {
   User,
   AssetTypes,
-  ServiceProvider,
-  Service,
   Asset,
   Review,
   Coupon,
@@ -298,6 +296,10 @@ const db = {
   Variant,
   Post,
   Category,
+  Subcategory,
+  ServiceProviderCategory,
+  ServiceProvider,
+  Service,
   Order,
   StripeEvent,
   Comment,
@@ -308,7 +310,6 @@ const db = {
   Event,
   Token,
   Payout,
-  Subcategory,
   AuditLog,
   VerificationRequest,
 };

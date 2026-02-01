@@ -3,6 +3,7 @@ import AssetService from "../../services/assts.services.js";
 import { AppError } from "../../utils/error.class.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 import serviceProviderRepository from "../serviceProvider/serviceProvider.repository .js";
+import providerCategoryRepository from "../serviceProviderCategory/serviceProviderCategory.repository.js";
 import verificationRequestMappers from "./verificationRequest.mapper.js";
 import verificationRequestRepository from "./verificationRequest.repository.js";
 
@@ -121,17 +122,26 @@ async function getAllAdmin(query) {
 }
 
 // Admin: approve or reject a request
-async function updateAdmin(requestId, updates) {
+async function updateAdmin(requestId, updates, t) {
   const { adminNote, status } = updates;
   const update = await verificationRequestRepository.updateAdmin(requestId, {
     adminNote,
     status,
   });
-  //if identity i should update the state of the provider also
   if (update.type === "identity" && update.status === "approved")
-    await serviceProviderRepository.verifyServiceProvider(
+    await serviceProviderRepository.updateServiceProvider(
+      { isVerified: true },
       update.serviceProviderId,
+      t,
     );
+  if (update.type === "category" && update.status === "approved") {
+    await providerCategoryRepository.createNew(
+      update.relatedId,
+      update.serviceProviderId,
+      t,
+    );
+  }
+
   if (!update)
     throw new AppError(
       404,

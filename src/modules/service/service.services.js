@@ -24,7 +24,6 @@ const safeJsonParse = (value, fieldName) => {
     throw new AppError(400, `Invalid JSON in ${fieldName}`);
   }
 };
-
 async function createService(req, transaction) {
   let serviceData = {
     userId: req.auth.id,
@@ -38,10 +37,9 @@ async function createService(req, transaction) {
     published: req.body.publish
       ? req.auth.role === "service_provider_root"
       : false,
-    subcategoryId: hashIdUtil.hashIdDecode(req.body.subcategoryId),
+    subcategoryId: hashIdUtil.hashIdDecode(req.body.subcategory),
   };
 
-  //verify category with service provider
   await serviceProviderRepository.checkIfSPAllowedCategory(
     req.auth.relatedId,
     hashIdUtil.hashIdDecode(req.body.category),
@@ -204,7 +202,7 @@ async function getServiceByIdPublic(id) {
         required: false,
       },
       {
-        model: db.Category,
+        model: db.Subcategory,
         attributes: ["title", "id", "label"],
       },
       {
@@ -244,7 +242,7 @@ async function getServiceProfileForAdminAndSP(id, SPID) {
         attributes: ["mediaType", "key", "confirmed", "url", "name", "thumb"],
       },
       {
-        model: db.Category,
+        model: db.Subcategory,
         attributes: ["title"],
       },
       {
