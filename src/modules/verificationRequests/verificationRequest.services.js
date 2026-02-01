@@ -74,10 +74,14 @@ async function getAllProvider(providerId) {
 }
 async function updateProvider({ auth, files, providerId, relatedId, type, t }) {
   const unhashedRelatedId = hashIdUtil.hashIdDecode(relatedId);
-  const exist = await verificationRequestRepository.getAllProvider(providerId, {
-    relatedId: unhashedRelatedId,
-    type,
-  });
+  const filters = { type };
+  if (type !== "identity") filters.relatedId = unhashedRelatedId;
+
+  const exist = await verificationRequestRepository.getAllProvider(
+    providerId,
+    filters,
+  );
+
   if (!exist || !exist[0] || exist[0].status != "adminRequest")
     throw new AppError(
       409,
