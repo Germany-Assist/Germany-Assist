@@ -1,15 +1,11 @@
-import orderRepository from "../order/order.repository.js";
 import dashboardRepository from "./dashboard.repository.js";
-import ordersMapper from "../order/order.mapper.js";
-import serviceServices from "../service/service.services.js";
-import serviceMappers from "../service/service.mappers.js";
+
 export async function SPFinancialConsole(SPId) {
   const [grossTotal, escrow, balance, disputes, orders] = await Promise.all([
     dashboardRepository.totalGross({ serviceProviderId: SPId }),
     dashboardRepository.totalEscrow({ serviceProviderId: SPId }),
     dashboardRepository.totalBalance({ serviceProviderId: SPId }),
     dashboardRepository.disputes({ serviceProviderId: SPId }),
-    orderRepository.getOrdersForSP(SPId),
   ]);
   return {
     success: true,
@@ -18,7 +14,6 @@ export async function SPFinancialConsole(SPId) {
       escrow: escrow / 100,
       balance: balance / 100,
       disputes,
-      orders: { ...orders, data: ordersMapper.sanitizeOrders(orders.data) },
     },
   };
 }

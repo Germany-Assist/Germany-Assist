@@ -9,6 +9,7 @@ import User from "./models/user.js";
 import Permission from "./models/permission.js";
 import AssetTypes from "./models/assetTypes.js";
 import Category from "./models/category.js";
+import seedSubcategory from "./seeds/subcategory_seed.js";
 
 export async function initDatabase(exit = true) {
   try {
@@ -25,6 +26,7 @@ export async function initDatabase(exit = true) {
       await seedPermissions();
       await seedUsers();
       await seedCategory();
+      await seedSubcategory();
       console.log("finished seeding 👍");
       //Stage 3
       //Apply the constraints
@@ -45,7 +47,7 @@ export async function initDatabase(exit = true) {
       console.log("script has successful migrated and seeded the database 😀");
     } else {
       throw new Error(
-        "should not run this script in the production environment"
+        "should not run this script in the production environment",
       );
     }
   } catch (error) {

@@ -33,7 +33,6 @@ Asset.init(
       allowNull: false,
       validate: {
         isInt: { msg: "UserId must be an integer" },
-        min: { args: [1], msg: "UserId must be greater than 0" },
       },
     },
     serviceProviderId: {
@@ -43,12 +42,19 @@ Asset.init(
         isUUID: { args: 4, msg: "Service Provider must be a valid UUIDv4" },
       },
     },
+
     serviceId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
         isInt: { msg: "ServiceId must be an integer" },
-        min: { args: [1], msg: "ServiceId must be greater than 0" },
+      },
+    },
+    verificationRequestId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      validate: {
+        isInt: { msg: "requestId must be an integer" },
       },
     },
     postId: {
@@ -56,7 +62,6 @@ Asset.init(
       allowNull: true,
       validate: {
         isInt: { msg: "PostId must be an integer" },
-        min: { args: [1], msg: "PostId must be greater than 0" },
       },
     },
     key: {
@@ -107,7 +112,7 @@ Asset.init(
   {
     sequelize,
     paranoid: true,
-  }
+  },
 );
 
 export default Asset;

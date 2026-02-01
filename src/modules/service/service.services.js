@@ -5,6 +5,7 @@ import serviceRepository from "./service.repository.js";
 import serviceMappers from "./service.mappers.js";
 import hashIdUtil from "../../utils/hashId.util.js";
 import AssetService from "../../services/assts.services.js";
+import serviceProviderRepository from "../serviceProvider/serviceProvider.repository .js";
 const publicAttributes = [
   "id",
   "title",
@@ -36,8 +37,14 @@ async function createService(req, transaction) {
     published: req.body.publish
       ? req.auth.role === "service_provider_root"
       : false,
-    categoryId: hashIdUtil.hashIdDecode(req.body.category),
+    subcategoryId: hashIdUtil.hashIdDecode(req.body.subcategory),
   };
+
+  await serviceProviderRepository.checkIfSPAllowedCategory(
+    req.auth.relatedId,
+    hashIdUtil.hashIdDecode(req.body.category),
+    transaction,
+  );
   if (serviceData.type === "timeline") {
     serviceData.timelines = safeJsonParse(req.body.timelines, "timelines");
   } else if (serviceData.type === "oneTime") {
@@ -78,9 +85,9 @@ async function createService(req, transaction) {
       transaction,
     });
   }
-
   return service;
 }
+
 async function getAllServices(filters, authority) {
   const page = parseInt(filters.page) || 1;
   const limit = parseInt(filters.limit) || 10;
@@ -136,7 +143,7 @@ async function getAllServices(filters, authority) {
     { model: db.Asset, as: "image", attributes: ["url"] },
     { model: db.ServiceProvider, attributes: ["name"] },
     {
-      model: db.Category,
+      model: db.Subcategory,
       attributes: ["title"],
       ...(filters.category && { where: { title: filters.category } }),
     },
@@ -195,7 +202,7 @@ async function getServiceByIdPublic(id) {
         required: false,
       },
       {
-        model: db.Category,
+        model: db.Subcategory,
         attributes: ["title", "id", "label"],
       },
       {
@@ -235,7 +242,7 @@ async function getServiceProfileForAdminAndSP(id, SPID) {
         attributes: ["mediaType", "key", "confirmed", "url", "name", "thumb"],
       },
       {
-        model: db.Category,
+        model: db.Subcategory,
         attributes: ["title"],
       },
       {

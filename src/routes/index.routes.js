@@ -11,6 +11,8 @@ import metaRouter from "../modules/meta/meta.routes.js";
 import { Router } from "express";
 import dashboardRouter from "../modules/dashboard/dashboard.routes.js";
 import disputeRouter from "../modules/disputes/dispute.routes.js";
+import verificationRequestRouter from "../modules/verificationRequests/verificationRequest.routes.js";
+
 const apiRouter = Router();
 apiRouter
   .use("/user", userRouter)
@@ -24,6 +26,7 @@ apiRouter
   .use("/auth", authRouter)
   .use("/meta", metaRouter)
   .use("/dashboard", dashboardRouter)
-  .use("/dispute", disputeRouter);
+  .use("/dispute", disputeRouter)
+  .use("/requests", verificationRequestRouter);
 
 export default apiRouter;

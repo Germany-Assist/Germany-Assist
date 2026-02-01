@@ -12,7 +12,7 @@ async function checkRoleAndPermission(
   targetRoles,
   requirePermission = false,
   resource = null,
-  action = null
+  action = null,
 ) {
   const userId = auth.id;
   const relatedId = auth.relatedId;
@@ -26,7 +26,7 @@ async function checkRoleAndPermission(
     const user = await permissionServices.userAndPermission(
       userId,
       requirePermission ? resource : null,
-      requirePermission ? action : null
+      requirePermission ? action : null,
     );
     if (!user) throw new AppError(404, "Invalid User", false, "Unauthorized");
     if (requirePermission) {
@@ -41,7 +41,12 @@ async function checkRoleAndPermission(
     )
       throw new AppError(403, "Improper Role", true, "Improper Role");
     if (!user.isVerified)
-      throw new AppError(403, "Unverified User", true, "Unverified User");
+      throw new AppError(
+        403,
+        "Unverified User",
+        true,
+        `Please verify your account (${user.email}) or contact the site admin`,
+      );
     if (user.UserRole.relatedId !== relatedId)
       throw new AppError(403, "Manipulated token", true, "forbidden");
     if (
@@ -94,7 +99,7 @@ export async function checkOwnership(targetId, ownerId, resourceName) {
         403,
         "Unauthorized ownership",
         true,
-        "Unauthorized ownership"
+        "Unauthorized ownership",
       );
     }
     return subject;

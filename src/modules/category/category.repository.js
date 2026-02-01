@@ -2,8 +2,8 @@ import db from "../../database/index.js";
 
 export const getAllCategories = async () => {
   return await db.Category.findAll({
-    raw: true,
     attributes: ["id", "title", "label"],
+    include: [{ model: db.Subcategory, attributes: ["title", "label", "id"] }],
   });
 };
 export const createCategory = async (data) => {

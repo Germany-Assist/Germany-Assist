@@ -27,10 +27,24 @@ import Payout from "./models/payouts.js";
 import { Op } from "sequelize";
 import Dispute from "./models/dispute.js";
 import AuditLog from "./models/auditLog.js";
+import Subcategory from "./models/subcategory.js";
+import ServiceProviderCategory from "./models/service_provider_category.js";
+import VerificationRequest from "./models/verificationRequest.js";
 
 export const defineConstrains = () => {
   if (sequelize.associationsDefined) return;
   sequelize.associationsDefined = true;
+  //VerificationRequest
+  ServiceProvider.hasMany(VerificationRequest, {
+    foreignKey: "serviceProviderId",
+  });
+  VerificationRequest.belongsTo(ServiceProvider, {
+    foreignKey: "serviceProviderId",
+  });
+  VerificationRequest.hasMany(Asset, {
+    foreignKey: "verificationRequestId",
+  });
+
   Payout.belongsTo(Order, { foreignKey: "orderId" });
   Order.hasOne(Payout, { foreignKey: "orderId" });
   //variants
@@ -85,27 +99,10 @@ export const defineConstrains = () => {
   Order.belongsTo(User, { foreignKey: "userId" });
   Order.belongsTo(Service, { foreignKey: "serviceId" });
 
-  // Inside defineConstrains
-
-  // // Order.belongsTo Timeline
-  // Order.belongsTo(Timeline, {
-  //   foreignKey: "relatedId",
-  //   constraints: false,
-  //   as: "timeline",
-  // });
-
-  // // Order.belongsTo Variant
-  // Order.belongsTo(Variant, {
-  //   foreignKey: "relatedId",
-  //   constraints: false,
-  //   as: "variant",
-  // });
-
   Order.belongsTo(Timeline, {
     foreignKey: "relatedId",
     constraints: false,
     as: "timeline",
-    // This forces the JOIN logic to check the Order table's type
     on: {
       id: { [Op.col]: "Order.relatedId" },
       "$Order.relatedType$": "timeline",
@@ -175,7 +172,6 @@ export const defineConstrains = () => {
     constraints: false,
     as: "timelines",
     on: {
-      // Correct: Join the CHILD serviceId to the PARENT id
       serviceId: { [Op.col]: "Service.id" },
       "$Service.type$": "timeline",
     },
@@ -187,13 +183,13 @@ export const defineConstrains = () => {
     constraints: false,
     as: "variants",
     on: {
-      // Correct: Join the CHILD serviceId to the PARENT id
       serviceId: { [Op.col]: "Service.id" },
       "$Service.type$": "oneTime",
     },
   });
 
-  Service.belongsTo(Category, { foreignKey: "categoryId" });
+  Service.belongsTo(Subcategory, { foreignKey: "subcategoryId" });
+
   Service.belongsTo(ServiceProvider);
   //assets
   Asset.belongsTo(AssetTypes, { foreignKey: "key", targetKey: "key" });
@@ -227,8 +223,29 @@ export const defineConstrains = () => {
     },
     as: "roles",
   });
+  //category - serviceProvider
+  Category.belongsToMany(ServiceProvider, {
+    through: ServiceProviderCategory,
+    foreignKey: "categoryId",
+    otherKey: "serviceProviderId",
+  });
+  ServiceProvider.belongsToMany(Category, {
+    through: ServiceProviderCategory,
+    foreignKey: "serviceProviderId",
+    otherKey: "categoryId",
+  });
+
   //category
-  Category.hasMany(Service, {
+
+  Category.hasMany(Subcategory, {
+    foreignKey: "categoryId",
+  });
+
+  // Subcategory
+  Subcategory.hasMany(Service, {
+    foreignKey: "subcategoryId",
+  });
+  Subcategory.belongsTo(Category, {
     foreignKey: "categoryId",
   });
 
@@ -267,8 +284,6 @@ defineConstrains();
 const db = {
   User,
   AssetTypes,
-  ServiceProvider,
-  Service,
   Asset,
   Review,
   Coupon,
@@ -281,6 +296,10 @@ const db = {
   Variant,
   Post,
   Category,
+  Subcategory,
+  ServiceProviderCategory,
+  ServiceProvider,
+  Service,
   Order,
   StripeEvent,
   Comment,
@@ -292,6 +311,7 @@ const db = {
   Token,
   Payout,
   AuditLog,
+  VerificationRequest,
 };
 
 export default db;

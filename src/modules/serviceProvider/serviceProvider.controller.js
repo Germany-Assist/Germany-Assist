@@ -2,6 +2,7 @@ import serviceProviderServices from "./serviceProvider.services.js";
 import { AppError } from "../../utils/error.class.js";
 import authUtils from "../../utils/authorize.util.js";
 import hashIdUtil from "../../utils/hashId.util.js";
+import { register } from "node:module";
 
 export async function createServiceProvider(req, res, next) {
   try {
@@ -23,7 +24,7 @@ export async function getAllServiceProvider(req, res, next) {
 export async function getServiceProviderById(req, res, next) {
   try {
     const profile = await serviceProviderServices.getServiceProviderById(
-      req.params.id
+      req.params.id,
     );
     const sanitizedSPProfile = {
       ...profile,
@@ -49,13 +50,13 @@ export async function updateServiceProvider(req, res, next) {
       ["service_provider_root", "super_admin"],
       true,
       "serviceProvider",
-      "update"
+      "update",
     );
 
     const isOwner = await authUtils.checkOwnership(
       req.auth.relatedId,
       req.auth.relatedId,
-      "ServiceProvider"
+      "ServiceProvider",
     );
     if (!hasPermission || !isOwner)
       throw new AppError(403, "UnAuthorized", true, "UnAuthorized");
@@ -73,7 +74,7 @@ export async function updateServiceProvider(req, res, next) {
     });
     const profile = await serviceProviderServices.updateServiceProvider(
       req.auth.relatedId,
-      updateFields
+      updateFields,
     );
     res.status(200).json(profile);
   } catch (error) {
@@ -87,7 +88,7 @@ export async function deleteServiceProvider(req, res, next) {
       ["superAdmin", "admin"],
       true,
       "serviceProvider",
-      "delete"
+      "delete",
     );
     await serviceProviderServices.deleteServiceProvider(req.params.id);
     res.status(200).json({ message: "success" });
@@ -102,16 +103,17 @@ export async function restoreServiceProvider(req, res, next) {
       ["superAdmin", "admin"],
       true,
       "serviceProvider",
-      "delete"
+      "delete",
     );
     const profile = await serviceProviderServices.restoreServiceProvider(
-      req.params.id
+      req.params.id,
     );
     res.status(200).json(profile);
   } catch (error) {
     next(error);
   }
 }
+
 const serviceProviderController = {
   restoreServiceProvider,
   deleteServiceProvider,

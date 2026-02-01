@@ -13,11 +13,11 @@ ordersRouter.get(
 );
 
 //---------get order-----------//
-// ordersRouter.get(
-//   "/admin/getAll",
-//   jwtMiddleware.authenticateJwt,
-//   orderController.getOrdersAdmin
-// );
+ordersRouter.get(
+  "/client/checkIfBought/:serviceId",
+  jwtMiddleware.authenticateJwt,
+  orderController.checkIfUserBoughtService,
+);
 ordersRouter.get(
   "/serviceProvider/getAll",
   jwtMiddleware.authenticateJwt,
