@@ -76,7 +76,7 @@ Service.init(
         max: { args: [5], msg: "Rating cannot be greater than 5" },
       },
     },
-    categoryId: {
+    subcategoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -93,7 +93,6 @@ Service.init(
         min: { args: [0], msg: "Total reviews cannot be negative" },
       },
     },
-
     approved: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -120,7 +119,7 @@ Service.init(
   {
     sequelize,
     paranoid: true,
-  }
+  },
 );
 
 export default Service;
