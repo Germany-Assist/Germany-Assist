@@ -26,7 +26,15 @@ async function createProvider({ auth, files, providerId, t, relatedId, type }) {
   const identityStatus = exist.some(
     (i) => i.type === "identity" && i.status == "approved",
   );
-  if (!identityStatus)
+  if (identityStatus == "pending") {
+    throw new AppError(
+      409,
+      "You already have a request for verification",
+      false,
+      "You already have a request for verification",
+    );
+  }
+  if (!identityStatus && type == "category")
     throw new AppError(
       404,
       "You Need to verify you identity first",
@@ -121,7 +129,6 @@ async function getAllAdmin(query) {
   return response;
 }
 
-// Admin: approve or reject a request
 async function updateAdmin(requestId, updates, t) {
   const { adminNote, status } = updates;
   const update = await verificationRequestRepository.updateAdmin(requestId, {
