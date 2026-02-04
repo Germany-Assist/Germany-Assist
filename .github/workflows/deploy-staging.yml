@@ -32,8 +32,8 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           port: 22
           script: |
-            cd /var/www/germany-assist-backend || mkdir -p /var/www/germany-assist-backend
-            cd /var/www/germany-assist-backend
+            cd /var/www/germany-assist-backend-staging || mkdir -p /var/www/germany-assist-backend-staging
+            cd /var/www/germany-assist-backend-staging
             git reset --hard
             git pull origin development
             npm install 
