@@ -34,7 +34,8 @@ jobs:
           script: |
             cd /var/www/germany-assist-backend-staging || mkdir -p /var/www/germany-assist-backend-staging
             cd /var/www/germany-assist-backend-staging
-            git reset --hard
-            git pull origin development
+            git fetch origin
+            git checkout development
+            git reset --hard origin/development
             npm install 
             pm2 restart ecosystem.config.cjs || pm2 start ecosystem.config.cjs
